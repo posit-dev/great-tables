@@ -4,12 +4,13 @@ In [Styling the Table Body](styling-the-table-body.md), we discussed styling tab
 
 Whole-table styling is valuable when you want to establish visual hierarchy or brand consistency across the table. For example, giving the header a distinct background separates it from the data, while styling the stub helps readers distinguish identifiers from values. This kind of structural styling works well alongside the cell-level techniques covered on the previous page.
 
-## All locations example
+## All Locations Example
 
-Below is a comprehensive example that shows all possible `loc` specifiers being used. Each table part receives a distinct background color so you can see exactly which region each specifier targets.
+Below is a comprehensive example that shows most of the `loc` specifiers being used (the [Location Selection](location-selection.md) page lists them all). Each table part receives a distinct background color so you can see exactly which region each specifier targets.
 
 ``` python
-from great_tables import GT, exibble, loc, style
+import polars as pl
+from great_tables import GT, data, loc, style
 
 # https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and grey
 brewer_colors = [
@@ -30,20 +31,19 @@ brewer_colors = [
 
 c = iter(brewer_colors)
 
-gt = (
-    GT(exibble.loc[[0, 1, 4], ["num", "char", "fctr", "row", "group"]])
+gt_tbl = (
+    GT(data.pl.exibble[[0, 1, 4]].select("num", "char", "fctr", "row", "group"))
     .tab_header("title", "subtitle")
     .tab_stub(rowname_col="row", groupname_col="group")
     .tab_source_note("yo")
     .tab_spanner("spanner", ["char", "fctr"])
     .tab_stubhead("stubhead")
-    .grand_summary_rows(fns={"Total": lambda x: x.sum(numeric_only=True)})
+    .grand_summary_rows(fns={"Total": pl.col("num").sum()})
 )
 
 (
-    gt.tab_style(style.fill(next(c)), loc.body())
+    gt_tbl.tab_style(style.fill(next(c)), loc.body())
     # Columns -----------
-    # TODO: appears in browser, but not vs code
     .tab_style(style.fill(next(c)), loc.column_labels(columns="num"))
     .tab_style(style.fill(next(c)), loc.column_header())
     .tab_style(style.fill(next(c)), loc.spanner_labels(ids=["spanner"]))
@@ -87,7 +87,7 @@ This comprehensive example is useful as a reference, but in practice you would s
 The table body is styled using [loc.body()](../reference/loc.body.md#great_tables.loc.body), which targets all data cells at once.
 
 ``` python
-gt.tab_style(style.fill("yellow"), loc.body())
+gt_tbl.tab_style(style.fill("yellow"), loc.body())
 ```
 
 | title    |           |         |      |
@@ -105,13 +105,13 @@ gt.tab_style(style.fill("yellow"), loc.body())
 
 The yellow fill is applied to every data cell in the table body, leaving headers, stubs, and footers unchanged.
 
-## Column labels
+## Column Labels
 
 Column labels can be styled broadly with [loc.column_header()](../reference/loc.column_header.md#great_tables.loc.column_header), or you can target individual column labels and spanner labels separately for more precise control.
 
 ``` python
 (
-    gt
+    gt_tbl
     .tab_style(style.fill("yellow"), loc.column_header())
     .tab_style(style.fill("blue"), loc.column_labels(columns="num"))
     .tab_style(style.fill("red"), loc.spanner_labels(ids=["spanner"]))
@@ -139,7 +139,7 @@ The header area includes both the title and subtitle. You can style the entire h
 
 ``` python
 (
-    gt.tab_style(style.fill("yellow"), loc.header())
+    gt_tbl.tab_style(style.fill("yellow"), loc.header())
     .tab_style(style.fill("blue"), loc.title())
     .tab_style(style.fill("red"), loc.subtitle())
 )
@@ -166,7 +166,7 @@ The footer contains source notes and can be styled as a whole with [loc.footer()
 
 ``` python
 (
-    gt.tab_style(
+    gt_tbl.tab_style(
         style.fill("yellow"),
         loc.source_notes(),
     ).tab_style(
@@ -197,7 +197,7 @@ The stub region includes row labels and row group labels. You can style these el
 
 ``` python
 (
-    gt.tab_style(style.fill("yellow"), loc.stub())
+    gt_tbl.tab_style(style.fill("yellow"), loc.stub())
     .tab_style(style.fill("blue"), loc.row_groups())
     .tab_style(
         style.borders(style="dashed", weight="3px", color="red"),
@@ -226,7 +226,7 @@ The stub fills yellow, row group labels turn blue, and a dashed red border highl
 The stubhead label sits above the stub column and can be styled with [loc.stubhead()](../reference/loc.stubhead.md#great_tables.loc.stubhead).
 
 ``` python
-gt.tab_style(style.fill("yellow"), loc.stubhead())
+gt_tbl.tab_style(style.fill("yellow"), loc.stubhead())
 ```
 
 | title    |           |         |      |
@@ -250,7 +250,7 @@ Grand summary rows appear at the bottom of the table. You can style the summary 
 
 ``` python
 (
-    gt.tab_style(
+    gt_tbl.tab_style(
         style.fill("yellow"),
         loc.grand_summary_stub(),
     ).tab_style(

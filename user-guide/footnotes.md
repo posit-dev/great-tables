@@ -9,10 +9,11 @@ Footnotes are best suited for cell-specific or column-specific context that woul
 Adding a footnote requires two things: the footnote text and a location specifier indicating where the footnote mark should appear. The [tab_footnote()](../reference/GT.tab_footnote.md#great_tables.GT.tab_footnote) method handles both, placing the mark at the targeted location and appending the text to the footer.
 
 ``` python
-from great_tables import GT, md, loc
-from great_tables.data import gibraltar
+from great_tables import GT, data, loc, md
 
-weather_mini = gibraltar.head(5)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
+weather_mini = data.pl.gibraltar.head(5).select(
+    "date", "time", "temp", "humidity", "wind_speed", "pressure"
+)
 
 (
     GT(weather_mini)
@@ -212,6 +213,40 @@ The `placement=` argument determines where the footnote mark appears relative to
 | 1 Wind speed in meters per second. |       |      |          |              |          |
 
 With `placement="left"`, the footnote mark appears before the cell text rather than after it.
+
+## Choosing the Footnote Marks
+
+Footnote marks are numbers by default, but the [opt_footnote_marks()](../reference/GT.opt_footnote_marks.md#great_tables.GT.opt_footnote_marks) method can switch them to another set. The keywords `"numbers"`, `"letters"`, `"LETTERS"`, `"standard"`, and `"extended"` are available (the last two use traditional symbols like \*, †, and ‡), or you can pass a list of your own marks.
+
+``` python
+(
+    GT(weather_mini)
+    .tab_header(title="Weather at Gibraltar Airport", subtitle="Observations on May 1, 2023")
+    .tab_footnote(
+        footnote="Air temperature in degrees Celsius.",
+        locations=loc.column_labels(columns="temp")
+    )
+    .tab_footnote(
+        footnote="Atmospheric pressure in hectopascals.",
+        locations=loc.column_labels(columns="pressure")
+    )
+    .opt_footnote_marks(marks="standard")
+)
+```
+
+| Weather at Gibraltar Airport |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Observations on May 1, 2023 |  |  |  |  |  |
+| date | time | temp\* | humidity | wind_speed | pressure† |
+| 2023-05-01 | 00:20 | 18.9 | 0.68 | 6.7 | 1015.2 |
+| 2023-05-01 | 00:50 | 18.9 | 0.73 | 7.2 | 1015.2 |
+| 2023-05-01 | 01:20 | 17.8 | 0.77 | 6.7 | 1014.6 |
+| 2023-05-01 | 01:50 | 18.9 | 0.73 | 6.7 | 1014.6 |
+| 2023-05-01 | 02:20 | 18.9 | 0.68 | 6.7 | 1014.6 |
+| \* Air temperature in degrees Celsius. |  |  |  |  |  |
+| † Atmospheric pressure in hectopascals. |  |  |  |  |  |
+
+The ordering of marked and markless footnotes in the footer can be changed with [opt_footnote_order()](../reference/GT.opt_footnote_order.md#great_tables.GT.opt_footnote_order), and the styling of the marks themselves (e.g., superscripts or parentheses) with [opt_footnote_spec()](../reference/GT.opt_footnote_spec.md#great_tables.GT.opt_footnote_spec).
 
 ## Using Markdown in Footnotes
 

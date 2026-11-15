@@ -17,10 +17,9 @@ The simplest approach is just a list of strings with the exact column names. How
 - a function that takes a string and returns `True` or `False`.
 
 ``` python
-from great_tables import GT
-from great_tables.data import exibble
+from great_tables import GT, data
 
-lil_exibble = exibble[["num", "char", "fctr", "date", "time"]].head(4)
+lil_exibble = data.pl.exibble.select("num", "char", "fctr", "date", "time").head(4)
 gt_ex = GT(lil_exibble)
 
 gt_ex
@@ -35,7 +34,7 @@ gt_ex
 
 This five-column table will serve as the basis for demonstrating each selection approach.
 
-## Using integers
+## Using Strings and Integers
 
 We can use a list of strings or integers to select columns by name or position, respectively.
 
@@ -56,19 +55,16 @@ Note the code above moved the following columns:
 - The integer `1` matched the second column (this is similar to list indexing).
 - The integer `-1` matched the last column.
 
-Moreover, the order of the list defines the order of selected columns. In this case, `"data"` was the first entry, so it's the very first column in the new table.
+Moreover, the order of the list defines the order of selected columns. In this case, `"date"` was the first entry, so it's the very first column in the new table.
 
-## Using **Polars** selectors
+## Using **Polars** Selectors
 
-When using a **Polars** DataFrame, you can select columns using [**Polars** selectors](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html). The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
+When using a **Polars** DataFrame, you can select columns using [**Polars** selectors](https://docs.pola.rs/api/python/stable/reference/selectors.html). The example below uses **Polars** selectors to move all columns that start with `"c"` or `"f"` to the start of the table.
 
 ``` python
-import polars as pl
 import polars.selectors as cs
 
-pl_df = pl.from_pandas(lil_exibble)
-
-GT(pl_df).cols_move_to_start(columns=cs.starts_with("c") | cs.starts_with("f"))
+gt_ex.cols_move_to_start(columns=cs.starts_with("c") | cs.starts_with("f"))
 ```
 
 | char    | fctr  | num    | date       | time  |
@@ -81,14 +77,14 @@ GT(pl_df).cols_move_to_start(columns=cs.starts_with("c") | cs.starts_with("f"))
 In general, selection should match the behaviors of the **Polars** `DataFrame.select()` method.
 
 ``` python
-pl_df.select(cs.starts_with("c") | cs.starts_with("f")).columns
+lil_exibble.select(cs.starts_with("c") | cs.starts_with("f")).columns
 ```
 
     ['char', 'fctr']
 
-See the [Selectors page in the polars docs](https://pola-rs.github.io/polars/py-polars/html/reference/selectors.html) for more information on this.
+See the [Selectors page in the Polars docs](https://docs.pola.rs/api/python/stable/reference/selectors.html) for more information on this.
 
-## Using functions
+## Using Functions
 
 A function can be used to select columns. It should take a column name as a string and return `True` or `False`.
 

@@ -2,7 +2,9 @@
 
 The **Great Tables** package is all about making it simple to produce nice-looking display tables. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you'd find in a web page, a journal article, or in a magazine. Such tables can likewise be called presentation tables, summary tables, or just tables really. Here are some examples, ripped straight from the web:
 
-![](../assets/tables_from_the_web.png)
+![A collage of display tables taken from web pages, articles, and magazines.](../assets/tables_from_the_web.png)
+
+A collage of display tables taken from web pages, articles, and magazines.
 
 Display tables exist because raw DataFrames are working artifacts, not communication tools. When you share findings with colleagues, stakeholders, or readers, the formatting of your table directly affects how well your message lands. Good structure and styling reduce cognitive load, draw attention to what matters, and help your audience reach the right conclusions faster. A well-built table is an act of respect for your reader's time.
 
@@ -20,24 +22,21 @@ Once installed, you are ready to build your first table.
 
 ## A Basic Table using **Great Tables**
 
-> **Note**
->
-> The example below requires the Pandas library to be installed. But Pandas is not required to use Great Tables. You can also use a Polars DataFrame.
-
 Let's use a subset of the [countrypops](../reference/data.countrypops.md#great_tables.data.countrypops) dataset available within `great_tables.data`, keeping the ten most populous countries in 2022:
 
 ``` python
-from great_tables import GT, md, html
-from great_tables.data import countrypops
+import polars as pl
+from great_tables import GT, data
 
 countries_mini = (
-    countrypops[countrypops["year"] == 2022]
-    .sort_values("population", ascending=False)
-    .head(10)[["country_name", "population"]]
+    data.pl.countrypops.filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .head(10)
+    .select("country_name", "population")
 )
 ```
 
-The `countries_mini` data is a simple **Pandas** DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the **Great Tables** API is the [GT](../reference/GT.md#great_tables.GT) class. Let's use that to make a presentable table:
+The `countries_mini` data is a simple **Polars** DataFrame with 2 columns and that'll serve as a great start. Speaking of which, the main entry point into the **Great Tables** API is the [GT](../reference/GT.md#great_tables.GT) class. Let's use that to make a presentable table:
 
 ``` python
 # Create a display table showing the ten most populous countries
@@ -60,28 +59,24 @@ gt_tbl
 | Russian Federation | 143555736  |
 | Mexico             | 127504125  |
 
-That doesn't look too bad! Sure, it's basic but we really didn't really ask for much. We did receive a proper table with column labels and the data. Even this minimal output is an improvement over a raw DataFrame: you get proper HTML rendering, consistent spacing, and a clean visual structure that works in notebooks, reports, and web pages alike. But the real power of Great Tables comes from layering on the structural components described next.
-
-Oftentimes however, you'll want a bit more: a **Table header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
+That doesn't look too bad! Sure, it's basic but we really didn't ask for much. We did receive a proper table with column labels and the data. Even this minimal output is an improvement over a raw DataFrame: you get proper HTML rendering, consistent spacing, and a clean visual structure that works in notebooks, reports, and web pages alike. But the real power of Great Tables comes from layering on the structural components described next. Oftentimes, you'll want a bit more: a **Table Header**, a **Stub**, and sometimes *source notes* in the **Table Footer** component.
 
 > **Note**
 >
-> Typically we use Great Tables in an notebook environment or within a Quarto document. Tables won't print to the console, but using the [show()](../reference/GT.show.md#great_tables.GT.show) method on a table object while in the console will open the HTML table in your default browser.
+> Typically we use Great Tables in a notebook environment or within a Quarto document. Tables won't print to the console, but using the [show()](../reference/GT.show.md#great_tables.GT.show) method on a table object while in the console will open the HTML table in your default browser.
 
-## **Polars** DataFrame support
+## **Polars**, **Pandas**, and **PyArrow** support
 
-[GT](../reference/GT.md#great_tables.GT) accepts both **Pandas** and **Polars** DataFrames. You can pass a **Polars** DataFrame to [GT](../reference/GT.md#great_tables.GT), or use its `DataFrame.style` property. Supporting both backends matters because teams often have mixed workflows, and you shouldn't have to rewrite your table code just because a project uses a different DataFrame library.
+[GT](../reference/GT.md#great_tables.GT) accepts **Polars** and **Pandas** DataFrames, as well as **PyArrow** tables, and none of these libraries is a hard requirement: install whichever one you already use. Supporting several backends matters because teams often have mixed workflows, and you shouldn't have to rewrite your table code just because a project uses a different DataFrame library. This User Guide mostly uses **Polars**, but the table-building code is the same whichever DataFrame you start from.
+
+A **Polars** DataFrame can also be turned into a table through its `DataFrame.style` property:
 
 ``` python
-import polars as pl
-
-df_polars = pl.from_pandas(countries_mini)
-
 # Approach 1: call GT ----
-GT(df_polars)
+GT(countries_mini)
 
 # Approach 2: Polars style property ----
-df_polars.style
+countries_mini.style
 ```
 
 | country_name       | population |
@@ -106,13 +101,14 @@ df_polars.style
 In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.
 
 ``` python
-from great_tables import GT, md, html
-from great_tables.data import countrypops
+import polars as pl
+from great_tables import GT, data, md
 
 countries_mini = (
-    countrypops[countrypops["year"] == 2022]
-    .sort_values("population", ascending=False)
-    .head(10)[["country_name", "population"]]
+    data.pl.countrypops.filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .head(10)
+    .select("country_name", "population")
 )
 
 (
@@ -150,10 +146,11 @@ countries_mini = (
 | Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL). |  |
 
 ``` python
-from great_tables import GT, html
-from great_tables.data import gibraltar
+from great_tables import GT, data, html
 
-gibraltar_m = gibraltar.head(10)[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
+gibraltar_m = data.pl.gibraltar.head(10).select(
+    "date", "time", "temp", "humidity", "wind_speed", "pressure"
+)
 
 gt_gibraltar = (
     GT(gibraltar_m)
@@ -189,7 +186,9 @@ The **Great Tables** package makes it relatively easy to add components so that 
 
 This is the way the main parts of a table (and their subparts) fit together:
 
-![](../assets/gt_parts_of_a_table.svg)
+![A diagram of the parts of a table: the Table Header, the Stub and Stub Head, the Column Labels, the Table Body, and the Table Footer.](../assets/gt_parts_of_a_table.svg)
+
+A diagram of the parts of a table: the Table Header, the Stub and Stub Head, the Column Labels, the Table Body, and the Table Footer.
 
 The following list describes each major component of a **Great Tables** output, ordered from top to bottom:
 

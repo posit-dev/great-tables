@@ -1,6 +1,6 @@
 # More Formatting Options
 
-The [Formatting Values](formatting-values.md) page introduced the basics of [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number), [fmt_currency()](../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency), [fmt_date()](../reference/GT.fmt_date.md#great_tables.GT.fmt_date), and [fmt_time()](../reference/GT.fmt_time.md#great_tables.GT.fmt_time). But **Great Tables** has a much larger formatting toolkit. This page covers additional formatters that handle percentages, byte sizes, durations, scientific units, icons, flags, images, boolean values, Markdown, and more. Each formatter transforms raw cell data into presentation-ready content.
+The [Formatting Values](formatting-values.md) page introduced the basics of [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number), [fmt_currency()](../reference/GT.fmt_currency.md#great_tables.GT.fmt_currency), [fmt_date()](../reference/GT.fmt_date.md#great_tables.GT.fmt_date), and [fmt_time()](../reference/GT.fmt_time.md#great_tables.GT.fmt_time). But **Great Tables** has a much larger formatting toolkit. This page covers additional formatters that handle percentages, fractions, byte sizes, date-times, durations, scientific units, chemical formulas, icons, flags, images, boolean values, Markdown, and more. Each formatter transforms raw cell data into presentation-ready content.
 
 When choosing a formatter, start with the semantic meaning of your data. If a column represents a file size, reach for [fmt_bytes()](../reference/GT.fmt_bytes.md#great_tables.GT.fmt_bytes) rather than [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number) with manual suffix logic. If a column holds time durations, use [fmt_duration()](../reference/GT.fmt_duration.md#great_tables.GT.fmt_duration) instead of formatting seconds by hand. Semantic formatters produce more consistent output and handle edge cases (like unit boundaries and scaling) automatically, so you get correct results without writing extra logic.
 
@@ -32,6 +32,31 @@ pct_df = pl.DataFrame({
 | Click-through   | 15.8%      | 15.8%       |
 
 Both columns display correctly as percentages, but the `proportion` column needed scaling (the default behavior) while `already_pct` did not.
+
+## Fraction Formatting
+
+The [fmt_fraction()](../reference/GT.fmt_fraction.md#great_tables.GT.fmt_fraction) method shows decimal values as mixed fractions. This suits quantities that are conventionally given as fractions, like recipe amounts or measurements in inches.
+
+``` python
+fraction_df = pl.DataFrame({
+    "ingredient": ["Flour", "Sugar", "Butter", "Vanilla"],
+    "cups": [2.25, 0.75, 0.5, 0.0625],
+})
+
+(
+    GT(fraction_df, rowname_col="ingredient")
+    .fmt_fraction(columns="cups", accuracy=16)
+)
+```
+
+|         | cups  |
+|---------|-------|
+| Flour   | 2 1/4 |
+| Sugar   | 3/4   |
+| Butter  | 1/2   |
+| Vanilla | 1/16  |
+
+The `accuracy=` argument sets the largest allowed denominator (here `16`). It can also be one of the keywords `"low"` (the default, for denominators up to 9), `"med"` (up to 99), or `"high"` (up to 999). Set `layout="diagonal"` to typeset the fractions with a diagonal bar instead of a slash.
 
 ## Byte Size Formatting
 
@@ -76,6 +101,36 @@ With the binary standard, the same byte values display in KiB, MiB, and GiB unit
 
 As a rule of thumb, use decimal units (kB, MB, GB) for storage marketed to consumers (disk drives, cloud storage quotas, and network transfer speeds all use powers of 1000). Use binary units (KiB, MiB, GiB) for memory and technical contexts where powers of 1024 are precise, such as RAM capacity, cache sizes, and buffer allocations. Picking the right standard avoids confusing your readers with numbers that don't match what they see elsewhere.
 
+## Date-Time Formatting
+
+The [fmt_date()](../reference/GT.fmt_date.md#great_tables.GT.fmt_date) and [fmt_time()](../reference/GT.fmt_time.md#great_tables.GT.fmt_time) methods covered earlier each handle half of a timestamp. For values holding both a date and a time, [fmt_datetime()](../reference/GT.fmt_datetime.md#great_tables.GT.fmt_datetime) takes a `date_style=` and a `time_style=` together and joins the two parts with `sep=`.
+
+``` python
+from datetime import datetime
+
+datetime_df = pl.DataFrame({
+    "event": ["Doors open", "Keynote", "Reception"],
+    "starts": [
+        datetime(2024, 9, 16, 8, 30),
+        datetime(2024, 9, 16, 9, 15),
+        datetime(2024, 9, 17, 18, 0),
+    ],
+})
+
+(
+    GT(datetime_df, rowname_col="event")
+    .fmt_datetime(columns="starts", date_style="wd_m_day_year", time_style="h_m_p")
+)
+```
+
+|            | starts                    |
+|------------|---------------------------|
+| Doors open | Mon, Sep 16, 2024 8:30 AM |
+| Keynote    | Mon, Sep 16, 2024 9:15 AM |
+| Reception  | Tue, Sep 17, 2024 6:00 PM |
+
+The style keywords are the same ones used by [fmt_date()](../reference/GT.fmt_date.md#great_tables.GT.fmt_date) and [fmt_time()](../reference/GT.fmt_time.md#great_tables.GT.fmt_time), so a table that mixes date, time, and date-time columns can present them consistently.
+
 ## Duration Formatting
 
 The [fmt_duration()](../reference/GT.fmt_duration.md#great_tables.GT.fmt_duration) method formats numeric values (or `timedelta` objects) as styled time duration strings. You specify the input unit and the method handles the conversion and display.
@@ -83,7 +138,7 @@ The [fmt_duration()](../reference/GT.fmt_duration.md#great_tables.GT.fmt_duratio
 ``` python
 duration_df = pl.DataFrame({
     "event": ["Sprint", "Marathon", "Triathlon", "Ultra"],
-    "seconds": [58, 7380, 21600, 172800],
+    "seconds": [58, 7_380, 21_900, 187_265],
 })
 
 (
@@ -92,12 +147,12 @@ duration_df = pl.DataFrame({
 )
 ```
 
-|           | seconds |
-|-----------|---------|
-| Sprint    | 58s     |
-| Marathon  | 2h 3m   |
-| Triathlon | 6h      |
-| Ultra     | 2d      |
+|           | seconds     |
+|-----------|-------------|
+| Sprint    | 58s         |
+| Marathon  | 2h 3m       |
+| Triathlon | 6h 5m       |
+| Ultra     | 2d 4h 1m 5s |
 
 The `duration_style=` argument controls the output format. The available styles are:
 
@@ -113,12 +168,12 @@ The `duration_style=` argument controls the output format. The available styles 
 )
 ```
 
-|           | seconds           |
-|-----------|-------------------|
-| Sprint    | 58 seconds        |
-| Marathon  | 2 hours 3 minutes |
-| Triathlon | 6 hours           |
-| Ultra     | 2 days            |
+|           | seconds                           |
+|-----------|-----------------------------------|
+| Sprint    | 58 seconds                        |
+| Marathon  | 2 hours 3 minutes                 |
+| Triathlon | 6 hours 5 minutes                 |
+| Ultra     | 2 days 4 hours 1 minute 5 seconds |
 
 You can limit the number of output units with `max_output_units=` to keep the display concise.
 
@@ -133,10 +188,10 @@ You can limit the number of output units with `max_output_units=` to keep the di
 |-----------|---------|
 | Sprint    | 58s     |
 | Marathon  | 2h 3m   |
-| Triathlon | 6h      |
-| Ultra     | 2d      |
+| Triathlon | 6h 5m   |
+| Ultra     | 2d 4h   |
 
-Limiting the output to two units (e.g., `"2d 3h"` instead of `"2d 3h 15m"`) keeps the display compact when exact precision is not required.
+Limiting the output to two units (e.g., `"2d 4h"` instead of `"2d 4h 1m 5s"`) keeps the display compact when exact precision is not required.
 
 ## Engineering Notation
 
@@ -161,9 +216,29 @@ eng_df = pl.DataFrame({
 | Frequency   | 2.40 × 10⁹    |
 | Power       | 3.50 × 10⁻³   |
 
-Each value is expressed with a mantissa between 1 and 999 and an exponent that is a multiple of 3. This makes it straightforward to mentally convert to SI prefixes (e.g., `4.7 x 10^3` = 4.7 kilo).
+Each value is expressed with a mantissa between 1 and 999 and an exponent that is a multiple of 3. This makes it straightforward to mentally convert to SI prefixes (e.g., 4.70 × 10³ is 4.7 kilo).
 
 Engineering notation is preferred over scientific notation when your audience thinks in terms of SI prefixes. Because the exponent is always a multiple of 3, values map directly to familiar units: kilohms, microfarads, gigahertz, milliwatts, and so on. Readers can interpret the numbers without mental conversion. If your data spans a wide range of magnitudes in a technical domain, engineering notation is almost always the better choice.
+
+To go one step further and write the SI prefix itself, use [fmt_number_si()](../reference/GT.fmt_number_si.md#great_tables.GT.fmt_number_si). It picks the prefix from the size of each value and can append a unit with `unit=`.
+
+``` python
+power_df = pl.DataFrame({
+    "device": ["Sensor", "Laptop", "Power plant"],
+    "power": [0.0035, 65.0, 2_400_000_000.0],
+})
+
+(
+    GT(power_df, rowname_col="device")
+    .fmt_number_si(columns="power", unit="W")
+)
+```
+
+|             | power   |
+|-------------|---------|
+| Sensor      | 3.50 mW |
+| Laptop      | 65.00 W |
+| Power plant | 2.40 GW |
 
 ## Parts-Per Formatting
 
@@ -214,6 +289,22 @@ roman_df = pl.DataFrame({
 
 The `case=` argument accepts `"upper"` (the default, producing `"I"`, `"II"`, `"III"`) or `"lower"` (producing `"i"`, `"ii"`, `"iii"`).
 
+A close relative is [fmt_index()](../reference/GT.fmt_index.md#great_tables.GT.fmt_index), which turns integers into letters (`1` becomes `"A"`, `2` becomes `"B"`, and so on), with the same `case=` argument. This is handy for labeling items in outlines or multiple-choice options.
+
+``` python
+(
+    GT(roman_df, rowname_col="event")
+    .fmt_index(columns="order", case="lower")
+)
+```
+
+|          | order |
+|----------|-------|
+| Opening  | a     |
+| Keynote  | b     |
+| Workshop | c     |
+| Closing  | d     |
+
 ## Scientific Units
 
 The [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method renders measurement units with proper subscripts, superscripts, and special symbols. It uses a concise notation syntax where `^` indicates superscripts, `_` indicates subscripts, and special names are referenced with colons.
@@ -221,7 +312,7 @@ The [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method
 ``` python
 units_df = pl.DataFrame({
     "quantity": ["Speed of light", "Boltzmann constant", "Planck constant", "Acceleration"],
-    "units": ["m/s", "J Hz^-1", "kg m^2 s^-1", "m s^-2"],
+    "units": ["m/s", "J K^-1", "kg m^2 s^-1", "m s^-2"],
 })
 
 (
@@ -233,11 +324,34 @@ units_df = pl.DataFrame({
 |                    | units     |
 |--------------------|-----------|
 | Speed of light     | m/s       |
-| Boltzmann constant | J Hz⁻¹    |
+| Boltzmann constant | J K⁻¹     |
 | Planck constant    | kg m² s⁻¹ |
 | Acceleration       | m s⁻²     |
 
 The units notation supports Greek letters (`:alpha:`, `:beta:`, `:sigma:`), chemical formulas in percent delimiters (`%H2O%`), and combined subscripts and superscripts (`t_i^2`).
+
+## Chemical Formulas
+
+For columns that hold chemical formulas or reactions, [fmt_chem()](../reference/GT.fmt_chem.md#great_tables.GT.fmt_chem) sets the subscripts, charges, and reaction arrows. Element counts become subscripts, and charges (a terminating `+` or `-`, or a numbered charge like `^2-`) become superscripts.
+
+``` python
+chem_df = pl.DataFrame({
+    "name": ["Water", "Sulfate ion", "Hydroxide ion", "Photosynthesis"],
+    "formula": ["H2O", "SO4^2-", "OH-", "6 CO2 + 6 H2O -> C6H12O6 + 6 O2"],
+})
+
+(
+    GT(chem_df, rowname_col="name")
+    .fmt_chem(columns="formula")
+)
+```
+
+|                | formula                        |
+|----------------|--------------------------------|
+| Water          | H₂O                            |
+| Sulfate ion    | SO₄²⁻                          |
+| Hydroxide ion  | OH⁻                            |
+| Photosynthesis | 6 CO₂ + 6 H₂O → C₆H₁₂O₆ + 6 O₂ |
 
 ## True/False Formatting
 
@@ -399,11 +513,37 @@ img_df = pl.DataFrame({
 (
     GT(img_df, rowname_col="planet")
     .fmt_image(columns="image_file", path="images/", height="40px")
-    .fmt_number(columns="diameter_km", use_seps=True)
+    .fmt_number(columns="diameter_km", decimals=0)
 )
 ```
 
 The `path=` argument provides a common prefix for all file references, and `height=`/`width=` control the rendered dimensions. When `encode=True` (the default), local image files are base64-encoded directly into the HTML output, making the table self-contained.
+
+## Aligning on the Decimal Mark
+
+Formatting with a fixed number of decimal places lines up the decimal marks in a column. When values have varying numbers of decimal places (e.g., after `drop_trailing_zeros=True`), the [cols_align_decimal()](../reference/GT.cols_align_decimal.md#great_tables.GT.cols_align_decimal) method pads the formatted values with figure spaces so that the decimal marks still line up.
+
+``` python
+measure_df = pl.DataFrame({
+    "sample": ["A", "B", "C", "D"],
+    "reading": [1.5, 10.25, 100.0, 0.125],
+})
+
+(
+    GT(measure_df, rowname_col="sample")
+    .fmt_number(columns="reading", decimals=3, drop_trailing_zeros=True)
+    .cols_align_decimal(columns="reading")
+)
+```
+
+|     | reading |
+|-----|---------|
+| A   |   1.5   |
+| B   |  10.25  |
+| C   | 100     |
+| D   |   0.125 |
+
+Because the alignment happens after formatting, it works with the output of any of the `fmt_*()` methods, including values with a `%` or other suffix.
 
 ## Custom Formatting with [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt)
 

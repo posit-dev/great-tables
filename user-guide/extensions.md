@@ -10,11 +10,11 @@ This reflects a deliberate design philosophy: **Great Tables** aims to cover the
 
 ## Writing an Add-on Function
 
-When adding to **Great Tables**, you have three main approaches: *wrapping*, *extending*, and what we might call *composing*. Each takes a different angle on how to build upon the existing functionality:
+When adding to **Great Tables**, you have three main approaches: *wrapping*, what we might call *composing*, and *extending*. Each takes a different angle on how to build upon the existing functionality:
 
-- **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, instead makes specific or complex styling tasks more accessible.
-- **Composing** multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
-- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in methods. This could include processing data outside the package, or generating custom content (like HTML or images), that gets integrated into your table.
+- **Wrapping** is when you simplify existing functionality by bundling common parameter combinations. It doesn't add new capabilities, but instead makes specific or complex styling tasks more accessible.
+- **Composing** is when you combine multiple methods into a single function, allowing you to build more complex table logic or reusable patterns.
+- **Extending**, on the other hand, adds new functionality by adding behavior beyond built-in methods. This could include processing data outside the package, or generating custom content (like HTML or images) that gets integrated into your table.
 
 All approaches are valuable contributions to the **Great Tables** ecosystem, and the choice between them depends on whether you're making it easier to access existing tooling or creating entirely new capabilities.
 
@@ -23,7 +23,10 @@ All approaches are valuable contributions to the **Great Tables** ecosystem, and
 Let's wrap [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) to perform a specific action supported by the general function. [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) takes `locations=` and `style=` parameters, so let's assign those. Something this lightweight might be useful for someone who knows what effect they want, but doesn't want to investigate the entire space of options for styling.
 
 ``` python
-def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
+from great_tables import GT, loc, style
+
+
+def highlight_cols(gt: GT, columns: str | list[str]) -> GT:
     locations = [
         loc.body(columns=columns),
         loc.column_labels(columns=columns),
@@ -36,7 +39,7 @@ def highlight_cols(gt: GT, columns: SelectExpr) -> GT:
     )
 ```
 
-In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is pulled from the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, instead it makes a common action much easier.
+In fact, many of the functions in [**gt-extras**](https://posit-dev.github.io/gt-extras/) are wrappers. What you see above is pulled from the source code for the function [`gt_highlight_cols()`](https://posit-dev.github.io/gt-extras/reference/gt_highlight_cols), which is a wrapper function that doesn't add *new* functionality to **Great Tables**, but instead makes a common action much easier.
 
 ### Composing
 
@@ -45,6 +48,9 @@ A little more complex than wrapping, we can also compose methods to perform seve
 Here's a flavor of the composed methods that **gt-extras** used in the [ESPN theme](https://posit-dev.github.io/gt-extras/reference/gt_theme_espn):
 
 ``` python
+from great_tables import GT, google_font
+
+
 def some_theme(gt: GT) -> GT:
     return (
         gt.opt_all_caps()
@@ -56,29 +62,34 @@ def some_theme(gt: GT) -> GT:
     )
 ```
 
-This is where composing really shines. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) for your own [premade themes](premade-themes.md), with styles from any of the [table theme options](table-theme-options.md) of your choosing.
+This is where composing really shines. Maybe you want a very standardized look, or you want all of your tables to mimic your favorite one. Take advantage of [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) for your own versions of the [premade themes](premade-themes.md), with styles from any of the [table theme options](table-theme-options.md) of your choosing.
 
 ### Extending
 
 Perhaps the most complex, this involves new behavior not supported by **Great Tables** methods alone. Formatting values is a common way to do this:
 
 ``` python
-def fmt_threshold(gt, columns, threshold: float):
+def fmt_threshold(gt: GT, columns: str | list[str], threshold: float) -> GT:
     """Format values to 0 if they are under threshold."""
-    def _truncate(val: float):
+
+    def _truncate(val: float) -> str:
         return "0" if val < threshold else str(val)
 
-    return gt.fmt(_truncate, columns)
+    return gt.fmt(_truncate, columns=columns)
 ```
 
-Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate [GT](../reference/GT.md#great_tables.GT) objects, renders them as HTML using [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html), and then joins them in custom HTML structure, which would not be possible with **Great Tables** methods alone.
+Alternatively, we can extend the post-processing step by building an HTML string containing two side-by-side tables. This function takes two separate [GT](../reference/GT.md#great_tables.GT) objects, renders them as HTML using [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html), and then joins them in a custom HTML structure, which would not be possible with **Great Tables** methods alone.
 
 ``` python
 def double_table(gt1: GT, gt2: GT) -> str:
     table_1_html = gt1.as_raw_html()
     table_2_html = gt2.as_raw_html()
 
-    return f"""<div>{table_1_html}</div><div>{table_2_html}</div>"""
+    return (
+        '<div style="display: flex; gap: 20px;">'
+        f"<div>{table_1_html}</div><div>{table_2_html}</div>"
+        "</div>"
+    )
 ```
 
 Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layout()`](https://posit-dev.github.io/gt-extras/reference/gt_two_column_layout), which does a little more heavy lifting than **Great Tables** itself supports. This time, we're adding new behavior.
@@ -87,7 +98,7 @@ Again, this is a sneak peek of the **gt-extras** function, [`gt_two_column_layou
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some plotting is already built in, called [nanoplots](nanoplots.md). But there are endless plot types you could want in your great tables, and for these [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) is your friend.
 
-When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle the most common cases (line and bar charts) with built-in interactivity and consistent styling that matches your table's look. Reach for custom plot extensions when you need a chart type that nanoplots don't support (scatter plots, pie charts, gauges, heatmap cells) or when you want full control over the rendering using a specific plotting library's aesthetics and capabilities.
+When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle the most common cases (line, bar, and box plots) with built-in interactivity and consistent styling that matches your table's look. Reach for custom plot extensions when you need a chart type that nanoplots don't support (scatter plots, pie charts, gauges, heatmap cells) or when you want full control over the rendering using a specific plotting library's aesthetics and capabilities.
 
 The key to adding custom plots to your tables is using [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) with a function that converts your data values into visual representations. Your formatting function should take a value from your table and return an HTML string containing your plot (whether that's an SVG, a series of styled `<div>` elements, or even embedded images).
 
@@ -97,12 +108,12 @@ Here's a basic pattern for a plot extension:
 def create_my_plot(value):
     # Transform the data value into a visual representation
     # This could use any plotting library or even pure HTML/CSS
-    plot_html = f"<svg>...</svg>"  # Your plot generation logic here
+    plot_html = "<svg>...</svg>"  # Your plot generation logic here
     return plot_html
 
 
 # Apply to your table
-gt.fmt(fns=create_my_plot, columns="my_data_column")
+gt_tbl.fmt(fns=create_my_plot, columns="my_data_column")
 ```
 
 Check out this [blog post](../blog/plots-in-tables/index.md) for a deeper dive into different approaches for creating plots in tables.
@@ -111,19 +122,19 @@ Check out this [blog post](../blog/plots-in-tables/index.md) for a deeper dive i
 
 They say a picture is worth a thousand words. Maybe you want to take [fmt_icon()](../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) and run with it, but with your own custom icon sets or specialized styling needs. For example:
 
-- *Create domain-specific icon mappings:* Automatically map data values to meaningful icons (like status indicators, ratings, or categories)
-- *Apply custom styling:* Add animations, colors, or hover effects to your icons
+- *Create domain-specific icon mappings:* automatically map data values to meaningful icons (like status indicators, ratings, or categories).
+- *Apply custom styling:* add animations, colors, or hover effects to your icons.
 
 Here's an example of how you might create a custom icon extension that maps numerical ratings to star icons:
 
 ``` python
-def fmt_star_rating(filled_stars: int):
+def fmt_star_rating(filled_stars: int) -> str:
     star_html = "★" * filled_stars
     return f'<span style="color: gold; font-size: 18px;">{star_html}</span>'
 
 
 # Apply to your table, again `fmt()` comes in handy!
-gt.fmt(fns=fmt_star_rating, columns="my_data_column")
+gt_tbl.fmt(fns=fmt_star_rating, columns="my_data_column")
 ```
 
 ## Beyond

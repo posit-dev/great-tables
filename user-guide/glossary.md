@@ -1,6 +1,6 @@
 # Glossary
 
-Terms used throughout the Great Tables documentation, listed alphabetically. Where a term has a direct counterpart in the API, the relevant class, method, or module is noted.
+Terms used throughout the **Great Tables** documentation, listed alphabetically. Where a term has a direct counterpart in the API, the relevant class, method, or module is noted.
 
 Body  
 The main data area of the table, consisting of rows and columns of cells that hold the underlying data values (after any formatting or substitution has been applied). The body excludes the **header**, **column header**, **stub**, **footer**, and any **summary rows**. Targetable with [loc.body()](../reference/loc.body.md#great_tables.loc.body).
@@ -36,7 +36,7 @@ Grand summary rows
 Aggregation rows that summarize the entire table's data, regardless of **row groups**. Created with [grand_summary_rows()](../reference/GT.grand_summary_rows.md#great_tables.GT.grand_summary_rows) and placed at the very bottom of the **body** (above the **footer**). Targetable with [loc.grand_summary()](../reference/loc.grand_summary.md#great_tables.loc.grand_summary).
 
 GT object  
-The central object in Great Tables, created by passing a Pandas or Polars DataFrame to [GT()](../reference/GT.md#great_tables.GT). All table-building operations are methods on this object and return a modified copy, enabling method chaining. Optional constructor arguments include `rowname_col` (to create a **stub**), `groupname_col` (to create **row groups**), `locale`, and `id`.
+The central object in **Great Tables**, created by passing a Polars, Pandas, or PyArrow table to [GT()](../reference/GT.md#great_tables.GT). All table-building operations are methods on this object and return a modified copy, enabling method chaining. Optional constructor arguments include `rowname_col` (to create a **stub**), `groupname_col` (to create **row groups**), `locale`, and `id`.
 
 Header  
 The topmost region of the table, positioned above the **column header**. It contains the **title** and optionally a **subtitle**. Set with [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header). Targetable as a whole with [loc.header()](../reference/loc.header.md#great_tables.loc.header).
@@ -54,7 +54,7 @@ Merged columns
 A display technique that combines content from multiple columns into a single column using a pattern string. Created with [cols_merge()](../reference/GT.cols_merge.md#great_tables.GT.cols_merge), where the pattern uses `{0}`, `{1}`, etc. to reference column values (e.g., `"{0} ({1})"`). Conditional removal of content when values are missing is supported via `<<`/`>>` delimiters in the pattern. Convenience variants include [cols_merge_uncert()](../reference/GT.cols_merge_uncert.md#great_tables.GT.cols_merge_uncert), [cols_merge_range()](../reference/GT.cols_merge_range.md#great_tables.GT.cols_merge_range), and [cols_merge_n_pct()](../reference/GT.cols_merge_n_pct.md#great_tables.GT.cols_merge_n_pct).
 
 Nanoplot  
-A tiny inline visualization embedded directly in a table **cell** via [fmt_nanoplot()](../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot). Supports `"line"` and `"bar"` plot types, with optional reference lines, reference areas, and automatic y-axis scaling across rows. Appearance is customized through [nanoplot_options()](../reference/nanoplot_options.md#great_tables.nanoplot_options).
+A tiny inline visualization embedded directly in a table **cell** via [fmt_nanoplot()](../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot). Supports `"line"`, `"bar"`, and `"boxplot"` plot types, with optional reference lines, reference areas, and automatic y-axis scaling across rows. Appearance is customized through [nanoplot_options()](../reference/nanoplot_options.md#great_tables.nanoplot_options).
 
 Preheader  
 Optional content rendered above the table element itself (before the **header**). Set via `tab_header(preheader=...)`. Accepts raw HTML strings and is useful for adding non-tabular content like badges or links that sit outside the table's visual boundaries.
@@ -72,7 +72,7 @@ Spanner label
 A label in the **column header** that spans across multiple contiguous **column labels**, providing a higher-level grouping. Created with [tab_spanner()](../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner) or automatically with [tab_spanner_delim()](../reference/GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim) (which splits column names at a delimiter character). Spanners can be nested to any depth. Targetable with [loc.spanner_labels()](../reference/loc.spanner_labels.md#great_tables.loc.spanner_labels).
 
 Stub  
-A reserved leftmost column of the table that holds row labels, visually set apart from the **body** by a vertical dividing line. Created by passing `rowname_col=` to [GT()](../reference/GT.md#great_tables.GT). The stub provides a way to name rows and is required for features like **row groups** and row-based selection by name. Targetable with [loc.stub()](../reference/loc.stub.md#great_tables.loc.stub). The [stub](../reference/loc.stub.md#great_tables.loc.stub) sentinel object (importable from `great_tables`) can be used in [cols_width()](../reference/GT.cols_width.md#great_tables.GT.cols_width) to set the stub column's width.
+A reserved leftmost column of the table that holds row labels, visually set apart from the **body** by a vertical dividing line. Created by passing `rowname_col=` to [GT()](../reference/GT.md#great_tables.GT). The stub provides a way to name rows and is required for row-based selection by name. Targetable with [loc.stub()](../reference/loc.stub.md#great_tables.loc.stub). The [stub](../reference/loc.stub.md#great_tables.loc.stub) sentinel object (importable from `great_tables`) can be used in [cols_width()](../reference/GT.cols_width.md#great_tables.GT.cols_width) to set the stub column's width.
 
 Stubhead  
 The cell at the top-left corner of the table, at the intersection of the **stub** and the **column header**. It exists only when a **stub** is present and can be labeled with [tab_stubhead()](../reference/GT.tab_stubhead.md#great_tables.GT.tab_stubhead). Targetable with [loc.stubhead()](../reference/loc.stubhead.md#great_tables.loc.stubhead).
@@ -87,7 +87,7 @@ Summary rows
 Aggregation rows placed within each **row group** that summarize that group's data. Created with [summary_rows()](../reference/GT.summary_rows.md#great_tables.GT.summary_rows), which accepts aggregation functions (Polars expressions or callables) and an optional formatter. Can be placed at the top or bottom of each group with the `side=` parameter. Targetable with `loc.summary()`.
 
 Table theme  
-A coordinated set of visual options that control the overall appearance of the table. Great Tables provides 36 premade themes via [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize), combining 6 visual styles with 6 color palettes. Fine-grained control over every aspect of the table's appearance is available through [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options).
+A coordinated set of visual options that control the overall appearance of the table. **Great Tables** provides 36 premade themes via [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize), combining 6 visual styles with 6 color palettes. Fine-grained control over every aspect of the table's appearance is available through [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options).
 
 Title  
 The main heading text displayed at the top of the **header**. Set via `tab_header(title=...)`. Supports [md()](../reference/md.md#great_tables.md) and [html()](../reference/html.md#great_tables.md) formatting. Targetable with [loc.title()](../reference/loc.title.md#great_tables.loc.title).

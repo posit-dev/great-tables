@@ -8,7 +8,7 @@ To clarify the distinction: `fmt_*()` methods work on raw data values *before* t
 
 ``` python
 import polars as pl
-from great_tables import GT, loc, md
+from great_tables import GT, loc
 
 status_df = pl.DataFrame({
     "task": ["Data collection", "Analysis", "Report writing", "Peer review"],
@@ -278,7 +278,7 @@ The `"progress"` column label is converted to uppercase. You can target any comb
 
 ## Combining Text Methods
 
-You can chain multiple text methods together. They are applied in the order specified, each operating on the result of the previous transformation.
+You can chain multiple text methods together. They are applied in the order specified, so when two of them target the same cells, the later one operates on the result of the earlier one. Here, the `status` labels produced by [text_case_match()](../reference/GT.text_case_match.md#great_tables.GT.text_case_match) are then bolded by [text_transform()](../reference/GT.text_transform.md#great_tables.GT.text_transform) whenever they read `"Complete"`.
 
 ``` python
 (
@@ -289,6 +289,10 @@ You can chain multiple text methods together. They are applied in the order spec
         ("NOT_STARTED", "Not Started"),
         locations=loc.body(columns="status")
     )
+    .text_transform(
+        locations=loc.body(columns="status"),
+        fn=lambda text: f"<strong>{text}</strong>" if text == "Complete" else text
+    )
     .text_case_match(
         ("high", "High ●"),
         ("medium", "Medium ●"),
@@ -298,11 +302,11 @@ You can chain multiple text methods together. They are applied in the order spec
 )
 ```
 
-|                 | status      | priority | progress |
-|-----------------|-------------|----------|----------|
-| Data collection | Complete    | High ●   | 100      |
-| Analysis        | In Progress | High ●   | 65       |
-| Report writing  | Not Started | Medium ● | 0        |
-| Peer review     | Complete    | Low ●    | 100      |
+|                 | status       | priority | progress |
+|-----------------|--------------|----------|----------|
+| Data collection | **Complete** | High ●   | 100      |
+| Analysis        | In Progress  | High ●   | 65       |
+| Report writing  | Not Started  | Medium ● | 0        |
+| Peer review     | **Complete** | Low ●    | 100      |
 
 The text transformation methods provide a final layer of control over how your table content appears. Whether you need simple find-and-replace, switch-like mappings, or complex conditional logic, these methods let you shape the text to match your exact presentation needs.

@@ -2,7 +2,7 @@
 
 Tables are read by people using screen readers and other assistive technology as well as by sighted readers. A screen reader announces a data cell together with its headers (e.g., "Germany, GDP, 4.1"), but it can only do that when the table's structure is marked up. **Great Tables** writes that markup into its HTML output for you, following the patterns in the W3C's [Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). This page describes what's covered, what isn't, and what you can do to make your tables easier for everyone to read.
 
-## Row and column headers
+## Row and Column Headers
 
 Every header in a **Great Tables** table is a header cell (`<th>`) with a `scope` that says what it labels:
 
@@ -15,11 +15,10 @@ In tables with spanners or a hierarchical stub, `scope` alone isn't enough to te
 
 ``` python
 import polars as pl
-from great_tables import GT
-from great_tables.data import towny
+from great_tables import GT, data, loc, style
 
 towny_mini = (
-    pl.from_pandas(towny)
+    data.pl.towny
     .filter(pl.col("csd_type").is_in(["city", "town"]))
     .sort("population_2021", descending=True)
     .group_by("csd_type", maintain_order=True)
@@ -51,7 +50,7 @@ gt_tbl
 | Whitby                              | 73,794     | 138,501   |
 | Milton                              | 32,104     | 132,979   |
 
-The first data cell's `headers` attribute refers to the row group heading, the row label, the spanner and the column label above it:
+The first data cell's `headers` attribute refers to the row group heading, the row label, the spanner, and the column label above it:
 
 ``` python
 import re
@@ -64,27 +63,25 @@ print(first_cell.group(0))
 
 There's nothing to set up for any of this. Placing identifying columns in the stub with `rowname_col=` (rather than leaving them as ordinary columns) is what makes them row headers, so do that whenever the first column says what a row is about.
 
-## Naming the table
+## Naming the Table
 
 A table with a title, added with [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header), is named after it: `<table>` refers to the title with `aria-labelledby` (and to the subtitle with `aria-describedby`), so a screen reader announces the title when the reader reaches the table. That's another good reason to give tables a title, even when the surrounding text describes them.
 
 If a page shows several tables, give each one an id with `GT(id=)`. Header ids are then prefixed by the table's id, which keeps them unique across all of the tables on the page.
 
-## Color and contrast
+## Color and Contrast
 
 When [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) fills cells with color, it also picks a text color (light or dark) that contrasts with each fill, using the APCA contrast algorithm by default (`contrast_algo="wcag"` switches to the WCAG 2 formula). Keep `autocolor_text=True` unless you're setting text colors yourself.
 
 Color shouldn't be the only way a table conveys meaning, since some readers can't see it or can't tell certain colors apart. [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) keeps the values visible, so the color reinforces them rather than replacing them. When you highlight cells with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style), pair the color with another cue such as bold text, and prefer palettes that work for color-blind readers, such as the viridis family:
 
 ``` python
-from great_tables import style, loc
-
 (
     gt_tbl
     .data_color(columns="population_2021", palette="cividis")
     .tab_style(
         style=style.text(weight="bold"),
-        locations=loc.body(columns="population_2021", rows=pl.col("population_2021") > 500000),
+        locations=loc.body(columns="population_2021", rows=pl.col("population_2021") > 500_000),
     )
 )
 ```
@@ -102,7 +99,7 @@ from great_tables import style, loc
 | Whitby                              | 73,794     | 138,501   |
 | Milton                              | 32,104     | 132,979   |
 
-## Images, icons, flags and nanoplots
+## Images, Icons, Flags, and Nanoplots
 
 Some cell contents are graphics, which screen readers can't see, so they need a text alternative:
 
@@ -114,8 +111,6 @@ Some cell contents are graphics, which screen readers can't see, so they need a 
 Give images alternative text whenever they carry information, and keep a label beside any icon that means something, since the icon itself isn't announced.
 
 ``` python
-from great_tables import from_column
-
 flags_df = pl.DataFrame(
     {
         "flag": ["CA", "GB", "JP"],
@@ -136,13 +131,13 @@ flags_df = pl.DataFrame(
 | ![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVW5pdGVkIEtpbmdkb20iIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Ym94PSIwIDAgNTEyIDUxMiIgc3R5bGU9InZlcnRpY2FsLWFsaWduOi0wLjEyNWVtO2ltYWdlLXJlbmRlcmluZzpvcHRpbWl6ZVF1YWxpdHk7aGVpZ2h0OjFlbTt3aWR0aDoxZW07Ij48dGl0bGU+VW5pdGVkIEtpbmdkb208L3RpdGxlPjxtYXNrIGlkPSJmbGFnLTEtYSI+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNTYiIGZpbGw9IiNmZmYiPjwvY2lyY2xlPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI2ZsYWctMS1hKSI+PHBhdGggZmlsbD0iI2VlZSIgZD0ibTAgMCA4IDIyLTggMjN2MjNsMzIgNTQtMzIgNTR2MzJsMzIgNDgtMzIgNDh2MzJsMzIgNTQtMzIgNTR2NjhsMjItOCAyMyA4aDIzbDU0LTMyIDU0IDMyaDMybDQ4LTMyIDQ4IDMyaDMybDU0LTMyIDU0IDMyaDY4bC04LTIyIDgtMjN2LTIzbC0zMi01NCAzMi01NHYtMzJsLTMyLTQ4IDMyLTQ4di0zMmwtMzItNTQgMzItNTRWMGwtMjIgOC0yMy04aC0yM2wtNTQgMzItNTQtMzJoLTMybC00OCAzMi00OC0zMmgtMzJsLTU0IDMyTDY4IDBIMHoiIC8+PHBhdGggZmlsbD0iIzAwNTJiNCIgZD0iTTMzNiAwdjEwOEw0NDQgMFptMTc2IDY4TDQwNCAxNzZoMTA4ek0wIDE3NmgxMDhMMCA2OFpNNjggMGwxMDggMTA4VjBabTEwOCA1MTJWNDA0TDY4IDUxMlpNMCA0NDRsMTA4LTEwOEgwWm01MTItMTA4SDQwNGwxMDggMTA4Wm0tNjggMTc2TDMzNiA0MDR2MTA4eiIgLz48cGF0aCBmaWxsPSIjZDgwMDI3IiBkPSJNMCAwdjQ1bDEzMSAxMzFoNDVMMCAwem0yMDggMHYyMDhIMHY5NmgyMDh2MjA4aDk2VjMwNGgyMDh2LTk2SDMwNFYwaC05NnptMjU5IDBMMzM2IDEzMXY0NUw1MTIgMGgtNDV6TTE3NiAzMzYgMCA1MTJoNDVsMTMxLTEzMXYtNDV6bTE2MCAwIDE3NiAxNzZ2LTQ1TDM4MSAzMzZoLTQ1eiIgLz48L2c+PC9zdmc+) | ![](data:image/svg+xml;base64,PHN2ZyBjbGFzcz0iZ3QtbmFub3Bsb3QtODg1NTRjMzEiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVHJlbmQ6IExpbmUgcGxvdCBvZiA1IHZhbHVlcyBmcm9tIDMuMDAgdG8gNi4wMCwgZW5kaW5nIGF0IDMuMDAiIHZpZXdib3g9IjAgMCAzNTAgMTMwIiBzdHlsZT0iaGVpZ2h0OiAyZW07IG1hcmdpbi1sZWZ0OiBhdXRvOyBtYXJnaW4tcmlnaHQ6IGF1dG87IGZvbnQtc2l6ZTogaW5oZXJpdDsgb3ZlcmZsb3c6IHZpc2libGU7IHZlcnRpY2FsLWFsaWduOiBtaWRkbGU7IHBvc2l0aW9uOnJlbGF0aXZlOyI+PGRlZnM+PHBhdHRlcm4gaWQ9InRyZW5kLTEtYXJlYV9wYXR0ZXJuXzQwNTRhMzg5IiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBwYXR0ZXJudW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBjbGFzcz0icGF0dGVybi1saW5lIiBkPSJNIDAsOCBsIDgsLTggTSAtMSwxIGwgNCwtNCBNIDYsMTAgbCA0LC00IiBzdHJva2U9IiNGRjAwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiAvPjwvcGF0dGVybj48L2RlZnM+PHN0eWxlPiAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgdGV4dCB7IGZvbnQtZmFtaWx5OiB1aS1tb25vc3BhY2UsICdDYXNjYWRpYSBDb2RlJywgJ1NvdXJjZSBDb2RlIFBybycsIE1lbmxvLCBDb25zb2xhcywgJ0RlamFWdSBTYW5zIE1vbm8nLCBtb25vc3BhY2U7IHN0cm9rZS13aWR0aDogMC4xNWVtOyBwYWludC1vcmRlcjogc3Ryb2tlOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBjdXJzb3I6IGRlZmF1bHQ7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC52ZXJ0LWxpbmU6aG92ZXIgcmVjdCB7IGZpbGw6ICM5MTFFQjQ7IGZpbGwtb3BhY2l0eTogNDAlOyBzdHJva2U6ICNGRkZGRkY2MDsgY29sb3I6IHJlZDsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnZlcnQtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLmhvcml6b250YWwtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnJlZi1saW5lOmhvdmVyIHJlY3QgeyBzdHJva2U6ICNGRkZGRkY2MDsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnJlZi1saW5lOmhvdmVyIGxpbmUgeyBzdHJva2U6ICNGRjAwMDA7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC5yZWYtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnktYXhpcy1saW5lOmhvdmVyIHJlY3QgeyBmaWxsOiAjRURFREVEOyBmaWxsLW9wYWNpdHk6IDYwJTsgc3Ryb2tlOiAjRkZGRkZGNjA7IGNvbG9yOiByZWQ7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC55LWF4aXMtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgc3Ryb2tlLXdpZHRoOiAwLjIwZW07IGZpbGw6ICMxQTFDMUY7IH0gPC9zdHlsZT48cGF0aCBjbGFzcz0iYXJlYS1jbG9zZWQiIGQ9Ik0gNTAuMCwxNS4wIDExMi41LDQ4LjMzMzMzMzMzMzMzMzMzNiAxNzUuMCw0OC4zMzMzMzMzMzMzMzMzMzYgMjM3LjUsODEuNjY2NjY2NjY2NjY2NjcgMzAwLjAsMTE1LjAgMzAwLjAsMTI1IDUwLjAsMTI1IFoiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0idXJsKCN0cmVuZC0xLWFyZWFfcGF0dGVybl80MDU0YTM4OSkiIGZpbGwtb3BhY2l0eT0iMC43IiAvPjxwYXRoIGQ9Ik0gNTAuMCwxNS4wIEMgNzUuMCwxNS4wIDg3LjUsNDguMzMzMzMzMzMzMzMzMzM2IDExMi41LDQ4LjMzMzMzMzMzMzMzMzMzNiBDIDEzNy41LDQ4LjMzMzMzMzMzMzMzMzMzNiAxNTAuMCw0OC4zMzMzMzMzMzMzMzMzMzYgMTc1LjAsNDguMzMzMzMzMzMzMzMzMzM2IEMgMjAwLjAsNDguMzMzMzMzMzMzMzMzMzM2IDIxMi41LDgxLjY2NjY2NjY2NjY2NjY3IDIzNy41LDgxLjY2NjY2NjY2NjY2NjY3IEMgMjYyLjUsODEuNjY2NjY2NjY2NjY2NjcgMjc1LjAsMTE1LjAgMzAwLjAsMTE1LjAiIHN0cm9rZT0iIzQ2ODJCNCIgc3Ryb2tlLXdpZHRoPSI4IiBmaWxsPSJub25lIiAvPjxjaXJjbGUgY3g9IjUwLjAiIGN5PSIxNS4wIiByPSIxMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9IiNGRjAwMDAiPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjExMi41IiBjeT0iNDguMzMzMzMzMzMzMzMzMzM2IiByPSIxMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9IiNGRjAwMDAiPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjE3NS4wIiBjeT0iNDguMzMzMzMzMzMzMzMzMzM2IiByPSIxMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9IiNGRjAwMDAiPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjIzNy41IiBjeT0iODEuNjY2NjY2NjY2NjY2NjciIHI9IjEwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0iI0ZGMDAwMCI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMzAwLjAiIGN5PSIxMTUuMCIgcj0iMTAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSIjRkYwMDAwIj48L2NpcmNsZT48ZyBjbGFzcz0ieS1heGlzLWxpbmUiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI2NSIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0idHJhbnNwYXJlbnQiIC8+PHRleHQgeD0iMCIgeT0iMTkuMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMjUiPjY8L3RleHQ+PHRleHQgeD0iMCIgeT0iMTI2LjAiIGZpbGw9InRyYW5zcGFyZW50IiBzdHJva2U9InRyYW5zcGFyZW50IiBmb250LXNpemU9IjI1Ij4zPC90ZXh0PjwvZz48ZyBjbGFzcz0idmVydC1saW5lIj48cmVjdCB4PSI0MC4wIiB5PSIwIiB3aWR0aD0iMjAiIGhlaWdodD0iMTMwIiBzdHJva2U9InRyYW5zcGFyZW50IiBzdHJva2Utd2lkdGg9IjEyIiBmaWxsPSJ0cmFuc3BhcmVudCIgLz48dGV4dCB4PSI2MC4wIiB5PSIyMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMzBweCI+NjwvdGV4dD48L2c+PGcgY2xhc3M9InZlcnQtbGluZSI+PHJlY3QgeD0iMTAyLjUiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9InRyYW5zcGFyZW50IiAvPjx0ZXh0IHg9IjEyMi41IiB5PSIyMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMzBweCI+NTwvdGV4dD48L2c+PGcgY2xhc3M9InZlcnQtbGluZSI+PHJlY3QgeD0iMTY1LjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9InRyYW5zcGFyZW50IiAvPjx0ZXh0IHg9IjE4NS4wIiB5PSIyMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMzBweCI+NTwvdGV4dD48L2c+PGcgY2xhc3M9InZlcnQtbGluZSI+PHJlY3QgeD0iMjI3LjUiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9InRyYW5zcGFyZW50IiAvPjx0ZXh0IHg9IjI0Ny41IiB5PSIyMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMzBweCI+NDwvdGV4dD48L2c+PGcgY2xhc3M9InZlcnQtbGluZSI+PHJlY3QgeD0iMjkwLjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9InRyYW5zcGFyZW50IiAvPjx0ZXh0IHg9IjMxMC4wIiB5PSIyMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMzBweCI+MzwvdGV4dD48L2c+PC9zdmc+) |
 | ![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iSmFwYW4iIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Ym94PSIwIDAgNTEyIDUxMiIgc3R5bGU9InZlcnRpY2FsLWFsaWduOi0wLjEyNWVtO2ltYWdlLXJlbmRlcmluZzpvcHRpbWl6ZVF1YWxpdHk7aGVpZ2h0OjFlbTt3aWR0aDoxZW07Ij48dGl0bGU+SmFwYW48L3RpdGxlPjxtYXNrIGlkPSJmbGFnLTItYSI+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNTYiIGZpbGw9IiNmZmYiPjwvY2lyY2xlPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI2ZsYWctMi1hKSI+PHBhdGggZmlsbD0iI2VlZSIgZD0iTTAgMGg1MTJ2NTEySDB6IiAvPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMTExLjMiIGZpbGw9IiNkODAwMjciPjwvY2lyY2xlPjwvZz48L3N2Zz4=) | ![](data:image/svg+xml;base64,PHN2ZyBjbGFzcz0iZ3QtbmFub3Bsb3QtODg1NTRjMzEiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iVHJlbmQ6IExpbmUgcGxvdCBvZiA1IHZhbHVlcyBmcm9tIDIuMDAgdG8gNi4wMCwgZW5kaW5nIGF0IDYuMDAiIHZpZXdib3g9IjAgMCAzNTAgMTMwIiBzdHlsZT0iaGVpZ2h0OiAyZW07IG1hcmdpbi1sZWZ0OiBhdXRvOyBtYXJnaW4tcmlnaHQ6IGF1dG87IGZvbnQtc2l6ZTogaW5oZXJpdDsgb3ZlcmZsb3c6IHZpc2libGU7IHZlcnRpY2FsLWFsaWduOiBtaWRkbGU7IHBvc2l0aW9uOnJlbGF0aXZlOyI+PGRlZnM+PHBhdHRlcm4gaWQ9InRyZW5kLTItYXJlYV9wYXR0ZXJuXzQwNTRhMzg5IiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBwYXR0ZXJudW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBjbGFzcz0icGF0dGVybi1saW5lIiBkPSJNIDAsOCBsIDgsLTggTSAtMSwxIGwgNCwtNCBNIDYsMTAgbCA0LC00IiBzdHJva2U9IiNGRjAwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHNoYXBlLXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiAvPjwvcGF0dGVybj48L2RlZnM+PHN0eWxlPiAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgdGV4dCB7IGZvbnQtZmFtaWx5OiB1aS1tb25vc3BhY2UsICdDYXNjYWRpYSBDb2RlJywgJ1NvdXJjZSBDb2RlIFBybycsIE1lbmxvLCBDb25zb2xhcywgJ0RlamFWdSBTYW5zIE1vbm8nLCBtb25vc3BhY2U7IHN0cm9rZS13aWR0aDogMC4xNWVtOyBwYWludC1vcmRlcjogc3Ryb2tlOyBzdHJva2UtbGluZWpvaW46IHJvdW5kOyBjdXJzb3I6IGRlZmF1bHQ7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC52ZXJ0LWxpbmU6aG92ZXIgcmVjdCB7IGZpbGw6ICM5MTFFQjQ7IGZpbGwtb3BhY2l0eTogNDAlOyBzdHJva2U6ICNGRkZGRkY2MDsgY29sb3I6IHJlZDsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnZlcnQtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLmhvcml6b250YWwtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnJlZi1saW5lOmhvdmVyIHJlY3QgeyBzdHJva2U6ICNGRkZGRkY2MDsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnJlZi1saW5lOmhvdmVyIGxpbmUgeyBzdHJva2U6ICNGRjAwMDA7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC5yZWYtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgZmlsbDogIzIxMjQyNzsgfSAuZ3QtbmFub3Bsb3QtODg1NTRjMzEgLnktYXhpcy1saW5lOmhvdmVyIHJlY3QgeyBmaWxsOiAjRURFREVEOyBmaWxsLW9wYWNpdHk6IDYwJTsgc3Ryb2tlOiAjRkZGRkZGNjA7IGNvbG9yOiByZWQ7IH0gLmd0LW5hbm9wbG90LTg4NTU0YzMxIC55LWF4aXMtbGluZTpob3ZlciB0ZXh0IHsgc3Ryb2tlOiB3aGl0ZTsgc3Ryb2tlLXdpZHRoOiAwLjIwZW07IGZpbGw6ICMxQTFDMUY7IH0gPC9zdHlsZT48cGF0aCBjbGFzcz0iYXJlYS1jbG9zZWQiIGQ9Ik0gNTAuMCwxMTUuMCAxMTIuNSw5MC4wIDE3NS4wLDkwLjAgMjM3LjUsNjUuMCAzMDAuMCwxNS4wIDMwMC4wLDEyNSA1MC4wLDEyNSBaIiBzdHJva2U9InRyYW5zcGFyZW50IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9InVybCgjdHJlbmQtMi1hcmVhX3BhdHRlcm5fNDA1NGEzODkpIiBmaWxsLW9wYWNpdHk9IjAuNyIgLz48cGF0aCBkPSJNIDUwLjAsMTE1LjAgQyA3NS4wLDExNS4wIDg3LjUsOTAuMCAxMTIuNSw5MC4wIEMgMTM3LjUsOTAuMCAxNTAuMCw5MC4wIDE3NS4wLDkwLjAgQyAyMDAuMCw5MC4wIDIxMi41LDY1LjAgMjM3LjUsNjUuMCBDIDI2Mi41LDY1LjAgMjc1LjAsMTUuMCAzMDAuMCwxNS4wIiBzdHJva2U9IiM0NjgyQjQiIHN0cm9rZS13aWR0aD0iOCIgZmlsbD0ibm9uZSIgLz48Y2lyY2xlIGN4PSI1MC4wIiBjeT0iMTE1LjAiIHI9IjEwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0iI0ZGMDAwMCI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMTEyLjUiIGN5PSI5MC4wIiByPSIxMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9IiNGRjAwMDAiPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjE3NS4wIiBjeT0iOTAuMCIgcj0iMTAiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSIjRkYwMDAwIj48L2NpcmNsZT48Y2lyY2xlIGN4PSIyMzcuNSIgY3k9IjY1LjAiIHI9IjEwIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0iI0ZGMDAwMCI+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMzAwLjAiIGN5PSIxNS4wIiByPSIxMCIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9IiNGRjAwMDAiPjwvY2lyY2xlPjxnIGNsYXNzPSJ5LWF4aXMtbGluZSI+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjY1IiBoZWlnaHQ9IjEzMCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgc3Ryb2tlLXdpZHRoPSIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgLz48dGV4dCB4PSIwIiB5PSIxOS4wIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIyNSI+NjwvdGV4dD48dGV4dCB4PSIwIiB5PSIxMjYuMCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZT0idHJhbnNwYXJlbnQiIGZvbnQtc2l6ZT0iMjUiPjI8L3RleHQ+PC9nPjxnIGNsYXNzPSJ2ZXJ0LWxpbmUiPjxyZWN0IHg9IjQwLjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxMzAiIHN0cm9rZT0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMTIiIGZpbGw9InRyYW5zcGFyZW50IiAvPjx0ZXh0IHg9IjYwLjAiIHk9IjIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIzMHB4Ij4yPC90ZXh0PjwvZz48ZyBjbGFzcz0idmVydC1saW5lIj48cmVjdCB4PSIxMDIuNSIgeT0iMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEzMCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgc3Ryb2tlLXdpZHRoPSIxMiIgZmlsbD0idHJhbnNwYXJlbnQiIC8+PHRleHQgeD0iMTIyLjUiIHk9IjIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIzMHB4Ij4zPC90ZXh0PjwvZz48ZyBjbGFzcz0idmVydC1saW5lIj48cmVjdCB4PSIxNjUuMCIgeT0iMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEzMCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgc3Ryb2tlLXdpZHRoPSIxMiIgZmlsbD0idHJhbnNwYXJlbnQiIC8+PHRleHQgeD0iMTg1LjAiIHk9IjIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIzMHB4Ij4zPC90ZXh0PjwvZz48ZyBjbGFzcz0idmVydC1saW5lIj48cmVjdCB4PSIyMjcuNSIgeT0iMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEzMCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgc3Ryb2tlLXdpZHRoPSIxMiIgZmlsbD0idHJhbnNwYXJlbnQiIC8+PHRleHQgeD0iMjQ3LjUiIHk9IjIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIzMHB4Ij40PC90ZXh0PjwvZz48ZyBjbGFzcz0idmVydC1saW5lIj48cmVjdCB4PSIyOTAuMCIgeT0iMCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjEzMCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgc3Ryb2tlLXdpZHRoPSIxMiIgZmlsbD0idHJhbnNwYXJlbnQiIC8+PHRleHQgeD0iMzEwLjAiIHk9IjIwIiBmaWxsPSJ0cmFuc3BhcmVudCIgc3Ryb2tlPSJ0cmFuc3BhcmVudCIgZm9udC1zaXplPSIzMHB4Ij42PC90ZXh0PjwvZz48L3N2Zz4=) |
 
-## Other kinds of output
+## Other Kinds of Output
 
-Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto documents and web pages, and to interactive tables made with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) too: the interactivity is added to the same table markup, so its header, stub, column labels and spanners are kept as they are. Its controls are labelled buttons and inputs that can be used with the keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting, searching, filtering, or turning the page) are announced to screen readers.
+Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto documents, and web pages, and to interactive tables made with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) too: the interactivity is added to the same table markup, so its header, stub, column labels, and spanners are kept as they are. Its controls are labelled buttons and inputs that can be used with the keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting, searching, filtering, or turning the page) are announced to screen readers.
 
 LaTeX output and images saved with [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) have no equivalent markup, so when you place a table image in a document, describe the table in that image's alternative text or in the text around it.
 
-## A short checklist
+## A Short Checklist
 
 - Put the identifying column in the stub (`rowname_col=`), and group rows with `groupname_col=`
 - Give the table a title with [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header)

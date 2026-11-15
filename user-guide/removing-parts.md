@@ -7,10 +7,9 @@ A common workflow where removal shines is when you start with a template or shar
 To have something to remove, let's build up a table that uses several components at once. We'll take a small slice of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset and give it a header, a stubhead label, a spanner, a footnote, and two source notes.
 
 ``` python
-from great_tables import GT, md, loc
-from great_tables.data import gtcars
+from great_tables import GT, data, loc, md
 
-gtcars_mini = gtcars[["model", "mfr", "hp", "trq", "msrp"]].head(5)
+gtcars_mini = data.pl.gtcars.select("model", "mfr", "hp", "trq", "msrp").head(5)
 
 gt_tbl = (
     GT(gtcars_mini, rowname_col="model")
@@ -164,6 +163,6 @@ gt_tbl.rm_spanners(spanners="performance")
 
 Spanners can also be removed by *level* using the `levels=` argument. Levels are numbered starting at `0` for the row of spanners closest to the column labels, increasing as you move upward. This is handy when a table has stacked (nested) spanners and you want to clear an entire tier at once. When both `spanners=` and `levels=` are supplied, only the spanners that match *both* conditions are removed.
 
-The ability to remove by level is especially useful when working with deeply nested spanners (spanners that span other spanners). Rather than tracking individual spanner IDs (which can become unwieldy as the number of spanners grows) you can clear an entire tier at once. For instance, if you have a three-level spanner hierarchy and want to simplify the table down to a single level, two [rm_spanners()](../reference/GT.rm_spanners.md#great_tables.GT.rm_spanners) calls with the appropriate `levels=` values will do the job cleanly.
+The ability to remove by level is especially useful when working with deeply nested spanners (spanners that span other spanners). Rather than tracking individual spanner IDs (which can become unwieldy as the number of spanners grows) you can clear an entire tier at once. For instance, if you have a three-level spanner hierarchy and want to simplify the table down to a single level, a single `rm_spanners(levels=[1, 2])` call will do the job cleanly.
 
 The `rm_*()` methods round out the table-building workflow: the `tab_*()` methods put components in place, and their `rm_*()` counterparts take them back out. Because each returns a [GT](../reference/GT.md#great_tables.GT) object, you can freely mix additions and removals within a single chain, which makes it easy to adapt a table that was created elsewhere to suit your needs.

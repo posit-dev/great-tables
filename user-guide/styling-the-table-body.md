@@ -4,26 +4,26 @@ Visual styling helps draw attention to important values and makes patterns in yo
 
 Targeted styling is most effective when used sparingly to draw attention to specific values (outliers, thresholds, or key comparisons). Overusing color and borders can make a table harder to read rather than easier. A good rule of thumb: if everything is highlighted, nothing is. Start with the most important insight you want the reader to take away, and style just enough to guide their eye there.
 
-**Great Tables** can add styles (like color, text properties, and borders) on many different parts of the displayed table. The following set of examples shows how to set styles on the body of table, where the data cells are located.
+**Great Tables** can add styles (like color, text properties, and borders) on many different parts of the displayed table. The following set of examples shows how to set styles on the body of the table, where the data cells are located.
 
-For the examples on this page, we'll use the included [gibraltar](../reference/data.gibraltar.md#great_tables.data.gibraltar) weather dataset to set up [GT](../reference/GT.md#great_tables.GT) objects for both **Pandas** and **Polars** DataFrames.
+For the examples on this page, we'll use the included [gibraltar](../reference/data.gibraltar.md#great_tables.data.gibraltar) weather dataset (as a **Polars** DataFrame) to set up a [GT](../reference/GT.md#great_tables.GT) object.
 
 ``` python
 import polars as pl
-from great_tables import GT, from_column, style, loc
-from great_tables.data import gibraltar
+from great_tables import GT, data, from_column, loc, style
 
-weather_head = gibraltar.head()[["date", "time", "temp", "humidity", "wind_speed", "pressure"]]
+weather_head = data.pl.gibraltar.head().select(
+    "date", "time", "temp", "humidity", "wind_speed", "pressure"
+)
 
 gt_weather = GT(weather_head)
-gt_pl_weather = GT(pl.from_pandas(weather_head))
 ```
 
 > **Note**
 >
 > When using Great Tables with VS Code, the IDE suppresses some forms of table styling displayed in notebooks. For example, border styles might not appear. Use `.show("browser")` to see the styled GT table in a separate browser window.
 
-## Style basics
+## Style Basics
 
 We use the [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) method in combination with [loc.body()](../reference/loc.body.md#great_tables.loc.body) to set styles on cells of data in the table body. For example, the table-making code below applies a yellow background color to specific cells.
 
@@ -72,7 +72,7 @@ The red dashed border appears above rows 1 and 2, providing a visual separator. 
 
 ### Customizing Text
 
-We can style text with by using the [style.text()](../reference/style.text.md#great_tables.style.text) function. This gives us many customization possibilities for any text we target. For example, the `humidity` column below has green, bolded text in a custom font.
+We can style text by using the [style.text()](../reference/style.text.md#great_tables.style.text) function. This gives us many customization possibilities for any text we target. For example, the `humidity` column below has green, bolded text in a custom font.
 
 ``` python
 gt_weather.tab_style(
@@ -91,7 +91,7 @@ gt_weather.tab_style(
 
 The `humidity` column text appears in green, bold, and in the Times New Roman font. The [style.text()](../reference/style.text.md#great_tables.style.text) function supports additional options like `size=`, `style=` (italic), and `decorate=` (underline, line-through).
 
-## Column-based Styles
+## Column-Based Styles
 
 In addition to setting styles to specific values (e.g., a `"yellow"` background fill), you can also use parameter values from table columns to specify styles. The way to do this is to use the [from_column()](../reference/from_column.md#great_tables.from_column) helper function to access those values.
 
@@ -116,7 +116,7 @@ df = pl.DataFrame({"x": [1, 2], "background": ["lightyellow", "lightblue"]})
 
 Notice that in the code above, we used values from the `background` column to specify the fill color for each styled row.
 
-In the next few sections, we'll first show how this combines nicely with the [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide) method, then, we'll demonstrate how to use **Polars** expressions to do everything much more simply.
+In the next few sections, we'll first show how this combines nicely with the [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide) method, then we'll demonstrate how to use **Polars** expressions to do everything much more simply.
 
 ### Combining Styling with [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide)
 
@@ -128,20 +128,23 @@ color_map = {
     False: "lightblue"
 }
 
-with_color = weather_head.assign(
-    background=(weather_head["temp"] > 18.5).replace(color_map)
+with_color = weather_head.with_columns(
+    background=(pl.col("temp") > 18.5).replace_strict(color_map)
 )
 
 with_color
 ```
 
-|     | date       | time  | temp | humidity | wind_speed | pressure | background  |
-|-----|------------|-------|------|----------|------------|----------|-------------|
-| 0   | 2023-05-01 | 00:20 | 18.9 | 0.68     | 6.7        | 1015.2   | lightyellow |
-| 1   | 2023-05-01 | 00:50 | 18.9 | 0.73     | 7.2        | 1015.2   | lightyellow |
-| 2   | 2023-05-01 | 01:20 | 17.8 | 0.77     | 6.7        | 1014.6   | lightblue   |
-| 3   | 2023-05-01 | 01:50 | 18.9 | 0.73     | 6.7        | 1014.6   | lightyellow |
-| 4   | 2023-05-01 | 02:20 | 18.9 | 0.68     | 6.7        | 1014.6   | lightyellow |
+shape: (5, 7)
+
+| date         | time    | temp | humidity | wind_speed | pressure | background    |
+|--------------|---------|------|----------|------------|----------|---------------|
+| str          | str     | f64  | f64      | f64        | f64      | str           |
+| "2023-05-01" | "00:20" | 18.9 | 0.68     | 6.7        | 1015.2   | "lightyellow" |
+| "2023-05-01" | "00:50" | 18.9 | 0.73     | 7.2        | 1015.2   | "lightyellow" |
+| "2023-05-01" | "01:20" | 17.8 | 0.77     | 6.7        | 1014.6   | "lightblue"   |
+| "2023-05-01" | "01:50" | 18.9 | 0.73     | 6.7        | 1014.6   | "lightyellow" |
+| "2023-05-01" | "02:20" | 18.9 | 0.68     | 6.7        | 1014.6   | "lightyellow" |
 
 Notice that the dataset now has a `background` column set to either `"lightyellow"` or `"lightblue"`, depending on whether `temp` is above `18.5`.
 
@@ -171,7 +174,7 @@ Note the two methods used above:
 - [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style): uses [from_column()](../reference/from_column.md#great_tables.from_column) to set the color using the values of the `background` column.
 - [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide): prevents the `background` column from being displayed in the output.
 
-### Using **Polars** expressions
+### Using **Polars** Expressions
 
 Styles can also be specified using **Polars** expressions. For example, the code below uses the `temp` column to set color to `"lightyellow"` or `"lightblue"`.
 
@@ -183,7 +186,7 @@ temp_color = (
     .otherwise(pl.lit("lightblue"))
 )
 
-gt_pl_weather.tab_style(
+gt_weather.tab_style(
     style=style.fill(color=temp_color),
     locations=loc.body("temp")
 )
@@ -199,23 +202,24 @@ gt_pl_weather.tab_style(
 
 The Polars expression evaluates per row and produces a color string for each cell. This approach avoids creating and hiding an extra column, keeping the code concise.
 
-Each of the three approaches ([from_column()](../reference/from_column.md#great_tables.from_column) with [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide), Polars expressions, and functions) has its strengths. Polars expressions are the most concise for Polars DataFrames and keep the styling logic self-contained. The [from_column()](../reference/from_column.md#great_tables.from_column) approach works with both Pandas and Polars backends but requires an extra column. Functions are the most flexible option for Pandas workflows. Choose whichever matches your data library and preference.
+### Using Functions
 
-### Using functions
-
-You can also use a function, that takes the DataFrame and returns a Series with a style value for each row.
-
-This is shown below on a pandas DataFrame.
+You can also use a function that takes the DataFrame and returns a Series with a style value for each row. This is shown below on a **Pandas** DataFrame, the Pandas version of the same weather data.
 
 ``` python
+weather_head_pd = data.pd.gibraltar.head()[
+    ["date", "time", "temp", "humidity", "wind_speed", "pressure"]
+]
+
+gt_weather_pd = GT(weather_head_pd)
+
 def map_color(df):
     return (df["temp"] > 18.5).map(
         {True: "lightyellow", False: "lightblue"}
     )
 
-gt_weather.tab_style(
-    style=style.fill(
-        color=map_color),
+gt_weather_pd.tab_style(
+    style=style.fill(color=map_color),
     locations=loc.body("temp")
 )
 ```
@@ -230,19 +234,21 @@ gt_weather.tab_style(
 
 The function receives the full DataFrame and returns a Series of color values aligned with the rows. This pattern works well with Pandas when you want to derive styles from data logic without Polars expressions.
 
-## Specifying columns and rows
+Each of the three approaches ([from_column()](../reference/from_column.md#great_tables.from_column) with [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide), Polars expressions, and functions) has its strengths. Polars expressions are the most concise for Polars DataFrames and keep the styling logic self-contained. The [from_column()](../reference/from_column.md#great_tables.from_column) approach works with both Pandas and Polars backends but requires an extra column. Functions are the most flexible option for Pandas workflows. Choose whichever matches your data library and preference.
 
-### Using polars selectors
+## Specifying Columns and Rows
+
+### Using Polars Selectors
 
 If you are using **Polars**, you can use column selectors and expressions for selecting specific columns and rows:
 
 ``` python
 import polars.selectors as cs
 
-gt_pl_weather.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=cs.starts_with("Te"),
+        columns=cs.starts_with("te"),
         rows=pl.col("temp") > 18.5
     )
 )
@@ -258,15 +264,15 @@ gt_pl_weather.tab_style(
 
 See [Column Selection](column-selection.md) for details on selecting columns.
 
-### Using a function
+### Using a Function
 
-For tools like **pandas**, you can use a function (or lambda) to select rows. The function should take a DataFrame, and output a boolean Series.
+For tools like **Pandas**, you can use a function (or lambda) to select rows. The function should take a DataFrame, and output a boolean Series. Columns can be selected with a function too, which receives each column name and returns `True` for the columns to keep.
 
 ``` python
-gt_weather.tab_style(
+gt_weather_pd.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
-        columns=lambda col_name: col_name.startswith("Te"),
+        columns=lambda col_name: col_name.startswith("te"),
         rows=lambda D: D["temp"] > 18.5,
     )
 )
@@ -282,7 +288,7 @@ gt_weather.tab_style(
 
 The function-based row selection gives you full flexibility: any callable that takes a DataFrame and returns a boolean Series can serve as a row filter.
 
-## Multiple styles and locations
+## Multiple Styles and Locations
 
 We can use a list within `style=` to apply multiple styles at once. For example, the code below sets fill and border styles on the same set of body cells.
 
@@ -324,9 +330,7 @@ gt_weather.tab_style(
 You can also combine **Polars** selectors with a row filtering expression, in order to select a combination of columns and rows.
 
 ``` python
-import polars.selectors as cs
-
-gt_pl_weather.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(
         columns=cs.exclude(["date", "time"]),
@@ -346,9 +350,7 @@ gt_pl_weather.tab_style(
 Lastly, you can use **Polars** selectors or expressions to conditionally select rows on a per-column basis.
 
 ``` python
-import polars.selectors as cs
-
-gt_pl_weather.tab_style(
+gt_weather.tab_style(
     style=style.fill(color="yellow"),
     locations=loc.body(mask=cs.numeric().eq(cs.numeric().max())),
 )
@@ -364,7 +366,7 @@ gt_pl_weather.tab_style(
 
 The `mask=` argument applies row/column logic jointly, highlighting only the cells where a column's value equals its own maximum (here, among the numeric columns). This is a powerful way to perform per-column conditional formatting in a single statement.
 
-## Value-driven styling with [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body)
+## Value-Driven Styling with [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body)
 
 While [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) targets cells by their *position* (specific rows and columns), [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body) targets cells by their *values*. This is useful when you want to style cells that meet a condition without having to figure out which rows and columns contain those values ahead of time.
 
@@ -374,15 +376,15 @@ Three matching strategies are available, in order of precedence:
 2.  `pattern=`: a regex matched against the string representation of each cell
 3.  `values=`: a list of exact values to match
 
-### Highlighting specific values
+### Highlighting Specific Values
 
-The simplest use case involves passing a list of values, where any cell containing one of those values gets styled.
+The simplest use case involves passing a list of values, where any cell containing one of those values gets styled. These examples use a few columns of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset.
 
 ``` python
-from great_tables import style, exibble
+exibble_mini = data.pl.exibble.select("num", "char", "currency", "row", "group")
 
 (
-    GT(exibble[["num", "char", "currency", "row", "group"]], rowname_col="row", groupname_col="group")
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="orange"),
         values=[49.95, 33.33],
@@ -403,17 +405,13 @@ from great_tables import style, exibble
 | row_7 | 777000.0  | grapefruit | None     |
 | row_8 | 8880000.0 | honeydew   | 0.44     |
 
-### Using a predicate function
+### Using a Predicate Function
 
 For more flexibility, pass a function to `fn=`. The function receives the cell value and should return `True` to apply the style. Missing values (`NaN`, `NaT`, or `pd.NA`, depending on the DataFrame library and column type) reach your function as `None`, so `x is None` finds them.
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.text(color="red"),
         fn=lambda x: x is None,
@@ -439,11 +437,7 @@ The predicate function is the most flexible option. Here we style all numeric ce
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="lightgreen"),
         fn=lambda x: x >= 0 and x < 50,
@@ -466,17 +460,13 @@ The predicate function is the most flexible option. Here we style all numeric ce
 
 If the function raises an exception for a cell (e.g., comparing a string with `>=`), that cell is silently skipped.
 
-### Using a regex pattern
+### Using a Regex Pattern
 
 The `pattern=` argument matches against the string representation of each cell. Missing values are skipped.
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="lightyellow"),
         pattern="^[a-d]",
@@ -503,11 +493,7 @@ You can restrict which cells are considered for matching by providing `columns=`
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="lightcyan"),
         fn=lambda x: x >= 0 and x < 50,
@@ -539,11 +525,7 @@ By default, only the matched cell itself is styled (`targets="cell"`). You can e
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="lightblue"),
         values=[49.95],
@@ -576,11 +558,7 @@ When your table has a stub (row labels), you can extend the styling into it with
 
 ``` python
 (
-    GT(
-        exibble[["num", "char", "currency", "row", "group"]],
-        rowname_col="row",
-        groupname_col="group"
-    )
+    GT(exibble_mini, rowname_col="row", groupname_col="group")
     .tab_style_body(
         style=style.fill(color="lightblue"),
         values=[49.95],
@@ -603,7 +581,7 @@ When your table has a stub (row labels), you can extend the styling into it with
 | row_7 | 777000.0  | grapefruit | None     |
 | row_8 | 8880000.0 | honeydew   | 0.44     |
 
-## Learning more
+## Learning More
 
 The combination of [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style), [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body), location specifiers, and the various style functions gives you precise control over the visual presentation of your table body. Whether you are highlighting outliers, applying conditional formatting, or using column-driven styles, these tools let you communicate data insights through visual cues that complement the numeric values themselves.
 

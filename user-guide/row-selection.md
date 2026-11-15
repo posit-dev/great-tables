@@ -10,22 +10,23 @@ Location and formatter functions (e.g. [loc.body()](../reference/loc.body.md#gr
 
 Rows may be specified using any of the following:
 
-- None (the default), to select everything.
+- `None` (the default), to select everything.
 - an integer for the row's position.
-- a list of or integers.
-- a **Polars** selector for filtering.
+- a list of integers.
+- a **Polars** expression for filtering.
 - a function that takes a DataFrame and returns a boolean Series.
 
-The following sections will use a subset of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) data, to demonstrate these options.
+The following sections will use a subset of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) data to demonstrate these options.
 
 ``` python
-from great_tables import GT, exibble, loc, style
+import polars as pl
+from great_tables import GT, data, loc, style
 
-lil_exibble = exibble[["num", "char", "currency"]].head(3)
+lil_exibble = data.pl.exibble.select("num", "char", "currency").head(3)
 gt_ex = GT(lil_exibble)
 ```
 
-## Using integers
+## Using Integers
 
 Use a single integer, or a list of integers, to select rows by position.
 
@@ -39,9 +40,9 @@ gt_ex.fmt_currency("currency", rows=0, decimals=1)
 | 2.222  | banana  | 17.95    |
 | 33.33  | coconut | 1.39     |
 
-Notice that a dollar sign (`$`) was only added to the first row (index `0` in python).
+Notice that a dollar sign (`$`) was only added to the first row (index `0` in Python).
 
-Indexing works the same as selecting items from a python list. This negative integers select relative to the final row.
+Indexing works the same as selecting items from a Python list. This means that negative integers select relative to the final row.
 
 ``` python
 gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
@@ -55,18 +56,14 @@ gt_ex.fmt_currency("currency", rows=[0, -1], decimals=1)
 
 The first and last rows now show currency formatting, while the middle row remains unchanged. Negative indices count backward from the end, just as with Python lists.
 
-## Using polars expressions
+## Using Polars Expressions
 
-The `rows=` argument accepts polars expressions, which return a boolean Series, indicating which rows to operate on.
+The `rows=` argument accepts Polars expressions, which return a boolean Series indicating which rows to operate on.
 
-For example, the code below only formats the `num` column, but only when currency is less than 40.
+For example, the code below formats the `num` column, but only when `currency` is less than 40.
 
 ``` python
-import polars as pl
-
-gt_polars = GT(pl.from_pandas(lil_exibble))
-
-gt_polars.fmt_integer("num", rows=pl.col("currency") < 40)
+gt_ex.fmt_integer("num", rows=pl.col("currency") < 40)
 ```
 
 | num    | char    | currency |
@@ -80,7 +77,7 @@ Here's a more realistic example, which highlights the row with the highest value
 ``` python
 import polars.selectors as cs
 
-gt_polars.tab_style(
+gt_ex.tab_style(
     style.fill("yellow"),
     loc.body(
         columns=cs.all(),
@@ -99,14 +96,16 @@ The row with the maximum currency value is highlighted with a yellow background.
 
 Expression-based row selection is especially powerful for conditional formatting, where the styling rule depends on the data itself. For example, you can highlight rows where a metric exceeds a threshold, format only the rows that contain the maximum or minimum value, or apply different styles based on category membership (all without any imperative filtering logic).
 
-## Using a function
+## Using a Function
 
-Since libraries like `pandas` don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean series. A missing value in that series leaves its row unselected, as it does with a polars expression.
+Since libraries like Pandas don't have lazy expressions, the `rows=` argument also accepts a function for selecting rows. The function should take a DataFrame and return a boolean Series. A missing value in that Series leaves its row unselected, as it does with a Polars expression.
 
-Here's the same example as the previous polars section, but with pandas data, and a lambda for selecting rows.
+Here's the same example as the previous Polars section, but with Pandas data and a lambda for selecting rows.
 
 ``` python
-gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
+gt_ex_pd = GT(data.pd.exibble[["num", "char", "currency"]].head(3))
+
+gt_ex_pd.fmt_integer("num", rows=lambda D: D["currency"] < 40)
 ```
 
 | num    | char    | currency |
@@ -115,12 +114,10 @@ gt_ex.fmt_integer("num", rows=lambda D: D["currency"] < 40)
 | 2      | banana  | 17.95    |
 | 33     | coconut | 1.39     |
 
-Here's the styling example from the previous polars section.
+Here's the styling example from the previous Polars section.
 
 ``` python
-import polars.selectors as cs
-
-gt_ex.tab_style(
+gt_ex_pd.tab_style(
     style.fill("yellow"),
     loc.body(
         columns=lambda colname: True,
@@ -135,4 +132,4 @@ gt_ex.tab_style(
 | 2.222  | banana  | 17.95    |
 | 33.33  | coconut | 1.39     |
 
-Whether you prefer integer indexing for quick positional access, Polars expressions for declarative filtering, or functions for compatibility with pandas, the `rows=` argument adapts to your data workflow. Combined with column selection, these tools give you fine-grained control over exactly which cells your formatting and styling operations affect.
+Whether you prefer integer indexing for quick positional access, Polars expressions for declarative filtering, or functions for compatibility with Pandas, the `rows=` argument adapts to your data workflow. Combined with column selection, these tools give you fine-grained control over exactly which cells your formatting and styling operations affect.

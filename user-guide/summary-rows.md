@@ -22,7 +22,7 @@ sales_df = pl.DataFrame({
 gt_sales = (
     GT(sales_df, rowname_col="product", groupname_col="category")
     .tab_header(title="Q4 Product Sales", subtitle="By category")
-    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+    .fmt_number(columns="revenue", decimals=0)
 )
 
 gt_sales
@@ -109,6 +109,44 @@ You can include several functions in the `fns=` dictionary to produce multiple s
 | Average          | 93.33333333333333  | 10875.0            |
 
 Both a `"Total"` and an `"Average"` row now appear at the bottom of each group.
+
+### Formatting Summary Values
+
+Summary values aren't touched by the `fmt_*()` methods used on the table body, so the averages above show all of their decimal places. The `fmt=` argument takes a formatting function from the `vals.fmt_*()` family and applies it to every value in the summary rows.
+
+``` python
+from great_tables import vals
+
+(
+    gt_sales
+    .summary_rows(
+        fns={
+            "Total": pl.col("units_sold", "revenue").sum(),
+            "Average": pl.col("units_sold", "revenue").mean(),
+        },
+        fmt=vals.fmt_integer,
+    )
+)
+```
+
+| Q4 Product Sales |            |         |
+|------------------|------------|---------|
+| By category      |            |         |
+|                  | units_sold | revenue |
+| Computing        |            |         |
+| Laptop           | 45         | 67,500  |
+| Mouse            | 230        | 4,600   |
+| Keyboard         | 180        | 9,000   |
+| Total            | 455        | 81,100  |
+| Average          | 152        | 27,033  |
+| Peripherals      |            |         |
+| Monitor          | 65         | 19,500  |
+| Webcam           | 120        | 6,000   |
+| Headset          | 95         | 7,125   |
+| Total            | 280        | 32,625  |
+| Average          | 93         | 10,875  |
+
+Now the summary values are rounded to integers and get the same digit grouping as the body.
 
 ### Placing Summaries at the Top
 
@@ -258,7 +296,7 @@ sales_pd = pd.DataFrame({
 
 (
     GT(sales_pd, rowname_col="product", groupname_col="category")
-    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+    .fmt_number(columns="revenue", decimals=0)
     .grand_summary_rows(
         fns={"Total": lambda df: df.sum(numeric_only=True)}
     )

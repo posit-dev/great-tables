@@ -7,8 +7,8 @@ Data coloring works best when you want readers to spot patterns across many valu
 We can make this possible in **Great Tables** by using the [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) method. Let's start with a simple example, using a Polars DataFrame with three columns of values. We can introduce that data to [GT](../reference/GT.md#great_tables.GT) and use [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) without any arguments.
 
 ``` python
-from great_tables import GT
 import polars as pl
+from great_tables import GT
 
 simple_df = pl.DataFrame(
     {
@@ -31,9 +31,9 @@ GT(simple_df).data_color()
 
 This works but doesn't look all too appealing. However, we can take note of a few things straight away. The first thing is that [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) doesn't format the values but rather it applies color fill values to the cells. The second thing is that you don't have to intervene and modify the text color so that there's enough contrast, **Great Tables** will do that for you (this behavior *can* be deactivated with the `autocolor_text=` argument though).
 
-## Setting palette colors
+## Setting Palette Colors
 
-While this first example illustrated some basic things, the common thing to do in practices to provide a list of colors to the `palette=` argument. Let's choose two colors `"green"` and `"red"` and place them in that order.
+While this first example illustrated some basic things, the common thing to do in practice is to provide a list of colors to the `palette=` argument. Let's choose two colors, `"blue"` and `"red"`, and place them in that order.
 
 ``` python
 GT(simple_df).data_color(palette=["blue", "red"])
@@ -51,7 +51,7 @@ Now that we've moved away from the default palette and specified colors, we can 
 
 When choosing palette colors, consider the nature of your data. For sequential data (low to high), use a single-hue gradient or a well-known sequential palette. For diverging data (values above and below a midpoint), use a diverging palette with a neutral middle color. Avoid using red-green combinations, which are difficult for colorblind readers (blue-orange or purple-green are safer alternatives).
 
-## Coloring missing values with `na_color`
+## Coloring Missing Values with `na_color=`
 
 There is a lone `"None"` value in the `float` column, and it has a gray background. Throughout the **Great Tables** package, missing values are treated in different ways and, in this case, it's given a default color value. We can change that with the `na_color=` argument. Let's try it now:
 
@@ -69,7 +69,7 @@ GT(simple_df).data_color(palette=["blue", "red"], na_color="#FFE4C4")
 
 Now, the gray color has been changed to Bisque. Note that when it comes to colors, you can use any combination of CSS/X11 color names and hexadecimal color codes.
 
-## Using `domain=` to color values across columns
+## Using `domain=` to Color Values Across Columns
 
 The previous usages of the [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) method were such that the color ranges encompassed the boundaries of the data values. That can be changed with the `domain=` argument, which expects a list of two values (a lower and an upper value). Let's use the range `[0, 10]` on the first two columns, `integer` and `float`, and not the third (since a numerical domain is incompatible with string-based values). Here's the table code for that:
 
@@ -97,7 +97,7 @@ Nice! We can clearly see that the color ramp in the first column (`integer`) onl
 
 Setting an explicit domain matters because without one, each column scales independently (the same color can represent different values in different columns). By setting a shared domain, you ensure that colors are comparable across columns, which is critical when columns measure the same quantity. In this example, both `integer` and `float` use the `[0, 10]` range, so a given shade of purple means the same thing regardless of which column it appears in.
 
-## Centering colors with `midpoint=`
+## Centering Colors with `midpoint=`
 
 Some values have a natural center: changes are centered on zero, ratios on one, and scores on some target. For these, a diverging palette (two colors with a neutral one in between) works well, but only if the neutral color lands on that center. By default it doesn't: the middle color of the palette goes to the middle of the domain, wherever that happens to be. The `midpoint=` argument pins the center of the palette to a value of your choosing.
 
@@ -162,7 +162,7 @@ sales_df = pl.DataFrame(
 
 Both sides now use their full range of colors. `1.17` is only 0.17 above the target, but it's about as strongly green as `0.62` (more than twice as far below the target) is red. Keep in mind that this makes equal distances from the midpoint look different on each side, so the symmetric behavior is usually the more honest choice when the two sides measure the same kind of change.
 
-## Choosing a contrast algorithm with `contrast_algo=`
+## Choosing a Contrast Algorithm with `contrast_algo=`
 
 We noted earlier that [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) automatically picks a light or dark text color for each cell so that values remain legible against their background fill. How that choice gets made depends on the contrast algorithm in use, and that's settable with the `contrast_algo=` argument. There are two options:
 
@@ -200,7 +200,7 @@ palette = ["#2C7BB6", "#ABD9E9", "#FDAE61", "#D7191C"]
 
 Both columns have identical background colors, but the blue and red-orange cells get white text under APCA and black text under WCAG. The APCA choices are noticeably more legible for those cells. If you need to match the WCAG 2.x guidelines for compliance reasons, then use `contrast_algo="wcag"`. Otherwise, the default of `"apca"` is the better choice for readability.
 
-## Custom color mapping with `fn=`
+## Custom Color Mapping with `fn=`
 
 A palette spread across a domain covers many needs, but sometimes the rules for coloring are more specific: a color for every value above a threshold, different colors for positive and negative values, or a fixed color for each category. For these cases, [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) accepts a color-mapping function through its `fn=` argument.
 
@@ -277,7 +277,7 @@ def sign_colors(vals):
 | West    | +3.2   |
 | Central | −1.0   |
 
-## Color-mapping helpers
+## Color-Mapping Helpers
 
 Writing a function by hand is fine for a few fixed colors, but interpolating along a gradient or cutting values into bins takes more work. **Great Tables** provides three helpers that create color-mapping functions for you, ready to be passed to `fn=`:
 
@@ -287,7 +287,7 @@ Writing a function by hand is fine for a few fixed colors, but interpolating alo
 
 If you've used gt in R, these will be familiar: they're modeled on the [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric), [col_bin()](../reference/col_bin.md#great_tables.col_bin), and [col_factor()](../reference/col_factor.md#great_tables.col_factor) functions from the **scales** package. Each one takes a `palette=`, which can be a list of colors or the name of a ColorBrewer or viridis palette (e.g., `"Blues"` or `"viridis"`), just as with [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color).
 
-### Continuous gradients with [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric)
+### Continuous Gradients with [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric)
 
 The [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric) helper interpolates along a palette, much like [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) does with a numeric column, and it has the same `domain=`, `midpoint=`, and `truncate=` arguments. Here's a diverging scale with a domain centered on zero:
 
@@ -332,7 +332,7 @@ Values outside of the domain are treated as missing by default and receive the `
 
 If `domain=` isn't given, then the domain is taken from the range of values in each column. That's often useful, but for a diverging scale it would put the middle color at the middle of the data rather than at zero. As with [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color), the fix is `midpoint=0`.
 
-### Pinning colors to values with `stops=`
+### Pinning Colors to Values with `stops=`
 
 What [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric) adds is the `stops=` argument, which pins each color in the palette to a value. It takes one stop per color, and colors are interpolated between neighboring stops. A stop can be a data value (a number) or a position within the range of values in the column (a percentage string, from `"0%"` to `"100%"`). Mixing the two is where this gets useful. Here, the lowest value is fully red, zero is white, and the highest value is fully green:
 
@@ -442,7 +442,7 @@ GT(tickets_df).data_color(
 
 If the palette has fewer colors than there are levels, then the in-between colors are interpolated along the palette.
 
-### Combining helpers with your own logic
+### Combining Helpers with Your Own Logic
 
 The helpers return ordinary functions, so they can be called from inside a function of your own. This is handy when you want to adjust some of the colors a helper gives. For example, to draw attention only to the larger changes, we can color the values with [col_numeric()](../reference/col_numeric.md#great_tables.col_numeric) and then replace the colors of any small changes (less than 2 in either direction) with `None`, so that they get the plain `na_color=` color:
 
@@ -470,19 +470,17 @@ def large_changes_only(vals):
 
 The `-1.0` and `0.0` changes are left white, while the others keep the colors they'd have had on the full scale.
 
-## Bringing it all together
+## Bringing It All Together
 
 For a more advanced treatment of data colorization in the table, let's take the [sza](../reference/data.sza.md#great_tables.data.sza) dataset (available in the `great_tables.data` submodule) and vigorously reshape it with **Polars** so that solar zenith angles are arranged as rows by month, and the half-hourly clock times are the columns (from early morning to solar noon).
 
-Once the `pivot()`ing is done, we can introduce that that table to the [GT](../reference/GT.md#great_tables.GT) class, placing the names of the months in the table stub. We will use [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) with a domain that runs from `90` to `0` (here, 90° is sunrise, and 0° is represents the sun angle that's directly overhead). There are months where the sun rises later in the morning, before the sunrise times we'll see missing values in the dataset, and `na_color="white"` will handle those cases. Okay, that's the plan, and now here's the code:
+Once the `pivot()`ing is done, we can introduce that table to the [GT](../reference/GT.md#great_tables.GT) class, placing the names of the months in the table stub. We will use [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) with a domain that runs from `90` to `0` (here, 90° is sunrise, and 0° represents the sun being directly overhead). In some months the sun rises later in the morning, so there are missing values at the earliest clock times, and `na_color="white"` will handle those cases. Okay, that's the plan, and now here's the code:
 
 ``` python
-from great_tables import html
-from great_tables.data import sza
-import polars.selectors as cs
+from great_tables import data, html
 
 sza_pivot = (
-    pl.from_pandas(sza)
+    data.pl.sza
     .filter((pl.col("latitude") == "20") & (pl.col("tst") <= "1200"))
     .select(pl.col("*").exclude("latitude"))
     .drop_nulls()
@@ -520,4 +518,4 @@ sza_pivot = (
 | nov | None | None | 87.8 | 81.3 | 74.5 | 68.3 | 61.8 | 56.0 | 50.2 | 45.3 | 40.7 | 37.4 | 35.1 | 34.4 |
 | dec | None | None | None | 84.3 | 78.0 | 71.8 | 66.1 | 60.5 | 55.6 | 50.9 | 47.2 | 44.2 | 42.4 | 41.8 |
 
-Because this is a table for presentation, we can't neglect using [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header). A *title* and *subtitle* can provide just enough information to guide the reader out through your table visualization.
+Because this is a table for presentation, we can't neglect using [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header). A *title* and *subtitle* can provide just enough information to guide the reader through your table visualization.

@@ -9,14 +9,15 @@ A well-structured frame transforms a bare data grid into something self-explanat
 A **Table Header** is easy to add with the [tab_header()](../reference/GT.tab_header.md#great_tables.GT.tab_header) method. Let's see how a basic table looks with a *title* and a *subtitle*:
 
 ``` python
-from great_tables import GT, md, html
-from great_tables.data import countrypops
+import polars as pl
+from great_tables import GT, data, md
 
 # Get the ten most populous countries in 2022
 countries_mini = (
-    countrypops[countrypops["year"] == 2022]
-    .sort_values("population", ascending=False)
-    .head(10)[["country_name", "population"]]
+    data.pl.countrypops.filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .head(10)
+    .select("country_name", "population")
 )
 
 # Make a display table with the `countries_mini` table and
@@ -24,8 +25,8 @@ countries_mini = (
 (
     GT(countries_mini)
     .tab_header(
-        title = "The World's Most Populous Countries",
-        subtitle = "The top ten in 2022 are presented"
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
     )
 )
 ```
@@ -55,8 +56,8 @@ The **Header** provides an opportunity to describe the data that's presented. Us
 gt_tbl = (
     GT(countries_mini.head(2))
     .tab_header(
-        title = md("The *World's* Most Populous Countries &#x1F310;"),
-        subtitle = md("The top **ten** in 2022 are presented")
+        title=md("The *World's* Most Populous Countries &#x1F310;"),
+        subtitle=md("The top **ten** in 2022 are presented")
     )
 )
 
@@ -81,10 +82,10 @@ A *source note* can be added to the table's **Footer** through use of the [tab_s
 (
     gt_tbl
     .tab_source_note(
-        source_note = "Total population counts all residents regardless of legal status or citizenship."
+        source_note="Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note = md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
 )
 ```
@@ -108,7 +109,7 @@ The **Stub** is good to have whenever the first column of your data serves as an
 
 The **Stub** is the area to the left of the table body that typically contains *row labels* and may also contain *row group labels*. Those subparts can be grouped in a sequence of *row groups*. The **Stub Head** provides a location for a label that describes the **Stub** (and could also be used to describe the column labels). The **Stub** is optional since there are cases where it wouldn't be useful (the display tables presented earlier looked just fine without one).
 
-An easy way to generate a **Stub** part is by specifying a stub column in the [GT()](../reference/GT.md#great_tables.GT) class with the `rowname_col=` argument. This will signal to **Great Tables** that the named column should be used as the stub, using the contents of that column to make *row labels*. Let's add a stub with our `countries_mini` table by using `rowname_col=` in the call to [GT](../reference/GT.md#great_tables.GT):
+An easy way to generate a **Stub** part is by naming a stub column with the `rowname_col=` argument of the [tab_stub()](../reference/GT.tab_stub.md#great_tables.GT.tab_stub) method. This will signal to **Great Tables** that the named column should be used as the stub, using the contents of that column to make *row labels*. Let's add a stub to our `countries_mini` table:
 
 ``` python
 GT(countries_mini).tab_stub(rowname_col="country_name")
@@ -156,7 +157,7 @@ A very important thing to note here is that the table now has one column. Before
 
 Grouping is most useful when your data has a natural categorical structure and you want readers to compare within and across categories. Rather than forcing the reader to mentally sort the rows, row groups do that work up front.
 
-Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of a *row group labels* right above each group. This can be easily done with a table containing row labels and the key is to use the `groupname_col=` argument of the [GT](../reference/GT.md#great_tables.GT) class. Here we will create four row groups (with row group labels `"Asia"`, `"Americas"`, `"Africa"`, and `"Europe"`) to have a grouping of rows.
+Let's incorporate row groups into the display table. This divides rows into groups, creating *row groups*, and results in a display of *row group labels* right above each group. This can be easily done with a table containing row labels and the key is to use the `groupname_col=` argument of [tab_stub()](../reference/GT.tab_stub.md#great_tables.GT.tab_stub). Here we will create four row groups (with row group labels `"Asia"`, `"Americas"`, `"Africa"`, and `"Europe"`) to have a grouping of rows.
 
 ``` python
 regions = {
@@ -165,7 +166,9 @@ regions = {
     "Mexico": "Americas", "Nigeria": "Africa", "Russian Federation": "Europe",
 }
 
-country_groups = countries_mini.assign(region = countries_mini["country_name"].map(regions))
+country_groups = countries_mini.with_columns(
+    region=pl.col("country_name").replace_strict(regions)
+)
 
 (
     GT(country_groups)

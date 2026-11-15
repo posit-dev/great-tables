@@ -6,32 +6,32 @@ Merging works best when two columns are conceptually a single value: a measureme
 
 ## Setting Up the Example Data
 
-We will use a small dataset that includes a measurement with uncertainty, a range, and a count with a percentage.
+We will use a small dataset that includes a measurement with uncertainty, a range, and a count with a percentage (stored as a fraction).
 
 ``` python
-import pandas as pd
+import polars as pl
 from great_tables import GT
 
-experiment_df = pd.DataFrame({
+experiment_df = pl.DataFrame({
     "trial": ["Trial 1", "Trial 2", "Trial 3", "Trial 4"],
     "measurement": [12.45, 8.92, 15.03, None],
     "uncertainty": [0.32, 0.15, 0.48, None],
     "low": [10.5, 7.8, 13.2, 9.1],
     "high": [14.2, 10.1, 16.8, 12.5],
     "n_obs": [120, 85, 200, 0],
-    "pct": [34.2, 24.3, 57.1, 0.0],
+    "pct": [0.342, 0.243, 0.571, 0.0],
 })
 
 gt_tbl = GT(experiment_df, rowname_col="trial")
 gt_tbl
 ```
 
-|         | measurement | uncertainty | low  | high | n_obs | pct  |
-|---------|-------------|-------------|------|------|-------|------|
-| Trial 1 | 12.45       | 0.32        | 10.5 | 14.2 | 120   | 34.2 |
-| Trial 2 | 8.92        | 0.15        | 7.8  | 10.1 | 85    | 24.3 |
-| Trial 3 | 15.03       | 0.48        | 13.2 | 16.8 | 200   | 57.1 |
-| Trial 4 | None        | None        | 9.1  | 12.5 | 0     | 0.0  |
+|         | measurement | uncertainty | low  | high | n_obs | pct   |
+|---------|-------------|-------------|------|------|-------|-------|
+| Trial 1 | 12.45       | 0.32        | 10.5 | 14.2 | 120   | 0.342 |
+| Trial 2 | 8.92        | 0.15        | 7.8  | 10.1 | 85    | 0.243 |
+| Trial 3 | 15.03       | 0.48        | 13.2 | 16.8 | 200   | 0.571 |
+| Trial 4 | None        | None        | 9.1  | 12.5 | 0     | 0.0   |
 
 With six data columns, this table is quite wide. Let's reduce the column count by merging related pairs together.
 
@@ -49,12 +49,12 @@ The most general method is [cols_merge()](../reference/GT.cols_merge.md#great_ta
 )
 ```
 
-|         | measurement  | low  | high | n_obs | pct  |
-|---------|--------------|------|------|-------|------|
-| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 34.2 |
-| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 24.3 |
-| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 57.1 |
-| Trial 4 | NA ± NA      | 9.1  | 12.5 | 0     | 0.0  |
+|         | measurement  | low  | high | n_obs | pct   |
+|---------|--------------|------|------|-------|-------|
+| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 0.342 |
+| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 0.243 |
+| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 0.571 |
+| Trial 4 | NA ± NA      | 9.1  | 12.5 | 0     | 0.0   |
 
 The `measurement` column now contains the merged text and the `uncertainty` column is automatically hidden. This hiding behavior can be controlled with the `hide_columns=` argument.
 
@@ -72,12 +72,12 @@ Sometimes a column value may be missing, and you want the merged text to adapt g
 )
 ```
 
-|         | measurement  | low  | high | n_obs | pct  |
-|---------|--------------|------|------|-------|------|
-| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 34.2 |
-| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 24.3 |
-| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 57.1 |
-| Trial 4 | NA           | 9.1  | 12.5 | 0     | 0.0  |
+|         | measurement  | low  | high | n_obs | pct   |
+|---------|--------------|------|------|-------|-------|
+| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 0.342 |
+| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 0.243 |
+| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 0.571 |
+| Trial 4 | NA           | 9.1  | 12.5 | 0     | 0.0   |
 
 In this example, Trial 4 has missing values for both columns. The conditional section `<< ± {1}>>` is dropped when `uncertainty` is missing, producing a cleaner result than showing placeholder text.
 
@@ -94,12 +94,12 @@ The [cols_merge_uncert()](../reference/GT.cols_merge_uncert.md#great_tables.GT.c
 )
 ```
 
-|         | measurement  | low  | high | n_obs | pct  |
-|---------|--------------|------|------|-------|------|
-| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 34.2 |
-| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 24.3 |
-| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 57.1 |
-| Trial 4 |              | 9.1  | 12.5 | 0     | 0.0  |
+|         | measurement  | low  | high | n_obs | pct   |
+|---------|--------------|------|------|-------|-------|
+| Trial 1 | 12.45 ± 0.32 | 10.5 | 14.2 | 120   | 0.342 |
+| Trial 2 | 8.92 ± 0.15  | 7.8  | 10.1 | 85    | 0.243 |
+| Trial 3 | 15.03 ± 0.48 | 13.2 | 16.8 | 200   | 0.571 |
+| Trial 4 |              | 9.1  | 12.5 | 0     | 0.0   |
 
 The `sep=` argument controls the text between the value and uncertainty (defaulting to `" ± "`). You can combine this with [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number) to control the decimal precision of the merged values.
 
@@ -111,14 +111,14 @@ The `sep=` argument controls the text between the value and uncertainty (default
 )
 ```
 
-|         | measurement | low  | high | n_obs | pct  |
-|---------|-------------|------|------|-------|------|
-| Trial 1 | 12.4 ± 0.3  | 10.5 | 14.2 | 120   | 34.2 |
-| Trial 2 | 8.9 ± 0.1   | 7.8  | 10.1 | 85    | 24.3 |
-| Trial 3 | 15.0 ± 0.5  | 13.2 | 16.8 | 200   | 57.1 |
-| Trial 4 |             | 9.1  | 12.5 | 0     | 0.0  |
+|         | measurement | low  | high | n_obs | pct   |
+|---------|-------------|------|------|-------|-------|
+| Trial 1 | 12.4 ± 0.3  | 10.5 | 14.2 | 120   | 0.342 |
+| Trial 2 | 8.9 ± 0.1   | 7.8  | 10.1 | 85    | 0.243 |
+| Trial 3 | 15.0 ± 0.5  | 13.2 | 16.8 | 200   | 0.571 |
+| Trial 4 |             | 9.1  | 12.5 | 0     | 0.0   |
 
-Formatting should be applied before merging, since the merge operates on the already-formatted text content.
+Merging always operates on the formatted text content, so the formatting is carried into the merged cells whether [fmt_number()](../reference/GT.fmt_number.md#great_tables.GT.fmt_number) is called before or after the merge.
 
 ## Merging a Range
 
@@ -131,12 +131,12 @@ The [cols_merge_range()](../reference/GT.cols_merge_range.md#great_tables.GT.col
 )
 ```
 
-|         | measurement | uncertainty | low       | n_obs | pct  |
-|---------|-------------|-------------|-----------|-------|------|
-| Trial 1 | 12.45       | 0.32        | 10.5-14.2 | 120   | 34.2 |
-| Trial 2 | 8.92        | 0.15        | 7.8-10.1  | 85    | 24.3 |
-| Trial 3 | 15.03       | 0.48        | 13.2-16.8 | 200   | 57.1 |
-| Trial 4 | None        | None        | 9.1-12.5  | 0     | 0.0  |
+|         | measurement | uncertainty | low       | n_obs | pct   |
+|---------|-------------|-------------|-----------|-------|-------|
+| Trial 1 | 12.45       | 0.32        | 10.5-14.2 | 120   | 0.342 |
+| Trial 2 | 8.92        | 0.15        | 7.8-10.1  | 85    | 0.243 |
+| Trial 3 | 15.03       | 0.48        | 13.2-16.8 | 200   | 0.571 |
+| Trial 4 | None        | None        | 9.1-12.5  | 0     | 0.0   |
 
 You can customize the separator with `sep=`. The special values `"--"` and `"---"` are automatically rendered as an en dash and em dash, respectively. Any other string is used literally.
 
@@ -147,30 +147,31 @@ You can customize the separator with `sep=`. The special values `"--"` and `"---
 )
 ```
 
-|         | measurement | uncertainty | low          | n_obs | pct  |
-|---------|-------------|-------------|--------------|-------|------|
-| Trial 1 | 12.45       | 0.32        | 10.5 to 14.2 | 120   | 34.2 |
-| Trial 2 | 8.92        | 0.15        | 7.8 to 10.1  | 85    | 24.3 |
-| Trial 3 | 15.03       | 0.48        | 13.2 to 16.8 | 200   | 57.1 |
-| Trial 4 | None        | None        | 9.1 to 12.5  | 0     | 0.0  |
+|         | measurement | uncertainty | low          | n_obs | pct   |
+|---------|-------------|-------------|--------------|-------|-------|
+| Trial 1 | 12.45       | 0.32        | 10.5 to 14.2 | 120   | 0.342 |
+| Trial 2 | 8.92        | 0.15        | 7.8 to 10.1  | 85    | 0.243 |
+| Trial 3 | 15.03       | 0.48        | 13.2 to 16.8 | 200   | 0.571 |
+| Trial 4 | None        | None        | 9.1 to 12.5  | 0     | 0.0   |
 
 ## Merging Count and Percentage
 
-When you have a count column alongside a pre-computed percentage column, [cols_merge_n_pct()](../reference/GT.cols_merge_n_pct.md#great_tables.GT.cols_merge_n_pct) merges them into a format like `"120 (34.2%)"`. This is a common pattern in statistical tables and survey results.
+When you have a count column alongside a pre-computed percentage column, [cols_merge_n_pct()](../reference/GT.cols_merge_n_pct.md#great_tables.GT.cols_merge_n_pct) merges them into a format like `"120 (34.2%)"`. This is a common pattern in statistical tables and survey results. The percentage column should be formatted with [fmt_percent()](../reference/GT.fmt_percent.md#great_tables.GT.fmt_percent) so that the values are displayed as percentages.
 
 ``` python
 (
     GT(experiment_df, rowname_col="trial")
+    .fmt_percent(columns="pct", decimals=1)
     .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
 )
 ```
 
-|         | measurement | uncertainty | low  | high | n_obs      |
-|---------|-------------|-------------|------|------|------------|
-| Trial 1 | 12.45       | 0.32        | 10.5 | 14.2 | 120 (34.2) |
-| Trial 2 | 8.92        | 0.15        | 7.8  | 10.1 | 85 (24.3)  |
-| Trial 3 | 15.03       | 0.48        | 13.2 | 16.8 | 200 (57.1) |
-| Trial 4 | None        | None        | 9.1  | 12.5 | 0          |
+|         | measurement | uncertainty | low  | high | n_obs       |
+|---------|-------------|-------------|------|------|-------------|
+| Trial 1 | 12.45       | 0.32        | 10.5 | 14.2 | 120 (34.2%) |
+| Trial 2 | 8.92        | 0.15        | 7.8  | 10.1 | 85 (24.3%)  |
+| Trial 3 | 15.03       | 0.48        | 13.2 | 16.8 | 200 (57.1%) |
+| Trial 4 | None        | None        | 9.1  | 12.5 | 0           |
 
 Notice that Trial 4 shows `"0"` without a percentage. This is intentional: when the count is zero, showing `"0 (0.0%)"` would be redundant, so the method displays only the count.
 
@@ -182,6 +183,7 @@ You can apply several merge operations in the same table to consolidate all rela
 (
     GT(experiment_df, rowname_col="trial")
     .fmt_number(columns=["measurement", "uncertainty", "low", "high"], decimals=1)
+    .fmt_percent(columns="pct", decimals=1)
     .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
     .cols_merge_range(col_begin="low", col_end="high")
     .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
@@ -195,9 +197,9 @@ You can apply several merge operations in the same table to consolidate all rela
 
 |         | Result     | Range     | Observations |
 |---------|------------|-----------|--------------|
-| Trial 1 | 12.4 ± 0.3 | 10.5-14.2 | 120 (34.2)   |
-| Trial 2 | 8.9 ± 0.1  | 7.8-10.1  | 85 (24.3)    |
-| Trial 3 | 15.0 ± 0.5 | 13.2-16.8 | 200 (57.1)   |
+| Trial 1 | 12.4 ± 0.3 | 10.5-14.2 | 120 (34.2%)  |
+| Trial 2 | 8.9 ± 0.1  | 7.8-10.1  | 85 (24.3%)   |
+| Trial 3 | 15.0 ± 0.5 | 13.2-16.8 | 200 (57.1%)  |
 | Trial 4 |            | 9.1-12.5  | 0            |
 
 By merging three pairs of columns, we reduced the table from six data columns down to three, each conveying the same information in a more compact form.

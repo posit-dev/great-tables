@@ -6,14 +6,13 @@ The general principle is: build your table once, export it many ways. The same [
 
 ## Displaying Tables
 
-In most notebook environments (Jupyter, Quarto, Marimo), simply placing a [GT](../reference/GT.md#great_tables.GT) object as the last expression in a cell will render the table automatically. However, you can also use the [show()](../reference/GT.show.md#great_tables.GT.show) method for explicit control over where the table is displayed.
+In most notebook environments (Jupyter, Quarto, marimo), simply placing a [GT](../reference/GT.md#great_tables.GT) object as the last expression in a cell will render the table automatically. However, you can also use the [show()](../reference/GT.show.md#great_tables.GT.show) method for explicit control over where the table is displayed.
 
 ``` python
-from great_tables import GT
-from great_tables.data import exibble
+from great_tables import GT, data
 
 gt_tbl = (
-    GT(exibble.head(3)[["num", "char", "currency"]])
+    GT(data.pl.exibble.head(3).select("num", "char", "currency"))
     .tab_header(title="Example Table", subtitle="A small demonstration")
     .fmt_currency(columns="currency")
     .fmt_number(columns="num", decimals=2)
@@ -43,7 +42,7 @@ gt_tbl.show(target="browser")
 
 ## Getting HTML as a String
 
-The [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) method returns the table as an HTML string. This is useful for embedding tables in web applications, email templates, or custom HTML documents. Body cells that have not been processed by a `fmt_*()` method are automatically HTML-escaped to prevent cross-site scripting (XSS) when rendering untrusted data. See the [Formatting Values](formatting-values.md) guide for details on how to include raw HTML in cells using [html()](../reference/html.md#great_tables.md) and [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt).
+The [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) method returns the table as an HTML string. This is useful for embedding tables in web applications, email templates, or custom HTML documents. Body cells that have not been processed by a `fmt_*()` method are automatically HTML-escaped to prevent cross-site scripting (XSS) when rendering untrusted data. See the [Formatting Values](formatting-values.md) page for details on how to include raw HTML in cells using [html()](../reference/html.md#great_tables.md) and [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt).
 
 ``` python
 html_str = gt_tbl.as_raw_html()
@@ -52,9 +51,9 @@ html_str = gt_tbl.as_raw_html()
 print(html_str[:200])
 ```
 
-    <div id="eqxajcyitv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="rrsjznsxng" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #eqxajcyitv table {
+    #rrsjznsxng table {
               font
 
 The method accepts several arguments that control the output format.
@@ -83,13 +82,13 @@ This wraps the table in a complete HTML document that can be opened directly in 
 
 ### Writing HTML to a File
 
-The [write_raw_html()](../reference/GT.write_raw_html.md#great_tables.GT.write_raw_html) method is a convenience wrapper that writes the HTML output directly to a file.
+The [write_raw_html()](../reference/GT.write_raw_html.md#great_tables.GT.write_raw_html) method is a convenience wrapper that writes the HTML output directly to a file (with UTF-8 encoding by default).
 
 ``` python
 gt_tbl.write_raw_html("my_table.html")
 ```
 
-The file is written with the same options available on [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) (such as `inline_css=` and `make_page=`), passed through as keyword arguments.
+It takes the same `inline_css=` and `make_page=` options as [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html), so the file can hold an email-ready fragment or a complete page.
 
 ## LaTeX Output
 
@@ -145,7 +144,7 @@ The LaTeX fragment relies on a few LaTeX packages, so load them in your document
 \usepackage{anyfontsize}
 ```
 
-LaTeX output is the bridge between Great Tables and the world of academic publishing and typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method lets you bring your Python-built tables into that workflow without manual conversion. You get the convenience of building tables programmatically in Python with the typographic quality of LaTeX's table rendering.
+LaTeX output is the bridge between **Great Tables** and the world of academic publishing and typesetting. If you are writing papers in LaTeX or producing PDF reports via Quarto, this method lets you bring your Python-built tables into that workflow without manual conversion. You get the convenience of building tables programmatically in Python with the typographic quality of LaTeX's table rendering.
 
 ## Saving as an Image
 
@@ -155,7 +154,7 @@ The [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method renders 
 gt_tbl.gtsave("my_table.png")
 ```
 
-The output format is determined by the file extension. Here are some common formats:
+The output format is determined by the file extension (a file name without one is saved as PNG). The supported formats are:
 
 - `.png` for lossless raster images (great for reports and presentations)
 - `.pdf` for vector output (ideal for print and LaTeX inclusion)
@@ -174,11 +173,11 @@ gt_tbl.gtsave("high_res.png", zoom=4.0)
 gt_tbl.gtsave("standard.png", zoom=1.0)
 ```
 
-A `zoom=4.0` value produces an image four times the default resolution, which is ideal for print materials where crisp text is essential.
+A `zoom=4.0` value produces an image with twice the resolution of the default, which is ideal for print materials where crisp text is essential. The `zoom=` setting doesn't apply to PDF output, which is already vector-based.
 
 ### Padding Around the Table
 
-The `expand=` argument adds padding (in pixels) around the captured table element. You can provide a single integer for uniform padding or a tuple of four values for `(top, right, bottom, left)`.
+The `expand=` argument adds padding (in pixels) around the captured table element (the default is `5`). You can provide a single integer for uniform padding or a tuple of four values for `(top, right, bottom, left)`.
 
 ``` python
 # Uniform padding
@@ -192,7 +191,7 @@ Adding padding is especially useful when the saved image will be placed on a col
 
 ### Viewport Dimensions
 
-The `vwidth=` and `vheight=` arguments set the virtual viewport size. This can affect how responsive table layouts are rendered.
+The `vwidth=` and `vheight=` arguments set the virtual viewport size. This can affect how responsive table layouts are rendered (the defaults are `992` and `744` pixels).
 
 ``` python
 gt_tbl.gtsave("wide_viewport.png", vwidth=1200)
@@ -202,7 +201,7 @@ A wider viewport can prevent the table from wrapping or truncating columns, whil
 
 ### Rendering Delay
 
-Some tables with custom fonts or dynamic content may need a short delay after page load before the screenshot is taken. The `delay=` argument (in seconds) controls this wait time.
+Some tables with custom fonts or dynamic content may need a short delay after page load before the screenshot is taken. The `delay=` argument (in seconds, defaulting to `0.2`) controls this wait time.
 
 ``` python
 gt_tbl.gtsave("with_delay.png", delay=0.5)

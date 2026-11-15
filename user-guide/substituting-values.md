@@ -9,10 +9,10 @@ It is worth noting that substitution is about communication, not data cleaning. 
 For the examples on this page, we will use a small DataFrame with a mix of values that includes missing data, zeros, and both very small and very large numbers.
 
 ``` python
-import pandas as pd
+import polars as pl
 from great_tables import GT
 
-df = pd.DataFrame({
+df = pl.DataFrame({
     "item": ["Widget A", "Widget B", "Widget C", "Widget D", "Widget E"],
     "count": [150, 0, 42, None, 3],
     "rate": [0.003, 0.0, 0.542, 0.871, None],
@@ -25,17 +25,17 @@ gt_tbl
 
 |          | count | rate  | revenue          |
 |----------|-------|-------|------------------|
-| Widget A | 150.0 | 0.003 | 4500.0           |
-| Widget B | 0.0   | 0.0   | 0.0              |
-| Widget C | 42.0  | 0.542 | 10000000000000.0 |
+| Widget A | 150   | 0.003 | 4500.0           |
+| Widget B | 0     | 0.0   | 0.0              |
+| Widget C | 42    | 0.542 | 10000000000000.0 |
 | Widget D | None  | 0.871 | 75.5             |
-| Widget E | 3.0   | None  | None             |
+| Widget E | 3     | None  | None             |
 
 Notice how the table displays `None` values and raw numbers in a way that may not be ideal for a presentation table. The `sub_*()` methods let us address each of these cases.
 
 ## Substituting Missing Values
 
-The [sub_missing()](../reference/GT.sub_missing.md#great_tables.GT.sub_missing) method replaces `None` (or `NaN`) values with a text string of your choice. By default, it inserts an em dash, but you can provide any replacement text through the `missing_text=` argument.
+The [sub_missing()](../reference/GT.sub_missing.md#great_tables.GT.sub_missing) method replaces missing values (`None`, or `NaN` in Pandas) with a text string of your choice. By default, it inserts an em dash, but you can provide any replacement text through the `missing_text=` argument.
 
 ``` python
 gt_tbl.sub_missing(missing_text="N/A")
@@ -43,11 +43,11 @@ gt_tbl.sub_missing(missing_text="N/A")
 
 |          | count | rate  | revenue          |
 |----------|-------|-------|------------------|
-| Widget A | 150.0 | 0.003 | 4500.0           |
-| Widget B | 0.0   | 0.0   | 0.0              |
-| Widget C | 42.0  | 0.542 | 10000000000000.0 |
+| Widget A | 150   | 0.003 | 4500.0           |
+| Widget B | 0     | 0.0   | 0.0              |
+| Widget C | 42    | 0.542 | 10000000000000.0 |
 | Widget D | N/A   | 0.871 | 75.5             |
-| Widget E | 3.0   | N/A   | N/A              |
+| Widget E | 3     | N/A   | N/A              |
 
 You can also target specific columns, leaving other columns to display their missing values as-is.
 
@@ -57,11 +57,11 @@ gt_tbl.sub_missing(columns="count", missing_text="not reported")
 
 |          | count        | rate  | revenue          |
 |----------|--------------|-------|------------------|
-| Widget A | 150.0        | 0.003 | 4500.0           |
-| Widget B | 0.0          | 0.0   | 0.0              |
-| Widget C | 42.0         | 0.542 | 10000000000000.0 |
+| Widget A | 150          | 0.003 | 4500.0           |
+| Widget B | 0            | 0.0   | 0.0              |
+| Widget C | 42           | 0.542 | 10000000000000.0 |
 | Widget D | not reported | 0.871 | 75.5             |
-| Widget E | 3.0          | None  | None             |
+| Widget E | 3            | None  | None             |
 
 Only the `count` column has its missing value replaced with our custom text. The `rate` and `revenue` columns still show their default missing representation.
 
@@ -75,11 +75,11 @@ gt_tbl.sub_zero(columns="count", zero_text="none")
 
 |          | count | rate  | revenue          |
 |----------|-------|-------|------------------|
-| Widget A | 150.0 | 0.003 | 4500.0           |
+| Widget A | 150   | 0.003 | 4500.0           |
 | Widget B | none  | 0.0   | 0.0              |
-| Widget C | 42.0  | 0.542 | 10000000000000.0 |
+| Widget C | 42    | 0.542 | 10000000000000.0 |
 | Widget D | None  | 0.871 | 75.5             |
-| Widget E | 3.0   | None  | None             |
+| Widget E | 3     | None  | None             |
 
 Here the zero in the `count` column now reads as `"none"`, which is clearer for the reader.
 
@@ -93,18 +93,18 @@ gt_tbl.sub_small_vals(columns="rate", threshold=0.01)
 
 |          | count | rate   | revenue          |
 |----------|-------|--------|------------------|
-| Widget A | 150.0 | \<0.01 | 4500.0           |
-| Widget B | 0.0   | 0.0    | 0.0              |
-| Widget C | 42.0  | 0.542  | 10000000000000.0 |
+| Widget A | 150   | \<0.01 | 4500.0           |
+| Widget B | 0     | 0.0    | 0.0              |
+| Widget C | 42    | 0.542  | 10000000000000.0 |
 | Widget D | None  | 0.871  | 75.5             |
-| Widget E | 3.0   | None   | None             |
+| Widget E | 3     | None   | None             |
 
 The value `0.003` in the `rate` column is now displayed as `"<0.01"` since it falls below the threshold. All other values remain unchanged.
 
 You can also handle negative small values by setting `sign="-"`. This substitutes values that are between `0` and the negative of the threshold.
 
 ``` python
-df_neg = pd.DataFrame({
+df_neg = pl.DataFrame({
     "label": ["X", "Y", "Z"],
     "change": [-0.002, -5.3, 0.7],
 })
@@ -130,11 +130,11 @@ gt_tbl.sub_large_vals(columns="revenue", threshold=1e10)
 
 |          | count | rate  | revenue |
 |----------|-------|-------|---------|
-| Widget A | 150.0 | 0.003 | 4500.0  |
-| Widget B | 0.0   | 0.0   | 0.0     |
-| Widget C | 42.0  | 0.542 | ≥1e+10  |
+| Widget A | 150   | 0.003 | 4500.0  |
+| Widget B | 0     | 0.0   | 0.0     |
+| Widget C | 42    | 0.542 | ≥1e+10  |
 | Widget D | None  | 0.871 | 75.5    |
-| Widget E | 3.0   | None  | None    |
+| Widget E | 3     | None  | None    |
 
 The value `1e13` in the `revenue` column is now shown as `"≥1e+10"` rather than displaying the full number. You can customize the pattern with the `large_pattern=` argument.
 
@@ -144,11 +144,11 @@ gt_tbl.sub_large_vals(columns="revenue", threshold=1e10, large_pattern="OVER {x}
 
 |          | count | rate  | revenue    |
 |----------|-------|-------|------------|
-| Widget A | 150.0 | 0.003 | 4500.0     |
-| Widget B | 0.0   | 0.0   | 0.0        |
-| Widget C | 42.0  | 0.542 | OVER 1e+10 |
+| Widget A | 150   | 0.003 | 4500.0     |
+| Widget B | 0     | 0.0   | 0.0        |
+| Widget C | 42    | 0.542 | OVER 1e+10 |
 | Widget D | None  | 0.871 | 75.5       |
-| Widget E | 3.0   | None  | None       |
+| Widget E | 3     | None  | None       |
 
 The `{x}` placeholder in the pattern is replaced with the threshold value, giving you full control over how the capped text reads.
 
@@ -166,11 +166,11 @@ GT(df, rowname_col="item").sub_values(columns="count", values=0, replacement="ze
 
 |          | count | rate  | revenue          |
 |----------|-------|-------|------------------|
-| Widget A | 150.0 | 0.003 | 4500.0           |
+| Widget A | 150   | 0.003 | 4500.0           |
 | Widget B | zero  | 0.0   | 0.0              |
-| Widget C | 42.0  | 0.542 | 10000000000000.0 |
+| Widget C | 42    | 0.542 | 10000000000000.0 |
 | Widget D | None  | 0.871 | 75.5             |
-| Widget E | 3.0   | None  | None             |
+| Widget E | 3     | None  | None             |
 
 Every cell in the `count` column that contains exactly `0` is replaced with the string `"zero"`. You can also pass a list of values to match against multiple targets.
 
@@ -179,7 +179,7 @@ Every cell in the `count` column that contains exactly `0` is replaced with the 
 A regex pattern can target string-based cell content for replacement.
 
 ``` python
-df_text = pd.DataFrame({
+df_text = pl.DataFrame({
     "code": ["PASS-001", "FAIL-002", "PASS-003"],
     "result": ["ok", "error", "ok"],
 })
@@ -209,17 +209,17 @@ GT(df, rowname_col="item").sub_values(
 
 |          | count | rate  | revenue |
 |----------|-------|-------|---------|
-| Widget A | 150.0 | 0.003 | 4500.0  |
-| Widget B | 0.0   | 0.0   | 0.0     |
-| Widget C | 42.0  | 0.542 | HIGH    |
+| Widget A | 150   | 0.003 | 4500.0  |
+| Widget B | 0     | 0.0   | 0.0     |
+| Widget C | 42    | 0.542 | HIGH    |
 | Widget D | None  | 0.871 | 75.5    |
-| Widget E | 3.0   | None  | None    |
+| Widget E | 3     | None  | None    |
 
 The function evaluates each cell value individually. When it returns `True`, that cell is replaced with the specified text. This mode handles complex logic that cannot be expressed as a simple value match or regex pattern.
 
 ## Combining Substitution Methods
 
-You can chain multiple `sub_*()` calls together to handle several cases in a single table. The methods are applied in the order they are called.
+You can chain multiple `sub_*()` calls together to handle several cases in a single table. If two substitutions match the same cell, the one called last wins.
 
 ``` python
 (
@@ -233,14 +233,32 @@ You can chain multiple `sub_*()` calls together to handle several cases in a sin
 
 |          | count | rate   | revenue |
 |----------|-------|--------|---------|
-| Widget A | 150.0 | \<0.01 | 4500.0  |
+| Widget A | 150   | \<0.01 | 4500.0  |
 | Widget B | none  | none   | 0.0     |
-| Widget C | 42.0  | 0.542  | \>10B   |
+| Widget C | 42    | 0.542  | \>10B   |
 | Widget D | N/A   | 0.871  | 75.5    |
-| Widget E | 3.0   | N/A    | N/A     |
+| Widget E | 3     | N/A    | N/A     |
 
 This combination addresses missing data, zero values, very small numbers, and very large numbers all at once, producing a clean and informative table.
 
-Because substitutions are applied before formatting, you can chain `sub_*()` and `fmt_*()` calls freely. The substitution handles the special cases first--missing values, zeros, outliers--and the formatter handles everything else. This separation keeps your table code clean and predictable: each layer has a single responsibility, and you don't need to write conditional logic inside your formatters to account for edge cases.
+Substitutions are applied after all of the formatters have run, so you can chain `sub_*()` and `fmt_*()` calls in any order. The formatter handles the regular values and the substitution replaces the special cases--missing values, zeros, outliers--whichever was called first. This separation keeps your table code clean and predictable: each layer has a single responsibility, and you don't need to write conditional logic inside your formatters to account for edge cases.
 
-The `sub_*()` methods work as a pre-processing step before formatting. This means you can apply `fmt_*()` methods to the same columns and the substituted text will remain in place for cells that were already replaced, while the formatter handles the remaining values.
+``` python
+(
+    GT(df, rowname_col="item")
+    .sub_zero(columns="count", zero_text="none")
+    .fmt_integer(columns="count")
+    .fmt_currency(columns="revenue")
+    .sub_missing(missing_text="N/A")
+)
+```
+
+|          | count | rate  | revenue                 |
+|----------|-------|-------|-------------------------|
+| Widget A | 150   | 0.003 | \$4,500.00              |
+| Widget B | none  | 0.0   | \$0.00                  |
+| Widget C | 42    | 0.542 | \$10,000,000,000,000.00 |
+| Widget D | N/A   | 0.871 | \$75.50                 |
+| Widget E | 3     | N/A   | N/A                     |
+
+Even though [sub_zero()](../reference/GT.sub_zero.md#great_tables.GT.sub_zero) was called before [fmt_integer()](../reference/GT.fmt_integer.md#great_tables.GT.fmt_integer), the zero in the `count` column still reads `"none"`, while the other counts are formatted as integers.

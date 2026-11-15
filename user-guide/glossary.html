@@ -440,7 +440,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Terms used throughout the Great Tables documentation, listed alphabetically. Where a term has a direct counterpart in the API, the relevant class, method, or module is noted.</p>
+<p>Terms used throughout the <strong>Great Tables</strong> documentation, listed alphabetically. Where a term has a direct counterpart in the API, the relevant class, method, or module is noted.</p>
 <dl>
 <dt>Body</dt>
 <dd>
@@ -488,7 +488,7 @@ Aggregation rows that summarize the entire table’s data, regardless of <strong
 </dd>
 <dt>GT object</dt>
 <dd>
-The central object in Great Tables, created by passing a Pandas or Polars DataFrame to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>. All table-building operations are methods on this object and return a modified copy, enabling method chaining. Optional constructor arguments include <code>rowname_col</code> (to create a <strong>stub</strong>), <code>groupname_col</code> (to create <strong>row groups</strong>), <code>locale</code>, and <code>id</code>.
+The central object in <strong>Great Tables</strong>, created by passing a Polars, Pandas, or PyArrow table to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>. All table-building operations are methods on this object and return a modified copy, enabling method chaining. Optional constructor arguments include <code>rowname_col</code> (to create a <strong>stub</strong>), <code>groupname_col</code> (to create <strong>row groups</strong>), <code>locale</code>, and <code>id</code>.
 </dd>
 <dt>Header</dt>
 <dd>
@@ -512,7 +512,7 @@ A display technique that combines content from multiple columns into a single co
 </dd>
 <dt>Nanoplot</dt>
 <dd>
-A tiny inline visualization embedded directly in a table <strong>cell</strong> via <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>. Supports <code>"line"</code> and <code>"bar"</code> plot types, with optional reference lines, reference areas, and automatic y-axis scaling across rows. Appearance is customized through <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link gdls-code">nanoplot_options()</a>.
+A tiny inline visualization embedded directly in a table <strong>cell</strong> via <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>. Supports <code>"line"</code>, <code>"bar"</code>, and <code>"boxplot"</code> plot types, with optional reference lines, reference areas, and automatic y-axis scaling across rows. Appearance is customized through <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link gdls-code">nanoplot_options()</a>.
 </dd>
 <dt>Preheader</dt>
 <dd>
@@ -536,7 +536,7 @@ A label in the <strong>column header</strong> that spans across multiple contigu
 </dd>
 <dt>Stub</dt>
 <dd>
-A reserved leftmost column of the table that holds row labels, visually set apart from the <strong>body</strong> by a vertical dividing line. Created by passing <code>rowname_col=</code> to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>. The stub provides a way to name rows and is required for features like <strong>row groups</strong> and row-based selection by name. Targetable with <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a>. The <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">stub</a> sentinel object (importable from <code>great_tables</code>) can be used in <a href="../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> to set the stub column’s width.
+A reserved leftmost column of the table that holds row labels, visually set apart from the <strong>body</strong> by a vertical dividing line. Created by passing <code>rowname_col=</code> to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>. The stub provides a way to name rows and is required for row-based selection by name. Targetable with <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub()</a>. The <a href="../reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">stub</a> sentinel object (importable from <code>great_tables</code>) can be used in <a href="../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> to set the stub column’s width.
 </dd>
 <dt>Stubhead</dt>
 <dd>
@@ -556,7 +556,7 @@ Aggregation rows placed within each <strong>row group</strong> that summarize th
 </dd>
 <dt>Table theme</dt>
 <dd>
-A coordinated set of visual options that control the overall appearance of the table. Great Tables provides 36 premade themes via <a href="../reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a>, combining 6 visual styles with 6 color palettes. Fine-grained control over every aspect of the table’s appearance is available through <a href="../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a>.
+A coordinated set of visual options that control the overall appearance of the table. <strong>Great Tables</strong> provides 36 premade themes via <a href="../reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a>, combining 6 visual styles with 6 color palettes. Fine-grained control over every aspect of the table’s appearance is available through <a href="../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a>.
 </dd>
 <dt>Title</dt>
 <dd>
