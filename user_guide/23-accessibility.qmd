@@ -1,0 +1,154 @@
+---
+title: Accessibility
+jupyter: python3
+html-table-processing: none
+guide-section: Advanced Topics
+---
+
+Tables are read by people using screen readers and other assistive technology as well as by sighted
+readers. A screen reader announces a data cell together with its headers (e.g., "Germany, GDP,
+4.1"), but it can only do that when the table's structure is marked up. **Great Tables** writes that
+markup into its HTML output for you, following the patterns in the W3C's
+[Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). This page describes what's covered,
+what isn't, and what you can do to make your tables easier for everyone to read.
+
+## Row and Column Headers
+
+Every header in a **Great Tables** table is a header cell (`<th>`) with a `scope` that says what it
+labels:
+
+- column labels and spanners are column headers (`scope="col"`, or `"colgroup"` over several
+  columns)
+- stub cells (the row labels) are row headers (`scope="row"`)
+- an outer level of a hierarchical stub that's merged across rows, and the row group label when
+  `row_group_as_column=True`, head the group of rows they span (`scope="rowgroup"`)
+- row group headings and summary row labels are headers too
+
+In tables with spanners or a hierarchical stub, `scope` alone isn't enough to tell which headers
+apply to a cell, so every data cell also lists the ids of all of its headers in a `headers`
+attribute. Here's a table with all of these parts:
+
+```{python}
+import polars as pl
+from great_tables import GT, data, loc, style
+
+towny_mini = (
+    data.pl.towny
+    .filter(pl.col("csd_type").is_in(["city", "town"]))
+    .sort("population_2021", descending=True)
+    .group_by("csd_type", maintain_order=True)
+    .head(3)
+    .select("name", "csd_type", "population_1996", "population_2021")
+)
+
+gt_tbl = (
+    GT(towny_mini, rowname_col="name", groupname_col="csd_type")
+    .tab_header(title="Largest Cities and Towns in Ontario")
+    .tab_spanner(label="Population", columns=["population_1996", "population_2021"])
+    .cols_label(population_1996="1996", population_2021="2021")
+    .fmt_integer(columns=["population_1996", "population_2021"])
+)
+
+gt_tbl
+```
+
+The first data cell's `headers` attribute refers to the row group heading, the row label, the
+spanner, and the column label above it:
+
+```{python}
+import re
+
+first_cell = re.search(r"<td headers=[^>]*>", gt_tbl.as_raw_html())
+print(first_cell.group(0))
+```
+
+There's nothing to set up for any of this. Placing identifying columns in the stub with
+`rowname_col=` (rather than leaving them as ordinary columns) is what makes them row headers, so do
+that whenever the first column says what a row is about.
+
+## Naming the Table
+
+A table with a title, added with `~~GT.tab_header()`, is named after it: `<table>` refers to the
+title with `aria-labelledby` (and to the subtitle with `aria-describedby`), so a screen reader
+announces the title when the reader reaches the table. That's another good reason to give tables a
+title, even when the surrounding text describes them.
+
+If a page shows several tables, give each one an id with `GT(id=)`. Header ids are then prefixed by
+the table's id, which keeps them unique across all of the tables on the page.
+
+## Color and Contrast
+
+When `~~GT.data_color()` fills cells with color, it also picks a text color (light or dark) that
+contrasts with each fill, using the APCA contrast algorithm by default (`contrast_algo="wcag"`
+switches to the WCAG 2 formula). Keep `autocolor_text=True` unless you're setting text colors
+yourself.
+
+Color shouldn't be the only way a table conveys meaning, since some readers can't see it or can't
+tell certain colors apart. `~~GT.data_color()` keeps the values visible, so the color reinforces
+them rather than replacing them. When you highlight cells with `~~GT.tab_style()`, pair the color
+with another cue such as bold text, and prefer palettes that work for color-blind readers, such as
+the viridis family:
+
+```{python}
+(
+    gt_tbl
+    .data_color(columns="population_2021", palette="cividis")
+    .tab_style(
+        style=style.text(weight="bold"),
+        locations=loc.body(columns="population_2021", rows=pl.col("population_2021") > 500_000),
+    )
+)
+```
+
+## Images, Icons, Flags, and Nanoplots
+
+Some cell contents are graphics, which screen readers can't see, so they need a text alternative:
+
+- images from `~~GT.fmt_image()` are decorative (an empty `alt=""`) unless you give them
+  alternative text with `alt=`, as a string (with `{x}` for each image's reference in the cell) or
+  from a column with `~~from_column()`
+- nanoplots from `~~GT.fmt_nanoplot()` are described by a summary of their values (e.g., "Line
+  plot of 8 values from 12.0 to 47.0, ending at 30.0"); use `alt=` to replace or extend it (`{x}`
+  is the summary)
+- flags from `~~GT.fmt_flag()` are named after their country (with the default `use_title=True`)
+- icons from `~~GT.fmt_icon()` are treated as decoration and hidden from assistive technology
+
+Give images alternative text whenever they carry information, and keep a label beside any icon
+that means something, since the icon itself isn't announced.
+
+```{python}
+flags_df = pl.DataFrame(
+    {
+        "flag": ["CA", "GB", "JP"],
+        "trend": ["3,5,4,8,9", "6,5,5,4,3", "2,3,3,4,6"],
+    }
+)
+
+(
+    GT(flags_df)
+    .fmt_flag(columns="flag")
+    .fmt_nanoplot(columns="trend", alt="Trend: {x}")
+)
+```
+
+## Other Kinds of Output
+
+Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto
+documents, and web pages, and to interactive tables made with `~~GT.opt_interactive()` too: the
+interactivity is added to the same table markup, so its header, stub, column labels, and spanners
+are kept as they are. Its controls are labelled buttons and inputs that can be used with the
+keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting,
+searching, filtering, or turning the page) are announced to screen readers.
+
+LaTeX output and images saved with `~~GT.gtsave()` have no equivalent markup, so when you place a
+table image in a document, describe the table in that image's alternative text or in the text
+around it.
+
+## A Short Checklist
+
+- Put the identifying column in the stub (`rowname_col=`), and group rows with `groupname_col=`
+- Give the table a title with `~~GT.tab_header()`
+- Use clear column labels and spanners, since they're read aloud with every cell
+- Don't rely on color alone, and keep `autocolor_text=True` with `~~GT.data_color()`
+- Give tables an id (`GT(id=)`) when a page has more than one
+- Give informative images alternative text (`fmt_image(alt=)`), and pair icons with a text label
