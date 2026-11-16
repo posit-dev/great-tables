@@ -40,6 +40,15 @@ describe("placeParts()", () => {
     expect(a?.line).toEqual(box(200, 109.5, 204, 110.5));
   });
 
+  it("keeps clear of the boxes to avoid, where it can", () => {
+    const part: Part = { name: "a", boxes: [box(100, 100, 200, 120)], places: ["below", "above"] };
+    const [placed] = placeParts([part], [size], bounds, [box(0, 100, 400, 200)]);
+    expect(placed?.label.top).toBe(86);
+    // (Or else ignores them)
+    const [anyway] = placeParts([part], [size], box(0, 100, 400, 300), [box(0, 100, 400, 300)]);
+    expect(anyway?.label.top).toBe(124);
+  });
+
   it("keeps a name within bounds, or else at its first place", () => {
     const [edge, out] = placeParts(
       [
