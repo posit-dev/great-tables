@@ -1537,6 +1537,9 @@ export class GtTable extends HTMLElement {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
       if (this.contains(this.table)) {
         this.observeLayout();
+        if (this.spec?.display.parts === true) {
+          this.showParts(true);
+        }
         if (this.joinLink()) {
           this.matchRows();
           this.render();
@@ -1843,6 +1846,10 @@ export class GtTable extends HTMLElement {
       this.syncUndo();
     }
     this.setState("ready");
+    // (For a docs page, named from the start, for good)
+    if (spec.display.parts === true) {
+      this.showParts(true);
+    }
   }
 
   // Sort and filter the table as the spec's view says (without events). A part of the view the
@@ -3081,9 +3088,10 @@ export class GtTable extends HTMLElement {
 
   // Row highlighting and text wrapping, which gti.css styles by the element's attributes
   private setDisplay(spec: Spec): void {
-    const { highlight, wrap, monospace } = spec.display;
+    const { highlight, wrap, monospace, parts } = spec.display;
     this.toggleAttribute("data-gti-nowrap", !wrap);
     this.toggleAttribute("data-gti-monospace", monospace === true);
+    this.toggleAttribute("data-gti-parts", parts === true);
     this.toggleAttribute("data-gti-highlight", highlight);
     this.cutsText = !wrap && this.table?.querySelector(":scope > colgroup") != null;
     if (this.cutsText) {
@@ -4780,15 +4788,19 @@ export class GtTable extends HTMLElement {
     }
     // (After the search's button, which its field covers; or at the start)
     const keys = this.makeKeys(info);
-    // (In the info panel, for a table without keys, or a reader without a keyboard)
-    const parts = element(doc, "button", "gt-i-info-button", { type: "button", "data-gti-info": "parts" });
-    parts.addEventListener("click", () => {
-      this.closePanel(true);
-      this.showParts(this.partsLayer === null);
-    });
-    parts.textContent = PARTS_SHOW;
-    this.partsButton = parts;
-    info.panel.append(parts);
+    // (In the info panel, for a table without keys, or a reader without a keyboard; not for a table
+    // whose parts are always named)
+    const always = spec.display.parts === true;
+    if (!always) {
+      const parts = element(doc, "button", "gt-i-info-button", { type: "button", "data-gti-info": "parts" });
+      parts.addEventListener("click", () => {
+        this.closePanel(true);
+        this.showParts(this.partsLayer === null);
+      });
+      parts.textContent = PARTS_SHOW;
+      this.partsButton = parts;
+      info.panel.append(parts);
+    }
     if (keys !== null) {
       bar.keys = keys;
       (bar.field?.parentElement ?? root).append(keys.button, keys.panel);
@@ -4936,7 +4948,7 @@ export class GtTable extends HTMLElement {
     this.addEventListener("keydown", this.pagingKey);
 
     // `?` names the table's parts (or stops), from anywhere in the table that isn't for typing
-    if (keys !== null) {
+    if (keys !== null && !always) {
       this.partsKey = (event: KeyboardEvent) => {
         if (
           event.key === "?" &&
@@ -5569,7 +5581,8 @@ export class GtTable extends HTMLElement {
   /**
    * Name the table's parts (or stop): a layer over the table, outlining each of the parts GTI added
    * to it that it has (and shows), with its name beside it. The table works as ever under it, and
-   * it follows the parts as they move, until `?`, Escape, or a press outside the table.
+   * it follows the parts as they move, until `?`, Escape, or a press outside the table (or, with
+   * `display.parts`, for good: for a docs page).
    */
   private showParts(show: boolean): void {
     const doc = this.ownerDocument;
@@ -5597,9 +5610,11 @@ export class GtTable extends HTMLElement {
       this.partsFrame = requestAnimationFrame(frame);
     };
     frame();
-    doc.addEventListener("keydown", this.partsEscape, true);
-    doc.addEventListener("pointerdown", this.partsOutside, true);
-    this.announce("The table's parts are named, until Escape");
+    if (this.spec?.display.parts !== true) {
+      doc.addEventListener("keydown", this.partsEscape, true);
+      doc.addEventListener("pointerdown", this.partsOutside, true);
+      this.announce("The table's parts are named, until Escape");
+    }
   }
 
   private partsEscape = (event: KeyboardEvent): void => {
@@ -5770,8 +5785,11 @@ export class GtTable extends HTMLElement {
     if (keys.childElementCount === 0) {
       return null;
     }
-    // (Not on its own: the button's for the other keys, which the info panel's button names too)
-    key(["?"], PARTS_SHOW).dataset.gtiKey = "parts";
+    // (Not on its own: the button's for the other keys, which the info panel's button names too;
+    // nor for a table whose parts are always named)
+    if (spec.display.parts !== true) {
+      key(["?"], PARTS_SHOW).dataset.gtiKey = "parts";
+    }
     const popup = this.makePanel("keys", "Keyboard shortcuts", "Keyboard shortcuts");
     const heading = element(doc, "p", "gt-i-info-heading");
     heading.textContent = "Keyboard shortcuts";
@@ -9712,6 +9730,7 @@ export class GtTable extends HTMLElement {
     this.removeAttribute("data-gti-highlight");
     this.removeAttribute("data-gti-nowrap");
     this.removeAttribute("data-gti-monospace");
+    this.removeAttribute("data-gti-parts");
     this.removeAttribute("data-gti-resizing");
     this.removeAttribute("data-gti-scroll");
     this.removeAttribute("data-gti-sheet");
