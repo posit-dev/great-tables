@@ -47,6 +47,7 @@ from ._formats import (
     fmt_units,
     fmt_url,
 )
+from ._gridwell import as_gridwell
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
@@ -511,6 +512,7 @@ class GT(
     as_raw_html = as_raw_html
     write_raw_html = write_raw_html
     as_latex = as_latex
+    as_gridwell = as_gridwell
 
     pipe = pipe
 
