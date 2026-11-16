@@ -556,6 +556,14 @@ const BAR_MIN_WIDTH = 300;
 // The room (in the bar's ems) below which the bar folds (see gti.css)
 const NARROW_EM = 30;
 
+// The table's font family, which what the runtime adds around it has. (Not a lone `monospace`, as
+// a monospace table's may be, which would also take text of the default size to the platform's
+// monospace size, smaller than the page's, and 12px in Firefox on Linux; twice, it doesn't)
+const familyOf = (table: HTMLTableElement): string => {
+  const family = getComputedStyle(table).fontFamily;
+  return family === "monospace" ? "monospace, monospace" : family;
+};
+
 // (For the info panels' ids)
 let infoCount = 0;
 
@@ -2841,7 +2849,7 @@ export class GtTable extends HTMLElement {
       this.hint.setAttribute("aria-hidden", "true");
       this.hint.textContent = this.isRtl() ? "← Scroll for more" : "Scroll for more →";
       // (In the table's font, which is the table's own)
-      this.hint.style.fontFamily = getComputedStyle(table).fontFamily;
+      this.hint.style.fontFamily = familyOf(table);
       this.append(this.hint);
     }
     this.hint?.setAttribute("data-gti-shown", "");
@@ -3937,7 +3945,7 @@ export class GtTable extends HTMLElement {
       handle.setAttribute("aria-valuemax", String(spec.nrows));
       // (Saying the size, like a tooltip)
       handle.append(element(doc, "span", "gt-i-tip gt-i-rows-count", { "aria-hidden": "true" }));
-      handle.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+      handle.style.fontFamily = familyOf(this.table as HTMLTableElement);
     }
     this.placeBelow(handle);
     this.footHandle = handle;
@@ -4617,7 +4625,7 @@ export class GtTable extends HTMLElement {
     this.toolbar = toolbar;
     this.closeGap(toolbar, "top");
     // In the table's font, lined up with the table (which GT may have centred or narrowed)
-    toolbar.style.fontFamily = getComputedStyle(table).fontFamily;
+    toolbar.style.fontFamily = familyOf(table);
     this.observeLayout();
     return toolbar;
   }
@@ -4972,7 +4980,7 @@ export class GtTable extends HTMLElement {
     // Below the table, outside its scrolling container, in the table's font
     this.placeBelow(root);
     this.closeGap(root, "bottom");
-    root.style.fontFamily = getComputedStyle(table).fontFamily;
+    root.style.fontFamily = familyOf(table);
     this.addLiveRegion();
     this.observeLayout();
     this.alignBars();
@@ -5604,7 +5612,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     const layer = element(doc, "div", "gt-i-parts", { "aria-hidden": "true" });
-    layer.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+    layer.style.fontFamily = familyOf(this.table as HTMLTableElement);
     this.append(layer);
     this.partsLayer = layer;
     this.partsDrawn = "";
@@ -5825,7 +5833,7 @@ export class GtTable extends HTMLElement {
     panel.style.backgroundColor = backdropColor(this);
     if (panel === this.sheet) {
       // (A modal dialog, in the window's top layer: in the table's font, and closed by itself)
-      panel.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+      panel.style.fontFamily = familyOf(this.table as HTMLTableElement);
       this.popup = popup;
       this.sheet.showModal();
       return;
@@ -6911,7 +6919,7 @@ export class GtTable extends HTMLElement {
     }
     // (Over the table, so filled with what's behind it; in the table's font)
     panel.style.backgroundColor = backdropColor(this);
-    panel.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+    panel.style.fontFamily = familyOf(this.table as HTMLTableElement);
     panel.hidden = false;
     button.setAttribute("aria-expanded", "true");
     this.openFilter = control;
@@ -9486,7 +9494,7 @@ export class GtTable extends HTMLElement {
     // Below the table, outside its scrolling container, in the table's font
     this.placeBelow(nav);
     this.closeGap(nav, "bottom");
-    nav.style.fontFamily = getComputedStyle(table).fontFamily;
+    nav.style.fontFamily = familyOf(table);
     this.pager = pager;
     this.addLiveRegion();
     this.observeLayout();
