@@ -95,6 +95,12 @@ from great_tables import GTI, data
 )
 ```
 
+<div align="center">
+<a href="https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html"><img src="https://posit-dev.github.io/great-tables/assets/readme_gti_demo.webp" width="880px" alt="An animation of a GTI table of the cars in gtcars being used: the cars are sorted by horsepower, filtered to convertibles with the Body column's filter, searched for Ferrari, the two cars left are downloaded as a CSV file, and the filters are shown as text, before the view is reset. Profiles of the HP and Price columns change with the rows shown."></a>
+<br>
+<sub>A <code>GTI</code> table, sorted, filtered, searched, and downloaded as CSV in the browser (<a href="https://github.com/posit-dev/great-tables/blob/main/scripts/make_readme_gti_demo.py">see the code</a>).</sub>
+</div>
+
 The table works on its own in the browser (in a notebook, a Quarto document, or a saved HTML file), and in Python apps, where the app can read and set what the reader filters, sorts, and selects. See [Interactive Tables](https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html) in the User Guide to get started.
 
 ## Datasets
