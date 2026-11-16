@@ -5,7 +5,7 @@ import { CHROMIUM_TOUCH, dataRows, open, ready, tab, visible } from "./helpers";
 
 // GTI tables, with the control bar below them: exibble three times over (24 rows, in two groups),
 // 2 rows to a page (12 pages), with a search; as narrow as one column; in a container 300px wide;
-// and on one page, with room to scroll past it.
+// and on one page, with room to scroll past it; and 10 rows to a page, in a body that scrolls.
 
 const RUNTIME = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "great_tables", "js", "gti.js");
 
@@ -103,6 +103,50 @@ test("pages with its arrows, and with the keys in the bar", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
+test("pages with the keys from a click in the table", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await expect(el(page)).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(2);
+  await page.keyboard.press("End");
+  await expect(readout(page)).toHaveText("12/12");
+  await page.keyboard.press("PageUp");
+  expect(await pageOf(page)).toBe(11);
+  await page.keyboard.press("Home");
+  expect(await pageOf(page)).toBe(1);
+  // (Not on the page as a whole, which stays where it was)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test("leaves the keys to a table that scrolls, but not to its bar", async ({ page }) => {
+  // Wider than its room: the side arrows scroll it, and Home and End page
+  let errors = await ready(page, "filters-container.html");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(1);
+  await page.keyboard.press("End");
+  expect(await pageOf(page)).toBe(5);
+  await barButton(page, "Previous page").focus();
+  await page.keyboard.press("ArrowLeft");
+  expect(await pageOf(page)).toBe(4);
+  expect(errors).toEqual([]);
+
+  // With a body that scrolls: Home, End and Page Up and Down scroll it, and the side arrows page
+  errors = await ready(page, "bar-scroll-pages.html");
+  await el(page).locator("tbody td.gt_row").first().click();
+  await page.keyboard.press("End");
+  await page.keyboard.press("PageDown");
+  expect(await pageOf(page)).toBe(1);
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(2);
+  await barButton(page, "Next page").focus();
+  await page.keyboard.press("End");
+  expect(await pageOf(page)).toBe(3);
+  expect(errors).toEqual([]);
+});
+
 test("goes to the first and last pages, from buttons outside its arrows", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   const [first, last] = [barButton(page, "First page"), barButton(page, "Last page")];
@@ -126,7 +170,7 @@ test("lists its shortcuts from a button after the search's, which the open searc
   await keys.click();
   const panel = bar(page).getByRole("group", { name: "Keyboard shortcuts" });
   await expect(panel).toBeVisible();
-  await expect(panel.locator(".gt-i-info-keys")).toContainText("First or last page, in the bar");
+  await expect(panel.locator(".gt-i-info-keys")).toContainText("First or last page");
   expect((await box(panel)).bottom).toBeLessThanOrEqual((await box(bar(page))).top);
 
   await barButton(page, "Search the table").click();
