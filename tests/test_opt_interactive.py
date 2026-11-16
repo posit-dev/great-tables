@@ -181,6 +181,7 @@ class TestAsRawHtml:
             "compact": True,
             "wrap": True,
             "monospace": False,
+            "parts": False,
             "row_numbers": False,
             "row_start": 0,
             "dimensions": False,

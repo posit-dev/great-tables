@@ -57,6 +57,7 @@ GTI_DEFAULTS = {
         "compact": False,
         "wrap": True,
         "monospace": False,
+        "parts": False,
         "row_numbers": False,
         "row_start": 0,
         "dimensions": False,
@@ -425,6 +426,17 @@ def test_i_display_monospace():
     assert GTI(DF).as_raw_html().startswith("<gt-table data-gti-bar data-gti-stack>")
 
 
+def test_i_display_parts():
+    gti = GTI(DF).i_display(parts=True)
+    assert interactive_of(gti) == with_changes(display={"parts": True})
+    assert spec_of(gti)["display"]["parts"] is True
+    assert spec_of(GTI(DF))["display"]["parts"] is False
+    # (Marked, for the room its names take below it, before the runtime runs: see gti.css)
+    assert gti.as_raw_html().startswith("<gt-table data-gti-bar data-gti-parts data-gti-stack>")
+    # (As every `i_` method does, a call sets them all: not named again, without it)
+    assert spec_of(gti.i_display(compact=True))["display"]["parts"] is False
+
+
 @pytest.mark.parametrize(
     "make, kind",
     [
@@ -478,7 +490,7 @@ def test_i_display_compact_halves_row_padding():
     assert row_padding(GTI(DF, id="t").i_display(compact=True)) == "4px"
 
 
-@pytest.mark.parametrize("option", ["highlight", "compact", "wrap", "monospace"])
+@pytest.mark.parametrize("option", ["highlight", "compact", "wrap", "monospace", "parts"])
 def test_i_display_takes_bools(option: str):
     with pytest.raises(TypeError, match=f"`{option}=` must be `True` or `False`"):
         GTI(DF).i_display(**{option: "yes"})
