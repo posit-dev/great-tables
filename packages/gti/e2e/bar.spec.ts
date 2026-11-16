@@ -692,6 +692,58 @@ test("gives a narrow bar's room to the open search", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("has the page's font size under a monospace table, and folds as wide", async ({ page }) => {
+  // (Not the platform's monospace size, smaller, which a lone `monospace` would give it)
+  const errors = await ready(page, "collapse.html");
+  const size = (locator: Locator) => locator.evaluate((node) => getComputedStyle(node).fontSize);
+  expect(await size(bar(page))).toBe(await size(el(page)));
+  await expect(bar(page)).toHaveAttribute("data-gti-narrow", "");
+  expect(errors).toEqual([]);
+});
+
+test("folds a bar with little room, not one under a narrow table with room", async ({ page }) => {
+  const errors = await ready(page, "bar-narrow.html");
+  // (As narrow as the bar in a narrow container, but with room, so not marked to fold: see the
+  // sheet's tests for what folds)
+  expect((await box(bar(page))).width).toBeCloseTo(300, 0);
+  await expect(bar(page)).not.toHaveAttribute("data-gti-narrow");
+  await page.locator("body").evaluate((body) => (body.style.width = "300px"));
+  await expect(bar(page)).toHaveAttribute("data-gti-narrow", "");
+  await page.locator("body").evaluate((body) => (body.style.width = ""));
+  await expect(bar(page)).not.toHaveAttribute("data-gti-narrow");
+  expect(errors).toEqual([]);
+});
+
+test("outlines every line of its controls, where they still take more than one", async ({ page }) => {
+  // (With undo and redo, in a body too narrow for them on one line)
+  const errors = await ready(page, "bar-scroll-pages.html");
+  const outline = () =>
+    bar(page).evaluate((node) => {
+      const { top, bottom } = node.getBoundingClientRect();
+      const style = getComputedStyle(node, "::before");
+      return { top: top + parseFloat(style.top), bottom: bottom - parseFloat(style.bottom) };
+    });
+  const line = async () => {
+    const [search, info] = await Promise.all([box(barButton(page, "Search the table")), box(barButton(page, "Table info"))]);
+    return { search, info };
+  };
+  let { search, info } = await line();
+  expect(info.top).toBeCloseTo(search.top, 0);
+  expect((await outline()).top).toBeCloseTo(search.top, 0);
+  await page.locator("body").evaluate((body) => (body.style.width = "200px"));
+  await expect.poll(async () => (await line()).info.top - (await line()).search.top).toBeGreaterThan(20);
+  ({ search, info } = await line());
+  // (From the first line's top to the last's bottom)
+  await expect.poll(async () => (await outline()).top).toBeCloseTo(search.top, 0);
+  expect((await outline()).bottom).toBeCloseTo(info.bottom, 0);
+  // (And one line again, with room)
+  await page.locator("body").evaluate((body) => (body.style.width = ""));
+  await expect.poll(async () => Math.round((await outline()).top - (await line()).info.top)).toBe(0);
+  // (Narrow enough to wrap, the table is stacked, and it's unstacked as it's laid out with room,
+  // which the observer doing so reports as a loop: Safari logs it, as in stack.spec.ts)
+  expect(errors.filter((error) => !error.startsWith("ResizeObserver loop"))).toEqual([]);
+});
+
 test("sticks to the bottom of the view for a table of every row", async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 400 });
   const errors = await ready(page, "bar-sticky.html");
