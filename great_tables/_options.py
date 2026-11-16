@@ -1499,10 +1499,9 @@ def opt_table_font(
 
     ```{python}
     import polars as pl
-    from great_tables import GT
-    from great_tables.data import sp500
+    from great_tables import GT, data
 
-    sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+    sp500_mini = data.pl.sp500.slice(0, 10).drop(["volume", "adj_close"])
 
     (
         GT(sp500_mini, rowname_col="date")
@@ -1523,10 +1522,10 @@ def opt_table_font(
     computing environments.
 
     ```{python}
-    from great_tables.data import sza
+    from great_tables import data
 
     sza_mini = (
-        pl.from_pandas(sza)
+        data.pl.sza
         .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
         .drop_nulls()
         .drop(["latitude", "month"])
@@ -1791,10 +1790,10 @@ def opt_css(
     value of `"one"`, setting it up with `GT(id=)`).
 
     ```{python}
-    from great_tables import GT, exibble
+    from great_tables import GT, data
     import polars as pl
 
-    exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+    exibble_mini = data.pl.exibble.select(["num", "currency"])
 
     (
         GT(exibble_mini, id="one")

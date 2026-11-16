@@ -98,12 +98,11 @@ def cols_label(
     `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import reactions
+    from great_tables import GT, data
     import polars as pl
 
     reactions_mini = (
-        pl.from_pandas(reactions)
+        data.pl.reactions
         .filter(pl.col("cmpd_type") == "mercaptan")
         .select(["cmpd_name", "OH_k298"])
     )

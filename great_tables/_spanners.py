@@ -1221,12 +1221,11 @@ def cols_merge(
     columns together, and the `low` & `high` columns (putting an em dash between both).
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import sp500
+    from great_tables import GT, data
     import polars as pl
 
     sp500_mini = (
-        pl.from_pandas(sp500)
+        data.pl.sp500
         .slice(49, 6)
         .select("open", "close", "low", "high")
     )
@@ -1251,11 +1250,11 @@ def cols_merge(
     any of the merged columns have missing values.
 
     ```{python}
-    from great_tables.data import gtcars
+    from great_tables import data
     import polars.selectors as cs
 
     gtcars_pl = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .filter(pl.col("year") == 2017)
         .select(["mfr", "model", "trq", "trq_rpm", "mpg_c", "mpg_h"])
     )
@@ -1389,12 +1388,11 @@ def cols_merge_uncert(
     columns together as a value with uncertainty.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import exibble
+    from great_tables import GT, data
     import polars as pl
 
     exibble_mini = (
-        pl.from_pandas(exibble)
+        data.pl.exibble
         .select("num", "currency")
         .slice(0, 7)
     )
@@ -1533,12 +1531,11 @@ def cols_merge_range(
     together as a range.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import gtcars
+    from great_tables import GT, data
     import polars as pl
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select("model", "mpg_c", "mpg_h")
         .slice(0, 8)
     )

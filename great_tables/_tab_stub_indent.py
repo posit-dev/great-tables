@@ -64,12 +64,11 @@ def tab_stub_indent(
     and indents them by 4 levels.
 
     ```{python}
-    from great_tables import GT, stub
-    from great_tables.data import constants
+    from great_tables import GT, data, stub
     import polars as pl
 
     constants_mini = (
-        pl.from_pandas(constants)
+        data.pl.constants
         .select(["name", "value", "uncert", "units"])
         .filter(
             pl.col("name").str.starts_with("atomic mass constant")
