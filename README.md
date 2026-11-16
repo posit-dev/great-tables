@@ -85,13 +85,33 @@ Typically we use **Great Tables** in a notebook environment or within a [**Quart
 A `GTI` table is a `GT` table that readers can work with: it has all the same methods for structuring, formatting, and styling, and `i_*()` methods that set up what readers can do with it. Out of the box, it can be sorted, searched, and paged through.
 
 ```python
+import polars as pl
 from great_tables import GTI, data
 
+cars = data.pl.gtcars.select(
+    "mfr", "model", "year", "bdy_style", "ctry_origin", "hp", "mpg_h", "msrp"
+).with_columns(pl.col("bdy_style").str.to_titlecase())
+
 (
-    GTI(data.pl.towny.select("name", "status", "population_2021"), rowname_col="name")
-    .fmt_integer(columns="population_2021")
+    GTI(cars)
+    .tab_header(title="Grand Touring Cars", subtitle="47 cars from the gtcars dataset")
+    .cols_label(
+        mfr="Make",
+        model="Model",
+        year="Year",
+        bdy_style="Body",
+        ctry_origin="Origin",
+        hp="HP",
+        mpg_h="MPG",
+        msrp="Price",
+    )
+    .fmt_integer(columns=["year", "hp", "mpg_h"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .data_color(columns="hp", palette=["#FFF5EB", "#FDAE6B"])
     .i_cols_filter()
-    .i_cols_profile()
+    .i_cols_profile(columns=["hp", "msrp"])
+    .i_export("csv")
+    .i_pagination(page_size=8)
 )
 ```
 
