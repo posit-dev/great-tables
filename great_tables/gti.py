@@ -287,12 +287,20 @@ class GTI(GT):
         A table made with `GT()` can become interactive at the end.
 
         ```{python}
-        from great_tables import GT, GTI
-        from great_tables.data import towny
+        from great_tables import GT, GTI, data
 
-        gt_tbl = GT(towny[["name", "population_2021"]]).fmt_integer(columns="population_2021")
+        towny_mini = data.pl.towny.select("name", "population_2021")
+
+        gt_tbl = GT(towny_mini).fmt_integer(columns="population_2021")
 
         GTI.from_gt(gt_tbl)
+        ```
+
+        A Polars DataFrame's `.style` property makes a `GT` table too, so a table started from it
+        can become interactive in the same way.
+
+        ```{python}
+        GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
         ```
         """
         if isinstance(gt, GTI):
