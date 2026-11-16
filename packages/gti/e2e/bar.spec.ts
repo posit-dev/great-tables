@@ -218,6 +218,56 @@ test("shows in its outline that the table has focus, for its keys", async ({ pag
   expect(errors).toEqual([]);
 });
 
+test("names its parts on `?`, apart from each other and by their outlines, until Escape", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const layer = el(page).locator(".gt-i-parts");
+  const names = layer.locator(".gt-i-parts-name");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await page.keyboard.press("?");
+  await expect(layer).toBeVisible();
+  for (const name of ["Search", "Keyboard shortcuts", "Page controls", "Page counter", "Table info"]) {
+    await expect(names.getByText(name, { exact: true })).toHaveCount(1);
+  }
+  // (With no focus ring of the browser's around the table, for the key pressed after the click)
+  expect(await el(page).evaluate((node) => getComputedStyle(node).outlineStyle)).toBe("none");
+  // None over another, each in the table's box, and an outline for each
+  const labels = await names.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { left, right, top, bottom } = node.getBoundingClientRect();
+      return { left, right, top, bottom };
+    }),
+  );
+  for (const [i, a] of labels.entries()) {
+    for (const b of labels.slice(i + 1)) {
+      expect(a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom).toBe(false);
+    }
+  }
+  const outer = await box(el(page));
+  expect(Math.min(...labels.map((label) => label.top))).toBeGreaterThanOrEqual(outer.top - 0.5);
+  expect(await layer.locator(".gt-i-parts-box").count()).toBeGreaterThanOrEqual(labels.length);
+  // (And follows the table as it changes: the search's open field)
+  const before = await names.getByText("Search", { exact: true }).evaluate((node) => node.getBoundingClientRect().left);
+  await barButton(page, "Search the table").click();
+  await expect(search(page)).toBeFocused();
+  await expect(layer).toBeVisible();
+  await expect
+    .poll(() => names.getByText("Search", { exact: true }).evaluate((node) => node.getBoundingClientRect().left))
+    .not.toBe(before);
+
+  await page.keyboard.press("Escape");
+  await expect(layer).toHaveCount(0);
+  // (The search stays open: Escape went to the names first)
+  await expect(search(page)).toBeVisible();
+
+  // From the info panel's button, until a press outside the table
+  await barButton(page, "Table info").click();
+  await el(page).getByRole("button", { name: "Name the table's parts" }).click();
+  await expect(layer).toBeVisible();
+  await page.mouse.click(2, outer.bottom + 40);
+  await expect(layer).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test("resets the view from a button that shows while there's something to reset", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   const reset = barButton(page, "Reset the view");
