@@ -28,6 +28,7 @@ import {
 } from "./filter";
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
+import { type Box, type Part, type Place, placeParts, union } from "./parts";
 import { Profile, timeOf } from "./profile";
 import {
   formatColumn,
@@ -590,6 +591,8 @@ const onMac = () => typeof navigator !== "undefined" && /Mac|iP(hone|ad|od)/.tes
 // What can have text typed into it, where `/` is a character rather than the search's key
 const TYPED = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable]';
 
+const PARTS_SHOW = "Name the table's parts";
+
 /** A cell's text, for announcements and exports: without footnote marks. */
 function labelText(cell: Element): string {
   return (withoutMarks(cell).textContent ?? "").replace(/\s+/g, " ").trim();
@@ -941,6 +944,15 @@ export class GtTable extends HTMLElement {
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
   /** The element's handler for the keys that page. */
   private pagingKey: ((event: KeyboardEvent) => void) | null = null;
+  /** The element's handler for `?`, which names the table's parts (see `showParts()`). */
+  private partsKey: ((event: KeyboardEvent) => void) | null = null;
+  /** The info panel's button that names the table's parts. */
+  private partsButton: HTMLButtonElement | null = null;
+  /** The layer over the table naming its parts, while they're named. */
+  private partsLayer: HTMLElement | null = null;
+  /** The frame the parts are measured in next, and where they were last (so as not to redraw them). */
+  private partsFrame = 0;
+  private partsDrawn = "";
   /** Whether the element has the `tabindex` it was given for its keys (see `addBar()`). */
   private ownTabIndex = false;
   /** Whether the bar's readout is an input for the page to go to. */
@@ -1546,6 +1558,7 @@ export class GtTable extends HTMLElement {
 
   disconnectedCallback(): void {
     this.leaveLink();
+    this.showParts(false);
     this.closePanel(false);
     this.closeFilter(false);
     this.stopObserving();
@@ -4767,6 +4780,15 @@ export class GtTable extends HTMLElement {
     }
     // (After the search's button, which its field covers; or at the start)
     const keys = this.makeKeys(info);
+    // (In the info panel, for a table without keys, or a reader without a keyboard)
+    const parts = element(doc, "button", "gt-i-info-button", { type: "button", "data-gti-info": "parts" });
+    parts.addEventListener("click", () => {
+      this.closePanel(true);
+      this.showParts(this.partsLayer === null);
+    });
+    parts.textContent = PARTS_SHOW;
+    this.partsButton = parts;
+    info.panel.append(parts);
     if (keys !== null) {
       bar.keys = keys;
       (bar.field?.parentElement ?? root).append(keys.button, keys.panel);
@@ -4912,6 +4934,24 @@ export class GtTable extends HTMLElement {
       this.userPage(to);
     };
     this.addEventListener("keydown", this.pagingKey);
+
+    // `?` names the table's parts (or stops), from anywhere in the table that isn't for typing
+    if (keys !== null) {
+      this.partsKey = (event: KeyboardEvent) => {
+        if (
+          event.key === "?" &&
+          !event.altKey &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.defaultPrevented &&
+          (event.target as Element).closest(TYPED) === null
+        ) {
+          event.preventDefault();
+          this.showParts(this.partsLayer === null);
+        }
+      };
+      this.addEventListener("keydown", this.partsKey);
+    }
 
     this.addTips(root);
     // Below the table, outside its scrolling container, in the table's font
@@ -5527,6 +5567,144 @@ export class GtTable extends HTMLElement {
   }
 
   /**
+   * Name the table's parts (or stop): a layer over the table, outlining each of the parts GTI added
+   * to it that it has (and shows), with its name beside it. The table works as ever under it, and
+   * it follows the parts as they move, until `?`, Escape, or a press outside the table.
+   */
+  private showParts(show: boolean): void {
+    const doc = this.ownerDocument;
+    if (show === (this.partsLayer !== null) || (show && this.bar === null)) {
+      return;
+    }
+    if (this.partsButton !== null) {
+      this.partsButton.textContent = show ? "Stop naming the parts" : PARTS_SHOW;
+    }
+    if (!show) {
+      cancelAnimationFrame(this.partsFrame);
+      this.partsLayer?.remove();
+      this.partsLayer = null;
+      doc.removeEventListener("keydown", this.partsEscape, true);
+      doc.removeEventListener("pointerdown", this.partsOutside, true);
+      return;
+    }
+    const layer = element(doc, "div", "gt-i-parts", { "aria-hidden": "true" });
+    layer.style.fontFamily = getComputedStyle(this.table as HTMLTableElement).fontFamily;
+    this.append(layer);
+    this.partsLayer = layer;
+    this.partsDrawn = "";
+    const frame = () => {
+      this.drawParts(layer);
+      this.partsFrame = requestAnimationFrame(frame);
+    };
+    frame();
+    doc.addEventListener("keydown", this.partsEscape, true);
+    doc.addEventListener("pointerdown", this.partsOutside, true);
+    this.announce("The table's parts are named, until Escape");
+  }
+
+  private partsEscape = (event: KeyboardEvent): void => {
+    if (event.key === "Escape") {
+      // (Before anything else Escape would close)
+      event.preventDefault();
+      event.stopPropagation();
+      this.showParts(false);
+    }
+  };
+
+  private partsOutside = (event: PointerEvent): void => {
+    if (!this.contains(event.target as Node)) {
+      this.showParts(false);
+    }
+  };
+
+  /** Draw the parts' outlines and names on `layer`, where the parts are now (if they've moved). */
+  private drawParts(layer: HTMLElement): void {
+    const bar = this.bar as Bar;
+    const origin = this.getBoundingClientRect();
+    const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
+    // (What's in the scrolling container, as far as it shows)
+    const clip = this.scroller?.getBoundingClientRect();
+    const boxOf = (els: (Element | null | undefined)[]): Box | null => {
+      const boxes = els.flatMap((el) => {
+        if (el == null) {
+          return [];
+        }
+        let { left, top, right, bottom } = el.getBoundingClientRect();
+        if (clip !== undefined && this.scroller?.contains(el)) {
+          [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
+          [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
+        }
+        return right - left < 1 || bottom - top < 1
+          ? []
+          : [{ left: left - x0 - 2, top: top - y0 - 2, right: right - x0 + 2, bottom: bottom - y0 + 2 }];
+      });
+      return union(boxes);
+    };
+    const all = (selector: string) => Array.from(this.querySelectorAll(selector));
+    const [start, end]: [Place, Place] = getComputedStyle(this).direction === "rtl" ? ["right", "left"] : ["left", "right"];
+    const beside: Place[] = [end, start, "above", "below"];
+    const onBar: Place[] = ["above", "below"];
+    const handle = this.footHandle;
+    const named: [string, (Element | null | undefined)[][], Place[]][] = [
+      ["Status line", [[this.dimensions]], beside],
+      ["Column controls", [all("thead :is(.gt-i-dtype, .gt-i-sort, .gt-i-filter-button)")], [start, end, "above"]],
+      ["Column profiles", [all("thead .gt-i-profiled .gt-i-profile")], [start, end, "below"]],
+      ["Row numbers", [all("tbody .gt-i-rownum")], [start, "over"]],
+      [handle?.classList.contains("gt-i-rows") ? "Rows handle" : "Height handle", [[handle]], beside],
+      ["Filter tokens", [all(".gt-i-bar .gt-i-token")], beside],
+      ["Search", [[bar.toggle, bar.field]], onBar],
+      ["Keyboard shortcuts", [[bar.keys?.button]], onBar],
+      ["Page controls", [[bar.first, bar.previous], [bar.next, bar.last]], onBar],
+      ["Page counter", [[bar.readout, bar.jump]], onBar],
+      ["Filters as text", [[bar.query?.toggle]], onBar],
+      ["Filter & sort", [[bar.sheet]], onBar],
+      ["Columns", [[bar.columns?.button]], onBar],
+      ["Grouping", [[bar.grouper?.button]], onBar],
+      ["Export", [[bar.exporter?.button]], onBar],
+      ["Undo / redo", [[bar.undo, bar.redo]], onBar],
+      ["Reset", [[bar.reset]], onBar],
+      ["Table info", [[bar.info.button]], onBar],
+    ];
+    const parts = named.flatMap(([name, groups, places]): Part[] => {
+      const boxes = groups.map(boxOf).filter((box): box is Box => box !== null);
+      return boxes.length === 0 ? [] : [{ name, boxes, places }];
+    });
+    const drawn = JSON.stringify([origin.width, origin.height, parts]);
+    if (drawn === this.partsDrawn) {
+      return;
+    }
+    this.partsDrawn = drawn;
+    const doc = this.ownerDocument;
+    const labels = parts.map(({ name }) => {
+      const label = element(doc, "span", "gt-i-parts-name");
+      label.textContent = name;
+      return label;
+    });
+    layer.replaceChildren(...labels);
+    const sizes = labels.map((label) => ({ width: label.offsetWidth, height: label.offsetHeight }));
+    // (Within the element, and the view)
+    const bounds = {
+      left: Math.max(0, -x0),
+      top: 0,
+      right: Math.min(origin.width, doc.documentElement.clientWidth - x0),
+      bottom: origin.height,
+    };
+    const put = (el: HTMLElement, { left, top, right, bottom }: Box) => {
+      Object.assign(el.style, { left: `${left}px`, top: `${top}px`, width: `${right - left}px`, height: `${bottom - top}px` });
+      return el;
+    };
+    placeParts(parts, sizes, bounds).forEach(({ boxes, label, line }, i) => {
+      layer.prepend(
+        ...boxes.map((box) => put(element(doc, "span", "gt-i-parts-box"), box)),
+        ...(line === null ? [] : [put(element(doc, "span", "gt-i-parts-line"), line)]),
+      );
+      const name = labels[i] as HTMLElement;
+      name.style.left = `${label.left}px`;
+      name.style.top = `${label.top}px`;
+    });
+  }
+
+  /**
    * Make the keyboard shortcuts' panel, and the bar's button that opens it: the keys the table
    * answers to (with focus in it), and the clicks with Shift. `null` if there are none.
    */
@@ -5576,6 +5754,8 @@ export class GtTable extends HTMLElement {
     if (keys.childElementCount === 0) {
       return null;
     }
+    // (Not on its own: the button's for the other keys, which the info panel's button names too)
+    key(["?"], PARTS_SHOW).dataset.gtiKey = "parts";
     const popup = this.makePanel("keys", "Keyboard shortcuts", "Keyboard shortcuts");
     const heading = element(doc, "p", "gt-i-info-heading");
     heading.textContent = "Keyboard shortcuts";
@@ -7718,7 +7898,7 @@ export class GtTable extends HTMLElement {
         entry.hidden = !paged;
       }
       bar.keys.button.hidden = bar.keys.open.hidden = Array.from(
-        bar.keys.panel.querySelectorAll<HTMLElement>("dl > div"),
+        bar.keys.panel.querySelectorAll<HTMLElement>("dl > div:not([data-gti-key])"),
         (entry) => entry.hidden,
       ).every(Boolean);
       if (bar.keys.button.hidden) {
@@ -9372,6 +9552,10 @@ export class GtTable extends HTMLElement {
     if (this.pagingKey !== null) {
       this.removeEventListener("keydown", this.pagingKey);
     }
+    if (this.partsKey !== null) {
+      this.removeEventListener("keydown", this.partsKey);
+    }
+    this.showParts(false);
     if (this.undoKey !== null) {
       this.removeEventListener("keydown", this.undoKey);
     }
@@ -9446,6 +9630,8 @@ export class GtTable extends HTMLElement {
     this.bar = null;
     this.slashKey = null;
     this.pagingKey = null;
+    this.partsKey = null;
+    this.partsButton = null;
     this.removeAttribute("data-gti-keys");
     if (this.ownTabIndex) {
       this.removeAttribute("tabindex");
