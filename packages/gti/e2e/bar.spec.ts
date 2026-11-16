@@ -692,6 +692,15 @@ test("gives a narrow bar's room to the open search", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("has the page's font size under a monospace table, and folds as wide", async ({ page }) => {
+  // (Not the platform's monospace size, smaller, which a lone `monospace` would give it)
+  const errors = await ready(page, "collapse.html");
+  const size = (locator: Locator) => locator.evaluate((node) => getComputedStyle(node).fontSize);
+  expect(await size(bar(page))).toBe(await size(el(page)));
+  await expect(bar(page)).toHaveAttribute("data-gti-narrow", "");
+  expect(errors).toEqual([]);
+});
+
 test("folds a bar with little room, not one under a narrow table with room", async ({ page }) => {
   const errors = await ready(page, "bar-narrow.html");
   // (As narrow as the bar in a narrow container, but with room, so not marked to fold: see the
