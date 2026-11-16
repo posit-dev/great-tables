@@ -1,0 +1,1688 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rich-iannone.github.io/gridwell/schema/ir-1.0.schema.json",
+  "title": "gridwell IR 1.0",
+  "description": "A table in gridwell's IR, version 1.0: a finished table, its cells' text already formatted, with its spans, styles, heading and notes. The schema describes the IR as an emitter should write it: keywords in their canonical spelling (gridwell also reads them in any case and reads their aliases). Fields it doesn't list are allowed and ignored, as are content nodes of types it doesn't list. A table of a later IR 1.x version may also hold keyword values and forms it doesn't list, which gridwell reads as unset: check it against that version's schema. What it can't express, such as whether a style id is defined and whether the spans fit, gridwell validates: see https://rich-iannone.github.io/gridwell/schema/validation.html.",
+  "type": "object",
+  "required": [
+    "ir_version",
+    "config",
+    "column_spec",
+    "table"
+  ],
+  "properties": {
+    "ir_version": {
+      "type": "string",
+      "pattern": "^0*1\\.[0-9]+$",
+      "description": "The IR version, `\"1.0\"` (below)"
+    },
+    "config": {
+      "$ref": "#/$defs/config",
+      "description": "Table-level configuration"
+    },
+    "styles": {
+      "$ref": "#/$defs/styles",
+      "description": "The style palette: left out, or `{}`, for none",
+      "default": {
+        "defs": {},
+        "compositions": {},
+        "conditionals": []
+      }
+    },
+    "header": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/header"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Title, subtitle and extra header lines",
+      "default": null
+    },
+    "column_spec": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/column"
+      },
+      "description": "One entry per column"
+    },
+    "table": {
+      "$ref": "#/$defs/table_block",
+      "description": "The column labels and the body"
+    },
+    "footer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/footer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Footnotes and source notes",
+      "default": null
+    },
+    "extensions": {
+      "description": "Anything a producer wants to carry along. No writer reads it, and it round-trips unchanged; namespace its keys (`\"example.com/producer\"`)",
+      "default": null
+    }
+  },
+  "$defs": {
+    "config": {
+      "type": "object",
+      "description": "Table-level configuration.",
+      "required": [
+        "table_cols"
+      ],
+      "properties": {
+        "table_cols": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Number of columns"
+        },
+        "header_rows": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Number of rows in `thead`, checked when given (`ROW_COUNT`)",
+          "default": null
+        },
+        "body_rows": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Number of data rows across all row groups (summary rows not counted), checked when given",
+          "default": null
+        },
+        "stub_cols": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295,
+          "default": 0,
+          "description": "Number of stub (row label) columns, at the left"
+        },
+        "row_striping": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stripe alternate data rows (below)"
+        },
+        "row_striping_include_stub": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stripe the stub cells"
+        },
+        "row_striping_include_body": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stripe the other cells"
+        },
+        "column_labels_hidden": {
+          "type": "boolean",
+          "default": false,
+          "description": "Leave out the column labels: every format draws an empty head"
+        },
+        "table_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The table's width: a length, or a % of the line (widths)",
+          "default": null
+        },
+        "container_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "HTML: the most the container around the table is wide (`max-width`)",
+          "default": null
+        },
+        "container_height": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "HTML: the most the container is high (`max-height`)",
+          "default": null
+        },
+        "container_overflow": {
+          "enum": [
+            "visible",
+            "hidden",
+            "clip",
+            "scroll",
+            "auto",
+            null
+          ],
+          "description": "HTML: what the container does with a table that doesn't fit (`overflow`: `visible`, `hidden`, `clip`, `scroll` or `auto`)",
+          "default": null
+        },
+        "locale": {
+          "type": "string",
+          "description": "The locale the producer formatted values in. HTML takes its document's `lang` from it when `lang` isn't set",
+          "default": "en-US"
+        },
+        "lang": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/lang"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The language of the table's text, a BCP 47 tag (language and direction)",
+          "default": null
+        },
+        "dir": {
+          "enum": [
+            "ltr",
+            "rtl",
+            "auto",
+            null
+          ],
+          "description": "`\"ltr\"`, `\"rtl\"` or `\"auto\"`: the direction its columns and text run in",
+          "default": null
+        },
+        "page_break_mode": {
+          "enum": [
+            "avoid",
+            "allow",
+            "force-between-groups"
+          ],
+          "description": "How a paged format may break the table across pages, a hint it follows as far as it can: `avoid` keeps the table on one page, `allow` breaks it between rows and repeats the column labels, and `force-between-groups` starts each row group on a new page.",
+          "default": "avoid"
+        },
+        "aria_label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "HTML: the table's accessible name (`aria-label`), in place of the title",
+          "default": null
+        },
+        "aria_describedby": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "HTML: the ids of the elements that describe the table (`aria-describedby`), in place of the subtitle",
+          "default": null
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "HTML: a `<caption>` for the table, which then names it in place of the title",
+          "default": null
+        },
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/table_id"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The table's id, as gt's `gt(id =)` and Great Tables' `GT(id=)`: not empty and without whitespace (`INVALID_TABLE_ID`). HTML uses it as the writer's `table_id` when that option isn't set",
+          "default": null
+        },
+        "rules": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/rules"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The table's own rules, each in place of one of the default look's (below)",
+          "default": null
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "description": "The table's rules, each replacing one of the default look's: a field it sets replaces that field of the default rule, and a `style` of `none` or `hidden` removes the rule.",
+      "properties": {
+        "title": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Above the heading, when the table has one (default 2px solid `#A8A8A8`)",
+          "default": null
+        },
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The table's top: under the heading, above the column labels (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "column_labels": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Under the column labels (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "spanners": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Under each spanner label (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "group": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Above and below each group label (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "rows": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Between body rows (1px solid `#D3D3D3`)",
+          "default": null
+        },
+        "stub": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "After the stub: right of it, or left in a right-to-left table (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Between a group's summary rows and its data rows (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "grand_summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Between the grand summary rows and the rows next to them (6px double `#D3D3D3`)",
+          "default": null
+        },
+        "bottom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The table's bottom: above the footer (2px solid `#D3D3D3`)",
+          "default": null
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Below the footer, when the table has one (2px solid `#A8A8A8`)",
+          "default": null
+        }
+      }
+    },
+    "styles": {
+      "type": "object",
+      "description": "The style palette: definitions, compositions and conditional styles.",
+      "properties": {
+        "defs": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/style_id"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/style_def"
+          },
+          "description": "Style definitions, by style id",
+          "default": {}
+        },
+        "compositions": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/style_id"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/style_composition"
+          },
+          "description": "Compositions, by style id (below)",
+          "default": {}
+        },
+        "conditionals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/conditional_style"
+          },
+          "description": "Styles for the rows a selector matches (below)",
+          "default": []
+        }
+      }
+    },
+    "style_def": {
+      "type": "object",
+      "description": "A style definition. Every field is optional; a field left out or `null` isn't set.",
+      "properties": {
+        "font_family": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "CSS font list (`\"Georgia, serif\"`)",
+          "default": null
+        },
+        "font_size": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/font_size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A length or a CSS size keyword (`small`, `larger`, …)",
+          "default": null
+        },
+        "font_weight": {
+          "$ref": "#/$defs/font_weight",
+          "description": "`\"normal\"`, `\"bold\"`, `\"bolder\"`, `\"lighter\"`, or 1–1000 (string or number)",
+          "default": null
+        },
+        "font_style": {
+          "enum": [
+            "normal",
+            "italic",
+            "oblique",
+            null
+          ],
+          "description": "`\"normal\"`, `\"italic\"`, `\"oblique\"`",
+          "default": null
+        },
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/color"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Text color",
+          "default": null
+        },
+        "background_color": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/color"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Background color",
+          "default": null
+        },
+        "text_align": {
+          "enum": [
+            "left",
+            "center",
+            "right",
+            "justify",
+            "char",
+            null
+          ],
+          "description": "`\"left\"`, `\"center\"`, `\"right\"`, `\"justify\"`, `\"char\"`",
+          "default": null
+        },
+        "vertical_align": {
+          "enum": [
+            "top",
+            "middle",
+            "bottom",
+            "baseline",
+            "super",
+            "sub",
+            null
+          ],
+          "description": "`\"top\"`, `\"middle\"`, `\"bottom\"`, `\"baseline\"`, `\"super\"`, `\"sub\"`",
+          "default": null
+        },
+        "text_transform": {
+          "enum": [
+            "none",
+            "uppercase",
+            "lowercase",
+            "capitalize",
+            null
+          ],
+          "description": "`\"none\"`, `\"uppercase\"`, `\"lowercase\"`, `\"capitalize\"`",
+          "default": null
+        },
+        "text_decoration": {
+          "enum": [
+            "none",
+            "underline",
+            "overline",
+            "line-through",
+            null
+          ],
+          "description": "`\"none\"`, `\"underline\"`, `\"overline\"`, `\"line-through\"`",
+          "default": null
+        },
+        "white_space": {
+          "enum": [
+            "normal",
+            "nowrap",
+            "pre",
+            "pre-wrap",
+            "pre-line",
+            "break-spaces",
+            null
+          ],
+          "description": "`\"normal\"`, `\"nowrap\"`, `\"pre\"`, `\"pre-wrap\"`, `\"pre-line\"`, `\"break-spaces\"`",
+          "default": null
+        },
+        "padding": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/padding"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Space inside the cell, by side (below)",
+          "default": null
+        },
+        "border": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border_set"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The cell's borders, by side (below)",
+          "default": null
+        },
+        "indent": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/indent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Indent of the first line (may be negative)",
+          "default": null
+        },
+        "word_break": {
+          "enum": [
+            "normal",
+            "break-all",
+            "keep-all",
+            "break-word",
+            null
+          ],
+          "description": "`\"normal\"`, `\"break-all\"`, `\"keep-all\"`, `\"break-word\"`",
+          "default": null
+        },
+        "overflow": {
+          "enum": [
+            "visible",
+            "hidden",
+            "clip",
+            "scroll",
+            "auto",
+            null
+          ],
+          "description": "`\"visible\"`, `\"hidden\"`, `\"clip\"`, `\"scroll\"`, `\"auto\"`",
+          "default": null
+        },
+        "text_overflow": {
+          "enum": [
+            "clip",
+            "ellipsis",
+            null
+          ],
+          "description": "`\"clip\"`, `\"ellipsis\"`",
+          "default": null
+        },
+        "min_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The least the cell is wide",
+          "default": null
+        },
+        "max_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The most the cell is wide",
+          "default": null
+        }
+      }
+    },
+    "padding": {
+      "type": "object",
+      "description": "Padding, side by side.",
+      "properties": {
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Padding above the content",
+          "default": null
+        },
+        "right": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Padding to its right",
+          "default": null
+        },
+        "bottom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Padding below it",
+          "default": null
+        },
+        "left": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Padding to its left",
+          "default": null
+        }
+      }
+    },
+    "border_set": {
+      "type": "object",
+      "description": "Borders, side by side.",
+      "properties": {
+        "top": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The top border",
+          "default": null
+        },
+        "right": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The right border",
+          "default": null
+        },
+        "bottom": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The bottom border",
+          "default": null
+        },
+        "left": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The left border",
+          "default": null
+        }
+      }
+    },
+    "border": {
+      "type": "object",
+      "description": "A border edge.",
+      "properties": {
+        "width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/border_width"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Border width (`\"1px\"`)",
+          "default": null
+        },
+        "style": {
+          "enum": [
+            "none",
+            "hidden",
+            "solid",
+            "dashed",
+            "dotted",
+            "double",
+            null
+          ],
+          "description": "`\"none\"`, `\"hidden\"`, `\"solid\"`, `\"dashed\"`, `\"dotted\"`, `\"double\"`",
+          "default": null
+        },
+        "color": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/color"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Border color",
+          "default": null
+        }
+      }
+    },
+    "style_composition": {
+      "type": "object",
+      "description": "A style definition with overrides laid over it.",
+      "required": [
+        "extends"
+      ],
+      "properties": {
+        "extends": {
+          "$ref": "#/$defs/style_id",
+          "description": "The id of the definition (in `defs`, not a composition) it starts from (`STYLE_REFS_VALID` otherwise)"
+        },
+        "overrides": {
+          "$ref": "#/$defs/style_def",
+          "description": "The properties it sets in place of the definition's",
+          "default": {}
+        }
+      }
+    },
+    "conditional_style": {
+      "type": "object",
+      "description": "A style applied to the rows a selector matches.",
+      "required": [
+        "id",
+        "selector",
+        "style"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The conditional style's id"
+        },
+        "selector": {
+          "$ref": "#/$defs/conditional_selector",
+          "description": "The rows it applies to (`{}` for every row)"
+        },
+        "style": {
+          "$ref": "#/$defs/style_def",
+          "description": "The properties it sets on their cells"
+        }
+      }
+    },
+    "conditional_selector": {
+      "type": "object",
+      "description": "Which rows a conditional style applies to.",
+      "properties": {
+        "row_parity": {
+          "enum": [
+            "even",
+            "odd",
+            null
+          ],
+          "description": "`\"odd\"` or `\"even\"`: every other row (below)",
+          "default": null
+        },
+        "scope": {
+          "enum": [
+            "tbody",
+            "thead",
+            "table",
+            null
+          ],
+          "description": "`\"tbody\"`, `\"thead\"` or `\"table\"`: the rows it applies to",
+          "default": null
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "description": "The heading: title, subtitle and extra lines.",
+      "properties": {
+        "title": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/header_line"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The title",
+          "default": null
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/header_line"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The subtitle, below the title",
+          "default": null
+        },
+        "extra_lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/header_line"
+          },
+          "description": "More lines below the subtitle, in order",
+          "default": []
+        },
+        "preheader_content": {
+          "description": "Anything a producer wants to carry along with the header. No writer reads it, and it round-trips unchanged",
+          "default": null
+        }
+      }
+    },
+    "header_line": {
+      "type": "object",
+      "description": "A line of the heading.",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "description": "The line's content"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "The line's style",
+          "default": null
+        }
+      }
+    },
+    "column": {
+      "type": "object",
+      "description": "A column.",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The column's id; HTML makes element ids from it"
+        },
+        "align": {
+          "enum": [
+            "left",
+            "center",
+            "right",
+            "justify",
+            "char"
+          ],
+          "description": "`\"left\"`, `\"center\"`, `\"right\"`, `\"justify\"` or `\"char\"`",
+          "default": "left"
+        },
+        "align_char": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The character `\"char\"` alignment lines the cells up on, `\".\"` when `null` (how)",
+          "default": null
+        },
+        "width": {
+          "$ref": "#/$defs/column_width",
+          "description": "The column's width (below)",
+          "default": "auto"
+        },
+        "min_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The least the column is wide",
+          "default": null
+        },
+        "max_width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/extent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The most the column is wide",
+          "default": null
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "A style for the column's body and summary cells (how styles combine)",
+          "default": null
+        },
+        "hidden": {
+          "type": "boolean",
+          "default": false,
+          "description": "Leave the column out: its cells aren't drawn, in any format"
+        },
+        "label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The column's name, for producers and tools. No writer reads it (the column labels are the head's cells)",
+          "default": null
+        }
+      }
+    },
+    "table_block": {
+      "type": "object",
+      "description": "The table's head and body.",
+      "required": [
+        "thead",
+        "tbody"
+      ],
+      "properties": {
+        "thead": {
+          "$ref": "#/$defs/table_head",
+          "description": "The column labels"
+        },
+        "tbody": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row_group"
+          },
+          "description": "The body, as row groups (below)"
+        }
+      }
+    },
+    "table_head": {
+      "type": "object",
+      "description": "The column-label and spanner rows.",
+      "required": [
+        "rows"
+      ],
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "description": "`config.header_rows` rows: spanner labels above the column labels"
+        }
+      }
+    },
+    "row_group": {
+      "type": "object",
+      "description": "A group of body rows, with its label and summary rows.",
+      "required": [
+        "rows"
+      ],
+      "properties": {
+        "group_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The group's id; HTML makes element ids from it (else from the label)",
+          "default": null
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/group_label"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A line above the group's rows, across the table",
+          "default": null
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "description": "The data rows"
+        },
+        "summary_rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "description": "Summary rows (they need a stub column, `SUMMARY_REQUIRES_STUB`)",
+          "default": []
+        },
+        "summary_placement": {
+          "enum": [
+            "bottom",
+            "top"
+          ],
+          "description": "Where the summary rows go: `\"bottom\"`, after the data rows, or `\"top\"`, before them (as gt's and Great Tables' `side = \"top\"`)",
+          "default": "bottom"
+        }
+      }
+    },
+    "group_label": {
+      "type": "object",
+      "description": "A row group's label.",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "description": "The label"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "The label's style",
+          "default": null
+        },
+        "colspan": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 4294967295,
+          "description": "Kept for producers, but not read: a group label always spans the whole (visible) table",
+          "default": null
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "description": "A row.",
+      "required": [
+        "cells"
+      ],
+      "properties": {
+        "role": {
+          "enum": [
+            "column_label",
+            "spanner_label",
+            "summary_row",
+            "grand_summary_row",
+            null
+          ],
+          "description": "`\"column_label\"` or `\"spanner_label\"` in `thead`; `\"summary_row\"` or `\"grand_summary_row\"` in a group's `summary_rows`; `null` for a data row",
+          "default": null
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "A style for the whole row",
+          "default": null
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cell"
+          },
+          "description": "Exactly `config.table_cols` cells, placeholders included"
+        }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "description": "A cell.",
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "description": "What the cell shows (empty for a placeholder)",
+          "default": []
+        },
+        "typed_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/typed_value"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The value behind the display (below)",
+          "default": null
+        },
+        "colspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295,
+          "default": 1,
+          "description": "Columns the cell spans (≥ 1)"
+        },
+        "rowspan": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967295,
+          "default": 1,
+          "description": "Rows the cell spans (≥ 1), within its section"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "The cell's style",
+          "default": null
+        },
+        "is_stub": {
+          "type": "boolean",
+          "default": false,
+          "description": "The cell is a row label, in a stub column"
+        },
+        "is_placeholder": {
+          "type": "boolean",
+          "default": false,
+          "description": "The cell is a position another cell spans (below)"
+        },
+        "scope": {
+          "enum": [
+            "col",
+            "colgroup",
+            "row",
+            "rowgroup",
+            null
+          ],
+          "description": "HTML: what a header cell labels, `\"col\"`, `\"row\"`, `\"colgroup\"` or `\"rowgroup\"`",
+          "default": null
+        }
+      }
+    },
+    "typed_value": {
+      "type": "object",
+      "description": "The value behind a cell's display text. A missing value has none.",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "date",
+            "datetime",
+            "time",
+            "duration"
+          ],
+          "description": "`\"string\"`, `\"number\"`, `\"integer\"`, `\"boolean\"`, `\"date\"`, `\"datetime\"`, `\"time\"` or `\"duration\"` (aliases in Keyword values)"
+        },
+        "value": {
+          "description": "The value"
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "not": {
+                "enum": [
+                  "string",
+                  "duration"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "duration"
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^-?P(?:[0-9]+Y)?(?:[0-9]+M)?(?:[0-9]+W)?(?:[0-9]+D)?(?:T(?:[0-9]+H)?(?:[0-9]+M)?(?:[0-9]+(?:\\.[0-9]+)?S)?)?$",
+              "not": {
+                "pattern": "^-?P$|T$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "footer": {
+      "type": "object",
+      "description": "The footnotes and source notes.",
+      "properties": {
+        "footnotes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/footnote"
+          },
+          "description": "The footnotes, in order",
+          "default": []
+        },
+        "source_notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source_note"
+          },
+          "description": "The source notes, below the footnotes",
+          "default": []
+        }
+      }
+    },
+    "footnote": {
+      "type": "object",
+      "description": "A footnote.",
+      "required": [
+        "id",
+        "mark",
+        "content"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The footnote's id, which `footnote_mark` nodes refer to (`ref`). Each footnote has its own (`DUPLICATE_ID` otherwise)"
+        },
+        "mark": {
+          "type": "string",
+          "description": "The mark shown before the note (`\"1\"`, `\"*\"`, `\"†\"`)"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "description": "The note"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "The note's style",
+          "default": null
+        }
+      }
+    },
+    "source_note": {
+      "type": "object",
+      "description": "A source note.",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "description": "The note"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "description": "The note's style",
+          "default": null
+        }
+      }
+    },
+    "text_node": {
+      "type": "object",
+      "description": "Plain text.",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "text"
+        },
+        "value": {
+          "type": "string"
+        },
+        "href": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/href"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A link: an http, https or mailto URL. Left out of a run that isn't a link.",
+          "default": null
+        }
+      }
+    },
+    "styled_text_node": {
+      "type": "object",
+      "description": "Text with a style applied.",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "styled_text"
+        },
+        "value": {
+          "type": "string"
+        },
+        "style_id": {
+          "$ref": "#/$defs/style_ref",
+          "default": null
+        },
+        "href": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/href"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A link: an http, https or mailto URL. Left out of a run that isn't a link.",
+          "default": null
+        }
+      }
+    },
+    "line_break_node": {
+      "type": "object",
+      "description": "A line break.",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "const": "line_break"
+        }
+      }
+    },
+    "footnote_mark_node": {
+      "type": "object",
+      "description": "A footnote's mark.",
+      "required": [
+        "type",
+        "ref",
+        "mark_text"
+      ],
+      "properties": {
+        "type": {
+          "const": "footnote_mark"
+        },
+        "ref": {
+          "type": "string",
+          "description": "The `id` of the footnote."
+        },
+        "mark_text": {
+          "type": "string",
+          "description": "The mark shown."
+        }
+      }
+    },
+    "image_node": {
+      "type": "object",
+      "description": "An inline image.",
+      "required": [
+        "type",
+        "src"
+      ],
+      "properties": {
+        "type": {
+          "const": "image"
+        },
+        "src": {
+          "type": "string",
+          "description": "The image: only a `data:` URI (PNG, JPEG, GIF or SVG) is drawn; anything else shows its `alt` text."
+        },
+        "alt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Text shown where the image can't be.",
+          "default": null
+        },
+        "width": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The image's width.",
+          "default": null
+        },
+        "height": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/size"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The image's height.",
+          "default": null
+        }
+      }
+    },
+    "raw_node": {
+      "type": "object",
+      "description": "Markup for one format.",
+      "required": [
+        "type",
+        "format",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "const": "raw"
+        },
+        "format": {
+          "type": "string",
+          "description": "The format the markup is for (`html`, `latex`, …); other formats leave it out."
+        },
+        "value": {
+          "type": "string",
+          "description": "The markup, copied into that format's output unchecked."
+        }
+      }
+    },
+    "unknown_node": {
+      "type": "object",
+      "description": "A node of a type a later IR 1.x version may add. It is drawn as its `fallback`, or as nothing, and kept when the table is written back.",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "not": {
+            "enum": [
+              "text",
+              "styled_text",
+              "line_break",
+              "footnote_mark",
+              "image",
+              "raw"
+            ]
+          }
+        },
+        "fallback": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/content_node"
+          },
+          "default": null,
+          "description": "What a gridwell that doesn't know the node's type draws in its place."
+        }
+      }
+    },
+    "content_node": {
+      "description": "A piece of inline content. Its `type` says which.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/text_node"
+        },
+        {
+          "$ref": "#/$defs/styled_text_node"
+        },
+        {
+          "$ref": "#/$defs/line_break_node"
+        },
+        {
+          "$ref": "#/$defs/footnote_mark_node"
+        },
+        {
+          "$ref": "#/$defs/image_node"
+        },
+        {
+          "$ref": "#/$defs/raw_node"
+        },
+        {
+          "$ref": "#/$defs/unknown_node"
+        }
+      ]
+    },
+    "column_width": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|-(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm]|%|[Ff][Rr])|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?)|[Aa][Uu][Tt][Oo])[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A column width: a non-negative length (px, pt, em, rem, in, cm or mm), a percentage, a fraction (`fr`) or `auto`."
+    },
+    "size": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|-(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm]|%)|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?)|[Aa][Uu][Tt][Oo])[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A size: a non-negative length (px, pt, em, rem, in, cm or mm), a percentage or `auto`."
+    },
+    "extent": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|-(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm]|%)|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A non-negative length (px, pt, em, rem, in, cm or mm) or a percentage."
+    },
+    "indent": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm]|%)|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A length (px, pt, em, rem, in, cm or mm), negative for a hanging indent, or a percentage."
+    },
+    "border_width": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|-(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm])|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A non-negative length (px, pt, em, rem, in, cm or mm)."
+    },
+    "font_size": {
+      "type": "string",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?|-(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?))(?:[Pp][Xx]|[Pp][Tt]|[Rr][Ee][Mm]|[Ee][Mm]|[Ii][Nn]|[Cc][Mm]|[Mm][Mm]|%)|[+-]?(?:(?:0+(?:\\.0*)?|\\.0+)(?:[eE][+-]?[0-9]+)?|(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)[eE]-0*[0-9]{3,}|0*\\.0{100,}[0-9]*(?:[eE][+-]?[0-9]+)?)|[Xx][Xx]-[Ss][Mm][Aa][Ll][Ll]|[Xx]-[Ss][Mm][Aa][Ll][Ll]|[Ss][Mm][Aa][Ll][Ll]|[Mm][Ee][Dd][Ii][Uu][Mm]|[Ll][Aa][Rr][Gg][Ee]|[Xx]-[Ll][Aa][Rr][Gg][Ee]|[Xx][Xx]-[Ll][Aa][Rr][Gg][Ee]|[Xx][Xx][Xx]-[Ll][Aa][Rr][Gg][Ee]|[Ss][Mm][Aa][Ll][Ll][Ee][Rr]|[Ll][Aa][Rr][Gg][Ee][Rr])[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$",
+      "description": "A non-negative length (px, pt, em, rem, in, cm or mm), a percentage, or a size keyword: `xx-small`, `x-small`, `small`, `medium`, `large`, `x-large`, `xx-large`, `xxx-large`, `smaller` or `larger`."
+    },
+    "color": {
+      "type": "string",
+      "description": "A CSS color: one of the 148 named colors or `transparent`, `#RGB`, `#RGBA`, `#RRGGBB`, `#RRGGBBAA`, `rgb()`/`rgba()` or `hsl()`/`hsla()` (case-insensitive). The schema checks the form; gridwell checks the name and the numbers.",
+      "pattern": "^[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*(?:#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})|[A-Za-z]+|(?:[Rr][Gg][Bb]|[Rr][Gg][Bb][Aa]|[Hh][Ss][Ll]|[Hh][Ss][Ll][Aa])[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*\\([\\s\\S]*\\))[\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]*$"
+    },
+    "font_weight": {
+      "description": "A font weight: `normal`, `bold`, `bolder`, `lighter`, or 1–1000 (as a string or a number).",
+      "anyOf": [
+        {
+          "enum": [
+            "normal",
+            "bold",
+            "bolder",
+            "lighter",
+            null
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^(?:1000|[1-9][0-9]{0,2})$"
+        },
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      ]
+    },
+    "lang": {
+      "type": "string",
+      "description": "A BCP 47 language tag (`ar`, `fr-CA`, `zh-Hant-TW`), well formed by RFC 5646's syntax (whether its subtags are registered isn't checked).",
+      "pattern": "^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4,8})(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WYZa-wyz](?:-[A-Za-z0-9]{2,8})+)*(?:-[Xx](?:-[A-Za-z0-9]{1,8})+)?|[Xx](?:-[A-Za-z0-9]{1,8})+)$"
+    },
+    "table_id": {
+      "type": "string",
+      "description": "An HTML id: not empty, no whitespace.",
+      "pattern": "^[^\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]+$"
+    },
+    "href": {
+      "type": "string",
+      "description": "An http or https URL with a host, or a mailto URL with an address, without whitespace or control characters.",
+      "pattern": "^(?:[Hh][Tt][Tt][Pp][Ss]?://[^\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\x00-\\x1F\\x7F-\\x9F/?#]|[Mm][Aa][Ii][Ll][Tt][Oo]:[^\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\x00-\\x1F\\x7F-\\x9F])[^\\t\\n\\v\\f\\r \\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\x00-\\x1F\\x7F-\\x9F]*$"
+    },
+    "style_id": {
+      "type": "string",
+      "description": "A style id: ASCII letters, digits, `_` and `-`.",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "style_ref": {
+      "description": "The id of a style in `styles.defs` or `styles.compositions`, or `null` for none.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/style_id"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  }
+}
