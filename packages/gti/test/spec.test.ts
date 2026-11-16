@@ -120,6 +120,12 @@ describe("parseSpec()", () => {
     expect(parse(valid).display.data_kind).toBeUndefined();
   });
 
+  it("takes a flag for naming the parts, or its absence", () => {
+    const display = { ...valid.display, parts: true };
+    expect(parse({ ...valid, display }).display).toEqual(display);
+    expect(parse(valid).display.parts).toBeUndefined();
+  });
+
   it("takes where the rows' numbers start, or its absence", () => {
     for (const row_start of [0, 1]) {
       const display = { ...valid.display, row_numbers: true, row_start };
@@ -326,6 +332,7 @@ describe("parseSpec()", () => {
     ["has a row numbers flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, row_numbers: 1 } }), /`display`/],
     ["has a dimensions flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, dimensions: "yes" } }), /`display`/],
     ["has a monospace flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, monospace: 1 } }), /`display`/],
+    ["has a parts flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, parts: "yes" } }), /`display`/],
     ["starts the rows' numbers other than at 0 or 1", JSON.stringify({ ...valid, display: { ...valid.display, row_start: 2 } }), /`display`/],
     ["says what the data is with something other than text", JSON.stringify({ ...valid, display: { ...valid.display, data_kind: 3 } }), /`display`/],
     ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],

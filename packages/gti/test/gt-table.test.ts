@@ -2582,6 +2582,28 @@ describe("the bar's reset, shortcuts and tooltips", () => {
     expect(el.querySelector(".gt-i-parts")).toBeNull();
   });
 
+  it("names its parts from the start, for good, with `display.parts` (as on a docs page)", async () => {
+    const el = await mountBar({ display: { parts: true } });
+    const layer = () => el.querySelector(".gt-i-parts");
+    expect(layer()?.getAttribute("aria-hidden")).toBe("true");
+    // (Marked, for the room its names take below it: see gti.css)
+    expect(el.hasAttribute("data-gti-parts")).toBe(true);
+    // (Without the button, or the key, that would name them, nor saying so)
+    expect(el.querySelector('[data-gti-info="parts"], [data-gti-key="parts"]')).toBeNull();
+    expect(live(el)).toBe("");
+    const cell = el.querySelector("tbody td") as HTMLElement;
+    for (const key of ["?", "Escape"]) {
+      cell.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    }
+    pointer(document.body, "pointerdown");
+    expect(layer()).not.toBeNull();
+    // (And again, once moved)
+    el.remove();
+    expect(layer()).toBeNull();
+    document.body.append(el);
+    expect(layer()).not.toBeNull();
+  });
+
   it("can be focused by a click in it, for its shortcuts, unless it has a tabindex of its own", async () => {
     const el = await mountBar();
     expect(el.getAttribute("tabindex")).toBe("-1");
