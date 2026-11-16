@@ -445,9 +445,9 @@ class GTI(GT):
 
         With pagination, readers see a page of rows at a time, with arrows in the control bar below
         the table to go from page to page (as do the arrow keys, Page Up and Page Down, and Home
-        and End, in the bar). Between the arrows is the page and the number of pages, which can be
-        clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
-        in place. The (i) button at the end of the bar opens the table's info panel, which says
+        and End, with the table clicked or focus in it). Between the arrows is the page and the
+        number of pages, which can be clicked to type the page to go to. Each page is as tall as a
+        full one, so the controls stay in place. The (i) button at the end of the bar opens the table's info panel, which says
         which rows are shown and has the choice of page size. Readers can also drag the foot of
         the page's rows (the line between the last row and the grand summary rows or footer) down
         or up, for a row more or fewer on each page, from one row to all of them, or focus it and
