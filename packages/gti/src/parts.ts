@@ -49,10 +49,15 @@ export function union(boxes: Box[]): Box | null {
 
 /**
  * Place the parts' names, of the sizes given, within `bounds`: each at the first of its places
- * with room for it that is clear of the names placed before it and of the other parts (or, with
- * none, at its first place)
+ * with room for it that is clear of the names placed before it, of the other parts and of `avoid`
+ * (or, with none, at its first place)
  */
-export function placeParts(parts: Part[], sizes: { width: number; height: number }[], bounds: Box): Placed[] {
+export function placeParts(
+  parts: Part[],
+  sizes: { width: number; height: number }[],
+  bounds: Box,
+  avoid: Box[] = [],
+): Placed[] {
   const taken: Box[] = [];
   return parts.map((part, i) => {
     const { width, height } = sizes[i] as { width: number; height: number };
@@ -83,8 +88,10 @@ export function placeParts(parts: Part[], sizes: { width: number; height: number
       label.bottom <= bounds.bottom &&
       !taken.some((other) => overlaps(label, other));
     const fits = (candidate: [Place, Box]) =>
-      clear(candidate) && !parts.some((other, j) => j !== i && other.boxes.some((b) => overlaps(candidate[1], b)));
-    // (Clear of the other parts, or else of the other names at least)
+      clear(candidate) &&
+      !parts.some((other, j) => j !== i && other.boxes.some((b) => overlaps(candidate[1], b))) &&
+      !avoid.some((b) => overlaps(candidate[1], b));
+    // (Clear of the other parts and `avoid`, or else of the other names at least)
     const [place, label] = candidates.find(fits) ?? candidates.find(clear) ?? (candidates[0] as [Place, Box]);
     taken.push(label);
     // A line from the name to the part, across the gap between them
