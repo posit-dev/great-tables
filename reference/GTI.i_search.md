@@ -4,7 +4,7 @@ Let readers search the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L363-L394)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L371-L402)
 
 ``` python
 GTI.i_search(enabled=True)

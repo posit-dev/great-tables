@@ -10735,12 +10735,20 @@ Examples
 A table made with `GT()` can become interactive at the end.
 
 ```{python}
-from great_tables import GT, GTI
-from great_tables.data import towny
+from great_tables import GT, GTI, data
 
-gt_tbl = GT(towny[["name", "population_2021"]]).fmt_integer(columns="population_2021")
+towny_mini = data.pl.towny.select("name", "population_2021")
+
+gt_tbl = GT(towny_mini).fmt_integer(columns="population_2021")
 
 GTI.from_gt(gt_tbl)
+```
+
+A Polars DataFrame's `.style` property makes a `GT` table too, so a table started from it
+can become interactive in the same way.
+
+```{python}
+GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
 ```
 
 opt_interactive(self: 'GTSelf', active: 'bool' = True, use_pagination: 'bool' = True, use_pagination_info: 'bool' = True, use_sorting: 'bool' = True, use_search: 'bool' = False, use_filters: 'bool' = False, use_resizers: 'bool' = False, use_highlight: 'bool' = False, use_compact_mode: 'bool' = False, use_text_wrapping: 'bool' = True, use_page_size_select: 'bool' = False, page_size_default: 'int' = 10, page_size_values: 'list[int] | None' = None, pagination_type: 'str' = 'numbers', height: 'str | float' = 'auto', selection_mode: 'str | None' = None) -> 'GTSelf'
@@ -15321,6 +15329,16 @@ The `polars.DataFrame.style` property is currently considered
 [unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style),
 and may change in the future. Using `GT` on a **Polars** DataFrame will always work.
 :::
+
+What `.style` gives you is a `GT` table, so anything you'd do to a `GT` table can follow it. That
+includes making it interactive: `GTI.from_gt()` turns it into a `GTI` table, which readers can sort,
+search, and page through (see [Interactive Tables](24-interactive-tables.qmd)).
+
+```{python}
+from great_tables import GTI
+
+GTI.from_gt(countries_mini.style.fmt_integer(columns="population"))
+```
 
 ## Some Beautiful Examples
 
@@ -21144,9 +21162,22 @@ gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 ```
 
 A table you've already made with `GT()`, including one with `opt_interactive()`, becomes a `GTI`
-table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has
-examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and the [API
-Reference](/reference/index.qmd#interactive-table-controls) has them all.
+table with `GTI.from_gt()`, keeping what `opt_interactive()` set. So does one started from a
+**Polars** DataFrame's `.style` property, which makes a `GT` table, and the `i_` methods follow:
+
+```{python}
+gt_tbl = (
+    gtcars_pl.style
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+)
+
+GTI.from_gt(gt_tbl).i_cols_filter(columns="mfr", type="facet")
+```
+
+Each of the `i_` methods has examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and
+the [API Reference](/reference/index.qmd#interactive-table-controls) has them all.
 
 ## The parts of a `GTI` table
 

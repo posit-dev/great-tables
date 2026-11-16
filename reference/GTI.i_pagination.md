@@ -4,7 +4,7 @@ Split the table's rows into pages.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L427-L489)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L435-L497)
 
 ``` python
 GTI.i_pagination(

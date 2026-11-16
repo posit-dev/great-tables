@@ -96,6 +96,27 @@ countries_mini.style
 >
 > The `polars.DataFrame.style` property is currently considered [unstable](https://docs.pola.rs/api/python/stable/reference/dataframe/style.html#polars.DataFrame.style), and may change in the future. Using [GT](../reference/GT.md#great_tables.GT) on a **Polars** DataFrame will always work.
 
+What `.style` gives you is a [GT](../reference/GT.md#great_tables.GT) table, so anything you'd do to a [GT](../reference/GT.md#great_tables.GT) table can follow it. That includes making it interactive: [GTI.from_gt()](../reference/GTI.from_gt.md#great_tables.GTI.from_gt) turns it into a [GTI](../reference/GTI.md#great_tables.GTI) table, which readers can sort, search, and page through (see [Interactive Tables](interactive-tables.md)).
+
+``` python
+from great_tables import GTI
+
+GTI.from_gt(countries_mini.style.fmt_integer(columns="population"))
+```
+
+| country_name       | population    |
+|--------------------|---------------|
+| India              | 1,417,173,173 |
+| China              | 1,412,175,000 |
+| United States      | 333,287,557   |
+| Indonesia          | 275,501,339   |
+| Pakistan           | 235,824,862   |
+| Nigeria            | 218,541,212   |
+| Brazil             | 215,313,498   |
+| Bangladesh         | 171,186,372   |
+| Russian Federation | 143,555,736   |
+| Mexico             | 127,504,125   |
+
 ## Some Beautiful Examples
 
 In the following pages we'll use **Great Tables** to turn DataFrames into beautiful tables, like the ones below.

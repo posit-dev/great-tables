@@ -4,7 +4,7 @@ Set how the table's rows look.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L658-L710)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L666-L718)
 
 ``` python
 GTI.i_display(
