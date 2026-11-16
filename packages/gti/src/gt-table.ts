@@ -385,8 +385,7 @@ interface Bar {
   redo: HTMLButtonElement | null;
   /**
    * The button opening the "Filter & sort" sheet (with filters, or columns readers can hide or
-   * move), which on a touch screen the search, the filters as text and the columns fold into when
-   * the bar is narrow.
+   * move), which the search, the filters as text and the columns fold into when the bar is narrow.
    */
   sheet: HTMLButtonElement | null;
 }
@@ -554,6 +553,8 @@ const TIP_GAP = 6;
 
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
+// The room (in the bar's ems) below which the bar folds (see gti.css)
+const NARROW_EM = 30;
 
 // (For the info panels' ids)
 let infoCount = 0;
@@ -985,6 +986,8 @@ export class GtTable extends HTMLElement {
   /** The element's width when the column widths were measured. */
   private fittedWidth = 0;
   private refitFrame = 0;
+  /** The frame folding or unfolding the bar in (see `alignBars()`). */
+  private foldFrame = 0;
   /** Per data row, the text of its cells; made on the first search. */
   private cellTexts: CellText[][] | null = null;
   /** The columns (by their index in the spec) the search leaves out. */
@@ -8051,7 +8054,8 @@ export class GtTable extends HTMLElement {
       if (this.syncStack()) {
         this.drawBorders();
       }
-      this.alignBars();
+      this.alignBars(true);
+      this.outlineBar();
       this.placeFoot();
       this.placeFilter();
       this.stick();
@@ -8083,7 +8087,7 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  private alignBars(): void {
+  private alignBars(observed = false): void {
     if (this.table === null) {
       return;
     }
@@ -8114,6 +8118,51 @@ export class GtTable extends HTMLElement {
       const at = Math.max(0, Math.min(centre - width / 2, outer.width - width));
       this.bar.root.style.marginLeft = `${at}px`;
       this.bar.root.style.width = `${width}px`;
+      // (With little room, the bar folds, whatever the pointer and its own width; on a touch screen,
+      // whose targets are bigger, a bar no wider than that does too: see gti.css. As it's observed,
+      // in the next frame: changing the layout then is a loop)
+      const root = this.bar.root;
+      const room = NARROW_EM * (parseFloat(getComputedStyle(root).fontSize) || 16);
+      const narrow =
+        outer.width > 0 && (outer.width < room || (width <= room && matchMedia("(pointer: coarse)").matches));
+      if (narrow === root.hasAttribute("data-gti-narrow")) {
+        return;
+      }
+      if (!observed) {
+        root.toggleAttribute("data-gti-narrow", narrow);
+      } else if (this.foldFrame === 0) {
+        this.foldFrame = requestAnimationFrame(() => {
+          this.foldFrame = 0;
+          this.alignBars();
+        });
+      }
+    }
+  }
+
+  // The bar's outline rings its line of controls; or all of them, from the first's top, where they
+  // still take more lines than one in a narrow bar (see gti.css)
+  private outlineBar(): void {
+    const bar = this.bar;
+    if (bar === null || bar.root.getClientRects().length === 0) {
+      return;
+    }
+    const last = bar.info.button.getBoundingClientRect().top;
+    let first = last;
+    for (const child of bar.root.children) {
+      if (
+        child === bar.tokens ||
+        child === bar.query?.root ||
+        child.getClientRects().length === 0 ||
+        ["absolute", "fixed"].includes(getComputedStyle(child).position)
+      ) {
+        continue;
+      }
+      first = Math.min(first, child.getBoundingClientRect().top);
+    }
+    if (last - first > 1) {
+      bar.root.style.setProperty("--gt-i-controls-top", `${first - bar.root.getBoundingClientRect().top}px`);
+    } else {
+      bar.root.style.removeProperty("--gt-i-controls-top");
     }
   }
 
@@ -9544,6 +9593,10 @@ export class GtTable extends HTMLElement {
     if (this.refitFrame !== 0) {
       cancelAnimationFrame(this.refitFrame);
       this.refitFrame = 0;
+    }
+    if (this.foldFrame !== 0) {
+      cancelAnimationFrame(this.foldFrame);
+      this.foldFrame = 0;
     }
   }
 

@@ -1139,15 +1139,16 @@ gt-table .gt-i-bar [hidden] {
 /*
  * The line of controls (the bar's last, under any tokens or query) has a faint outline, its ends
  * rounded around the buttons there, which are round: the search's (or without it, the keyboard
- * shortcuts') and the info's
+ * shortcuts') and the info's. Where the controls still take more lines than one (in a narrow bar,
+ * with many of them), it rings them all, from the first line's top, which the runtime sets
  */
 gt-table .gt-i-bar::before {
   content: "";
   position: absolute;
   inset-inline: 0;
+  top: var(--gt-i-controls-top, calc(100% - var(--gt-i-line)));
   bottom: 0;
   box-sizing: border-box;
-  height: var(--gt-i-line);
   /* (In the text's colour, so that it shows on a dark page as on a light one) */
   border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
   border-radius: calc(var(--gt-i-line) / 2);
@@ -2300,6 +2301,40 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
   }
 }
 
+/*
+ * A bar with little room (`data-gti-narrow`, which the runtime sets where the table's container is
+ * narrower than 30em, whatever the bar's own width, and on a touch screen, whose targets are
+ * bigger, where the bar is 30em wide or less) folds the search (unless there's one), the filters
+ * as text and the columns into the "Filter & sort" sheet's button, and the keyboard shortcuts into
+ * the info panel (Home and End still go to the first and last pages), so that it stays one line
+ */
+gt-table .gt-i-bar[data-gti-narrow] [data-gti-bar="sheet"] {
+  display: inline-flex;
+  gap: 0.375em;
+  width: auto;
+  padding-inline: 0.625em;
+  border-color: rgba(128, 128, 128, 0.6);
+  /* (At the bar's start, rounded as its outline is, until the search is open) */
+  border-radius: 999px;
+}
+
+gt-table .gt-i-bar[data-gti-narrow] :is([data-gti-bar="query"], [data-gti-bar="columns"], [data-gti-bar="keys"], [data-gti-bar="first"], [data-gti-bar="last"]),
+gt-table[data-gti-sheet] .gt-i-bar[data-gti-narrow]:not([data-gti-searching]) .gt-i-bar-search {
+  display: none;
+}
+
+gt-table .gt-i-bar[data-gti-narrow] .gt-i-info > [data-gti-info="keys"]:not([hidden]) {
+  display: block;
+}
+
+/* (Narrower, the button is only its icon, as the reset is: see above) */
+@container (max-width: 22.5em) {
+  gt-table .gt-i-bar[data-gti-narrow] [data-gti-bar="sheet"] {
+    width: var(--gt-i-line);
+    padding-inline: 0;
+  }
+}
+
 @media (pointer: coarse) {
   gt-table[data-gti-bar]:is(:not(:defined), [data-gti-state="pending"]) {
     padding-bottom: calc(0.5em + 44px);
@@ -2352,35 +2387,6 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
   gt-table[data-gti-sheet] thead .gt-i-head {
     -webkit-touch-callout: none;
     user-select: none;
-  }
-
-  /*
-   * A narrow bar folds the search (unless there's one), the filters as text and the columns into
-   * the "Filter & sort" sheet's button
-   */
-  @container (max-width: 30em) {
-    gt-table .gt-i-bar [data-gti-bar="sheet"] {
-      display: inline-flex;
-      gap: 0.375em;
-      width: auto;
-      padding-inline: 0.625em;
-      border-color: rgba(128, 128, 128, 0.6);
-      /* (At the bar's start, rounded as its outline is, until the search is open) */
-      border-radius: 999px;
-    }
-
-    gt-table .gt-i-bar :is([data-gti-bar="query"], [data-gti-bar="columns"], [data-gti-bar="keys"], [data-gti-bar="first"], [data-gti-bar="last"]),
-    gt-table[data-gti-sheet] .gt-i-bar:not([data-gti-searching]) .gt-i-bar-search {
-      display: none;
-    }
-  }
-
-  /* (Narrower, the button is only its icon, as the reset is: see above) */
-  @container (max-width: 22.5em) {
-    gt-table .gt-i-bar [data-gti-bar="sheet"] {
-      width: 44px;
-      padding-inline: 0;
-    }
   }
 
   /* Below 16px, iOS zooms the page in on focus */
