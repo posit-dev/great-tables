@@ -159,6 +159,8 @@ def gti_element(
         attrs += " data-gti-nowrap"
     if spec["display"]["monospace"]:
         attrs += " data-gti-monospace"
+    if spec["display"]["parts"]:
+        attrs += " data-gti-parts"
     height = spec["layout"]["height"]
     responsive = spec["layout"]["responsive"]
     # (An "auto" table whose columns have priorities drops them, rather than being stacked)

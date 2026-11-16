@@ -268,6 +268,52 @@ test("names its parts on `?`, apart from each other and by their outlines, until
   expect(errors).toEqual([]);
 });
 
+test("names its parts for good, with `parts`, within the container that clips it", async ({ page }) => {
+  const errors = await ready(page, "parts.html");
+  const layer = el(page).locator(".gt-i-parts");
+  const names = layer.locator(".gt-i-parts-name");
+  await expect(layer).toBeVisible();
+  for (const name of ["Column controls", "Search", "Page controls", "Page counter", "Table info"]) {
+    await expect(names.getByText(name, { exact: true })).toHaveCount(1);
+  }
+  const labels = () =>
+    names.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const { left, right, top, bottom } = node.getBoundingClientRect();
+        return { left, right, top, bottom };
+      }),
+    );
+  // (Each in the box of the container that scrolls, which would cut it off; the bar's below it, in
+  // the room the table keeps for them there, off the table)
+  const outer = await box(page.locator("div[style*='overflow-x']"));
+  const bottom = (await box(bar(page))).bottom;
+  for (const label of await labels()) {
+    expect(label.left).toBeGreaterThanOrEqual(outer.left - 0.5);
+    expect(label.right).toBeLessThanOrEqual(outer.right + 0.5);
+    expect(label.top).toBeGreaterThanOrEqual(outer.top - 0.5);
+    expect(label.bottom).toBeLessThanOrEqual(outer.bottom + 0.5);
+  }
+  for (const name of ["Search", "Page controls", "Page counter", "Table info"]) {
+    const label = await box(names.getByText(name, { exact: true }));
+    expect(label.top).toBeGreaterThan(bottom);
+  }
+
+  // Not put away by `?`, Escape or a click outside, and the table works under it
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  for (const key of ["?", "Escape"]) {
+    await page.keyboard.press(key);
+  }
+  await page.mouse.click(2, outer.bottom + 40);
+  await expect(layer).toBeVisible();
+  await barButton(page, "Next page").click();
+  await expect(readout(page)).toHaveText("2/12");
+  // (Nor is there a button or key to name them)
+  await barButton(page, "Table info").click();
+  await expect(el(page).getByRole("button", { name: "Name the table's parts" })).toHaveCount(0);
+  await expect(el(page).locator('[data-gti-key="parts"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test("resets the view from a button that shows while there's something to reset", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   const reset = barButton(page, "Reset the view");

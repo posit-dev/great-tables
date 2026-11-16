@@ -1241,6 +1241,15 @@ gt-table .gt-i-tip {
 }
 
 /*
+ * A table whose parts are named for good (`display.parts`, for a docs page) keeps room below it,
+ * from the start, for two lines of the bar's names: within a container that would clip them (as
+ * Quarto's does), which takes in the margin, as it doesn't its children's overflow
+ */
+gt-table[data-gti-parts] {
+  margin-bottom: 3em;
+}
+
+/*
  * The names of the table's parts (see `showParts()`): over the table (and under its panels), which
  * works as ever under them, each part outlined in the accent colour with its name beside it
  */

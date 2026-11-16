@@ -670,9 +670,10 @@ class GTI(GT):
         compact: bool = False,
         wrap: bool = True,
         monospace: bool = False,
+        parts: bool = False,
     ) -> Self:
         """
-        Set how the table's rows look.
+        Set how the table's rows look, and whether its parts are named.
 
         Parameters
         ----------
@@ -688,6 +689,12 @@ class GTI(GT):
             Whether the column labels and the cells are in a monospaced font, for a table that's a
             look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
             title, the notes and the controls keep the table's font.
+        parts
+            Whether the parts GTI adds to the table (its status line, column controls, row numbers,
+            control bar, and so on) are outlined and named over it, from the start and for good,
+            for a page that shows readers what they are, as a docs page does. The table works as
+            ever under the names, which follow its parts as they move. Without it, readers can
+            name the parts themselves, with `?` or the button in the table's info panel.
 
         Returns
         -------
@@ -709,12 +716,25 @@ class GTI(GT):
         ```{python}
         GTI(exibble[["num", "char", "fctr"]]).i_display(compact=True, wrap=False, monospace=True)
         ```
+
+        And one with its parts named, as on a page that shows them: its status line and row
+        numbers (from `i_inspect()`), its column controls, and its control bar.
+
+        ```{python}
+        (
+            GTI(exibble[["num", "char", "fctr"]])
+            .i_inspect()
+            .i_pagination(page_size=4)
+            .i_display(parts=True)
+        )
+        ```
         """
         return self._set_interactive(
             highlight=_flag(highlight, "highlight"),
             compact=_flag(compact, "compact"),
             wrap=_flag(wrap, "wrap"),
             monospace=_flag(monospace, "monospace"),
+            parts=_flag(parts, "parts"),
         )
 
     def i_inspect(
