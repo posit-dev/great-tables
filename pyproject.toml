@@ -112,6 +112,7 @@ dev-no-pandas = [
     "jupyter",
     "gt-extras>=0.0.7",
     "hypothesis",
+    "jsonschema",
     "narwhals",
     "polars",
     "pre-commit>=3.2.0",
@@ -147,7 +148,7 @@ line-length = 100
 
 
 [tool.ruff.format]
-exclude = ["great_tables/vals.py"]
+exclude = ["great_tables/vals.py", "tests/gridwell_kit/*"]
 
 
 [tool.ruff.lint]
