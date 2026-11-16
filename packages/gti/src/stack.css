@@ -164,7 +164,7 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     flex-wrap: wrap;
     align-items: center;
     gap: 6px;
-    padding-bottom: 6px;
+    padding: 6px 0;
     background-color: inherit;
   }
 

@@ -2247,7 +2247,7 @@ describe("the info panel", () => {
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(true);
     expect(item(el, "size")?.hidden).toBe(false);
     // (Nor are there keys for paging, without pages)
-    expect(keys(el)).toEqual(["Shift + click: Sort by more than one column"]);
+    expect(keys(el)).toEqual(["Shift + click: Sort by more than one column", "?: Name the table's parts"]);
 
     select(el).value = "2";
     select(el).dispatchEvent(new Event("change", { bubbles: true }));
@@ -2256,6 +2256,7 @@ describe("the info panel", () => {
       "← →: Previous or next page",
       "Home End: First or last page",
       "Shift + click: Sort by more than one column",
+      "?: Name the table's parts",
     ]);
   });
 
@@ -2305,8 +2306,9 @@ describe("the info panel", () => {
       "Home End: First or last page",
       "Shift + click: Sort by more than one column",
       "Shift + click: Select a range of rows",
+      "?: Name the table's parts",
     ]);
-    expect(el.querySelectorAll(".gt-i-info-keys kbd")).toHaveLength(8);
+    expect(el.querySelectorAll(".gt-i-info-keys kbd")).toHaveLength(9);
   });
 
   it("has no shortcuts to list without any", async () => {
@@ -2522,6 +2524,62 @@ describe("the bar's reset, shortcuts and tooltips", () => {
     info.focus();
     outside.focus();
     expect(panelOf(el, "info").hidden).toBe(true);
+  });
+
+  it("names its parts on `?` from within it, but not while typing, until `?` or Escape", async () => {
+    const el = await mountBar();
+    const layer = () => el.querySelector(".gt-i-parts");
+    const press = (target: Element, key: string) => {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const cell = el.querySelector("tbody td") as HTMLElement;
+    expect(press(cell, "?").defaultPrevented).toBe(true);
+    expect(layer()?.getAttribute("aria-hidden")).toBe("true");
+    expect(live(el)).toBe("The table's parts are named, until Escape");
+    // (Over the table, which it's the last of)
+    expect(el.lastElementChild).toBe(layer());
+    press(cell, "?");
+    expect(layer()).toBeNull();
+
+    // (Not from the search, nor with Ctrl, Alt or ⌘)
+    part(el, "search").click();
+    const input = el.querySelector("input.gt-i-search") as HTMLInputElement;
+    expect(press(input, "?").defaultPrevented).toBe(false);
+    cell.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true, bubbles: true }));
+    expect(layer()).toBeNull();
+
+    // Escape, wherever focus is, stops it first (before the search would close)
+    press(cell, "?");
+    expect(press(input, "Escape").defaultPrevented).toBe(true);
+    expect(layer()).toBeNull();
+    expect(input.isConnected && !(el.querySelector(".gt-i-search-field") as HTMLElement).hidden).toBe(true);
+  });
+
+  it("names its parts from the info panel too, until a press outside it, or it's taken apart", async () => {
+    const el = await mountBar();
+    const button = el.querySelector('.gt-i-info > [data-gti-info="parts"]') as HTMLButtonElement;
+    expect(button.textContent).toBe("Name the table's parts");
+    part(el, "info").click();
+    button.click();
+    expect(panelOf(el, "info").hidden).toBe(true);
+    expect(el.querySelector(".gt-i-parts")).not.toBeNull();
+    expect(button.textContent).toBe("Stop naming the parts");
+    // (A press in the table leaves it)
+    pointer(el.querySelector("tbody td") as HTMLElement, "pointerdown");
+    expect(el.querySelector(".gt-i-parts")).not.toBeNull();
+    pointer(document.body, "pointerdown");
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
+    expect(button.textContent).toBe("Name the table's parts");
+
+    part(el, "info").click();
+    button.click();
+    el.remove();
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
+    document.body.append(el);
+    await tick();
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
   });
 
   it("can be focused by a click in it, for its shortcuts, unless it has a tabindex of its own", async () => {

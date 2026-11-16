@@ -92,6 +92,10 @@ The status line and the control bar are close to the table, and the space that G
 leaves around the table is kept past them, so that they read as part of it rather than of the text
 around it.
 
+A table names its own parts too: press `?` with the table focused (click in it first), or use
+**Name the table's parts** in its info panel, and each part it has is outlined, with its name beside
+it. `?` again, Escape, or a click outside the table puts the names away.
+
 ## Row details
 
 With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
