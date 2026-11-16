@@ -30,9 +30,22 @@ gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 ```
 
 A table you've already made with `GT()`, including one with `opt_interactive()`, becomes a `GTI`
-table with `GTI.from_gt()`, keeping what `opt_interactive()` set. Each of the `i_` methods has
-examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and the [API
-Reference](/reference/index.qmd#interactive-table-controls) has them all.
+table with `GTI.from_gt()`, keeping what `opt_interactive()` set. So does one started from a
+**Polars** DataFrame's `.style` property, which makes a `GT` table, and the `i_` methods follow:
+
+```{python}
+gt_tbl = (
+    gtcars_pl.style
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+)
+
+GTI.from_gt(gt_tbl).i_cols_filter(columns="mfr", type="facet")
+```
+
+Each of the `i_` methods has examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and
+the [API Reference](/reference/index.qmd#interactive-table-controls) has them all.
 
 ## The parts of a `GTI` table
 
