@@ -1,0 +1,665 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "striped_theme",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/striped_theme.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/striped_theme.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "char"
+      },
+      {
+        "align": "left",
+        "id": "fctr"
+      },
+      {
+        "align": "right",
+        "id": "num"
+      },
+      {
+        "align": "right",
+        "id": "date"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "apricot"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "apricot",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "one"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "one",
+                "typed_value": {
+                  "type": "string",
+                  "value": "one"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "0.1111"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "0.1111",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-01-15"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "2015-01-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-01-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "banana"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "banana",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "two"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "two",
+                "typed_value": {
+                  "type": "string",
+                  "value": "two"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2.222"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "2.222",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-02-15"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "2015-02-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-02-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "coconut"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "coconut",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "three"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "three",
+                "typed_value": {
+                  "type": "string",
+                  "value": "three"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "33.33"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "33.33",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-03-15"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "2015-03-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-03-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "durian"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "durian",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "four"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "four",
+                "typed_value": {
+                  "type": "string",
+                  "value": "four"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "444.4"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "444.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-04-15"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "2015-04-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-04-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "None"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "five"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "five",
+                "typed_value": {
+                  "type": "string",
+                  "value": "five"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "5550.0"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "5550.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-05-15"
+                  }
+                ],
+                "style": {
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  }
+                },
+                "text": "2015-05-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-05-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "fig"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "fig",
+                "typed_value": {
+                  "type": "string",
+                  "value": "fig"
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "six"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "six",
+                "typed_value": {
+                  "type": "string",
+                  "value": "six"
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "None"
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-06-15"
+                  }
+                ],
+                "style": {
+                  "background_color": "#EDF7FC",
+                  "border": {
+                    "top": {
+                      "style": "none"
+                    }
+                  },
+                  "color": "#333333"
+                },
+                "text": "2015-06-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-06-15"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "char"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#0076BA",
+              "color": "#FFFFFF"
+            },
+            "text": "char"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "fctr"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#0076BA",
+              "color": "#FFFFFF"
+            },
+            "text": "fctr"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "num"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#0076BA",
+              "color": "#FFFFFF"
+            },
+            "text": "num"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "date"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#0076BA",
+              "color": "#FFFFFF"
+            },
+            "text": "date"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": {
+      "runs": [
+        {
+          "text": "A stylized table"
+        }
+      ],
+      "text": "A stylized table"
+    }
+  }
+}

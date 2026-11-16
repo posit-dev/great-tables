@@ -1,0 +1,247 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "adjacent_spanners",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/adjacent_spanners.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/adjacent_spanners.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "right",
+        "id": "a1"
+      },
+      {
+        "align": "right",
+        "id": "a2"
+      },
+      {
+        "align": "right",
+        "id": "b1"
+      },
+      {
+        "align": "right",
+        "id": "b2"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "1"
+                  }
+                ],
+                "text": "1",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 1
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "3"
+                  }
+                ],
+                "text": "3",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 3
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "5"
+                  }
+                ],
+                "text": "5",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 5
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "text": "7",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "2"
+                  }
+                ],
+                "text": "2",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 2
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "4"
+                  }
+                ],
+                "text": "4",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 4
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "6"
+                  }
+                ],
+                "text": "6",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 6
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "8"
+                  }
+                ],
+                "text": "8",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 8
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "center",
+            "col": 0,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Group A"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Group A"
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Group B"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Group B"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 0,
+            "runs": [
+              {
+                "text": "a1"
+              }
+            ],
+            "scope": "col",
+            "text": "a1"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "a2"
+              }
+            ],
+            "scope": "col",
+            "text": "a2"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "b1"
+              }
+            ],
+            "scope": "col",
+            "text": "b1"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "b2"
+              }
+            ],
+            "scope": "col",
+            "text": "b2"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

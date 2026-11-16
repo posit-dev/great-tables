@@ -1,0 +1,403 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "hierarchical_stub",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/hierarchical_stub.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/hierarchical_stub.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "country",
+        "stub": true
+      },
+      {
+        "align": "left",
+        "id": "city",
+        "stub": true
+      },
+      {
+        "align": "right",
+        "id": "stores"
+      },
+      {
+        "align": "right",
+        "id": "staff"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": "Europe",
+        "label": {
+          "runs": [
+            {
+              "text": "Europe"
+            }
+          ],
+          "text": "Europe"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "France"
+                  }
+                ],
+                "scope": "rowgroup",
+                "stub": true,
+                "text": "France"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Paris"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Paris"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "12"
+                  }
+                ],
+                "text": "12",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 12
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "140"
+                  }
+                ],
+                "text": "140",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 140
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Lyon"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Lyon"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "4"
+                  }
+                ],
+                "text": "4",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 4
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "38"
+                  }
+                ],
+                "text": "38",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 38
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "Germany"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Germany"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Berlin"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Berlin"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "9"
+                  }
+                ],
+                "text": "9",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 9
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "95"
+                  }
+                ],
+                "text": "95",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 95
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      },
+      {
+        "group_id": "Asia",
+        "label": {
+          "runs": [
+            {
+              "text": "Asia"
+            }
+          ],
+          "text": "Asia"
+        },
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "rowspan": 2,
+                "runs": [
+                  {
+                    "text": "Japan"
+                  }
+                ],
+                "scope": "rowgroup",
+                "stub": true,
+                "text": "Japan"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Tokyo"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Tokyo"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "20"
+                  }
+                ],
+                "text": "20",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 20
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "260"
+                  }
+                ],
+                "text": "260",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 260
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "Osaka"
+                  }
+                ],
+                "scope": "row",
+                "stub": true,
+                "text": "Osaka"
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "7"
+                  }
+                ],
+                "text": "7",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 7
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "81"
+                  }
+                ],
+                "text": "81",
+                "typed_value": {
+                  "type": "integer",
+                  "value": 81
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [],
+            "scope": "col",
+            "text": ""
+          },
+          {
+            "align": "center",
+            "col": 2,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Network"
+              }
+            ],
+            "scope": "colgroup",
+            "text": "Network"
+          }
+        ],
+        "role": "spanner_label"
+      },
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "colspan": 2,
+            "runs": [
+              {
+                "text": "Location"
+              }
+            ],
+            "scope": "colgroup",
+            "style": {
+              "text_align": "left"
+            },
+            "text": "Location"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "Stores"
+              }
+            ],
+            "scope": "col",
+            "text": "Stores"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "Staff"
+              }
+            ],
+            "scope": "col",
+            "text": "Staff"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}
