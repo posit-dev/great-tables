@@ -164,6 +164,8 @@ A table made with [opt_interactive()](../reference/GT.opt_interactive.md#great_t
 
 The status line and the control bar are close to the table, and the space that GT (or the page) leaves around the table is kept past them, so that they read as part of it rather than of the text around it.
 
+A table names its own parts too: press `?` with the table focused (click in it first), or use **Name the table's parts** in its info panel, and each part it has is outlined, with its name beside it. `?` again, Escape, or a click outside the table puts the names away.
+
 ## Row details
 
 With [i_row_details()](../reference/GTI.i_row_details.md#great_tables.GTI.i_row_details), each row can have more to show under it, when the reader asks for it. A function makes a row's details from its values (including those of columns the table hides): as text, with [md()](../reference/md.md#great_tables.md) or [html()](../reference/html.md#great_tables.md), or as a [GT](../reference/GT.md#great_tables.GT) table of their own. Here, each car has a few lines about its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info panel to show every car's.

@@ -321,3 +321,4 @@ The Great Tables package is equipped with 16 datasets that come in all shapes an
 - [Full documentation](https://posit-dev.github.io/great-tables/)
 - [llms.txt](llms.txt) — Indexed API reference for LLMs
 - [llms-full.txt](llms-full.txt) — Comprehensive documentation for LLMs
+- [Source code](https://github.com/posit-dev/great-tables)

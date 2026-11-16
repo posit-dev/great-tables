@@ -2,14 +2,14 @@
  * Navbar Widget Collector for Great Docs
  *
  * Consolidates all right-side navbar widgets (dark-mode toggle, keyboard
- * shortcuts button, GitHub icon/widget, and search) into a single flex
+ * shortcuts button, repository icon/widget, and search) into a single flex
  * container (#gd-navbar-widgets) placed inside .quarto-navbar-tools.
  *
  * This guarantees uniform spacing (via CSS gap) and a predictable order
  * regardless of which widgets are enabled or the order scripts execute.
  *
  * Must be loaded AFTER the individual widget scripts (dark-mode-toggle.js,
- * keyboard-nav.js, github-widget.js) and is included unconditionally.
+ * keyboard-nav.js, repository-widget.js) and is included unconditionally.
  */
 (function () {
     'use strict';
@@ -58,7 +58,7 @@
             if (kbLi && !kbLi.hasChildNodes()) kbLi.remove();
         }
 
-        // 3. GitHub icon — compact nav-item (unwrap the <a> from its <li>)
+        // 3. Repository icon — compact nav-item (unwrap the <a> from its <li>)
         var compactItem = containerFluid.querySelector(
             '#navbarCollapse .nav-item.compact'
         );
@@ -71,12 +71,12 @@
             }
         }
 
-        // 4. GitHub widget — #github-widget (unwrap from its <li>)
-        var ghWidget = document.getElementById('github-widget');
-        if (ghWidget) {
-            var ghLi = ghWidget.closest('li.nav-item');
-            moveToWrapper(wrapper, ghWidget);
-            if (ghLi && !ghLi.hasChildNodes()) ghLi.remove();
+        // 4. Repository widget — #repository-widget (unwrap from its <li>)
+        var repoWidget = document.getElementById('repository-widget');
+        if (repoWidget) {
+            var repoLi = repoWidget.closest('li.nav-item');
+            moveToWrapper(wrapper, repoWidget);
+            if (repoLi && !repoLi.hasChildNodes()) repoLi.remove();
         }
 
         // 4b. Version selector — #gd-version-selector
