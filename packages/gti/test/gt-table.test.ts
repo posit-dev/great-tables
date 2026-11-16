@@ -2527,6 +2527,8 @@ describe("the bar's reset, shortcuts and tooltips", () => {
   it("can be focused by a click in it, for its shortcuts, unless it has a tabindex of its own", async () => {
     const el = await mountBar();
     expect(el.getAttribute("tabindex")).toBe("-1");
+    // (Marked for the bar's outline to show the focus: see gti.css)
+    expect(el.hasAttribute("data-gti-keys")).toBe(true);
     // (Gone with the shortcuts)
     const { html, spec } = gtTable(GROUPED, { controls: { search: false, sorting: false } });
     el.remove();
@@ -2534,12 +2536,14 @@ describe("the bar's reset, shortcuts and tooltips", () => {
     document.body.append(el);
     await tick();
     expect(el.hasAttribute("tabindex")).toBe(false);
+    expect(el.hasAttribute("data-gti-keys")).toBe(false);
 
     const { html: own, spec: ownSpec } = gtTable(GROUPED, { controls: { search: true, bar: true } });
     document.body.innerHTML = `<gt-table tabindex="0">${own}${specScript(ownSpec)}</gt-table>`;
     await tick();
     const other = document.querySelector(TAG_NAME) as GtTable;
     expect(other.getAttribute("tabindex")).toBe("0");
+    expect(other.hasAttribute("data-gti-keys")).toBe(true);
     other.remove();
     other.innerHTML = html + specScript(spec);
     document.body.append(other);
