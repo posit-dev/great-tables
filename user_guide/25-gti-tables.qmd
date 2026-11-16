@@ -96,6 +96,26 @@ A table names its own parts too: press `?` with the table focused (click in it f
 **Name the table's parts** in its info panel, and each part it has is outlined, with its name beside
 it. `?` again, Escape, or a click outside the table puts the names away.
 
+For a page that shows readers the parts, as this one does, `~~GTI.i_display()` with `parts=True`
+names them from the start, and for good. Here's the table above, live: it works as ever under the
+names, which follow its parts as you sort, filter, page or scroll it.
+
+```{python}
+(
+    GTI(gtcars_pl, id="gtcars-parts")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_inspect()
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns="hp")
+    .i_view(filter='mfr in ("Ferrari", "Lamborghini")', sort="-hp")
+    .i_view_state()
+    .i_scroll(260)
+    .i_display(parts=True)
+)
+```
+
 ## Row details
 
 With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
