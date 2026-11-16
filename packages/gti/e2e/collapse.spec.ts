@@ -198,9 +198,11 @@ test.describe("a table that drops columns", () => {
     await expect(el(page).locator("tr.gt-i-details")).toBeHidden();
     await el(page).getByRole("navigation", { name: "Table pages" }).getByRole("button", { name: "Previous page" }).click();
     await expect(details(page, "row_5")).toBeVisible();
-    // (And the search finds text in the columns dropped)
-    await el(page).locator(".gt-i-bar").getByRole("button", { name: "Search" }).click();
-    await el(page).getByRole("searchbox").fill("honeydew");
+    // (And the search finds text in the columns dropped: in the "Filter & sort" sheet, which the
+    // narrow bar folds the search into)
+    await el(page).locator(".gt-i-bar").getByRole("button", { name: "Filter & sort" }).click();
+    await page.getByRole("dialog").getByRole("searchbox").fill("honeydew");
+    await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
     await expect(row(page, "row_8")).toBeVisible();
     await expect(row(page, "row_5")).toBeHidden();
     await expect(el(page).locator("tr.gt-i-details")).toBeHidden();

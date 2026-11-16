@@ -436,7 +436,10 @@ test("uses lighter colours on a dark background", async ({ page }) => {
 test("fits a narrow container, with long text scrolled under the input's", async ({ page }) => {
   const errors = await ready(page, "tokens-container.html");
   const container = await box(page.locator("body > div"));
-  await toggle(page).click();
+  // (The bar is narrow enough to fold: the filters as text are in the sheet)
+  await expect(toggle(page)).toBeHidden();
+  await el(page).getByRole("button", { name: "Filter & sort" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Filters as text" }).click();
   const root = await box(el(page).locator(".gt-i-query"));
   expect(root.left).toBeGreaterThanOrEqual(container.left - 0.5);
   expect(root.right).toBeLessThanOrEqual(container.right + 0.5);

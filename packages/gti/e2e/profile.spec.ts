@@ -160,8 +160,11 @@ test.describe("column profiles", () => {
     for (const column of PROFILED) {
       await expect(profile(page, column)).toBeHidden();
     }
-    // (And are, once its container is wide enough for a table, counting the rows a search keeps)
-    await search(page, "fig");
+    // (And are, once its container is wide enough for a table, counting the rows a search keeps:
+    // made in the "Filter & sort" sheet, which the narrow bar folds the search into)
+    await el(page).getByRole("button", { name: "Filter & sort" }).click();
+    await page.getByRole("dialog").getByRole("searchbox").fill("fig");
+    await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
     await page.locator("body > div").evaluate((div) => ((div as HTMLElement).style.width = "800px"));
     await expect(el(page)).not.toHaveAttribute("data-gti-stacked");
     await expect(profile(page, "char")).toBeVisible();

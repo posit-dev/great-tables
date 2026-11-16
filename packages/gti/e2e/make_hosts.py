@@ -322,7 +322,9 @@ def streamlit_kernel_app(lazy: bool = False) -> str:
     return STREAMLIT_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
-# (A Panel app showing a `GTIPane`'s parameters, with a button that sets them)
+# (A Panel app showing a `GTIPane`'s parameters, with a button that sets them. Panel sizes each
+# pane to what's in it, and the panes here are given room, so that their control bars aren't
+# folded, as they are in a pane as narrow as a small table: see sheet.spec.ts)
 PANEL_STATE_APP = f"""\
 import json
 
@@ -334,7 +336,9 @@ from great_tables.panel import GTIPane
 
 pn.extension()
 
-table = GTIPane(GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"))
+table = GTIPane(
+    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"), width=600
+)
 
 
 def state(query, search, sort, rows, selection):
@@ -369,7 +373,7 @@ pn.extension()
 
 big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
 <big>
-table = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>)
+table = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>, width=600)
 
 
 def state(rows, search):
@@ -386,7 +390,9 @@ pn.Column(button, table, pn.bind(state, table.param.rows, table.param.search)).s
 PANEL_NOTEBOOK = [
     "import panel as pn\n\nfrom great_tables.panel import GTIPane\n\npn.extension()",
     (
-        'pane = GTIPane(GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"))'
+        "pane = GTIPane(\n"
+        '    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"),\n'
+        "    width=600,\n)"
         "\npane"
     ),
 ]
@@ -398,7 +404,9 @@ PANEL_KERNEL_NOTEBOOK = [
 import pandas as pd
 
 big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
-pane = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel"))
+pane = GTIPane(
+    GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel"), width=600
+)
 pane""",
     "pane",
 ]

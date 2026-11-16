@@ -136,8 +136,25 @@ test.describe("on a touch screen", () => {
   });
 });
 
-test("with a mouse, the bar doesn't fold, and a long press is a click", async ({ page }) => {
+test("with a mouse, a bar with little room folds too, on one line, and a long press is a click", async ({ page }) => {
   const errors = await ready(page, "sheet.html");
+  await expect(opener(page)).toBeVisible();
+  await expect(bar(page).getByRole("button", { name: "Search the table" })).toBeHidden();
+  await expect(bar(page).locator('[data-gti-bar="columns"]')).toBeHidden();
+  await expect(bar(page).locator('[data-gti-bar="query"]')).toBeHidden();
+  await expect(bar(page).locator('[data-gti-bar="keys"]')).toBeHidden();
+  expect((await bar(page).boundingBox())?.height).toBeLessThan(40);
+  // (The shortcuts are in the info panel, and the sheet opens on a click)
+  await bar(page).getByRole("button", { name: "Table info" }).click();
+  await expect(bar(page).locator('[data-gti-info="keys"]')).toBeVisible();
+  await page.keyboard.press("Escape");
+  await opener(page).click();
+  await expect(sheet(page)).toBeVisible();
+  await expect(sheet(page).getByRole("group", { name: "Search" })).toBeVisible();
+  await sheet(page).getByRole("button", { name: "Done" }).click();
+  await expect(sheet(page)).toBeHidden();
+  // (Unfolded with room, however narrow the table is)
+  await widen(page, "760px");
   await expect(opener(page)).toBeHidden();
   await expect(bar(page).getByRole("button", { name: "Search the table" })).toBeVisible();
   await expect(bar(page).locator('[data-gti-bar="columns"]')).toBeVisible();
