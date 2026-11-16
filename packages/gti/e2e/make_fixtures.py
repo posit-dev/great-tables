@@ -191,12 +191,13 @@ def bar_html(
     columns: list[str] | None = None,
     selection: str | None = None,
     height: str | None = None,
+    parts: bool = False,
     **pagination,
 ) -> str:
     # A GTI table (with GTI's control bar): exibble three times over (24 rows, in two groups),
     # 2 rows to a page (so 12 pages), or with only the columns given; or without pages. Rows can
     # be selected, with `selection`; its body scrolls within `height`, if given, and its view is
-    # kept in the URL.
+    # kept in the URL; its parts are named for good, with `parts`.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     if columns is None:
@@ -210,6 +211,8 @@ def bar_html(
         gti = gti.i_pagination(False)
     if height is not None:
         gti = gti.i_scroll(height).i_view_state()
+    if parts:
+        gti = gti.i_display(parts=True)
     return render_gti_html(gti, runtime="none")
 
 
@@ -1042,6 +1045,12 @@ def main() -> None:
         ),
         "bar-sticky.html": page(
             bar_html("c", enabled=False) + '\n<div style="height: 1500px"></div>\n' + runtime_src,
+            head=styles,
+        ),
+        # Its parts named for good, as on a docs page: in a container that scrolls sideways, as
+        # Quarto's for a table is
+        "parts.html": page(
+            '<div style="overflow-x: auto">' + bar_html("c", parts=True) + "</div>\n" + runtime_src,
             head=styles,
         ),
         "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
