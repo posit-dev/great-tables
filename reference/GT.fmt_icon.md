@@ -4,7 +4,7 @@ Use icons within a table's body cells.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8520-L8715)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8519-L8714)
 
 ``` python
 GT.fmt_icon(
@@ -106,10 +106,10 @@ Let's take a few rows from the towny dataset and make it so the `csd_type` colum
 
 ``` python
 import polars as pl
-from great_tables.data import towny
+from great_tables import data
 
 towny_mini = (
-    pl.from_pandas(towny.loc[[323, 14, 26, 235]])
+    data.pl.towny[[323, 14, 26, 235]]
     .select(["name", "csd_type", "population_2021"])
     .with_columns(
        csd_type = pl.when(pl.col("csd_type") == "town")
@@ -140,10 +140,10 @@ towny_mini = (
 A fairly common thing to do with icons in tables is to indicate whether a quantity is either higher or lower than another. Up and down arrow symbols can serve as good visual indicators for this purpose. We can make use of the `"up-arrow"` and `"down-arrow"` icons here. As those strings are available in the `dir` column of the table derived from the [sp500](../reference/data.sp500.md#great_tables.data.sp500) dataset, [fmt_icon()](../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) can be used. We set the `fill_color` argument with a dictionary that indicates which color should be used for each icon.
 
 ``` python
-from great_tables.data import sp500
+from great_tables import data
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .head(10)
     .select(["date", "open", "close"])
     .sort("date", descending=False)

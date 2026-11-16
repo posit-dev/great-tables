@@ -4,7 +4,7 @@ Add grand summary rows to the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L531-L671)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L527-L666)
 
 ``` python
 GT.grand_summary_rows(
@@ -50,11 +50,10 @@ Let's use a subset of the [sp500](../reference/data.sp500.md#great_tables.data.s
 ``` python
 import polars as pl
 import polars.selectors as cs
-from great_tables import GT, vals, style, loc
-from great_tables.data import sp500
+from great_tables import GT, data, vals, style, loc
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(0, 7)
     .drop(["volume", "adj_close"])
 )

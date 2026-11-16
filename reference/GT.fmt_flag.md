@@ -4,7 +4,7 @@ Generate flag icons for countries from their country codes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8785-L8908)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8784-L8906)
 
 ``` python
 GT.fmt_flag(
@@ -49,12 +49,11 @@ The GT object is returned. This is the same object that the method is called on 
 Let's use the [countrypops](../reference/data.countrypops.md#great_tables.data.countrypops) dataset to create a new table with flag icons. We will only include a few columns and rows from that table. The `country_code_2` column has 2-letter country codes in the format required for [fmt_flag()](../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag) and using that method transforms the codes to circular flag icons.
 
 ``` python
-from great_tables import GT
-from great_tables.data import countrypops
+from great_tables import GT, data
 import polars as pl
 
 countrypops_mini = (
-    pl.from_pandas(countrypops)
+    data.pl.countrypops
     .filter(pl.col("year") == 2021)
     .filter(pl.col("country_name").str.starts_with("S"))
     .sort("country_name")
@@ -94,7 +93,7 @@ Here's another example (again using [countrypops](../reference/data.countrypops.
 import polars.selectors as cs
 
 countrypops_mini = (
-    pl.from_pandas(countrypops)
+    data.pl.countrypops
     .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
     .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
     .pivot("year", index = ["country_code_3", "country_name"], values="population")

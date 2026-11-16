@@ -4,7 +4,7 @@ Provide a structured way to chain a function for a GT object.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_pipe.py#L16-L103)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_pipe.py#L16-L102)
 
 ``` python
 GT.pipe(
@@ -38,11 +38,10 @@ Let's use the `name`, `land_area_km2`, and `density_2021` columns of the [towny]
 
 ``` python
 import polars as pl
-from great_tables import GT, loc, style
-from great_tables.data import towny
+from great_tables import GT, data, loc, style
 
 
-towny_mini = pl.from_pandas(towny).head(10)
+towny_mini = data.pl.towny.head(10)
 
 (
     GT(

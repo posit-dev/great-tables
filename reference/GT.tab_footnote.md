@@ -49,11 +49,11 @@ This example table will be based on the [towny](../reference/data.towny.md#great
 
 ``` python
 import polars as pl
-from great_tables import GT, loc, md
+from great_tables import GT, data, loc, md
 from great_tables.data import towny
 
 towny_mini = (
-    pl.from_pandas(towny)
+    data.pl.towny
     .filter(pl.col("csd_type") == "city")
     .select(["name", "density_2021", "population_2021"])
     .top_k(10, by="population_2021")

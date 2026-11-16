@@ -4,7 +4,7 @@ Target the source notes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L983-L1018)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L981-L1016)
 
 ``` python
 loc.source_notes()

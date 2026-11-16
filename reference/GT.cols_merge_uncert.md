@@ -4,7 +4,7 @@ Merge columns to a value-with-uncertainty column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1324-L1466)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1323-L1464)
 
 ``` python
 GT.cols_merge_uncert(
@@ -55,12 +55,11 @@ This function employs specialized semantics for missing value handling that diff
 Use the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset to create a simple, two-column table. Merge the `currency` and `num` columns together as a value with uncertainty.
 
 ``` python
-from great_tables import GT
-from great_tables.data import exibble
+from great_tables import GT, data
 import polars as pl
 
 exibble_mini = (
-    pl.from_pandas(exibble)
+    data.pl.exibble
     .select("num", "currency")
     .slice(0, 7)
 )

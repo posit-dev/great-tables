@@ -4,7 +4,7 @@ Add group-wise summary rows to the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L211-L465)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_modify_rows.py#L211-L461)
 
 ``` python
 GT.summary_rows(
@@ -53,11 +53,10 @@ Let's use a subset of the [gtcars](../reference/data.gtcars.md#great_tables.data
 
 ``` python
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -189,11 +188,10 @@ Summary rows can be placed at the top of each group using `side="top"`:
 
 ``` python
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -235,11 +233,10 @@ Combining group summaries with grand summary rows and styling provides a compreh
 
 ``` python
 import polars as pl
-from great_tables import GT, vals, style, loc
-from great_tables.data import gtcars
+from great_tables import GT, data, vals, style, loc
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -300,11 +297,10 @@ When groups are displayed as a column in the stub (using `row_group_as_column=Tr
 
 ``` python
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )

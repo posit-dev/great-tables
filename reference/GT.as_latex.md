@@ -61,12 +61,12 @@ As development continues, we will work to expand the capabilities of the [as_lat
 Let's use a subset of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset to create a new table.
 
 ``` python
-from great_tables import GT
+from great_tables import GT, data
 from great_tables.data import gtcars
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "msrp"])
     .head(5)
 )

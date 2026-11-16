@@ -4,7 +4,7 @@ Options to define font choices for the entire table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1419-L1626)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1419-L1625)
 
 ``` python
 GT.opt_table_font(
@@ -66,10 +66,9 @@ Let's use a subset of the [sp500](../reference/data.sp500.md#great_tables.data.s
 
 ``` python
 import polars as pl
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 
-sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+sp500_mini = data.pl.sp500.slice(0, 10).drop(["volume", "adj_close"])
 
 (
     GT(sp500_mini, rowname_col="date")
@@ -96,10 +95,10 @@ In practice, both of these fonts are not likely to be available on all systems. 
 With the [sza](../reference/data.sza.md#great_tables.data.sza) dataset we'll create a two-column, eleven-row table. Within [opt_table_font()](../reference/GT.opt_table_font.md#great_tables.GT.opt_table_font), the `stack=` argument will be supplied with the "rounded-sans" font stack. This sets up a family of fonts with rounded, curved letterforms that should be locally available in different computing environments.
 
 ``` python
-from great_tables.data import sza
+from great_tables import data
 
 sza_mini = (
-    pl.from_pandas(sza)
+    data.pl.sza
     .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
     .drop_nulls()
     .drop(["latitude", "month"])

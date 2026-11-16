@@ -55,12 +55,12 @@ The GT object is returned (the same object the method is called on), facilitatin
 Using a small subset of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset, let's create a table and save it to a PNG file.
 
 ``` python
-from great_tables import GT
+from great_tables import GT, data
 from great_tables.data import gtcars
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "msrp"])
     .head(5)
 )

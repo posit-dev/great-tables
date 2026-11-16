@@ -596,12 +596,11 @@ to a parent constant. Then `tab_stub_indent()` targets those sub-rows (via a Pol
 and indents them by 4 levels.
 
 ```{python}
-from great_tables import GT, stub
-from great_tables.data import constants
+from great_tables import GT, data, stub
 import polars as pl
 
 constants_mini = (
-    pl.from_pandas(constants)
+    data.pl.constants
     .select(["name", "value", "uncert", "units"])
     .filter(
         pl.col("name").str.starts_with("atomic mass constant")
@@ -702,11 +701,11 @@ changing the order of the `tab_footnote()` calls has no effect on the final tabl
 
 ```{python}
 import polars as pl
-from great_tables import GT, loc, md
+from great_tables import GT, data, loc, md
 from great_tables.data import towny
 
 towny_mini = (
-    pl.from_pandas(towny)
+    data.pl.towny
     .filter(pl.col("csd_type") == "city")
     .select(["name", "density_2021", "population_2021"])
     .top_k(10, by="population_2021")
@@ -4425,12 +4424,11 @@ generates up and down arrows in the `dir` column. We elect to use green upward a
 downward arrows (through the `colors=` option).
 
 ```{python}
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 import polars as pl
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(0, 5)
     .drop(["volume", "adj_close", "high", "low"])
     .with_columns(dir = pl.col("close") > pl.col("open"))
@@ -4603,12 +4601,12 @@ have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rath
 `"<unit_1> <unit_2>^-1"`).
 
 ```{python}
-from great_tables.data import constants
+from great_tables import data
 import polars as pl
 import polars.selectors as cs
 
 constants_mini = (
-    pl.from_pandas(constants)
+    data.pl.constants
     .filter(pl.col("name").str.contains("molar")).sort("value")
     .with_columns(
         name=pl.col("name")
@@ -4772,12 +4770,11 @@ in the format required for `fmt_flag()` and using that method transforms the cod
 flag icons.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import countrypops
+from great_tables import GT, data
 import polars as pl
 
 countrypops_mini = (
-    pl.from_pandas(countrypops)
+    data.pl.countrypops
     .filter(pl.col("year") == 2021)
     .filter(pl.col("country_name").str.starts_with("S"))
     .sort("country_name")
@@ -4807,7 +4804,7 @@ country codes present in the `country_code_3` column.
 import polars.selectors as cs
 
 countrypops_mini = (
-    pl.from_pandas(countrypops)
+    data.pl.countrypops
     .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
     .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
     .pivot("year", index = ["country_code_3", "country_name"], values="population")
@@ -4930,10 +4927,10 @@ two categories of municipality for this subset of data.
 
 ```{python}
 import polars as pl
-from great_tables.data import towny
+from great_tables import data
 
 towny_mini = (
-    pl.from_pandas(towny.loc[[323, 14, 26, 235]])
+    data.pl.towny[[323, 14, 26, 235]]
     .select(["name", "csd_type", "population_2021"])
     .with_columns(
        csd_type = pl.when(pl.col("csd_type") == "town")
@@ -4962,10 +4959,10 @@ strings are available in the `dir` column of the table derived from the `sp500` 
 which color should be used for each icon.
 
 ```{python}
-from great_tables.data import sp500
+from great_tables import data
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .head(10)
     .select(["date", "open", "close"])
     .sort("date", descending=False)
@@ -5233,10 +5230,10 @@ ratings of the cars in the `gtcars` dataset by body style and show each group as
 of them on the same scale). Hover over any box to see its quartiles and whiskers.
 
 ```{python}
-from great_tables.data import gtcars
+from great_tables import data
 
 hp_by_body_style = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .group_by("bdy_style")
     .agg(n=pl.len(), hp=pl.col("hp"))
     .sort("bdy_style")
@@ -5410,11 +5407,11 @@ selections of columns will be given different variations of replacement text (ac
 separate calls of `sub_missing()`).
 
 ```{python}
-from great_tables import GT, md, html, exibble
+from great_tables import GT, data, md, html
 import polars as pl
 import polars.selectors as cs
 
-exibble_mini = pl.from_pandas(exibble).drop("row", "group", "fctr").slice(4, 8)
+exibble_mini = data.pl.exibble.drop("row", "group", "fctr").slice(4, 8)
 
 (
     GT(exibble_mini)
@@ -6959,12 +6956,11 @@ We can also use unit notation to format the column labels. In this example, we'l
 `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import reactions
+from great_tables import GT, data
 import polars as pl
 
 reactions_mini = (
-    pl.from_pandas(reactions)
+    data.pl.reactions
     .filter(pl.col("cmpd_type") == "mercaptan")
     .select(["cmpd_name", "OH_k298"])
 )
@@ -7515,12 +7511,11 @@ Let's use a subset of the `sp500` dataset to create a table. We'll merge the `op
 columns together, and the `low` & `high` columns (putting an em dash between both).
 
 ```{python}
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 import polars as pl
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(49, 6)
     .select("open", "close", "low", "high")
 )
@@ -7545,11 +7540,11 @@ we can use patterns with `<<`/`>>` to create conditional text spans, avoiding re
 any of the merged columns have missing values.
 
 ```{python}
-from great_tables.data import gtcars
+from great_tables import data
 import polars.selectors as cs
 
 gtcars_pl = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .filter(pl.col("year") == 2017)
     .select(["mfr", "model", "trq", "trq_rpm", "mpg_c", "mpg_h"])
 )
@@ -7625,12 +7620,11 @@ Use the `exibble` dataset to create a simple, two-column table. Merge the `curre
 columns together as a value with uncertainty.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import exibble
+from great_tables import GT, data
 import polars as pl
 
 exibble_mini = (
-    pl.from_pandas(exibble)
+    data.pl.exibble
     .select("num", "currency")
     .slice(0, 7)
 )
@@ -7720,12 +7714,11 @@ Use a subset of the `gtcars` dataset to create a table. Merge the `mpg_c` and `m
 together as a range.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import gtcars
+from great_tables import GT, data
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select("model", "mpg_c", "mpg_h")
     .slice(0, 8)
 )
@@ -7907,11 +7900,10 @@ group by manufacturer and show min and max values for horsepower and torque colu
 
 ```{python}
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -7971,11 +7963,10 @@ Summary rows can be placed at the top of each group using `side="top"`:
 
 ```{python}
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -7995,11 +7986,10 @@ summary view of the data. Use `loc.summary()` to style all group summary cells:
 
 ```{python}
 import polars as pl
-from great_tables import GT, vals, style, loc
-from great_tables.data import gtcars
+from great_tables import GT, data, vals, style, loc
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -8033,11 +8023,10 @@ the summary row labels span the stub columns:
 
 ```{python}
 import polars as pl
-from great_tables import GT, vals
-from great_tables.data import gtcars
+from great_tables import GT, data, vals
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "hp", "trq"])
     .head(12)
 )
@@ -8103,11 +8092,10 @@ or select the columns directly.
 ```{python}
 import polars as pl
 import polars.selectors as cs
-from great_tables import GT, vals, style, loc
-from great_tables.data import sp500
+from great_tables import GT, data, vals, style, loc
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(0, 7)
     .drop(["volume", "adj_close"])
 )
@@ -10457,10 +10445,9 @@ the `"Superclarendon"` and `"Georgia"` fonts (the second font serves as a fallba
 
 ```{python}
 import polars as pl
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 
-sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+sp500_mini = data.pl.sp500.slice(0, 10).drop(["volume", "adj_close"])
 
 (
     GT(sp500_mini, rowname_col="date")
@@ -10481,10 +10468,10 @@ of fonts with rounded, curved letterforms that should be locally available in di
 computing environments.
 
 ```{python}
-from great_tables.data import sza
+from great_tables import data
 
 sza_mini = (
-    pl.from_pandas(sza)
+    data.pl.sza
     .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
     .drop_nulls()
     .drop(["latitude", "month"])
@@ -10534,10 +10521,10 @@ string. We need to ensure that the table ID is set explicitly (we've done so her
 value of `"one"`, setting it up with `GT(id=)`).
 
 ```{python}
-from great_tables import GT, exibble
+from great_tables import GT, data
 import polars as pl
 
-exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+exibble_mini = data.pl.exibble.select(["num", "currency"])
 
 (
     GT(exibble_mini, id="one")
@@ -12361,12 +12348,12 @@ Examples
 Using a small subset of the `gtcars` dataset, let's create a table and save it to a PNG file.
 
 ```python
-from great_tables import GT
+from great_tables import GT, data
 from great_tables.data import gtcars
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "msrp"])
     .head(5)
 )
@@ -12478,12 +12465,12 @@ Examples:
 Let's use a subset of the `gtcars` dataset to create a new table.
 
 ```{python}
-from great_tables import GT, md, style, loc
+from great_tables import GT, data, md, style, loc
 from great_tables.data import gtcars
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "msrp"])
     .head(5)
 )
@@ -12632,12 +12619,12 @@ Examples
 Let's use a subset of the `gtcars` dataset to create a new table.
 
 ```{python}
-from great_tables import GT
+from great_tables import GT, data
 from great_tables.data import gtcars
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select(["mfr", "model", "msrp"])
     .head(5)
 )
@@ -12704,11 +12691,10 @@ maximum value of the `density_2021` column with `"lightblue"`.
 
 ```{python}
 import polars as pl
-from great_tables import GT, loc, style
-from great_tables.data import towny
+from great_tables import GT, data, loc, style
 
 
-towny_mini = pl.from_pandas(towny).head(10)
+towny_mini = data.pl.towny.head(10)
 
 (
     GT(

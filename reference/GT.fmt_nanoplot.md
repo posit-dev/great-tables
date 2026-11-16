@@ -4,7 +4,7 @@ Format data for nanoplot visualizations.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9012-L9412)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L9010-L9410)
 
 ``` python
 GT.fmt_nanoplot(
@@ -235,10 +235,10 @@ single_vals_df = pl.DataFrame(
 Box plots are a good way to compare distributions across rows. Here, we collect the horsepower ratings of the cars in the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset by body style and show each group as a box plot (all of them on the same scale). Hover over any box to see its quartiles and whiskers.
 
 ``` python
-from great_tables.data import gtcars
+from great_tables import data
 
 hp_by_body_style = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .group_by("bdy_style")
     .agg(n=pl.len(), hp=pl.col("hp"))
     .sort("bdy_style")

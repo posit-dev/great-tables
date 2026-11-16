@@ -37,11 +37,11 @@ The GT object is returned. This is the same object that the method is called on 
 Using a subset of the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset, let's create a new table. The missing values in two selections of columns will be given different variations of replacement text (across two separate calls of [sub_missing()](../reference/GT.sub_missing.md#great_tables.GT.sub_missing)).
 
 ``` python
-from great_tables import GT, md, html, exibble
+from great_tables import GT, data, md, html
 import polars as pl
 import polars.selectors as cs
 
-exibble_mini = pl.from_pandas(exibble).drop("row", "group", "fctr").slice(4, 8)
+exibble_mini = data.pl.exibble.drop("row", "group", "fctr").slice(4, 8)
 
 (
     GT(exibble_mini)

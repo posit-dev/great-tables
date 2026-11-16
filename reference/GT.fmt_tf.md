@@ -4,7 +4,7 @@ Format True and False values
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5953-L6089)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5953-L6088)
 
 ``` python
 GT.fmt_tf(
@@ -71,12 +71,11 @@ We need to supply a preset `tf_style=` value. The following table provides a lis
 Let's use a subset of the [sp500](../reference/data.sp500.md#great_tables.data.sp500) dataset to create a small table containing opening and closing price data for the last few days in 2015. We added a boolean column (`dir`) where `True` indicates a price increase from opening to closing and `False` is the opposite. Using [fmt_tf()](../reference/GT.fmt_tf.md#great_tables.GT.fmt_tf) generates up and down arrows in the `dir` column. We elect to use green upward arrows and red downward arrows (through the `colors=` option).
 
 ``` python
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 import polars as pl
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(0, 5)
     .drop(["volume", "adj_close", "high", "low"])
     .with_columns(dir = pl.col("close") > pl.col("open"))

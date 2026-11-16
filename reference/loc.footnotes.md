@@ -4,7 +4,7 @@ Target the footnotes section of the footer.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L911-L980)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_locations.py#L909-L978)
 
 ``` python
 loc.footnotes()

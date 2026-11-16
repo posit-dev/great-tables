@@ -4,7 +4,7 @@ Option to add custom CSS for the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1752-L1842)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1751-L1841)
 
 ``` python
 GT.opt_css(
@@ -39,10 +39,10 @@ The GT object is returned. This is the same object that the method is called on 
 Let's use the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset to create a simple, two-column table (keeping only the `num` and `currency` columns). Through use of the [opt_css()](../reference/GT.opt_css.md#great_tables.GT.opt_css) method, we can insert CSS rulesets as a string. We need to ensure that the table ID is set explicitly (we've done so here with the ID value of `"one"`, setting it up with `GT(id=)`).
 
 ``` python
-from great_tables import GT, exibble
+from great_tables import GT, data
 import polars as pl
 
-exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+exibble_mini = data.pl.exibble.select(["num", "currency"])
 
 (
     GT(exibble_mini, id="one")

@@ -4,7 +4,7 @@ Control indentation of row labels in the stub.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_stub_indent.py#L13-L124)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_tab_stub_indent.py#L13-L123)
 
 ``` python
 GT.tab_stub_indent(
@@ -60,12 +60,11 @@ exibble_mini = exibble[["num", "char", "row", "group"]].head(8)
 Here's a more advanced example using the [constants](../reference/data.constants.md#great_tables.data.constants) dataset. We filter for three groups of physical constants and rename the sub-entries to start with `"..."` so it's clear they belong to a parent constant. Then [tab_stub_indent()](../reference/GT.tab_stub_indent.md#great_tables.GT.tab_stub_indent) targets those sub-rows (via a Polars expression) and indents them by 4 levels.
 
 ``` python
-from great_tables import GT, stub
-from great_tables.data import constants
+from great_tables import GT, data, stub
 import polars as pl
 
 constants_mini = (
-    pl.from_pandas(constants)
+    data.pl.constants
     .select(["name", "value", "uncert", "units"])
     .filter(
         pl.col("name").str.starts_with("atomic mass constant")

@@ -4,7 +4,7 @@ Format measurement units.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6349-L6499)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L6348-L6498)
 
 ``` python
 GT.fmt_units(
@@ -126,12 +126,12 @@ from great_tables.data import illness
 The [constants](../reference/data.constants.md#great_tables.data.constants) dataset contains values for hundreds of fundamental physical constants. We'll take a subset of values that have some molar basis and generate a new display table from that. Like the [illness](../reference/data.illness.md#great_tables.data.illness) dataset, this one has a `units` column so, again, the [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method will be used to format those units. Here, the preference for typesetting measurement units is to have positive and negative exponents (e.g., not `"<unit_1> / <unit_2>"` but rather `"<unit_1> <unit_2>^-1"`).
 
 ``` python
-from great_tables.data import constants
+from great_tables import data
 import polars as pl
 import polars.selectors as cs
 
 constants_mini = (
-    pl.from_pandas(constants)
+    data.pl.constants
     .filter(pl.col("name").str.contains("molar")).sort("value")
     .with_columns(
         name=pl.col("name")

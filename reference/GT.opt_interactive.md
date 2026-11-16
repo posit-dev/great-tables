@@ -4,7 +4,7 @@ Option to enable an interactive table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1845-L1974)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1844-L1973)
 
 ``` python
 GT.opt_interactive(

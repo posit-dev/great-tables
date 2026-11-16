@@ -4,7 +4,7 @@ Reorder all columns in a specified order.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1757-L1844)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1754-L1841)
 
 ``` python
 GT.cols_reorder(columns)

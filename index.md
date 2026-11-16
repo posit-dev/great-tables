@@ -10,11 +10,10 @@ Here's a quick example (click "Show the code" to see how it's done):
 
 ``` python
 import polars as pl
-from great_tables import GT, md, html
-from great_tables.data import countrypops
+from great_tables import GT, data, md, html
 
 countries_mini = (
-    pl.from_pandas(countrypops)
+    data.pl.countrypops
     .filter(pl.col("year") == 2022)
     .sort("population", descending=True)
     .select("country_name", "population")

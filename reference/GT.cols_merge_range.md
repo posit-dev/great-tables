@@ -4,7 +4,7 @@ Merge two columns to a value range column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1469-L1614)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1467-L1611)
 
 ``` python
 GT.cols_merge_range(
@@ -59,12 +59,11 @@ This function employs specialized semantics for missing value handling that diff
 Use a subset of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) dataset to create a table. Merge the `mpg_c` and `mpg_h` columns together as a range.
 
 ``` python
-from great_tables import GT
-from great_tables.data import gtcars
+from great_tables import GT, data
 import polars as pl
 
 gtcars_mini = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .select("model", "mpg_c", "mpg_h")
     .slice(0, 8)
 )

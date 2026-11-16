@@ -4,7 +4,7 @@ Merge data from two or more columns into a single column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1140-L1321)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1140-L1320)
 
 ``` python
 GT.cols_merge(
@@ -56,12 +56,11 @@ One more thing to note here is that if `.sub_missing()` is used on values in a c
 Let's use a subset of the [sp500](../reference/data.sp500.md#great_tables.data.sp500) dataset to create a table. We'll merge the `open` & `close` columns together, and the `low` & `high` columns (putting an em dash between both).
 
 ``` python
-from great_tables import GT
-from great_tables.data import sp500
+from great_tables import GT, data
 import polars as pl
 
 sp500_mini = (
-    pl.from_pandas(sp500)
+    data.pl.sp500
     .slice(49, 6)
     .select("open", "close", "low", "high")
 )
@@ -91,11 +90,11 @@ sp500_mini = (
 Now we'll use a portion of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) for the next example that accounts for missing values in the `pattern=` parameter. Use the `.cols_merge()` method twice to merge together the: (1) `trq` and `trq_rpm` columns, and (2) `mpg_c` & `mpg_h` columns. Given the presence of missing values, we can use patterns with `<<`/`>>` to create conditional text spans, avoiding results where any of the merged columns have missing values.
 
 ``` python
-from great_tables.data import gtcars
+from great_tables import data
 import polars.selectors as cs
 
 gtcars_pl = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .filter(pl.col("year") == 2017)
     .select(["mfr", "model", "trq", "trq_rpm", "mpg_c", "mpg_h"])
 )

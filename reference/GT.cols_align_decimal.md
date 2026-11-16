@@ -4,7 +4,7 @@ Align all numeric values in a column along the decimal mark.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L309-L389)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L308-L388)
 
 ``` python
 GT.cols_align_decimal(

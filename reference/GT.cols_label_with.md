@@ -4,7 +4,7 @@ Relabel one or more columns using a function.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L164-L238)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L163-L237)
 
 ``` python
 GT.cols_label_with(
