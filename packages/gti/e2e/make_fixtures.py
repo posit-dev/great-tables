@@ -1049,6 +1049,10 @@ def main() -> None:
         "bar-scroll.html": page(
             bar_html("c", enabled=False, height="300px") + "\n" + runtime_src, head=styles
         ),
+        # 10 rows to a page (3 pages), in a body that scrolls within 250px
+        "bar-scroll-pages.html": page(
+            bar_html("c", height="250px", page_size=10) + "\n" + runtime_src, head=styles
+        ),
         # The info panel: of a GTI table whose rows can be selected, with page sizes of 2 and 5
         # (below room for the panel above it); and of one in a container 300px wide
         "info.html": page(

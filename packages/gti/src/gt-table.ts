@@ -939,6 +939,8 @@ export class GtTable extends HTMLElement {
   private bar: Bar | null = null;
   /** The element's handler for `/`, which opens the bar's search. */
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
+  /** The element's handler for the keys that page. */
+  private pagingKey: ((event: KeyboardEvent) => void) | null = null;
   /** Whether the element has the `tabindex` it was given for its keys (see `addBar()`). */
   private ownTabIndex = false;
   /** Whether the bar's readout is an input for the page to go to. */
@@ -4857,25 +4859,34 @@ export class GtTable extends HTMLElement {
     });
     jumpInput.addEventListener("blur", () => this.endJump(true));
 
-    // In the bar (but not while typing in it, or in a panel), the arrow keys and Page Up and Down go
-    // to the page before or after, and Home and End to the first or last; Escape closes the panel
+    // In the bar, Escape closes the panel
     root.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && this.popup !== null) {
         // (And don't, say, close a dialog the table is in)
         event.preventDefault();
         event.stopPropagation();
         this.closePanel(true);
-        return;
       }
+    });
+
+    // Anywhere in the table (but not while typing, in a panel, or on a control that takes the key
+    // itself), the arrow keys and Page Up and Down go to the page before or after, and Home and End
+    // to the first or last. Out of the bar, a table that scrolls keeps the keys for scrolling: the
+    // side arrows when it's wider than its room, and the others when its body scrolls.
+    this.pagingKey = (event: KeyboardEvent) => {
+      const target = event.target as Element;
       if (
         pages.hidden ||
         event.altKey ||
         event.ctrlKey ||
         event.metaKey ||
-        event.target instanceof HTMLInputElement ||
-        this.popup?.panel.contains(event.target as Node) ||
-        bar.tokens?.contains(event.target as Node) ||
-        bar.query?.root.contains(event.target as Node)
+        event.defaultPrevented ||
+        target.closest(TYPED) !== null ||
+        this.popup?.panel.contains(target) ||
+        this.openFilter?.panel?.contains(target) ||
+        this.sheet?.contains(target) ||
+        bar.tokens?.contains(target) ||
+        bar.query?.root.contains(target)
       ) {
         return;
       }
@@ -4890,12 +4901,15 @@ export class GtTable extends HTMLElement {
         Home: 1,
         End: this.pageCount,
       };
-      const target = targets[event.key];
-      if (target !== undefined) {
-        event.preventDefault();
-        this.userPage(target);
+      const to = targets[event.key];
+      const side = event.key === "ArrowLeft" || event.key === "ArrowRight";
+      if (to === undefined || (!root.contains(target) && this.scrollsWithin(side ? "x" : "y"))) {
+        return;
       }
-    });
+      event.preventDefault();
+      this.userPage(to);
+    };
+    this.addEventListener("keydown", this.pagingKey);
 
     this.addTips(root);
     // Below the table, outside its scrolling container, in the table's font
@@ -5541,7 +5555,7 @@ export class GtTable extends HTMLElement {
       key(["Esc"], "Clear the search, then close it");
     }
     const pageKeys = spec.pagination.enabled
-      ? [key(["←", "→"], "Previous or next page, in the bar"), key(["Home", "End"], "First or last page, in the bar")]
+      ? [key(["←", "→"], "Previous or next page"), key(["Home", "End"], "First or last page")]
       : [];
     if (this.sortHeaders.size > 0) {
       key(["Shift"], "Sort by more than one column", true);
@@ -7788,6 +7802,19 @@ export class GtTable extends HTMLElement {
     (this.footHandle ?? below).after(el);
   }
 
+  // Whether the table scrolls within the element along an axis (in its body, or in the container
+  // that GT puts it in, when it's wider than its room)
+  private scrollsWithin(axis: "x" | "y"): boolean {
+    for (let el = this.table?.parentElement ?? null; el !== null && el !== this; el = el.parentElement) {
+      const overflow = getComputedStyle(el)[axis === "x" ? "overflowX" : "overflowY"];
+      const over = axis === "x" ? el.scrollWidth - el.clientWidth : el.scrollHeight - el.clientHeight;
+      if ((overflow === "auto" || overflow === "scroll") && over > 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   // The toolbar and page controls are lined up with the table, and the column widths are measured
   // again when the element's width changes
   private observeLayout(): void {
@@ -9340,6 +9367,9 @@ export class GtTable extends HTMLElement {
     if (this.slashKey !== null) {
       this.removeEventListener("keydown", this.slashKey);
     }
+    if (this.pagingKey !== null) {
+      this.removeEventListener("keydown", this.pagingKey);
+    }
     if (this.undoKey !== null) {
       this.removeEventListener("keydown", this.undoKey);
     }
@@ -9413,6 +9443,7 @@ export class GtTable extends HTMLElement {
     this.pager = null;
     this.bar = null;
     this.slashKey = null;
+    this.pagingKey = null;
     if (this.ownTabIndex) {
       this.removeAttribute("tabindex");
       this.ownTabIndex = false;
