@@ -11016,9 +11016,9 @@ from great_tables import GTI, exibble
 GTI(exibble[["num", "char", "fctr"]]).i_selection("single")
 ```
 
-i_display(self, *, highlight: 'bool' = True, compact: 'bool' = False, wrap: 'bool' = True, monospace: 'bool' = False) -> 'Self'
+i_display(self, *, highlight: 'bool' = True, compact: 'bool' = False, wrap: 'bool' = True, monospace: 'bool' = False, parts: 'bool' = False) -> 'Self'
 
-Set how the table's rows look.
+Set how the table's rows look, and whether its parts are named.
 
 Parameters
 ----------
@@ -11034,6 +11034,12 @@ monospace
     Whether the column labels and the cells are in a monospaced font, for a table that's a
     look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
     title, the notes and the controls keep the table's font.
+parts
+    Whether the parts GTI adds to the table (its status line, column controls, row numbers,
+    control bar, and so on) are outlined and named over it, from the start and for good,
+    for a page that shows readers what they are, as a docs page does. The table works as
+    ever under the names, which follow its parts as they move. Without it, readers can
+    name the parts themselves, with `?` or the button in the table's info panel.
 
 Returns
 -------
@@ -11054,6 +11060,18 @@ And one for looking through data: compact, on one line to a row, and monospaced.
 
 ```{python}
 GTI(exibble[["num", "char", "fctr"]]).i_display(compact=True, wrap=False, monospace=True)
+```
+
+And one with its parts named, as on a page that shows them: its status line and row
+numbers (from `i_inspect()`), its column controls, and its control bar.
+
+```{python}
+(
+    GTI(exibble[["num", "char", "fctr"]])
+    .i_inspect()
+    .i_pagination(page_size=4)
+    .i_display(parts=True)
+)
 ```
 
 i_scroll(self, height: 'str | float | None') -> 'Self'
@@ -21227,6 +21245,26 @@ around it.
 A table names its own parts too: press `?` with the table focused (click in it first), or use
 **Name the table's parts** in its info panel, and each part it has is outlined, with its name beside
 it. `?` again, Escape, or a click outside the table puts the names away.
+
+For a page that shows readers the parts, as this one does, `~~GTI.i_display()` with `parts=True`
+names them from the start, and for good. Here's the table above, live: it works as ever under the
+names, which follow its parts as you sort, filter, page or scroll it.
+
+```{python}
+(
+    GTI(gtcars_pl, id="gtcars-parts")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_inspect()
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns="hp")
+    .i_view(filter='mfr in ("Ferrari", "Lamborghini")', sort="-hp")
+    .i_view_state()
+    .i_scroll(260)
+    .i_display(parts=True)
+)
+```
 
 ## Row details
 

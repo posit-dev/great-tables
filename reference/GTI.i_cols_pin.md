@@ -4,7 +4,7 @@ Pin columns to a side of the table, so they stay in view as it scrolls sideways.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1165-L1233)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1185-L1253)
 
 ``` python
 GTI.i_cols_pin(

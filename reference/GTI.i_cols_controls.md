@@ -4,7 +4,7 @@ Choose which columns readers can sort by, search, resize, hide, move, and group 
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L936-L1163)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L956-L1183)
 
 ``` python
 GTI.i_cols_controls(

@@ -166,6 +166,74 @@ The status line and the control bar are close to the table, and the space that G
 
 A table names its own parts too: press `?` with the table focused (click in it first), or use **Name the table's parts** in its info panel, and each part it has is outlined, with its name beside it. `?` again, Escape, or a click outside the table puts the names away.
 
+For a page that shows readers the parts, as this one does, [i_display()](../reference/GTI.i_display.md#great_tables.GTI.i_display) with `parts=True` names them from the start, and for good. Here's the table above, live: it works as ever under the names, which follow its parts as you sort, filter, page or scroll it.
+
+``` python
+(
+    GTI(gtcars_pl, id="gtcars-parts")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_inspect()
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns="hp")
+    .i_view(filter='mfr in ("Ferrari", "Lamborghini")', sort="-hp")
+    .i_view_state()
+    .i_scroll(260)
+    .i_display(parts=True)
+)
+```
+
+| Make          | Model          | Year | HP  | Torque | MSRP           |
+|---------------|----------------|------|-----|--------|----------------|
+| Ford          | GT             | 2017 | 647 | 550    | \$447,000.00   |
+| Ferrari       | 458 Speciale   | 2015 | 597 | 398    | \$291,744.00   |
+| Ferrari       | 458 Spider     | 2015 | 562 | 398    | \$263,553.00   |
+| Ferrari       | 458 Italia     | 2014 | 562 | 398    | \$233,509.00   |
+| Ferrari       | 488 GTB        | 2016 | 661 | 561    | \$245,400.00   |
+| Ferrari       | California     | 2015 | 553 | 557    | \$198,973.00   |
+| Ferrari       | GTC4Lusso      | 2017 | 680 | 514    | \$298,000.00   |
+| Ferrari       | FF             | 2015 | 652 | 504    | \$295,000.00   |
+| Ferrari       | F12Berlinetta  | 2015 | 731 | 509    | \$319,995.00   |
+| Ferrari       | LaFerrari      | 2015 | 949 | 664    | \$1,416,362.00 |
+| Acura         | NSX            | 2017 | 573 | 476    | \$156,000.00   |
+| Nissan        | GT-R           | 2016 | 545 | 436    | \$101,770.00   |
+| Lamborghini   | Aventador      | 2015 | 700 | 507    | \$397,500.00   |
+| Lamborghini   | Huracan        | 2015 | 610 | 413    | \$237,250.00   |
+| Lamborghini   | Gallardo       | 2014 | 550 | 398    | \$191,900.00   |
+| Bentley       | Continental GT | 2016 | 500 | 487    | \$198,500.00   |
+| Maserati      | Granturismo    | 2016 | 454 | 384    | \$132,825.00   |
+| Maserati      | Quattroporte   | 2016 | 404 | 406    | \$99,900.00    |
+| Maserati      | Ghibli         | 2016 | 345 | 369    | \$70,600.00    |
+| BMW           | 6-Series       | 2016 | 315 | 330    | \$77,300.00    |
+| BMW           | i8             | 2016 | 357 | 420    | \$140,700.00   |
+| BMW           | M4             | 2016 | 425 | 406    | \$65,700.00    |
+| BMW           | M5             | 2016 | 560 | 500    | \$94,100.00    |
+| BMW           | M6             | 2016 | 560 | 500    | \$113,400.00   |
+| Aston Martin  | DB11           | 2017 | 608 | 516    | \$211,195.00   |
+| Aston Martin  | Rapide S       | 2016 | 552 | 465    | \$205,300.00   |
+| Aston Martin  | Vanquish       | 2016 | 568 | 465    | \$287,250.00   |
+| Aston Martin  | Vantage        | 2016 | 430 | 361    | \$103,300.00   |
+| Chevrolet     | Corvette       | 2016 | 650 | 650    | \$88,345.00    |
+| Dodge         | Viper          | 2017 | 645 | 600    | \$95,895.00    |
+| Audi          | R8             | 2015 | 430 | 317    | \$115,900.00   |
+| Audi          | RS 7           | 2016 | 560 | 516    | \$108,900.00   |
+| Audi          | S6             | 2016 | 450 | 406    | \$70,900.00    |
+| Audi          | S7             | 2016 | 450 | 406    | \$82,900.00    |
+| Audi          | S8             | 2016 | 520 | 481    | \$114,900.00   |
+| Lotus         | Evora          | 2017 | 400 | 302    | \$91,900.00    |
+| Jaguar        | F-Type         | 2016 | 340 | 332    | \$65,000.00    |
+| Mercedes-Benz | AMG GT         | 2016 | 503 | 479    | \$129,900.00   |
+| Mercedes-Benz | SL-Class       | 2016 | 329 | 354    | \$85,050.00    |
+| Tesla         | Model S        | 2017 | 259 | 243    | \$74,500.00    |
+| Porsche       | 718 Boxster    | 2017 | 300 | 280    | \$56,000.00    |
+| Porsche       | 718 Cayman     | 2017 | 300 | 280    | \$53,900.00    |
+| Porsche       | 911            | 2016 | 350 | 287    | \$84,300.00    |
+| Porsche       | Panamera       | 2016 | 310 | 295    | \$78,100.00    |
+| McLaren       | 570            | 2016 | 570 | 443    | \$184,900.00   |
+| Rolls-Royce   | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
+| Rolls-Royce   | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
+
 ## Row details
 
 With [i_row_details()](../reference/GTI.i_row_details.md#great_tables.GTI.i_row_details), each row can have more to show under it, when the reader asks for it. A function makes a row's details from its values (including those of columns the table hides): as text, with [md()](../reference/md.md#great_tables.md) or [html()](../reference/html.md#great_tables.md), or as a [GT](../reference/GT.md#great_tables.GT) table of their own. Here, each car has a few lines about its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info panel to show every car's.

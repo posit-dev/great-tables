@@ -4,7 +4,7 @@ Show the table filtered and sorted, as readers first see it.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1399-L1595)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1419-L1615)
 
 ``` python
 GTI.i_view(

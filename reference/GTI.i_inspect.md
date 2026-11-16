@@ -4,7 +4,7 @@ Show readers what's in the data: its rows' numbers, its columns' dtypes, its siz
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L720-L797)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L740-L817)
 
 ``` python
 GTI.i_inspect(

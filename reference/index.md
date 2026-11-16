@@ -419,7 +419,7 @@ Split the table's rows into pages.
 Let readers select the table's rows.
 
 [GTI.i_display()](GTI.i_display.md#great_tables.GTI.i_display)  
-Set how the table's rows look.
+Set how the table's rows look, and whether its parts are named.
 
 [GTI.i_scroll()](GTI.i_scroll.md#great_tables.GTI.i_scroll)  
 Make the table's body scroll, within a height.

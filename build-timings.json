@@ -1,1316 +1,1316 @@
 {
-  "build_time": "2026-11-16T17:17:40Z",
-  "total_seconds": 917.915,
+  "build_time": "2026-11-16T18:52:16Z",
+  "total_seconds": 899.21,
   "pages": [
     {
       "page": "user-guide/accessibility.qmd",
-      "seconds": 11.518,
+      "seconds": 12.028,
       "frozen": true
     },
     {
       "page": "reference/GTI.from_gt.qmd",
-      "seconds": 10.216,
+      "seconds": 10.466,
       "frozen": true
     },
     {
       "page": "user-guide/gti-tables.qmd",
-      "seconds": 9.579,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.qmd",
-      "seconds": 9.32,
+      "seconds": 10.093,
       "frozen": true
     },
     {
       "page": "blog/tables-for-scientific-publishing/index.qmd",
-      "seconds": 9.188,
+      "seconds": 8.893,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_cols_controls.qmd",
-      "seconds": 9.126,
+      "page": "reference/GTI.qmd",
+      "seconds": 8.649,
       "frozen": true
     },
     {
       "page": "reference/GT.data_color.qmd",
-      "seconds": 8.815,
+      "seconds": 8.498,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_view.qmd",
-      "seconds": 8.609,
+      "page": "reference/GTI.i_cols_controls.qmd",
+      "seconds": 8.4,
       "frozen": true
     },
     {
       "page": "user-guide/interactive-tables.qmd",
-      "seconds": 8.303,
+      "seconds": 8.347,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt.qmd",
-      "seconds": 8.225,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.qmd",
-      "seconds": 7.665,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.as_latex.qmd",
-      "seconds": 7.518,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.pipe.qmd",
-      "seconds": 7.44,
+      "page": "reference/GTI.i_view.qmd",
+      "seconds": 8.244,
       "frozen": true
     },
     {
       "page": "examples/gt-extras-gini/index.qmd",
-      "seconds": 7.185,
+      "seconds": 7.598,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt.qmd",
+      "seconds": 7.358,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.qmd",
+      "seconds": 7.3,
       "frozen": true
     },
     {
       "page": "index.qmd",
-      "seconds": 7.058,
+      "seconds": 7.197,
       "frozen": true
     },
     {
-      "page": "user-guide/nanoplots.qmd",
-      "seconds": 6.997,
+      "page": "reference/GT.pipe.qmd",
+      "seconds": 7.191,
       "frozen": true
     },
     {
       "page": "reference/from_column.qmd",
-      "seconds": 6.975,
+      "seconds": 6.815,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_email.qmd",
-      "seconds": 6.413,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_responsive.qmd",
-      "seconds": 6.351,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_cols_filter.qmd",
-      "seconds": 6.251,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/this.qmd",
-      "seconds": 5.811,
+      "page": "user-guide/nanoplots.qmd",
+      "seconds": 6.56,
       "frozen": true
     },
     {
       "page": "reference/GTI.i_cols_profile.qmd",
-      "seconds": 5.73,
+      "seconds": 6.076,
       "frozen": true
     },
     {
-      "page": "reference/GT.with_locale.qmd",
-      "seconds": 5.528,
+      "page": "user-guide/this.qmd",
+      "seconds": 5.767,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_cols_filter.qmd",
+      "seconds": 5.671,
       "frozen": true
     },
     {
       "page": "examples/index.qmd",
-      "seconds": 5.521,
+      "seconds": 5.568,
       "frozen": true
     },
     {
-      "page": "user-guide/colorizing-with-data.qmd",
-      "seconds": 5.52,
+      "page": "reference/GT.with_locale.qmd",
+      "seconds": 5.415,
       "frozen": true
     },
     {
       "page": "reference/GT.grand_summary_rows.qmd",
-      "seconds": 5.515,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_nanoplot.qmd",
-      "seconds": 5.304,
-      "frozen": true
-    },
-    {
-      "page": "blog/bring-your-own-df/index.qmd",
-      "seconds": 5.274,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_url.qmd",
-      "seconds": 5.244,
+      "seconds": 5.197,
       "frozen": true
     },
     {
       "page": "user-guide/styling-the-table-body.qmd",
-      "seconds": 5.156,
+      "seconds": 5.19,
       "frozen": true
     },
     {
-      "page": "user-guide/table-theme-options.qmd",
-      "seconds": 5.156,
+      "page": "reference/GT.fmt_url.qmd",
+      "seconds": 5.095,
       "frozen": true
     },
     {
-      "page": "user-guide/more-formatting.qmd",
-      "seconds": 5.062,
+      "page": "reference/GT.as_latex.qmd",
+      "seconds": 5.01,
       "frozen": true
     },
     {
-      "page": "reference/index.qmd",
-      "seconds": 5.005,
-      "frozen": false
-    },
-    {
-      "page": "user-guide/introduction.qmd",
-      "seconds": 4.975,
+      "page": "user-guide/colorizing-with-data.qmd",
+      "seconds": 5.004,
       "frozen": true
     },
     {
-      "page": "reference/GT.summary_rows.qmd",
-      "seconds": 4.901,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.rm_footnotes.qmd",
-      "seconds": 4.867,
-      "frozen": true
-    },
-    {
-      "page": "package-info.qmd",
-      "seconds": 4.865,
-      "frozen": false
-    },
-    {
-      "page": "reference/GTI.i_export.qmd",
-      "seconds": 4.833,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_options.qmd",
-      "seconds": 4.812,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_bytes.qmd",
-      "seconds": 4.774,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_footnote.qmd",
-      "seconds": 4.762,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/premade-themes.qmd",
-      "seconds": 4.706,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.show.qmd",
-      "seconds": 4.704,
-      "frozen": true
-    },
-    {
-      "page": "reference/col_bin.qmd",
-      "seconds": 4.615,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.with_id.qmd",
-      "seconds": 4.614,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_align_table_header.qmd",
-      "seconds": 4.531,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_align.qmd",
-      "seconds": 4.528,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_view_state.qmd",
-      "seconds": 4.524,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_row_details.qmd",
-      "seconds": 4.493,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/location-selection.qmd",
-      "seconds": 4.438,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_width.qmd",
-      "seconds": 4.427,
+      "page": "reference/GTI.i_responsive.qmd",
+      "seconds": 4.978,
       "frozen": true
     },
     {
       "page": "reference/GTI.i_link.qmd",
-      "seconds": 4.42,
+      "seconds": 4.9,
       "frozen": true
     },
     {
-      "page": "user-guide/substituting-values.qmd",
-      "seconds": 4.39,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/datasets.qmd",
-      "seconds": 4.343,
-      "frozen": true
-    },
-    {
-      "page": "reference/google_font.qmd",
-      "seconds": 4.311,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/text-transforms.qmd",
-      "seconds": 4.307,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/exporting-and-saving.qmd",
-      "seconds": 4.305,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_pagination.qmd",
-      "seconds": 4.303,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_scroll.qmd",
-      "seconds": 4.303,
-      "frozen": true
-    },
-    {
-      "page": "reference/define_units.qmd",
-      "seconds": 4.281,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_currency.qmd",
-      "seconds": 4.278,
-      "frozen": true
-    },
-    {
-      "page": "changelog.qmd",
-      "seconds": 4.226,
+      "page": "reference/index.qmd",
+      "seconds": 4.897,
       "frozen": false
     },
     {
-      "page": "blog/septa-timetables/index.qmd",
-      "seconds": 4.211,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_display.qmd",
-      "seconds": 4.191,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/summary-rows.qmd",
-      "seconds": 4.158,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/column-labels.qmd",
-      "seconds": 4.154,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/styling-the-whole-table.qmd",
-      "seconds": 4.129,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_vertical_padding.qmd",
-      "seconds": 4.118,
-      "frozen": true
-    },
-    {
       "page": "user-guide/header-footer-stub.qmd",
-      "seconds": 4.112,
+      "seconds": 4.884,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/table-theme-options.qmd",
+      "seconds": 4.882,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.show.qmd",
+      "seconds": 4.844,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/more-formatting.qmd",
+      "seconds": 4.837,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.with_id.qmd",
+      "seconds": 4.709,
+      "frozen": true
+    },
+    {
+      "page": "reference/col_bin.qmd",
+      "seconds": 4.66,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_options.qmd",
+      "seconds": 4.646,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/premade-themes.qmd",
+      "seconds": 4.6,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_row_details.qmd",
+      "seconds": 4.594,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/introduction.qmd",
+      "seconds": 4.591,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.summary_rows.qmd",
+      "seconds": 4.563,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_bytes.qmd",
+      "seconds": 4.557,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_footnote.qmd",
+      "seconds": 4.54,
       "frozen": true
     },
     {
       "page": "reference/GTI.i_inspect.qmd",
-      "seconds": 4.106,
+      "seconds": 4.531,
       "frozen": true
     },
     {
-      "page": "user-guide/removing-parts.qmd",
-      "seconds": 4.103,
+      "page": "reference/GT.fmt_nanoplot.qmd",
+      "seconds": 4.527,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_icon.qmd",
-      "seconds": 4.079,
+      "page": "reference/GT.cols_align.qmd",
+      "seconds": 4.497,
       "frozen": true
     },
     {
-      "page": "user-guide/formatting-values.qmd",
-      "seconds": 4.076,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/merging-columns.qmd",
-      "seconds": 4.068,
-      "frozen": true
-    },
-    {
-      "page": "reference/html.qmd",
-      "seconds": 4.064,
+      "page": "package-info.qmd",
+      "seconds": 4.458,
       "frozen": false
     },
     {
-      "page": "reference/GT.fmt_chem.qmd",
-      "seconds": 4.063,
+      "page": "reference/GTI.i_export.qmd",
+      "seconds": 4.449,
       "frozen": true
     },
     {
-      "page": "skills.qmd",
-      "seconds": 4.059,
-      "frozen": false
-    },
-    {
-      "page": "reference/GT.as_raw_html.qmd",
-      "seconds": 4.048,
+      "page": "reference/GT.opt_align_table_header.qmd",
+      "seconds": 4.442,
       "frozen": true
     },
     {
-      "page": "reference/system_fonts.qmd",
-      "seconds": 4.031,
+      "page": "blog/bring-your-own-df/index.qmd",
+      "seconds": 4.402,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_units.qmd",
-      "seconds": 3.998,
+      "page": "user-guide/exporting-and-saving.qmd",
+      "seconds": 4.378,
       "frozen": true
     },
     {
-      "page": "license.qmd",
-      "seconds": 3.989,
-      "frozen": false
-    },
-    {
-      "page": "user-guide/column-selection.qmd",
-      "seconds": 3.96,
+      "page": "reference/GT.rm_footnotes.qmd",
+      "seconds": 4.376,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_currency.qmd",
-      "seconds": 3.946,
+      "page": "reference/GTI.i_display.qmd",
+      "seconds": 4.37,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_cols_pin.qmd",
-      "seconds": 3.932,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_duration.qmd",
-      "seconds": 3.925,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_spanner.qmd",
-      "seconds": 3.895,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_fraction.qmd",
-      "seconds": 3.891,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_resizing.qmd",
-      "seconds": 3.877,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_engineering.qmd",
-      "seconds": 3.849,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_style_body.qmd",
-      "seconds": 3.848,
+      "page": "user-guide/substituting-values.qmd",
+      "seconds": 4.366,
       "frozen": true
     },
     {
       "page": "user-guide/footnotes.qmd",
-      "seconds": 3.847,
+      "seconds": 4.364,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_markdown.qmd",
-      "seconds": 3.837,
+      "page": "user-guide/merging-columns.qmd",
+      "seconds": 4.339,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_datetime.qmd",
-      "seconds": 3.821,
+      "page": "reference/define_units.qmd",
+      "seconds": 4.334,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_number.qmd",
-      "seconds": 3.806,
+      "page": "reference/system_fonts.qmd",
+      "seconds": 4.308,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_tf.qmd",
-      "seconds": 3.786,
+      "page": "user-guide/location-selection.qmd",
+      "seconds": 4.307,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_flag.qmd",
-      "seconds": 3.784,
+      "page": "reference/GTI.i_view_state.qmd",
+      "seconds": 4.266,
       "frozen": true
     },
     {
-      "page": "reference/GT.sub_large_vals.qmd",
-      "seconds": 3.781,
+      "page": "reference/GT.cols_width.qmd",
+      "seconds": 4.252,
       "frozen": true
     },
     {
-      "page": "blog/polars-dot-style/index.qmd",
-      "seconds": 3.779,
+      "page": "user-guide/formatting-values.qmd",
+      "seconds": 4.242,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_number_si.qmd",
-      "seconds": 3.775,
+      "page": "blog/septa-timetables/index.qmd",
+      "seconds": 4.234,
       "frozen": true
     },
     {
-      "page": "reference/GT.opt_interactive.qmd",
-      "seconds": 3.773,
+      "page": "reference/GTI.i_scroll.qmd",
+      "seconds": 4.213,
       "frozen": true
     },
     {
-      "page": "reference/GT.text_transform.qmd",
-      "seconds": 3.773,
+      "page": "reference/GTI.i_pagination.qmd",
+      "seconds": 4.202,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/styling-the-whole-table.qmd",
+      "seconds": 4.16,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/text-transforms.qmd",
+      "seconds": 4.153,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/summary-rows.qmd",
+      "seconds": 4.135,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.as_raw_html.qmd",
+      "seconds": 4.13,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/column-labels.qmd",
+      "seconds": 4.119,
+      "frozen": true
+    },
+    {
+      "page": "reference/google_font.qmd",
+      "seconds": 4.107,
+      "frozen": true
+    },
+    {
+      "page": "skills.qmd",
+      "seconds": 4.106,
+      "frozen": false
+    },
+    {
+      "page": "reference/GT.fmt_index.qmd",
+      "seconds": 4.028,
       "frozen": true
     },
     {
       "page": "reference/col_numeric.qmd",
-      "seconds": 3.771,
+      "seconds": 4.004,
       "frozen": true
     },
     {
-      "page": "blog/latex-output-tables/index.qmd",
-      "seconds": 3.767,
+      "page": "reference/GT.fmt_duration.qmd",
+      "seconds": 4.0,
       "frozen": true
     },
     {
-      "page": "reference/GT.cols_label.qmd",
-      "seconds": 3.765,
+      "page": "reference/GT.fmt_bytes.qmd",
+      "seconds": 3.996,
       "frozen": true
     },
     {
-      "page": "reference/md.qmd",
-      "seconds": 3.764,
+      "page": "reference/GT.text_transform.qmd",
+      "seconds": 3.989,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_vertical_padding.qmd",
+      "seconds": 3.961,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_stylize.qmd",
+      "seconds": 3.951,
+      "frozen": true
+    },
+    {
+      "page": "reference/html.qmd",
+      "seconds": 3.94,
       "frozen": false
     },
     {
-      "page": "reference/GT.fmt_date.qmd",
-      "seconds": 3.755,
+      "page": "changelog.qmd",
+      "seconds": 3.935,
+      "frozen": false
+    },
+    {
+      "page": "user-guide/datasets.qmd",
+      "seconds": 3.932,
       "frozen": true
     },
     {
-      "page": "reference/loc.body.qmd",
-      "seconds": 3.737,
+      "page": "user-guide/removing-parts.qmd",
+      "seconds": 3.923,
       "frozen": true
     },
     {
-      "page": "reference/GT.sub_missing.qmd",
-      "seconds": 3.731,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_date.qmd",
-      "seconds": 3.729,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_stub_indent.qmd",
-      "seconds": 3.725,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.title.qmd",
-      "seconds": 3.722,
+      "page": "reference/GT.cols_merge.qmd",
+      "seconds": 3.919,
       "frozen": true
     },
     {
       "page": "reference/GT.tab_spanner_delim.qmd",
-      "seconds": 3.721,
+      "seconds": 3.905,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.sub_missing.qmd",
+      "seconds": 3.896,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.title.qmd",
+      "seconds": 3.89,
+      "frozen": true
+    },
+    {
+      "page": "license.qmd",
+      "seconds": 3.88,
+      "frozen": false
+    },
+    {
+      "page": "reference/GT.opt_table_font.qmd",
+      "seconds": 3.878,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_integer.qmd",
+      "seconds": 3.87,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_chem.qmd",
+      "seconds": 3.838,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_image.qmd",
+      "seconds": 3.832,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_interactive.qmd",
+      "seconds": 3.808,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_style_body.qmd",
+      "seconds": 3.797,
       "frozen": true
     },
     {
       "page": "user-guide/row-selection.qmd",
-      "seconds": 3.712,
+      "seconds": 3.795,
       "frozen": true
     },
     {
-      "page": "reference/GT.opt_table_font.qmd",
-      "seconds": 3.711,
+      "page": "reference/GT.fmt_date.qmd",
+      "seconds": 3.781,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_cols_priority.qmd",
+      "page": "reference/GT.fmt_fraction.qmd",
+      "seconds": 3.781,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_units.qmd",
+      "seconds": 3.776,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_spanner.qmd",
+      "seconds": 3.768,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_number.qmd",
+      "seconds": 3.761,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_email.qmd",
+      "seconds": 3.745,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_cols_pin.qmd",
+      "seconds": 3.744,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/column-selection.qmd",
+      "seconds": 3.726,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.sub_values.qmd",
+      "seconds": 3.722,
+      "frozen": true
+    },
+    {
+      "page": "blog/latex-output-tables/index.qmd",
+      "seconds": 3.715,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_merge_uncert.qmd",
       "seconds": 3.709,
       "frozen": true
     },
     {
       "page": "reference/GT.fmt_partsper.qmd",
-      "seconds": 3.702,
+      "seconds": 3.705,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_selection.qmd",
+      "page": "reference/GT.cols_label.qmd",
       "seconds": 3.696,
       "frozen": true
     },
     {
-      "page": "reference/GTI.i_search.qmd",
-      "seconds": 3.693,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_percent.qmd",
-      "seconds": 3.685,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.sub_small_vals.qmd",
-      "seconds": 3.674,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_time.qmd",
-      "seconds": 3.671,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_merge_uncert.qmd",
-      "seconds": 3.667,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_scientific.qmd",
-      "seconds": 3.651,
-      "frozen": true
-    },
-    {
-      "page": "reference/GTI.i_sorting.qmd",
-      "seconds": 3.642,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.sub_zero.qmd",
-      "seconds": 3.637,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_reorder.qmd",
-      "seconds": 3.635,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_bytes.qmd",
-      "seconds": 3.627,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_label_rotate.qmd",
-      "seconds": 3.626,
-      "frozen": true
-    },
-    {
-      "page": "blog/open-transit-tools/index.qmd",
-      "seconds": 3.604,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_stub.qmd",
-      "seconds": 3.599,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_percent.qmd",
-      "seconds": 3.597,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_all_caps.qmd",
-      "seconds": 3.592,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_number.qmd",
-      "seconds": 3.59,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.sub_values.qmd",
-      "seconds": 3.587,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_merge.qmd",
-      "seconds": 3.581,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_horizontal_padding.qmd",
-      "seconds": 3.58,
-      "frozen": true
-    },
-    {
       "page": "reference/GT.cols_merge_range.qmd",
-      "seconds": 3.574,
+      "seconds": 3.696,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_number_si.qmd",
-      "seconds": 3.571,
+      "page": "reference/GT.fmt_icon.qmd",
+      "seconds": 3.684,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_time.qmd",
-      "seconds": 3.571,
+      "page": "reference/GT.fmt_flag.qmd",
+      "seconds": 3.681,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_image.qmd",
-      "seconds": 3.562,
+      "page": "reference/GT.sub_large_vals.qmd",
+      "seconds": 3.658,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_partsper.qmd",
-      "seconds": 3.561,
+      "page": "reference/GT.fmt_datetime.qmd",
+      "seconds": 3.654,
       "frozen": true
     },
     {
-      "page": "reference/GT.opt_css.qmd",
-      "seconds": 3.551,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_engineering.qmd",
-      "seconds": 3.55,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_label_with.qmd",
-      "seconds": 3.541,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_header.qmd",
-      "seconds": 3.525,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_stubhead.qmd",
-      "seconds": 3.524,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_index.qmd",
-      "seconds": 3.519,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.fmt_integer.qmd",
-      "seconds": 3.505,
+      "page": "reference/GTI.i_selection.qmd",
+      "seconds": 3.65,
       "frozen": true
     },
     {
       "page": "reference/loc.stub.qmd",
-      "seconds": 3.505,
+      "seconds": 3.634,
       "frozen": true
     },
     {
-      "page": "reference/GT.text_case_when.qmd",
-      "seconds": 3.503,
+      "page": "reference/loc.body.qmd",
+      "seconds": 3.632,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_datetime.qmd",
-      "seconds": 3.495,
+      "page": "reference/GT.fmt_number_si.qmd",
+      "seconds": 3.631,
       "frozen": true
     },
     {
-      "page": "reference/GT.cols_merge_n_pct.qmd",
-      "seconds": 3.493,
+      "page": "reference/GT.sub_small_vals.qmd",
+      "seconds": 3.627,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_roman.qmd",
-      "seconds": 3.471,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.text_case_match.qmd",
-      "seconds": 3.465,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_scientific.qmd",
-      "seconds": 3.456,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.spanner_labels.qmd",
-      "seconds": 3.454,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.tab_source_note.qmd",
-      "seconds": 3.452,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.stubhead.qmd",
-      "seconds": 3.452,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_align_decimal.qmd",
-      "seconds": 3.441,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.rm_spanners.qmd",
-      "seconds": 3.44,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.column_header.qmd",
-      "seconds": 3.427,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.footnotes.qmd",
-      "seconds": 3.426,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_footnote_spec.qmd",
-      "seconds": 3.424,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_move_to_start.qmd",
-      "seconds": 3.416,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.rm_header.qmd",
-      "seconds": 3.411,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.column_labels.qmd",
-      "seconds": 3.408,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.header.qmd",
-      "seconds": 3.408,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_markdown.qmd",
-      "seconds": 3.407,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.rm_stubhead.qmd",
-      "seconds": 3.404,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_hide.qmd",
-      "seconds": 3.403,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.rm_source_notes.qmd",
-      "seconds": 3.399,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.cols_move_to_end.qmd",
-      "seconds": 3.388,
-      "frozen": true
-    },
-    {
-      "page": "user-guide/gti-in-python-and-apps.qmd",
-      "seconds": 3.387,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_table_outline.qmd",
-      "seconds": 3.374,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.grand_summary.qmd",
-      "seconds": 3.37,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_duration.qmd",
-      "seconds": 3.368,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.source_notes.qmd",
-      "seconds": 3.364,
-      "frozen": true
-    },
-    {
-      "page": "reference/loc.subtitle.qmd",
-      "seconds": 3.361,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.opt_stylize.qmd",
-      "seconds": 3.356,
+      "page": "reference/GT.cols_label_with.qmd",
+      "seconds": 3.625,
       "frozen": true
     },
     {
       "page": "reference/GT.tab_style.qmd",
-      "seconds": 3.349,
+      "seconds": 3.619,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_fraction.qmd",
-      "seconds": 3.348,
+      "page": "reference/GT.opt_table_outline.qmd",
+      "seconds": 3.609,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_integer.qmd",
-      "seconds": 3.346,
+      "page": "reference/vals.fmt_scientific.qmd",
+      "seconds": 3.6,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_index.qmd",
-      "seconds": 3.345,
+      "page": "reference/GTI.i_resizing.qmd",
+      "seconds": 3.592,
       "frozen": true
     },
     {
-      "page": "reference/GT.cols_move.qmd",
-      "seconds": 3.338,
+      "page": "reference/GTI.i_search.qmd",
+      "seconds": 3.584,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_passthrough.qmd",
-      "seconds": 3.325,
+      "page": "reference/loc.header.qmd",
+      "seconds": 3.582,
       "frozen": true
     },
     {
-      "page": "reference/col_factor.qmd",
-      "seconds": 3.312,
+      "page": "reference/GT.opt_css.qmd",
+      "seconds": 3.579,
       "frozen": true
     },
     {
-      "page": "reference/vals.fmt_chem.qmd",
-      "seconds": 3.31,
+      "page": "reference/md.qmd",
+      "seconds": 3.577,
+      "frozen": false
+    },
+    {
+      "page": "reference/GT.cols_merge_n_pct.qmd",
+      "seconds": 3.574,
       "frozen": true
     },
     {
-      "page": "reference/GT.opt_row_striping.qmd",
-      "seconds": 3.277,
+      "page": "blog/open-transit-tools/index.qmd",
+      "seconds": 3.566,
       "frozen": true
     },
     {
-      "page": "reference/GT.cols_unhide.qmd",
-      "seconds": 3.276,
+      "page": "reference/GT.tab_stub_indent.qmd",
+      "seconds": 3.559,
       "frozen": true
     },
     {
-      "page": "reference/loc.row_groups.qmd",
-      "seconds": 3.267,
+      "page": "reference/GT.opt_all_caps.qmd",
+      "seconds": 3.548,
       "frozen": true
     },
     {
-      "page": "reference/GT.text_replace.qmd",
-      "seconds": 3.239,
+      "page": "reference/GT.fmt_currency.qmd",
+      "seconds": 3.535,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.subtitle.qmd",
+      "seconds": 3.535,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_engineering.qmd",
+      "seconds": 3.529,
       "frozen": true
     },
     {
       "page": "reference/loc.footer.qmd",
-      "seconds": 3.223,
+      "seconds": 3.528,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_stub.qmd",
+      "seconds": 3.527,
+      "frozen": true
+    },
+    {
+      "page": "blog/polars-dot-style/index.qmd",
+      "seconds": 3.525,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_row_striping.qmd",
+      "seconds": 3.518,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.sub_zero.qmd",
+      "seconds": 3.513,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_cols_priority.qmd",
+      "seconds": 3.509,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_tf.qmd",
+      "seconds": 3.508,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_stubhead.qmd",
+      "seconds": 3.505,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_percent.qmd",
+      "seconds": 3.504,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_reorder.qmd",
+      "seconds": 3.477,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_move_to_start.qmd",
+      "seconds": 3.469,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.rm_header.qmd",
+      "seconds": 3.466,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.text_case_match.qmd",
+      "seconds": 3.463,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.rm_spanners.qmd",
+      "seconds": 3.462,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.rm_source_notes.qmd",
+      "seconds": 3.461,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_footnote_spec.qmd",
+      "seconds": 3.444,
+      "frozen": true
+    },
+    {
+      "page": "reference/col_factor.qmd",
+      "seconds": 3.433,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_roman.qmd",
+      "seconds": 3.424,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_number.qmd",
+      "seconds": 3.417,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.stubhead.qmd",
+      "seconds": 3.417,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_sorting.qmd",
+      "seconds": 3.399,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.source_notes.qmd",
+      "seconds": 3.394,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_time.qmd",
+      "seconds": 3.392,
       "frozen": true
     },
     {
       "page": "reference/loc.grand_summary_stub.qmd",
-      "seconds": 3.216,
+      "seconds": 3.391,
       "frozen": true
     },
     {
-      "page": "reference/GT.fmt_roman.qmd",
-      "seconds": 3.209,
+      "page": "reference/GT.rm_stubhead.qmd",
+      "seconds": 3.389,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_percent.qmd",
+      "seconds": 3.384,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_duration.qmd",
+      "seconds": 3.378,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.footnotes.qmd",
+      "seconds": 3.378,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.text_replace.qmd",
+      "seconds": 3.377,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_engineering.qmd",
+      "seconds": 3.363,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_partsper.qmd",
+      "seconds": 3.363,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_datetime.qmd",
+      "seconds": 3.362,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_label_rotate.qmd",
+      "seconds": 3.354,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.text_case_when.qmd",
+      "seconds": 3.352,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_scientific.qmd",
+      "seconds": 3.346,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_markdown.qmd",
+      "seconds": 3.344,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_passthrough.qmd",
+      "seconds": 3.34,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_move_to_end.qmd",
+      "seconds": 3.34,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_unhide.qmd",
+      "seconds": 3.339,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_currency.qmd",
+      "seconds": 3.324,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_date.qmd",
+      "seconds": 3.319,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.column_labels.qmd",
+      "seconds": 3.314,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_number_si.qmd",
+      "seconds": 3.313,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_time.qmd",
+      "seconds": 3.305,
       "frozen": true
     },
     {
       "page": "reference/GT.opt_footnote_order.qmd",
-      "seconds": 3.086,
+      "seconds": 3.3,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.opt_horizontal_padding.qmd",
+      "seconds": 3.299,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_align_decimal.qmd",
+      "seconds": 3.299,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_integer.qmd",
+      "seconds": 3.298,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.grand_summary.qmd",
+      "seconds": 3.296,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_fraction.qmd",
+      "seconds": 3.292,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_move.qmd",
+      "seconds": 3.27,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_source_note.qmd",
+      "seconds": 3.269,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_chem.qmd",
+      "seconds": 3.248,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.tab_header.qmd",
+      "seconds": 3.243,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.cols_hide.qmd",
+      "seconds": 3.226,
+      "frozen": true
+    },
+    {
+      "page": "reference/vals.fmt_index.qmd",
+      "seconds": 3.224,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.row_groups.qmd",
+      "seconds": 3.206,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_markdown.qmd",
+      "seconds": 3.199,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.column_header.qmd",
+      "seconds": 3.195,
+      "frozen": true
+    },
+    {
+      "page": "reference/GT.fmt_roman.qmd",
+      "seconds": 3.175,
+      "frozen": true
+    },
+    {
+      "page": "user-guide/gti-in-python-and-apps.qmd",
+      "seconds": 3.121,
+      "frozen": true
+    },
+    {
+      "page": "reference/loc.spanner_labels.qmd",
+      "seconds": 3.121,
       "frozen": true
     },
     {
       "page": "reference/nanoplot_options.qmd",
-      "seconds": 2.783,
+      "seconds": 3.0,
       "frozen": false
     },
     {
       "page": "blog/pycon-2024-great-tables-are-possible/index.qmd",
-      "seconds": 2.451,
+      "seconds": 2.779,
       "frozen": false
     },
     {
       "page": "reference/panel.GTIPane.qmd",
-      "seconds": 2.154,
+      "seconds": 2.472,
       "frozen": false
     },
     {
-      "page": "reference/gd-sidebar-reference.qmd",
-      "seconds": 2.146,
-      "frozen": false
-    },
-    {
-      "page": "blog/rendering-images/index.qmd",
-      "seconds": 1.814,
+      "page": "blog/introduction-0.13.0/index.qmd",
+      "seconds": 2.077,
       "frozen": true
     },
     {
-      "page": "reference/web.runtime_tags.qmd",
-      "seconds": 1.805,
+      "page": "reference/gd-sidebar-reference.qmd",
+      "seconds": 2.049,
       "frozen": false
     },
     {
       "page": "blog/design-philosophy/index.qmd",
-      "seconds": 1.795,
+      "seconds": 1.853,
       "frozen": true
-    },
-    {
-      "page": "blog/introduction-0.13.0/index.qmd",
-      "seconds": 1.76,
-      "frozen": true
-    },
-    {
-      "page": "reference/data.constants.qmd",
-      "seconds": 1.722,
-      "frozen": false
     },
     {
       "page": "reference/shiny.output_gt.qmd",
-      "seconds": 1.604,
+      "seconds": 1.694,
+      "frozen": false
+    },
+    {
+      "page": "reference/web.runtime_tags.qmd",
+      "seconds": 1.679,
+      "frozen": false
+    },
+    {
+      "page": "blog/rendering-images/index.qmd",
+      "seconds": 1.567,
+      "frozen": true
+    },
+    {
+      "page": "blog/index.qmd",
+      "seconds": 1.504,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.constants.qmd",
+      "seconds": 1.486,
       "frozen": false
     },
     {
       "page": "blog/introduction-0.4.0/index.qmd",
-      "seconds": 1.551,
+      "seconds": 1.474,
       "frozen": true
     },
     {
       "page": "reference/load_dataset.qmd",
-      "seconds": 1.492,
-      "frozen": false
-    },
-    {
-      "page": "blog/introduction_great_tables.qmd",
-      "seconds": 1.321,
-      "frozen": true
-    },
-    {
-      "page": "blog/marimo-and-great-tables/index.qmd",
-      "seconds": 1.302,
+      "seconds": 1.413,
       "frozen": false
     },
     {
       "page": "blog/pointblank-intro/index.qmd",
-      "seconds": 1.292,
+      "seconds": 1.378,
       "frozen": true
     },
     {
-      "page": "examples/sports-earnings/index.ipynb",
-      "seconds": 1.269,
-      "frozen": false
-    },
-    {
-      "page": "blog/index.qmd",
-      "seconds": 1.247,
-      "frozen": false
-    },
-    {
-      "page": "blog/introduction-0.3.0/index.qmd",
-      "seconds": 1.162,
-      "frozen": true
-    },
-    {
-      "page": "blog/superbowl-squares/index.qmd",
-      "seconds": 1.132,
-      "frozen": true
-    },
-    {
-      "page": "blog/introduction-0.15.0/index.qmd",
-      "seconds": 1.118,
-      "frozen": true
-    },
-    {
-      "page": "citation.qmd",
-      "seconds": 1.113,
-      "frozen": false
-    },
-    {
-      "page": "contributing.qmd",
-      "seconds": 1.107,
-      "frozen": false
-    },
-    {
-      "page": "blog/introduction-0.18.0/index.qmd",
-      "seconds": 1.097,
-      "frozen": true
-    },
-    {
-      "page": "reference/vals.fmt_url.qmd",
-      "seconds": 1.095,
-      "frozen": false
-    },
-    {
-      "page": "reference/GT.write_raw_html.qmd",
-      "seconds": 1.043,
-      "frozen": false
-    },
-    {
-      "page": "blog/introduction-0.2.0/index.qmd",
-      "seconds": 1.041,
-      "frozen": true
-    },
-    {
-      "page": "blog/plots-in-tables/index.qmd",
-      "seconds": 1.038,
-      "frozen": true
-    },
-    {
-      "page": "reference/GT.gtsave.qmd",
-      "seconds": 1.033,
-      "frozen": false
-    },
-    {
-      "page": "blog/introduction-0.12.0/index.qmd",
-      "seconds": 1.011,
+      "page": "blog/introduction_great_tables.qmd",
+      "seconds": 1.349,
       "frozen": true
     },
     {
       "page": "blog/polars-styling/index.qmd",
-      "seconds": 1.011,
+      "seconds": 1.317,
       "frozen": true
     },
     {
+      "page": "blog/marimo-and-great-tables/index.qmd",
+      "seconds": 1.27,
+      "frozen": false
+    },
+    {
+      "page": "citation.qmd",
+      "seconds": 1.234,
+      "frozen": false
+    },
+    {
+      "page": "reference/vals.fmt_url.qmd",
+      "seconds": 1.209,
+      "frozen": false
+    },
+    {
+      "page": "blog/introduction-0.15.0/index.qmd",
+      "seconds": 1.155,
+      "frozen": true
+    },
+    {
+      "page": "blog/plots-in-tables/index.qmd",
+      "seconds": 1.146,
+      "frozen": true
+    },
+    {
+      "page": "contributing.qmd",
+      "seconds": 1.118,
+      "frozen": false
+    },
+    {
+      "page": "reference/GT.write_raw_html.qmd",
+      "seconds": 1.111,
+      "frozen": false
+    },
+    {
+      "page": "examples/sports-earnings/index.ipynb",
+      "seconds": 1.103,
+      "frozen": false
+    },
+    {
+      "page": "blog/superbowl-squares/index.qmd",
+      "seconds": 1.074,
+      "frozen": true
+    },
+    {
+      "page": "blog/introduction-0.3.0/index.qmd",
+      "seconds": 1.043,
+      "frozen": true
+    },
+    {
+      "page": "reference/GTI.i_as_widget.qmd",
+      "seconds": 1.024,
+      "frozen": false
+    },
+    {
+      "page": "reference/GT.gtsave.qmd",
+      "seconds": 0.994,
+      "frozen": false
+    },
+    {
+      "page": "blog/introduction-0.18.0/index.qmd",
+      "seconds": 0.994,
+      "frozen": true
+    },
+    {
+      "page": "reference/style.text.qmd",
+      "seconds": 0.977,
+      "frozen": false
+    },
+    {
       "page": "user-guide/glossary.qmd",
-      "seconds": 0.965,
+      "seconds": 0.949,
       "frozen": false
     },
     {
-      "page": "reference/web.write_runtime.qmd",
-      "seconds": 0.932,
-      "frozen": false
-    },
-    {
-      "page": "user-guide/extensions.qmd",
-      "seconds": 0.899,
+      "page": "blog/introduction-0.12.0/index.qmd",
+      "seconds": 0.922,
       "frozen": true
     },
     {
       "page": "reference/GT.row_group_order.qmd",
-      "seconds": 0.878,
+      "seconds": 0.888,
+      "frozen": false
+    },
+    {
+      "page": "reference/web.write_runtime.qmd",
+      "seconds": 0.871,
       "frozen": false
     },
     {
       "page": "blog/locbody-mask/index.qmd",
-      "seconds": 0.869,
+      "seconds": 0.852,
       "frozen": true
     },
     {
-      "page": "reference/solara.GTITable.qmd",
-      "seconds": 0.851,
+      "page": "user-guide/extensions.qmd",
+      "seconds": 0.834,
+      "frozen": true
+    },
+    {
+      "page": "reference/data.pizzaplace.qmd",
+      "seconds": 0.83,
+      "frozen": false
+    },
+    {
+      "page": "reference/streamlit.st_gti.qmd",
+      "seconds": 0.783,
       "frozen": false
     },
     {
       "page": "reference/shiny.update_gti.qmd",
-      "seconds": 0.847,
+      "seconds": 0.781,
       "frozen": false
     },
     {
-      "page": "reference/style.text.qmd",
-      "seconds": 0.832,
-      "frozen": false
+      "page": "blog/introduction-0.2.0/index.qmd",
+      "seconds": 0.778,
+      "frozen": true
     },
     {
-      "page": "code-of-conduct.qmd",
-      "seconds": 0.766,
-      "frozen": false
-    },
-    {
-      "page": "reference/GTI.i_scale.qmd",
-      "seconds": 0.734,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.towny.qmd",
-      "seconds": 0.728,
-      "frozen": false
-    },
-    {
-      "page": "reference/GTI.i_as_widget.qmd",
-      "seconds": 0.726,
-      "frozen": false
-    },
-    {
-      "page": "reference/vals.fmt_image.qmd",
-      "seconds": 0.721,
-      "frozen": false
-    },
-    {
-      "page": "reference/style.borders.qmd",
-      "seconds": 0.714,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.films.qmd",
-      "seconds": 0.704,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.peeps.qmd",
-      "seconds": 0.691,
-      "frozen": false
-    },
-    {
-      "page": "reference/style.fill.qmd",
-      "seconds": 0.69,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.photolysis.qmd",
-      "seconds": 0.686,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.exibble.qmd",
-      "seconds": 0.68,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.nuclides.qmd",
-      "seconds": 0.662,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.pizzaplace.qmd",
-      "seconds": 0.662,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.gibraltar.qmd",
-      "seconds": 0.661,
-      "frozen": false
-    },
-    {
-      "page": "reference/shiny.render_gt.qmd",
-      "seconds": 0.656,
-      "frozen": false
-    },
-    {
-      "page": "reference/data.metro.qmd",
-      "seconds": 0.656,
-      "frozen": false
-    },
-    {
-      "page": "reference/style.css.qmd",
-      "seconds": 0.655,
-      "frozen": false
-    },
-    {
-      "page": "reference/vals.fmt_email.qmd",
-      "seconds": 0.65,
+      "page": "reference/solara.GTITable.qmd",
+      "seconds": 0.771,
       "frozen": false
     },
     {
       "page": "reference/data.reactions.qmd",
-      "seconds": 0.647,
+      "seconds": 0.746,
       "frozen": false
     },
     {
-      "page": "reference/data.illness.qmd",
-      "seconds": 0.637,
+      "page": "code-of-conduct.qmd",
+      "seconds": 0.741,
       "frozen": false
     },
     {
-      "page": "reference/data.countrypops.qmd",
-      "seconds": 0.632,
+      "page": "reference/style.borders.qmd",
+      "seconds": 0.741,
       "frozen": false
     },
     {
       "page": "reference/GT.opt_footnote_marks.qmd",
-      "seconds": 0.628,
+      "seconds": 0.722,
+      "frozen": false
+    },
+    {
+      "page": "reference/shiny.render_gt.qmd",
+      "seconds": 0.706,
+      "frozen": false
+    },
+    {
+      "page": "reference/vals.fmt_email.qmd",
+      "seconds": 0.703,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.illness.qmd",
+      "seconds": 0.699,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.gtcars.qmd",
+      "seconds": 0.694,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.metro.qmd",
+      "seconds": 0.694,
+      "frozen": false
+    },
+    {
+      "page": "reference/GTI.i_scale.qmd",
+      "seconds": 0.679,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.peeps.qmd",
+      "seconds": 0.679,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.sp500.qmd",
+      "seconds": 0.669,
+      "frozen": false
+    },
+    {
+      "page": "reference/vals.fmt_image.qmd",
+      "seconds": 0.651,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.exibble.qmd",
+      "seconds": 0.643,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.nuclides.qmd",
+      "seconds": 0.642,
       "frozen": false
     },
     {
       "page": "reference/streamlit.GTIState.qmd",
+      "seconds": 0.632,
+      "frozen": false
+    },
+    {
+      "page": "reference/streamlit.update_gti.qmd",
+      "seconds": 0.631,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.films.qmd",
+      "seconds": 0.627,
+      "frozen": false
+    },
+    {
+      "page": "reference/data.towny.qmd",
+      "seconds": 0.627,
+      "frozen": false
+    },
+    {
+      "page": "reference/style.css.qmd",
+      "seconds": 0.626,
+      "frozen": false
+    },
+    {
+      "page": "reference/style.fill.qmd",
       "seconds": 0.626,
       "frozen": false
     },
     {
       "page": "reference/data.sza.qmd",
-      "seconds": 0.623,
+      "seconds": 0.613,
       "frozen": false
     },
     {
-      "page": "reference/data.gtcars.qmd",
-      "seconds": 0.602,
+      "page": "reference/data.gibraltar.qmd",
+      "seconds": 0.612,
       "frozen": false
     },
     {
-      "page": "reference/streamlit.update_gti.qmd",
-      "seconds": 0.567,
+      "page": "reference/data.photolysis.qmd",
+      "seconds": 0.603,
       "frozen": false
     },
     {
-      "page": "reference/data.sp500.qmd",
-      "seconds": 0.561,
-      "frozen": false
-    },
-    {
-      "page": "reference/streamlit.st_gti.qmd",
-      "seconds": 0.509,
+      "page": "reference/data.countrypops.qmd",
+      "seconds": 0.556,
       "frozen": false
     }
   ],
   "render": {
     "processes": 4,
     "groups": 34,
-    "startup_seconds": 3.58
+    "startup_seconds": 3.69
   }
 }
