@@ -191,6 +191,33 @@ test("takes its shortcuts after a click in the table", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("shows in its outline that the table has focus, for its keys", async ({ page }) => {
+  // (At once, with no transition, for less motion)
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const errors = await ready(page, "bar.html");
+  const outline = () =>
+    bar(page).evaluate((node) => {
+      const { borderTopColor, boxShadow } = getComputedStyle(node, "::before");
+      return { borderTopColor, boxShadow };
+    });
+  const off = await outline();
+  expect(off.boxShadow).toBe("none");
+
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await expect(el(page)).toBeFocused();
+  const on = await outline();
+  expect(on.boxShadow).not.toBe("none");
+  expect(on.borderTopColor).not.toBe(off.borderTopColor);
+  // (And with focus on a control in it, as the search)
+  await page.keyboard.press("/");
+  await expect(search(page)).toBeFocused();
+  expect(await outline()).toEqual(on);
+
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+  expect(await outline()).toEqual(off);
+  expect(errors).toEqual([]);
+});
+
 test("resets the view from a button that shows while there's something to reset", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   const reset = barButton(page, "Reset the view");
