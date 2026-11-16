@@ -1152,6 +1152,32 @@ gt-table .gt-i-bar::before {
   border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
   border-radius: calc(var(--gt-i-line) / 2);
   pointer-events: none;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+/*
+ * While the table has focus (from a click in it, or a control in it), so that its keys go to it,
+ * the outline takes the accent colour, with a faint glow around it (the accent mixed with the
+ * text's colour, so that it's as clear on a dark page as on a light one)
+ */
+gt-table[data-gti-keys]:focus-within .gt-i-bar::before {
+  --gt-i-focus: color-mix(in srgb, var(--gt-i-accent, #1f6feb) 75%, currentColor);
+  border-color: color-mix(in srgb, var(--gt-i-focus) 70%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gt-i-focus) 14%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  gt-table .gt-i-bar::before {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  gt-table[data-gti-keys]:focus-within .gt-i-bar::before {
+    border-color: Highlight;
+  }
 }
 
 gt-table .gt-i-bar :is([data-gti-bar="search"], [data-gti-bar="info"]),
