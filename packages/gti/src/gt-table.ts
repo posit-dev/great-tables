@@ -5643,13 +5643,20 @@ export class GtTable extends HTMLElement {
     const all = (selector: string) => Array.from(this.querySelectorAll(selector));
     const [start, end]: [Place, Place] = getComputedStyle(this).direction === "rtl" ? ["right", "left"] : ["left", "right"];
     const beside: Place[] = [end, start, "above", "below"];
-    const onBar: Place[] = ["above", "below"];
+    // (Below the bar first, off the table, where nothing clips them there)
+    const onBar: Place[] = ["below", "above"];
     const handle = this.footHandle;
     const named: [string, (Element | null | undefined)[][], Place[]][] = [
       ["Status line", [[this.dimensions]], beside],
-      ["Column controls", [all("thead :is(.gt-i-dtype, .gt-i-sort, .gt-i-filter-button)")], [start, end, "above"]],
+      // (A stacked table's are its chips, which its labels are in too)
+      this.stacked
+        ? ["Column controls", [all("thead tr.gt_col_headings > th")], [start, end, "above", "below"]]
+        : ["Column controls", [all("thead :is(.gt-i-dtype, .gt-i-sort, .gt-i-filter-button)")], [start, end, "above"]],
       ["Column profiles", [all("thead .gt-i-profiled .gt-i-profile")], [start, end, "below"]],
-      ["Row numbers", [all("tbody .gt-i-rownum")], [start, "over"]],
+      // (A stacked table's are on its cards, one by one, with room after them)
+      this.stacked
+        ? ["Row numbers", all("tbody .gt-i-rownum").map((el) => [el]), [end, "over"]]
+        : ["Row numbers", [all("tbody .gt-i-rownum")], [start, "over"]],
       [handle?.classList.contains("gt-i-rows") ? "Rows handle" : "Height handle", [[handle]], beside],
       ["Filter tokens", [all(".gt-i-bar .gt-i-token")], beside],
       ["Search", [[bar.toggle, bar.field]], onBar],
@@ -5669,12 +5676,26 @@ export class GtTable extends HTMLElement {
       const boxes = groups.map(boxOf).filter((box): box is Box => box !== null);
       return boxes.length === 0 ? [] : [{ name, boxes, places }];
     });
-    const drawn = JSON.stringify([origin.width, origin.height, parts]);
+    // Within the view across (and the page's top), and what clips the element (a container that
+    // scrolls, as Quarto's for a wide table)
+    const doc = this.ownerDocument;
+    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0), right: doc.documentElement.clientWidth, bottom: Infinity };
+    for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
+      const { overflowX, overflowY } = getComputedStyle(node);
+      if (overflowX !== "visible" || overflowY !== "visible") {
+        const { left, top, right, bottom } = node.getBoundingClientRect();
+        view.left = Math.max(view.left, left);
+        view.top = Math.max(view.top, top);
+        view.right = Math.min(view.right, right);
+        view.bottom = Math.min(view.bottom, bottom);
+      }
+    }
+    const bounds = { left: view.left - x0, top: view.top - y0, right: view.right - x0, bottom: view.bottom - y0 };
+    const drawn = JSON.stringify([origin.width, origin.height, bounds, parts]);
     if (drawn === this.partsDrawn) {
       return;
     }
     this.partsDrawn = drawn;
-    const doc = this.ownerDocument;
     const labels = parts.map(({ name }) => {
       const label = element(doc, "span", "gt-i-parts-name");
       label.textContent = name;
@@ -5682,18 +5703,13 @@ export class GtTable extends HTMLElement {
     });
     layer.replaceChildren(...labels);
     const sizes = labels.map((label) => ({ width: label.offsetWidth, height: label.offsetHeight }));
-    // (Within the element, and the view)
-    const bounds = {
-      left: Math.max(0, -x0),
-      top: 0,
-      right: Math.min(origin.width, doc.documentElement.clientWidth - x0),
-      bottom: origin.height,
-    };
     const put = (el: HTMLElement, { left, top, right, bottom }: Box) => {
       Object.assign(el.style, { left: `${left}px`, top: `${top}px`, width: `${right - left}px`, height: `${bottom - top}px` });
       return el;
     };
-    placeParts(parts, sizes, bounds).forEach(({ boxes, label, line }, i) => {
+    // (Keeping the bar's names off the bar, which may be in rows, as a narrow one is)
+    const controls = union(parts.filter(({ places }) => places === onBar).flatMap(({ boxes }) => boxes));
+    placeParts(parts, sizes, bounds, controls === null ? [] : [controls]).forEach(({ boxes, label, line }, i) => {
       layer.prepend(
         ...boxes.map((box) => put(element(doc, "span", "gt-i-parts-box"), box)),
         ...(line === null ? [] : [put(element(doc, "span", "gt-i-parts-line"), line)]),
