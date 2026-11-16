@@ -4770,7 +4770,9 @@ export class GtTable extends HTMLElement {
     if (keys !== null) {
       bar.keys = keys;
       (bar.field?.parentElement ?? root).append(keys.button, keys.panel);
-      // (So that a click in the table puts focus in it, for its keys)
+      // (So that a click in the table puts focus in it, for its keys, which the bar shows it has:
+      // see gti.css)
+      this.toggleAttribute("data-gti-keys", true);
       if (!this.hasAttribute("tabindex")) {
         this.tabIndex = -1;
         this.ownTabIndex = true;
@@ -9444,6 +9446,7 @@ export class GtTable extends HTMLElement {
     this.bar = null;
     this.slashKey = null;
     this.pagingKey = null;
+    this.removeAttribute("data-gti-keys");
     if (this.ownTabIndex) {
       this.removeAttribute("tabindex");
       this.ownTabIndex = false;
