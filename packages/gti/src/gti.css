@@ -1168,6 +1168,11 @@ gt-table[data-gti-keys]:focus-within .gt-i-bar::before {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--gt-i-focus) 14%, transparent);
 }
 
+/* (Which is its focus ring: the browser's, which a key pressed after the click would draw, isn't) */
+gt-table[data-gti-keys][tabindex="-1"]:focus {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   gt-table .gt-i-bar::before {
     transition: none;
@@ -1233,6 +1238,56 @@ gt-table .gt-i-tip {
   font-size: 0.75em;
   line-height: 1.3;
   pointer-events: none;
+}
+
+/*
+ * The names of the table's parts (see `showParts()`): over the table (and under its panels), which
+ * works as ever under them, each part outlined in the accent colour with its name beside it
+ */
+gt-table .gt-i-parts {
+  --gt-i-part: var(--gt-i-accent, #1f6feb);
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+gt-table .gt-i-parts > span {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+gt-table .gt-i-parts-box {
+  border: 1.5px solid var(--gt-i-part);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--gt-i-part) 8%, transparent);
+}
+
+gt-table .gt-i-parts-line {
+  background: var(--gt-i-part);
+}
+
+gt-table .gt-i-parts-name {
+  padding: 0.125em 0.5em;
+  border-radius: 999px;
+  background: var(--gt-i-part);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+@media (forced-colors: active) {
+  gt-table .gt-i-parts {
+    --gt-i-part: Highlight;
+    forced-color-adjust: none;
+  }
+
+  gt-table .gt-i-parts-name {
+    color: HighlightText;
+  }
 }
 
 /* A table of every row keeps its bar in view as it's scrolled past (the runtime fills it) */
