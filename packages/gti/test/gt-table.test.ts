@@ -1964,6 +1964,24 @@ describe("the control bar", () => {
     expect(el.page).toBe(1);
   });
 
+  it("pages with the keys from anywhere in the table, as from a click in it", async () => {
+    const { el, events } = await mountBar();
+    expect(el.tabIndex).toBe(-1);
+    expect(press(el, "ArrowRight").defaultPrevented).toBe(true);
+    press(el.querySelector("tbody td") as HTMLElement, "End");
+    press(el.querySelector("thead th") as HTMLElement, "Home");
+    expect(events.map((event) => (event as PageEventDetail).page)).toEqual([2, 3, 1]);
+
+    // Not on a control that took the key, or in a panel
+    const handled = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+    handled.preventDefault();
+    el.querySelector("tbody td")?.dispatchEvent(handled);
+    part(el, "info").click();
+    const panel = el.querySelector(`#${part(el, "info").getAttribute("aria-controls")}`) as HTMLElement;
+    expect(press(panel, "End").defaultPrevented).toBe(false);
+    expect(el.page).toBe(1);
+  });
+
   it("turns the readout into an input for the page to go to", async () => {
     const { el, events } = await mountBar();
     readout(el).click();
@@ -2235,8 +2253,8 @@ describe("the info panel", () => {
     select(el).dispatchEvent(new Event("change", { bubbles: true }));
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(false);
     expect(keys(el)).toEqual([
-      "← →: Previous or next page, in the bar",
-      "Home End: First or last page, in the bar",
+      "← →: Previous or next page",
+      "Home End: First or last page",
       "Shift + click: Sort by more than one column",
     ]);
   });
@@ -2283,8 +2301,8 @@ describe("the info panel", () => {
     expect(keys(el)).toEqual([
       "/: Search",
       "Esc: Clear the search, then close it",
-      "← →: Previous or next page, in the bar",
-      "Home End: First or last page, in the bar",
+      "← →: Previous or next page",
+      "Home End: First or last page",
       "Shift + click: Sort by more than one column",
       "Shift + click: Select a range of rows",
     ]);
