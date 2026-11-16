@@ -106,6 +106,8 @@ class Settings:
     wrap: bool = True
     # (The column labels and the cells in a monospaced font, as `i_display()` set it)
     monospace: bool = False
+    # (The parts GTI adds named over the table, for good, as `i_display()` set it: for a docs page)
+    parts: bool = False
     # (What readers see of the data itself, as `i_inspect()` set it: each row's number (its place
     # in the data), each column's dtype (under its label), the number of rows and columns (above
     # the table), and the missing values (tinted); none, by default)
