@@ -116,6 +116,171 @@ names, which follow its parts as you sort, filter, page or scroll it.
 )
 ```
 
+## Filtering the rows
+
+Each column given to `~~GTI.i_cols_filter()` gets a filter button under its label, which opens its
+filter. The filter's type goes by the column's values, unless `type=` names one:
+
+- `"text"` keeps the rows whose cell has what's typed, as the table shows it, ignoring case and
+  accents (as the search does)
+- `"facet"` is a checklist of the column's values, each with its number of rows (of those the other
+  filters and the search keep); it's what a categorical column gets, and a text column with only a
+  few values, each repeated
+- `"range"` keeps the numbers from one to another (at least one, at most the other), for a column of
+  numbers
+- `"date"` keeps the dates from one to another, picked in date fields (or date and time fields, for
+  a column of dates and times)
+- `"bool"` keeps the rows that are true, false or missing, each with its number of rows, for a
+  column of booleans
+
+Facets, ranges, dates and booleans go by the column's values, not by how they're formatted. Here
+are the half-hourly readings of May 2023 at Gibraltar's airport, with a column of dates and times
+made from the dataset's text, and one saying whether there were gusts. The conditions get a text
+filter (there are 22 of them, too many for a list), the times a date filter, the numbers ranges and
+the gusts a bool filter. The table starts with the rainy readings from the 20th on; open the `Time`
+filter to change the dates, or the `Gusts` filter for only the readings with gusts.
+
+```{python}
+weather = (
+    data.pl.gibraltar.with_columns(
+        when=pl.concat_str(["date", "time"], separator=" ").str.to_datetime("%Y-%m-%d %H:%M"),
+        gusts=pl.col("wind_gust") > 0,
+    )
+    .select(["when", "condition", "temp", "humidity", "wind_speed", "gusts"])
+)
+
+(
+    GTI(weather)
+    .tab_header(title="Gibraltar: the weather in May 2023")
+    .cols_label(
+        when="Time", condition="Condition", temp="Temp. (°C)", humidity="Humidity",
+        wind_speed="Wind (m/s)", gusts="Gusts"
+    )
+    .fmt_datetime(columns="when", date_style="day_m", time_style="Hm")
+    .fmt_percent(columns="humidity", decimals=0)
+    .fmt_tf(columns="gusts", tf_style="yes-no")
+    .i_cols_filter(columns="condition", type="text")
+    .i_cols_filter(columns=["when", "temp", "humidity", "wind_speed", "gusts"])
+    .i_view(filter='condition contains "rain" and when >= "2023-05-20"')
+)
+```
+
+A row is shown when it passes every filter, and the search. The tokens below the table show the
+filters that are on, and the `{ }` button in the control bar opens them as text, a query to edit
+(with suggestions as you type), as `~~GTI.i_view()` takes it with `filter=`. Its clauses are a
+column name and then:
+
+- `contains` and a string, for a text filter (`condition contains "rain"`), or `matches` and a
+  regular expression between slashes (`condition matches /^light/i`)
+- `in` and values in parentheses, for a facet or a bool filter (`gusts in (true)`)
+- `>=`, `<=`, `>` or `<` and a number, for a range (`temp >= 25`), or a date in double quotes, for a
+  date filter (`when < "2023-05-08"`); or `top` or `bottom` and a whole number, for the rows with
+  the largest or smallest values (`wind_speed top 10`)
+- `is null`, for the rows missing a value, whatever the filter
+
+The clauses are joined by `and`, and groups are written with `or`, `not` and parentheses
+(`temp >= 25 or (gusts in (true) and not condition contains "fair")`); `not in`, `not contains` and
+`is not null` can be written as such. A column name that isn't letters, digits and underscores goes
+in backticks. A query in `i_view()` is checked against the columns' filters when the table is
+shown, so a clause on a column without a filter, or with a filter of another type, is an error.
+
+## Sorting by several columns, and the keyboard
+
+A click on a column's sort arrows (or its label) sorts the table by it: once for ascending order,
+again for descending, and a third time for the table's own order. With Shift held, a click adds the
+column to the sort, so that it sorts the rows the columns before it leave tied, and the arrows are
+numbered in the order the columns sort the rows. Here, the cars are sorted by their make and then
+from the most powerful down; Shift-click `Year` to sort the cars that tie by year as well, or click
+`HP` alone to sort by it only. The info panel (from the (i) button) says how the table is sorted,
+and can put it back in its own order.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: sorted by make, then horsepower")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_view(sort=["mfr", "-hp"])
+)
+```
+
+`~~GTI.i_view()` takes the sort as a list of columns, the first sorting the rows and the next the
+rows that tie, each with a `-` before it for descending order. Missing values are last either way.
+
+The table's controls are buttons and fields, reached with Tab, and with the table clicked (or focus
+in it) these keys work too:
+
+- `/` opens the search, and Esc clears it, then closes it
+- `←` and `→` go to the previous or next page, and Home and End to the first or last
+- Shift and a click sorts by more than one column, and (with `~~GTI.i_selection()`) selects a range
+  of rows
+- Alt (⌥ on a Mac) with `↑` or `↓` moves a column, in the Columns panel
+- Ctrl+Z and Ctrl+Y (⌘Z and ⇧⌘Z on a Mac) undo and redo a change to the view, with
+  `~~GTI.i_view_state()`
+- `?` names the table's parts
+
+The keyboard button at the start of the control bar lists the keys the table has.
+
+## Selecting rows
+
+With `~~GTI.i_selection()`, readers can select rows, by clicking them or their checkboxes, in a
+column before the others. With `"multiple"` (the method's default), Shift and a click selects the
+rows from the last one clicked, and the checkbox in the column labels selects every row the search
+and filters keep (on every page, not only the one shown); with `"single"`, selecting a row clears
+the one selected before. The info panel says how many rows are selected, and its **Clear** button
+clears them. Here, select a few cars, then open the export panel: with **Selected rows only**
+checked, only they're exported.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: selecting rows")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_selection("multiple")
+    .i_export(["csv", "clipboard"], filename="gtcars")
+)
+```
+
+The selection stays as the rows are sorted, searched, filtered and paged. It's what links tables
+together (see [Linked tables](#linked-tables)), and Python can read it, with the table as a widget
+or in an app (see [GTI in Python and Apps](26-gti-in-python-and-apps.qmd)).
+
+## Keeping the view
+
+With `~~GTI.i_view_state()`, the reader's view of the table (its filters, sort, search, page, page
+size, hidden columns, the column its rows are grouped by, and the height of a body that scrolls) is
+kept as they change it: in the page's URL, by default, so that reloading the page, or sharing its
+link, opens the table as it was; and with `storage=True`, in the browser's storage too, so that the
+reader finds the table as they left it when they come back to the page. The view is kept by the
+table's ID, so the table needs one (from `GTI(id=)`, or `~~GT.with_id()`). Here, choose a make or
+two and sort the cars, then look at the page's address, and reload the page.
+
+```{python}
+(
+    GTI(gtcars_pl, id="gtcars-kept")
+    .tab_header(title="GT Cars: keeping the view")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_view_state()
+)
+```
+
+In the URL, each part of the view is in the query string, named after the table's ID (as in
+`?gtcars-kept.filter=mfr+in+(%22Ferrari%22)&gtcars-kept.sort=-hp`, the filter written as text),
+so tables with different IDs keep their own views, and the page's other parameters are left alone.
+A link with a table's view opens it with that view, rather than the one in the browser's storage. A
+part of a view the table can't have (say, a filter on a column that no longer has one) is left out,
+with a warning in the browser's console. The rows selected and the columns' widths aren't kept.
+
+The control bar has undo and redo buttons (and Ctrl+Z and Ctrl+Y, or ⌘Z and ⇧⌘Z on a Mac), and the
+info panel a button that goes back to the view the table is first shown with. Undo alone,
+`i_view_state(url=False)`, doesn't need an ID.
+
 ## Scrolling in place
 
 With `~~GTI.i_scroll()`, the table takes up no more than a set height, and its body scrolls within
@@ -173,12 +338,9 @@ gtcars_wide = (
 gtcars_wide
 ```
 
-Scrolling is one of three ways `~~GTI.i_responsive()` fits a table to a narrow container. A table
-can also be stacked, each row becoming a card with each column's label next to its value, or it can
-drop columns until it fits (those `~~GTI.i_cols_priority()` ranks lowest first), with a button on
-each row that shows the columns dropped from it. By default, a table drops columns if any have a
-priority; otherwise it's stacked in a container under 420 pixels wide if it shows no more than six
-columns, and scrolls if it shows more.
+Scrolling is one of three ways `~~GTI.i_responsive()` fits a table to a narrow container; the
+others, stacking the rows as cards and dropping columns, are in
+[Narrow containers](#narrow-containers).
 
 ## Pinned columns
 
@@ -201,6 +363,57 @@ moved there first, with `~~GT.cols_move_to_start()` or `~~GT.cols_move_to_end()`
 can't take up more than half of the table's container; in a narrower one, only the stub stays
 pinned, until the container is wide enough again. The left is the stub's side, so in a page written
 right to left, the columns pinned to the "left" are on the right, by the stub.
+
+## Narrow containers
+
+A table wider than its container scrolls, as above, but `~~GTI.i_responsive()` has two other ways
+to fit it. With `"stack"`, in a container narrower than `stack_below=` pixels (420, by default, as
+on a phone), each row becomes a card, titled by its stub, with each column's label next to its
+value. Row groups become headings between the cards, and summary rows cards of their own. The
+column labels are shown above the cards as chips, which sort the table and open its filters as the
+labels do. Here, `stack_below=` is past this page's width, so the cards are shown whatever its
+width; sort by `HP` with its chip, or filter by `Make` with the filter button on its chip.
+
+```{python}
+(
+    GTI(gtcars_pl, rowname_col="model")
+    .tab_header(title="GT Cars: stacked as cards")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_pagination(page_size=3)
+    .i_responsive("stack", stack_below=2000)
+)
+```
+
+A table is stacked by its CSS alone, so it's stacked before its script runs (or without it). The
+column profiles aren't shown on the cards, and a table in a container only as wide as what's in it
+(a table's cell, or an inline block) isn't stacked.
+
+With `"collapse"`, the table drops columns until it fits: first those without a priority from
+`~~GTI.i_cols_priority()` (from the last), then those with the highest numbers. A column with
+priority 1 is never dropped, nor is the stub. Each row gets a button by its first cell that shows
+the columns dropped from it, under it, as labels and values, and the columns come back as the
+container widens. Here's the wide table of every column again, which keeps each car's make and
+price, and its year and horsepower for as long as it can; it drops what this page has no room for,
+and more as the window narrows. Click the arrow by a car's name to see what it dropped.
+
+```{python}
+(
+    gtcars_wide
+    .tab_header(title="GT Cars: dropping columns to fit")
+    .i_cols_priority(columns=["mfr", "msrp"])
+    .i_cols_priority(columns=["year", "hp"], priority=2)
+    .i_responsive("collapse")
+)
+```
+
+The dropped columns are still searched, filtered and exported. They're dropped by the table's
+script, so without it the table scrolls, as it does once only the columns that are never dropped are
+left. By default (`"auto"`), a table drops columns if any have a priority; otherwise it's stacked
+below `stack_below=` if it shows no more than six columns (not counting the stub), and scrolls if
+it shows more.
 
 ## Summary rows
 
@@ -325,6 +538,59 @@ A profile's bars span the whole column, not just the rows that are left, so that
 the reader filters (only their heights change). They aren't shown when the table is stacked as
 cards in a narrow container.
 
+## Choosing what readers can do with each column
+
+Readers can sort, search and resize every column, by default, and hide or move none. With
+`~~GTI.i_cols_controls()`, each of these is set for the columns it's given:
+
+- `sortable=False` takes away a column's sort arrows (though `~~GTI.i_view()` can still sort by it)
+- `searchable=False` leaves the column's cells out of the search (though its own filter still looks
+  in them)
+- `resizable=False` keeps the column at its width, without a handle on its label
+- `hideable=True` puts a **Columns** button in the control bar, whose panel has a checkbox for each
+  of the columns, to hide it or show it again
+- `reorderable=True` lists the columns in the same panel, in the order shown, where each can be
+  dragged to another place, or moved with its arrow buttons (or Alt+↑ and Alt+↓)
+
+Here, the search looks only at the cars' names and makes, the make can't be sorted by, and the
+numbers can be hidden and moved: open the **Columns** panel to show the city and highway mileage,
+or to put the price first.
+
+```{python}
+gtcars_cols = data.pl.gtcars.select(
+    ["mfr", "model", "year", "hp", "trq", "mpg_c", "mpg_h", "msrp", "ctry_origin"]
+)
+numbers = ["year", "hp", "trq", "mpg_c", "mpg_h", "msrp"]
+
+(
+    GTI(gtcars_cols, rowname_col="model")
+    .tab_header(title="GT Cars: choosing the columns")
+    .cols_label(
+        mfr="Make", year="Year", hp="HP", trq="Torque", mpg_c="MPG City", mpg_h="MPG Highway",
+        msrp="MSRP", ctry_origin="Country"
+    )
+    .fmt_integer(columns=["year", "hp", "trq", "mpg_c", "mpg_h"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_controls(columns="mfr", sortable=False)
+    .i_cols_controls(columns=numbers, searchable=False, hideable=True, reorderable=True)
+    .i_cols_controls(columns="ctry_origin", display=False)
+    .i_cols_filter(columns="ctry_origin")
+    .i_view(filter='ctry_origin in ("Italy", "Germany")', hidden=["mpg_c", "mpg_h"])
+)
+```
+
+A hidden column is hidden in every row, the search doesn't look in it, and exports leave it out,
+but a filter on it still keeps the rows it keeps. A column moves only among the movable columns next
+to it: it can't leave its spanner, or pass a column readers can't move. The table is first shown in
+the author's order, and resetting the view goes back to it.
+
+The country of origin here is in the data but not in the table, with `display=False`: it can't be
+shown, but it can be filtered by (from its token in the bar, or the `{ }` button), and the table can
+be sorted by it with `i_view()`, or by a view kept in the URL. The cars start filtered to those from
+Italy and Germany; remove the token to show them all. The search doesn't look in such a column and
+exports leave it out, but the code copied for the view filters by it. This is also how a column that
+`~~GT.cols_hide()` hid can be kept for querying.
+
 ## Colors from the rows kept
 
 With `data_color="recompute"` in `~~GTI.i_cols_controls()`, a column's colors from `data_color()`
@@ -424,6 +690,37 @@ filters, but isn't part of its view, so it isn't kept by `~~GTI.i_view_state()`.
 the browser, with no server, so this works in a Quarto document or an HTML page, and in a notebook
 whose cells' outputs share a page (in Jupyter, but not in Colab, which shows each cell's output in a
 frame of its own).
+
+## How the rows look
+
+`~~GTI.i_display()` sets how the table's rows look:
+
+- `highlight=` (on by default) highlights the row under the pointer, or the row tapped on a touch
+  screen
+- `compact=True` gives the rows half of their usual padding above and below, for more of them in
+  view
+- `wrap=False` keeps each cell's text on one line, cut short with an ellipsis if it doesn't fit, so
+  that every row is the same height
+- `monospace=True` puts the column labels and the cells in a monospaced font, for a table that's a
+  look at data more than a presentation of it (the title, the notes and the controls keep the
+  table's font)
+
+Here are the cars in compact rows, in a monospaced font, without the highlight:
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: compact and monospaced")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_display(highlight=False, compact=True, monospace=True)
+)
+```
+
+Each call sets all of these, so `i_display(compact=True)` also puts back the highlight and the
+wrapping, if an earlier call took them away. The compact rows' padding is only where the table
+hasn't set its own, as with `tab_options(data_row_padding=)`.
 
 ## An explorer for looking through data
 
