@@ -688,6 +688,21 @@ def write_raw_html(
         f.write(html_content)
 
 
+# The formats gridwell writes from the table's gridwell IR (`as_gridwell()`): the ones Great Tables
+# can't make itself, by file extension, with gridwell's name for each
+_GRIDWELL_FORMATS = {
+    ".svg": "svg",
+    ".docx": "docx",
+    ".xlsx": "xlsx",
+    ".pptx": "pptx",
+    ".rtf": "rtf",
+    ".typ": "typst",
+}
+
+# The formats a headless browser makes from the table's HTML (with `nokap`)
+_BROWSER_FORMATS = {".png", ".jpg", ".jpeg", ".webp", ".pdf"}
+
+
 def gtsave(
     self: GT,
     file: Path | str,
@@ -699,20 +714,27 @@ def gtsave(
     vheight: int = 744,
 ) -> GT:
     """
-    Save a GT table to a file (PNG, JPEG, WebP, or PDF).
+    Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).
 
     The `gtsave()` method renders the table to an image or PDF using a headless Chrome browser via
     the `nokap` package. This provides a reliable way to produce high-resolution image files of
-    tables without requiring Selenium or Playwright.
+    tables without requiring Selenium or Playwright. Chrome or Chromium must be installed on the
+    system for these formats.
 
-    Chrome or Chromium must be installed on the system for this method to work.
+    The other formats (SVG, Word, Excel, PowerPoint, RTF, and Typst) are written by
+    [gridwell](https://github.com/rich-iannone/gridwell) from the table's gridwell IR (see
+    `GT.as_gridwell()`), with no browser needed. Install gridwell with
+    `pip install "great_tables[gridwell]"`. SVG output is experimental in gridwell, and its
+    styling may change between gridwell releases.
 
     Parameters
     ----------
     file
         The file path to write the output to. The format is determined by the file extension:
-        `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF. If no extension is provided,
-        `.png` is assumed.
+        `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF; and, with gridwell, `.svg` for
+        SVG, `.docx` for Word, `.xlsx` for Excel, `.pptx` for PowerPoint, `.rtf` for RTF, and
+        `.typ` for Typst. If no extension is provided, `.png` is assumed. The other arguments
+        apply to images and PDF only.
     selector
         A CSS selector targeting the element to capture. Defaults to `"table"`, which captures just
         the table element with tight bounds.
@@ -781,21 +803,36 @@ def gtsave(
         .gtsave("my_table.pdf")
     )
     ```
-    """
-    import nokap
 
+    With gridwell installed, save the same table as SVG, or as a Word document.
+
+    ```python
+    GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.svg")
+    GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.docx")
+    ```
+    """
     # If there is no file extension, default to .png
     out_path = Path(file)
     if out_path.suffix == "":
         out_path = out_path.with_suffix(".png")
+    suffix = out_path.suffix.lower()
+
+    if suffix in _GRIDWELL_FORMATS:
+        gridwell = _try_import(
+            name="gridwell", pip_install_line='pip install "great_tables[gridwell]"'
+        )
+        gridwell.Table(self.as_gridwell()).save(out_path, format=_GRIDWELL_FORMATS[suffix])
+        return self
 
     # Validate file extension
-    allowed_extensions = {".png", ".jpg", ".jpeg", ".webp", ".pdf"}
-    if out_path.suffix.lower() not in allowed_extensions:
+    if suffix not in _BROWSER_FORMATS:
+        supported = sorted(_BROWSER_FORMATS | set(_GRIDWELL_FORMATS))
         raise ValueError(
             f"Unsupported file extension: '{out_path.suffix}'. "
-            f"Supported formats: {', '.join(sorted(allowed_extensions))}"
+            f"Supported formats: {', '.join(supported)}"
         )
+
+    import nokap
 
     # Get the HTML content of the table
     html_content = as_raw_html(self)
