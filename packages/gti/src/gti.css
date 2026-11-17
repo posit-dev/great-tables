@@ -1567,12 +1567,17 @@ gt-table .gt-i-tokens button:focus-visible {
 /*
  * The query box: on the tokens' line (in their place), a field of the filters as text, which is
  * drawn over a copy of it for its highlights (where the browser has them), with suggestions above
- * it and what's wrong with it below (in colours for a light background, or a dark one)
+ * it and what's wrong with it below (in colours for a light background, or a dark one, each at
+ * least 4.5:1 against it). What can be typed, as the field's text is, is in a monospaced font.
  */
 gt-table .gt-i-query {
+  --gt-i-column: #0f766e;
   --gt-i-keyword: #8250df;
+  --gt-i-logic: #7a6a8c;
   --gt-i-string: #1a7f37;
   --gt-i-number: #0550ae;
+  --gt-i-literal: #bc4c00;
+  --gt-i-punct: #656d76;
   --gt-i-error: #c62828;
   flex: 0 0 100%;
   order: -1;
@@ -1582,9 +1587,13 @@ gt-table .gt-i-query {
 }
 
 gt-table .gt-i-query[data-gti-dark] {
+  --gt-i-column: #5eead4;
   --gt-i-keyword: #d2a8ff;
+  --gt-i-logic: #b3a6c4;
   --gt-i-string: #7ee787;
   --gt-i-number: #79c0ff;
+  --gt-i-literal: #ffa657;
+  --gt-i-punct: #9198a1;
   --gt-i-error: #ff7b72;
 }
 
@@ -1613,6 +1622,7 @@ gt-table .gt-i-query-text {
   position: relative;
   min-width: 3em;
   height: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 gt-table .gt-i-query-text > * {
@@ -1694,6 +1704,10 @@ gt-table .gt-i-query-detail {
   opacity: 0.7;
 }
 
+gt-table .gt-i-query-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 gt-table .gt-i-query-error {
   margin: 0.25em 0 0;
   color: var(--gt-i-error);
@@ -1702,8 +1716,16 @@ gt-table .gt-i-query-error {
 }
 
 /* The query's highlights (shared by every table on the page) */
+gt-table .gt-i-query-mirror::highlight(gt-i-query-column) {
+  color: var(--gt-i-column);
+}
+
 gt-table .gt-i-query-mirror::highlight(gt-i-query-keyword) {
   color: var(--gt-i-keyword);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-logic) {
+  color: var(--gt-i-logic);
 }
 
 gt-table .gt-i-query-mirror::highlight(gt-i-query-string) {
@@ -1714,9 +1736,58 @@ gt-table .gt-i-query-mirror::highlight(gt-i-query-number) {
   color: var(--gt-i-number);
 }
 
+gt-table .gt-i-query-mirror::highlight(gt-i-query-literal) {
+  color: var(--gt-i-literal);
+}
+
+gt-table .gt-i-query-mirror::highlight(gt-i-query-punct) {
+  color: var(--gt-i-punct);
+}
+
 gt-table .gt-i-query-mirror::highlight(gt-i-query-error) {
   text-decoration: underline wavy var(--gt-i-error);
   text-decoration-skip-ink: none;
+}
+
+/* (A column's name just put in place of its label, for a moment) */
+gt-table .gt-i-query-mirror::highlight(gt-i-query-fixed) {
+  background-color: color-mix(in srgb, var(--gt-i-column) 25%, transparent);
+}
+
+/*
+ * The names of the columns with filters, while the query box is open (see `showNames()`): over
+ * the table, each above its label (or over it), in the columns' colour, put in at the caret with
+ * a click
+ */
+gt-table .gt-i-names {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+gt-table .gt-i-names-name {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0.125em 0.5em;
+  border-radius: 999px;
+  background: #0f766e;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75em;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+@media (forced-colors: active) {
+  gt-table .gt-i-names-name {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
 }
 
 /*
