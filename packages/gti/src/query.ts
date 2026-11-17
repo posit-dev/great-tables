@@ -25,7 +25,8 @@
  *
  * For a query being typed, `readQuery()` reads as much as it can of text that isn't (yet) a query,
  * saying what each part is, for highlighting, and `queryContext()` what can go where the caret is,
- * for suggestions.
+ * for suggestions. Typed in the browser, a column can be a column's label (see `labelAliases()`),
+ * which `queryAliases()` finds, to put its name in its place.
  */
 
 import { type ColumnFilter, type FilterClause, type FilterItem, type FilterQuery, isClause } from "./filter";
@@ -367,6 +368,72 @@ export function parseQuery(text: string): FilterQuery | null {
 export const formatColumn = (name: string) =>
   NAME.test(name) && !OP_WORD.test(name) ? name : `\`${name.replace(/`/g, "``")}\``;
 
+// (Words a column's label typed can't be, as they're the query's own)
+const LOGIC = /^(?:and|or|not)$/i;
+
+/**
+ * A column's label as it can be typed in a query, in place of the column's name: its letters and
+ * digits, folded (without case or accents), each run of them joined to the next by an underscore
+ * (so "MPG City" is `mpg_city`, and "Temp. (°C)" is `temp_c`); `""` for a label with none, or
+ * whose first is a digit.
+ */
+export function typedLabel(label: string): string {
+  const name = (fold(label).match(/[a-z0-9]+/g) ?? []).join("_");
+  return NAME.test(name) && !OP_WORD.test(name) && !LOGIC.test(name) ? name : "";
+}
+
+/**
+ * The columns' labels a query can have in place of their names, each to its column's name: a
+ * label typed (see `typedLabel()`), and a label as it is (in backticks, unless it needn't be);
+ * but not one that's a column's name (which is that column), nor one two columns' labels share.
+ */
+export function labelAliases(columns: readonly (readonly [name: string, label: string])[]): Map<string, string> {
+  const names = new Set(columns.map(([name]) => name));
+  const found = new Map<string, string | null>();
+  for (const [name, label] of columns) {
+    for (const key of new Set([label, typedLabel(label)])) {
+      if (key !== "" && !names.has(key)) {
+        found.set(key, found.has(key) && found.get(key) !== name ? null : name);
+      }
+    }
+  }
+  return new Map(Array.from(found).filter((entry): entry is [string, string] => entry[1] !== null));
+}
+
+/** The column a column's label in a query is (see `labelAliases()`), or `undefined`. */
+export const aliasOf = (col: string, aliases: ReadonlyMap<string, string>): string | undefined =>
+  aliases.get(col) ?? aliases.get(typedLabel(col));
+
+/** A column's label in a query's text (as typed there), where it is, and the column's name. */
+export interface QueryAlias {
+  from: number;
+  to: number;
+  label: string;
+  column: string;
+}
+
+/**
+ * The columns of a query's text (as far as it's a query) that are columns' labels rather than
+ * columns' names (see `labelAliases()`), each ending within `from` and `to`; but not a name in
+ * backticks still being typed.
+ */
+export function queryAliases(
+  text: string,
+  names: ReadonlySet<string>,
+  aliases: ReadonlyMap<string, string>,
+  from = 0,
+  to = text.length,
+): QueryAlias[] {
+  return readQuery(text).parts.flatMap((part) => {
+    if (part.role !== "column" || part.open || part.to < from || part.to > to) {
+      return [];
+    }
+    const label = part.kind === "quoted" ? part.text.slice(1, -1).replace(/``/g, "`") : part.text;
+    const column = names.has(label) ? undefined : aliasOf(label, aliases);
+    return column === undefined ? [] : [{ from: part.from, to: part.to, label, column }];
+  });
+}
+
 /** A value as a query has it. */
 export const formatValue = (value: FilterValue) =>
   typeof value === "number" ? String(value) : JSON.stringify(value);
@@ -649,8 +716,10 @@ export function queryContext(text: string, caret: number): QueryContext {
 const BOUNDS = [">=", "<=", ">", "<", "top", "bottom"];
 const OPS = { text: ["contains", "matches"], facet: ["in"], range: BOUNDS, date: BOUNDS, bool: ["in"] };
 
-// Ops as a list, as in "contains or matches" or ">=, <=, >, <, top or bottom"
-const opList = (ops: readonly string[]) => `${ops.slice(0, -1).join(", ")}${ops.length > 1 ? " or " : ""}${ops[ops.length - 1]}`;
+// Ops as a list, as in "contains or matches" or ">=, <=, >, <, top or bottom" (or other things,
+// joined by another word)
+const opList = (ops: readonly string[], last = "or") =>
+  `${ops.slice(0, -1).join(", ")}${ops.length > 1 ? ` ${last} ` : ""}${ops[ops.length - 1]}`;
 
 // A query's clauses, in their order (as the text has them), each with the clauses before it in
 // the same `and` (none for one in an `or` or a `not` on its own), and whether it's in a group
@@ -674,11 +743,14 @@ function* leaves(
 
 /**
  * The first clause of a query (by its index, in the text's order) that filters can't have, and
- * why, in the query's terms; `null` if they can have them all.
+ * why, in the query's terms; `null` if they can have them all. A clause's column that's the label
+ * of columns with filters (in `labels`, by their names), as it is or typed (see `typedLabel()`),
+ * is said to be.
  */
 export function queryProblem(
   filters: readonly ColumnFilter[],
   query: FilterQuery | null,
+  labels: ReadonlyMap<string, string> = new Map(),
 ): { clause: number; message: string } | null {
   let i = -1;
   for (const [clause, seen, grouped] of leaves(query?.and ?? [], new Set(), false)) {
@@ -702,9 +774,18 @@ export function queryProblem(
       clause.op === "in" && filter !== undefined
         ? clause.value.find((value) => value !== null && filter.rankOf(value) === undefined)
         : undefined;
+    const typed = typedLabel(col);
+    const labelled =
+      filter !== undefined
+        ? []
+        : Array.from(labels)
+            .filter(([, label]) => label === col || (typed !== "" && typedLabel(label) === typed))
+            .map(([column]) => formatColumn(column));
     const message =
       filter === undefined
-        ? `${name} isn't a column with a filter`
+        ? labelled.length === 0
+          ? `${name} isn't a column with a filter`
+          : `${name} is the label of ${opList(labelled, "and")}: use ${labelled.length === 1 ? "its name" : "one of their names"}`
         : op !== "is null" && !OPS[filter.type].includes(op)
           ? `${name} has a ${filter.type} filter: use ${opList(OPS[filter.type])}`
           : seen.has(key)
