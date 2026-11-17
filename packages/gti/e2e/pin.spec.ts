@@ -43,6 +43,41 @@ const label = (page: Page, column: string) => el(page).locator(`thead th[id$="-$
 const at = (page: Page, x: number, y: number) =>
   page.evaluate(([x, y]) => document.elementFromPoint(x as number, y as number)?.closest("th, td")?.className ?? null, [x, y]);
 
+// The controls and resize handles of the column labels that scroll, where they're under a pinned
+// label's cell: each with whether that cell is what's at the middle of where they overlap
+const underPinned = (page: Page) =>
+  el(page).evaluate((node) => {
+    const pinned = Array.from(node.querySelectorAll("thead th.gt-i-pinned"));
+    const found: [string, boolean][] = [];
+    for (const control of node.querySelectorAll("thead th:not(.gt-i-pinned) :is(button, .gt-i-resizer)")) {
+      const a = control.getBoundingClientRect();
+      for (const th of pinned) {
+        const b = th.getBoundingClientRect();
+        const [left, right] = [Math.max(a.left, b.left), Math.min(a.right, b.right)];
+        const [top, bottom] = [Math.max(a.top, b.top), Math.min(a.bottom, b.bottom)];
+        if (right - left >= 2 && bottom - top >= 2) {
+          found.push([control.className, th.contains(document.elementFromPoint((left + right) / 2, (top + bottom) / 2))]);
+        }
+      }
+    }
+    return found;
+  });
+
+// The columns' names shown with the query box that are over a pinned label's cell other than
+// their own
+const namesOverPinned = (page: Page) =>
+  el(page).evaluate((node) => {
+    const pinned = Array.from(node.querySelectorAll("thead th.gt-i-pinned"), (th) => [th, th.getBoundingClientRect()] as const);
+    return Array.from(node.querySelectorAll<HTMLElement>(".gt-i-names-name")).flatMap((name) => {
+      const a = name.getBoundingClientRect();
+      const own = node.querySelector(`thead th[id$="-${name.dataset.gtiColumn}"]`);
+      const over = pinned.some(
+        ([th, b]) => th !== own && a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom && a.bottom > b.top,
+      );
+      return over ? [name.textContent] : [];
+    });
+  });
+
 test.describe("pinned columns", () => {
   test("stay in view after the stub and at the end, as the rest scroll between them", async ({ page }) => {
     const errors = await ready(page, "pin.html");
@@ -86,6 +121,42 @@ test.describe("pinned columns", () => {
     expect(await at(page, char.right + 3, char.top + 5)).not.toMatch(/gt-i-pin/);
     // The footer scrolls (but its notes stay in view)
     expect(await el(page).locator("tfoot .gt-i-pinned").count()).toBe(0);
+    expect(errors).toEqual([]);
+  });
+
+  for (const [fixture, sign] of [
+    ["pin-filters.html", 1],
+    ["pin-rtl.html", -1],
+  ] as const) {
+    test(`keep their labels over the controls of those scrolling under them (${fixture})`, async ({ page }) => {
+      const errors = await ready(page, fixture);
+      let checked = 0;
+      for (const left of [50, 100, 150, 250, 99999]) {
+        await scrollTo(page, sign * left);
+        await expect.poll(async () => Math.abs(await scrollLeft(page))).toBeGreaterThan(40);
+        const found = await underPinned(page);
+        expect(found.filter(([, covered]) => !covered)).toEqual([]);
+        checked += found.length;
+      }
+      // (Sort and filter buttons and resize handles, at either end)
+      expect(checked).toBeGreaterThan(5);
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test("keep the columns' names off them as the query box is open", async ({ page }) => {
+    const errors = await ready(page, "pin-filters.html");
+    await el(page).getByRole("button", { name: "Edit the filters as text" }).click();
+    const names = el(page).locator(".gt-i-names-name");
+    await expect(names.filter({ hasText: /^char$/ })).toHaveCount(1);
+    for (const left of [50, 100, 150, 250, 99999]) {
+      await scrollTo(page, left);
+      await expect.poll(() => scrollLeft(page)).toBeGreaterThan(40);
+      // (Drawn again on the next frame)
+      await expect.poll(() => namesOverPinned(page)).toEqual([]);
+      await expect(names.filter({ hasText: /^fctr$/ })).toHaveCount(1);
+      expect(await names.count()).toBeGreaterThan(2);
+    }
     expect(errors).toEqual([]);
   });
 

@@ -348,11 +348,14 @@ def export_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
-def pin_html(table_id: str, groups_as_column: bool = False, height: str | None = None) -> str:
+def pin_html(
+    table_id: str, groups_as_column: bool = False, height: str | None = None, filters: bool = False
+) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), on one page, selectable,
     # with every column: char moved to the start and pinned there, and fctr moved to the end and
     # pinned there, under a spanner across its edge (with currency); with group and grand summary
-    # rows, a footnote and a source note. Wider than its container.
+    # rows, a footnote and a source note (and, with `filters`, a filter on every column). Wider
+    # than its container.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gti = (
@@ -375,6 +378,8 @@ def pin_html(table_id: str, groups_as_column: bool = False, height: str | None =
         .i_cols_pin("char")
         .i_cols_pin("fctr", side="right")
     )
+    if filters:
+        gti = gti.i_cols_filter()
     return render_gti_html(gti, runtime="none")
 
 
@@ -1129,7 +1134,7 @@ def main() -> None:
         "controls.html": page(controls_html("cc") + "\n" + runtime_src, head=styles),
         # Pinned columns (at the start and the end), in a container 480px wide: with group
         # headings; with groups shown as a column, in a body that scrolls (in one 640px wide, with
-        # room for that column); and right to left
+        # room for that column); right to left; and with a filter on every column
         "pin.html": page(
             '<div style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
             head=styles,
@@ -1143,6 +1148,10 @@ def main() -> None:
         ),
         "pin-rtl.html": page(
             '<div dir="rtl" style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "pin-filters.html": page(
+            '<div style="width: 480px">' + pin_html("pn", filters=True) + "</div>\n" + runtime_src,
             head=styles,
         ),
         # Hiding columns: of the pinned columns' table, in a container 480px wide, and right to
