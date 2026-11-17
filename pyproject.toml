@@ -57,6 +57,7 @@ all = [
     "great_tables[panel]",
     "great_tables[solara]",
     "great_tables[marimo]",
+    "great_tables[gridwell]",
     "great_tables[dev]",
 ]
 
@@ -68,6 +69,11 @@ extra = [
 
 widget = [
     "anywidget>=0.9",
+]
+
+# For `GT.gtsave()` to SVG, Word, Excel, PowerPoint, RTF, and Typst
+gridwell = [
+    "gridwell>=0.1.0",
 ]
 
 streamlit = [
