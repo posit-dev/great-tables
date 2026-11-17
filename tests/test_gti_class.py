@@ -1574,7 +1574,7 @@ def test_i_export_code_has_what_the_code_needs():
     assert list(code["columns"]) == ["id", "y"]
     assert code["columns"]["id"]["dtype"] == "string"
     assert code["columns"]["id"]["literals"] == ['"r0"', '"r1"', '"r2"', '"r3"', '"r4"', '"r5"']
-    assert code["columns"]["y"] == {"dtype": "other", "nullable": False, "literals": None}
+    assert code["columns"]["y"] == {"dtype": "integer", "nullable": False, "literals": None}
 
 
 def test_i_export_code_is_for_the_data_library():
@@ -1613,7 +1613,7 @@ def test_i_export_code_has_python_values():
     gti = GTI(frame).i_cols_filter(columns="n", type="range")
     gti = gti.i_cols_filter(columns=["d", "t", "s", "b", "td"], type="facet").i_export("code")
     columns = spec_of(gti)["export"]["code"]["columns"]
-    assert columns["n"] == {"dtype": "other", "nullable": True, "literals": None}
+    assert columns["n"] == {"dtype": "integer", "nullable": True, "literals": None}
     assert columns["d"]["literals"] == ["datetime.date(2020, 1, 2)"]
     assert columns["t"]["literals"] == [
         "datetime.datetime(2020, 1, 2, 3, 4)",

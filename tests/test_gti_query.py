@@ -1410,22 +1410,33 @@ def test_query_code_of_top_and_bottom():
 
 def test_query_code_of_top_and_bottom_of_nullable_columns():
     # (A nullable dtype's missing values rank as `pd.NA`, which `~` would keep and the mask then
-    # drop: filled, as a comparison's are, so that a `not` keeps them, as the view does)
+    # drop, and before pandas 3 a nullable number's are ranked: a numpy float's NaN isn't)
     data = pd.DataFrame(
         {
             "a": pd.array([None, 5, 3], dtype="Int64"),
             "b": pd.array([2, None, 2], dtype="Int64"),
             "c": pd.array([None, None, None], dtype="Int64"),
+            "d": pd.array([None, 5.5, 3.5], dtype="Float64"),
+            "e": pd.array([None, 5, 3], dtype="int64[pyarrow]"),
         }
     )
-    gti = GTI(data).i_cols_filter(columns=["a", "b", "c"], type="range")
+    gti = GTI(data).i_cols_filter(columns=["a", "b", "c", "d", "e"], type="range")
     # (As Hypothesis found it)
     found = gti.i_view(filter={"and": [not_(clause("a", "top_n", 1))]})
     assert query_code(found, "pandas") == (
-        'df[\n    ~(df["a"].rank(method="min", ascending=False) <= 1).fillna(False)\n]\n'
+        'df[\n    ~(df["a"].astype("float64").rank(method="min", ascending=False) <= 1)\n]\n'
     )
     assert view_rows(found) == run_code(query_code(found, "pandas"), data) == [0, 2]
-    for col in ["a", "b", "c"]:
+    # (As CI's pandas 2 found it)
+    found = gti.i_view(filter={"and": [clause("a", "bottom_n", 1)]})
+    assert view_rows(found) == run_code(query_code(found, "pandas"), data) == [2]
+    found = gti.i_view(filter={"and": [clause("d", "top_n", 1)]})
+    assert query_code(found, "pandas") == (
+        "import numpy as np\n\n"
+        'df[\n    df["d"].astype("float64").where(np.isfinite(df["d"])).rank(method="min", '
+        "ascending=False) <= 1\n]\n"
+    )
+    for col in ["a", "b", "c", "d", "e"]:
         for op in ["top_n", "bottom_n"]:
             for item in [clause(col, op, 1), not_(clause(col, op, 1))]:
                 view = gti.i_view(filter={"and": [item]})
@@ -2515,15 +2526,21 @@ def test_runtime_code_of_a_view_grouped_by_a_column(node_engine: Callable[[dict]
     for view in [{}, {"sort": "-num"}, {"sort": ["name", "-few"]}]:
         gti = grouped(DF, "few", **view)
         assert runtime_code(node_engine, gti) == {lib: query_code(gti, lib) for lib in LIBRARIES}
-    # (And of the ranks of a nullable column, filled)
+    # (And of the ranks of nullable numbers, as numpy floats)
     gti = (
-        GTI(DF.assign(n=pd.array([1, None, 3, 2], dtype="Int64")))
-        .i_cols_filter(columns="n", type="range")
-        .i_view(filter={"and": [not_(clause("n", "top_n", 1))]})
+        GTI(
+            DF.assign(
+                n=pd.array([1, None, 3, 2], dtype="Int64"),
+                f=pd.array([1.5, None, 3.5, 2.5], dtype="Float64"),
+            )
+        )
+        .i_cols_filter(columns=["n", "f"], type="range")
+        .i_view(filter={"and": [not_(clause("n", "top_n", 1)), clause("f", "bottom_n", 2)]})
     )
     code = runtime_code(node_engine, gti)
     assert code == {lib: query_code(gti, lib) for lib in LIBRARIES}
-    assert ".fillna(False)" in code["pandas"]
+    assert 'df["n"].astype("float64")' in code["pandas"]
+    assert 'df["f"].astype("float64").where(' in code["pandas"]
 
 
 def test_runtime_code_of_other_values(node_engine: Callable[[dict], dict]):
