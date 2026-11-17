@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import warnings
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import chain
 from typing import TYPE_CHECKING, Literal, TypeAlias
 
@@ -16,6 +16,8 @@ from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._gt_data import Boxhead
     from ._tbl_data import SelectExpr
     from ._types import GTSelf
@@ -461,6 +463,48 @@ def tab_spanner_delim(
             spanner_id = _unique_spanner_id(new_obj._spanners, cfg["label"])
             new_obj = tab_spanner(new_obj, id=spanner_id, gather=False, **cfg)
     return new_obj
+
+
+def spanners_label_with(self: GTSelf, fn: Callable[[str], str | BaseText]) -> GTSelf:
+    """Relabel column spanners using a function.
+
+    Applies the function to each plain-text spanner label. Spanner IDs stay
+    the same, so methods that target them by ID still work after relabeling.
+    Existing labels containing Markdown, HTML, or units keep their formatting.
+
+    Parameters
+    ----------
+    fn
+        A function that accepts the current spanner label and returns a string
+        or a formatted label created with a helper such as `md()` or `html()`.
+
+    Returns
+    -------
+    GT
+        A table with the updated spanner labels.
+
+    Examples
+    --------
+    ```{python}
+    import pandas as pd
+    from great_tables import GT
+
+    df = pd.DataFrame({"null_count.petal_width": [1], "null_count.petal_length": [2]})
+    GT(df).tab_spanner_delim().spanners_label_with(
+        fn=lambda label: label.replace("_", " ").title()
+    )
+    ```
+    """
+    spans = []
+    for span in self._spanners:
+        if isinstance(span.spanner_label, str):
+            label = fn(span.spanner_label)
+            if not isinstance(label, (str, BaseText)):
+                raise ValueError("Spanner labels must be strings or Text objects.")
+            span = replace(span, spanner_label=label, built=None)
+        spans.append(span)
+
+    return self._replace(_spanners=Spanners(spans))
 
 
 def _unique_spanner_id(spanners: Spanners, label: str) -> str:

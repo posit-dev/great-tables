@@ -545,7 +545,7 @@ def _spanner_rows(
             label, span_id = labels[j], ids[j]
             blank = label is None or label == ""
             span = 1
-            while j + span < len(labels) and _same_spanner(label, labels[j + span], lowest):
+            while j + span < len(labels) and _same_spanner(span_id, ids[j + span], lowest):
                 span += 1
             if blank:
                 content: list[dict] = []
@@ -571,11 +571,9 @@ def _spanner_rows(
     return rows
 
 
-def _same_spanner(a: Any, b: Any, lowest: bool) -> bool:
-    """Whether two adjacent columns' spanner labels are one spanner cell."""
-    if lowest:
-        return a is not None and b is not None and a == b
-    return ("" if a is None else a) == ("" if b is None else b)
+def _same_spanner(a: str | None, b: str | None, lowest: bool) -> bool:
+    """Whether two adjacent columns belong to the same spanner cell."""
+    return a == b and (a is not None or not lowest)
 
 
 def _build_tbody(

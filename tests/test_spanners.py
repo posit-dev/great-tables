@@ -3,7 +3,8 @@ import polars as pl
 import polars.selectors as cs
 import pytest
 from dataclasses import asdict
-from great_tables import GT, exibble, loc, style
+from great_tables import GT, exibble, loc, md, style
+from great_tables._gridwell import build_ir
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
 from great_tables._spanners import (
@@ -658,6 +659,52 @@ def test_tab_spanner_delim_label_matches_existing_spanner_id():
         ("y", ["x"]),
         ("y-1", ["y.a", "y.b"]),
     ]
+
+
+def test_spanners_label_with_formats_delimited_labels():
+    df = pl.DataFrame({"null_count.petal_width": [1], "null_count.petal_length": [2]})
+    gt = GT(df).tab_spanner_delim()
+
+    relabeled = gt.spanners_label_with(fn=lambda label: label.replace("_", " ").title())
+    html = relabeled.as_raw_html()
+
+    assert 'class="gt_column_spanner">Null Count</span>' in html
+    assert ">petal_width</th>" in html
+    assert gt._spanners[0].spanner_label == "null_count"
+    assert len(relabeled.rm_spanners("null_count")._spanners) == 0
+
+
+def test_spanners_label_with_accepts_formatted_results():
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    gt = (
+        GT(df)
+        .tab_spanner("plain_label", columns="a", id="custom_id")
+        .tab_spanner(md("*Formatted*"), columns="b")
+    )
+
+    html = gt.spanners_label_with(fn=lambda label: md(f"**{label.upper()}**")).as_raw_html()
+
+    assert "<strong>PLAIN_LABEL</strong>" in html
+    assert "<em>Formatted</em>" in html
+
+
+@pytest.mark.parametrize("level", [0, 1])
+def test_spanners_label_with_keeps_matching_labels_in_separate_spanners(level):
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    gt = (
+        GT(df)
+        .tab_spanner("First", columns="a", level=level)
+        .tab_spanner("Second", columns="b", level=level)
+    )
+    if level:
+        gt = gt.tab_spanner("Base", columns=["a", "b"], level=0)
+    gt = gt.spanners_label_with(fn=lambda label: "Count" if label != "Base" else label)
+
+    assert gt.as_raw_html().count('class="gt_column_spanner">Count</span>') == 2
+    assert gt.as_latex().count(r"\multicolumn{1}{c}{Count}") == 2
+
+    cells = build_ir(gt)["table"]["thead"]["rows"][0]["cells"]
+    assert [cell["content"][0]["value"] for cell in cells] == ["Count", "Count"]
 
 
 def test_spanners_styled(snapshot: str):

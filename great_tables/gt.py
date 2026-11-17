@@ -100,6 +100,7 @@ from ._spanners import (
     cols_reorder,
     cols_unhide,
     cols_width,
+    spanners_label_with,
     tab_spanner,
     tab_spanner_delim,
 )
@@ -483,6 +484,7 @@ class GT(
     tab_footnote = tab_footnote
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
+    spanners_label_with = spanners_label_with
     tab_stubhead = tab_stubhead
     tab_stub_indent = tab_stub_indent
     tab_style = tab_style

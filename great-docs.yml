@@ -92,6 +92,7 @@ reference:
         - GT.tab_header
         - GT.tab_spanner
         - GT.tab_spanner_delim
+        - GT.spanners_label_with
         - GT.tab_stub
         - GT.tab_stubhead
         - GT.tab_stub_indent
