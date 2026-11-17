@@ -293,8 +293,8 @@ export const CODE_BACKENDS: readonly unknown[] = ["polars", "pandas", "narwhals"
 
 /** What the code goes by, of a column the view can filter or sort by. */
 export interface CodeColumnSpec {
-  /** Its type: of strings, of floats, of categories, of dates, of dates and times, or another. */
-  dtype: "string" | "float" | "categorical" | "date" | "datetime" | "other";
+  /** Its type: of strings, of floats, of integers, of categories, of dates, of dates and times, or another. */
+  dtype: "string" | "float" | "integer" | "categorical" | "date" | "datetime" | "other";
   /** Whether it's of a pandas nullable dtype (whose comparisons can be missing). */
   nullable: boolean;
   /** A facet's values (as its filter's `values` are), as Python; `null` for one that can't be. */
