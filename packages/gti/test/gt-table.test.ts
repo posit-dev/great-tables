@@ -8551,6 +8551,24 @@ describe("grouping rows", () => {
     expect(rows(el)).toEqual(["# 20 (2)", 0, 4, "# 10 (1)", 2, "# 5 (1)", 1, "# (Missing) (1)", 3]);
   });
 
+  it("writes the code with the rows in the order of the groups", async () => {
+    const code: CodeSpec = {
+      backend: "pandas",
+      columns: { x: { dtype: "float", nullable: false, literals: null }, y: { dtype: "string", nullable: false, literals: null } },
+    };
+    const { el } = await mountGroup({ export: { formats: ["code"], code } });
+    const sorted = (names: string, ascending: string) =>
+      `df.sort_values([${names}], ascending=[${ascending}], na_position="last", kind="stable")\n`;
+    el.sort = [{ column: "x", descending: true }];
+    expect(el.toCode()).toBe(sorted('"x"', "False"));
+    el.groupBy = "y";
+    expect(el.toCode()).toBe(sorted('"y", "x"', "True, False"));
+    el.sort = [{ column: "y", descending: true }];
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
+    el.groupBy = null;
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
+  });
+
   it("counts the rows that match, without the groups that have none, and a heading on each page", async () => {
     const { el } = await mountGroup({ controls: { search: true } });
     el.groupBy = "x";
