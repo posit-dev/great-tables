@@ -184,6 +184,13 @@ The clauses are joined by `and`, and groups are written with `or`, `not` and par
 in backticks. A query in `i_view()` is checked against the columns' filters when the table is
 shown, so a clause on a column without a filter, or with a filter of another type, is an error.
 
+While the query is open, each filtered column's name is shown under its label, and a click on one
+puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be
+typed in place of its name (unless another column has the same label): as its words joined by
+underscores, or as it is in backticks, so a column labelled `Country of origin` can be typed as
+`country_of_origin`. The name is put in its place as the word ends. The URL and `i_view()` take
+only names.
+
 ## Sorting by several columns, and the keyboard
 
 A click on a column's sort arrows (or its label) sorts the table by it: once for ascending order,

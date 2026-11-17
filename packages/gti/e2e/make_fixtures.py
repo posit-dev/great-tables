@@ -765,6 +765,23 @@ QUERY_ONLY_VIEWS = [
 ]
 
 
+def labels_html(table_id: str) -> str:
+    # Exibble (8 rows), on one page, whose columns with filters are labelled other than their
+    # names: num ("Amount (€)", a range), char ("Café", text), and fctr and currency both "Kind"
+    # (a facet, and a range left out for querying)
+    gti = (
+        GTI(exibble[["num", "char", "fctr", "currency", "row"]], rowname_col="row", id=table_id)
+        .cols_label(num="Amount (€)", char="Café", fctr="Kind", currency="Kind")
+        .i_pagination(enabled=False)
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_cols_filter(columns="currency", type="range")
+        .i_cols_controls(columns="currency", display=False)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def query_only_cases() -> list[dict]:
     # For each view, its filter and sort (as the spec has them), the rows it shows, and its code
     # for each library, as `view_rows()` and `query_code()` have them
@@ -1186,6 +1203,8 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        # Columns labelled other than their names, for the query box
+        "labels.html": page(labels_html("l") + "\n" + runtime_src, head=styles),
         # Columns only for querying: in a GTI table that shows two of exibble's columns
         "query-only.html": page(
             render_gti_html(query_only_gti("q"), runtime="none") + "\n" + runtime_src,

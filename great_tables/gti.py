@@ -835,7 +835,8 @@ class GTI(GT):
         says how many filters there are, and can clear them. The bar also shows the filters that
         are on, and its `{ }` button opens them as text, a query as
         [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit (with suggestions
-        as they type). Filters are off by default.
+        as they type, and a column's label in place of its name, which is put there for it).
+        Filters are off by default.
 
         Each call sets the filters of the columns it's given, so that some columns can be filtered
         one way, and others another; a later call for a column replaces what an earlier one set.

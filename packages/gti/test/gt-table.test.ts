@@ -4353,7 +4353,7 @@ describe("date filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const options = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const press = (key: string) =>
       input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
     input.value = "x ";
@@ -4502,7 +4502,7 @@ describe("bool filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const suggestions = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const type = (text: string) => {
       input.value = text;
       input.setSelectionRange(text.length, text.length);
@@ -4542,7 +4542,7 @@ describe("the query box", () => {
   const list = (el: GtTable) => root(el).querySelector('[role="listbox"]') as HTMLElement;
   const error = (el: GtTable) => root(el).querySelector(".gt-i-query-error") as HTMLElement;
   const options = (el: GtTable) =>
-    Array.from(list(el).querySelectorAll("li"), (li) => (li.firstChild as Text).data);
+    Array.from(list(el).querySelectorAll("li"), (li) => li.firstChild?.textContent);
   const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
     const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
     target.dispatchEvent(event);
@@ -4611,7 +4611,7 @@ describe("the query box", () => {
     expect(field.getAttribute("aria-controls")).toBe(list(el).id);
     expect(field.getAttribute("enterkeyhint")).toBe("go");
     expect(field.getAttribute("spellcheck")).toBe("false");
-    expect(field.placeholder).toBe("x >= …");
+    expect(field.placeholder).toBe("x >= … · Tab or ↓ for columns");
     expect(list(el).getAttribute("aria-label")).toBe("Suggestions");
     expect(root(el).querySelector('[aria-label="Apply the filters"]')).not.toBeNull();
   });
@@ -4717,13 +4717,13 @@ describe("the query box", () => {
   it("suggests columns, then their ops, then a facet's values, as text is typed", async () => {
     const { el } = await mountQuery();
     toggle(el).click();
-    input(el).value = "";
-    // (Not as it opens; with ArrowDown)
-    expect(list(el).hidden).toBe(true);
-    press(input(el), "ArrowDown");
+    // (As it opens empty, with none chosen until ArrowDown)
     expect(list(el).hidden).toBe(false);
     expect(options(el)).toEqual(["x", "y"]);
     expect(input(el).getAttribute("aria-expanded")).toBe("true");
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(input(el).hasAttribute("aria-activedescendant")).toBe(false);
+    press(input(el), "ArrowDown");
     const first = list(el).querySelector("li") as HTMLElement;
     expect(first.getAttribute("role")).toBe("option");
     expect(first.getAttribute("aria-selected")).toBe("true");
@@ -4786,6 +4786,106 @@ describe("the query box", () => {
     replace(el, "ki");
     expect(options(el)).toEqual(["y"]);
     expect(list(el).querySelector(".gt-i-query-detail")?.textContent).toBe("Kind");
+  });
+
+  it("puts a column's name in place of its label, as the label's typed, pasted or applied", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind of y" });
+    toggle(el).click();
+    // Type text at the end as a browser does, with what kind of input it is
+    const enter = (text: string, inputType = "insertText") => {
+      const field = input(el);
+      field.dispatchEvent(new InputEvent("beforeinput", { inputType, bubbles: true, cancelable: true }));
+      field.value += text;
+      field.setSelectionRange(field.value.length, field.value.length);
+      field.dispatchEvent(new InputEvent("input", { inputType, bubbles: true }));
+    };
+    // (Not as it's typed, but once it ends)
+    enter("kind_of");
+    enter("_y");
+    expect(input(el).value).toBe("kind_of_y");
+    enter(" ");
+    expect(input(el).value).toBe("y ");
+    expect(input(el).selectionStart).toBe(2);
+    expect(live(el)).toBe("Kind of y is y");
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+
+    // As it's pasted, as it is in backticks
+    replace(el, "");
+    enter('`Kind of y` in ("a") and x >= 5', "insertFromPaste");
+    expect(input(el).value).toBe('y in ("a") and x >= 5');
+    // (And not as it's taken out)
+    replace(el, "kind_of_y");
+    enter("", "deleteContentBackward");
+    expect(input(el).value).toBe("kind_of_y");
+
+    // And as it's applied
+    replace(el, 'x >= 5 and kind_of_y in ("b")');
+    press(input(el), "Enter");
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 5 },
+        { col: "y", op: "in", value: ["b"] },
+      ],
+    });
+    toggle(el).click();
+    expect(input(el).value).toBe('x >= 5 and y in ("b")');
+  });
+
+  it("opens the columns on Tab where a column goes, and leaves on a second Tab", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    press(input(el), "Escape");
+    expect(list(el).hidden).toBe(true);
+    expect(press(input(el), "Tab").defaultPrevented).toBe(true);
+    expect(options(el)).toEqual(["x", "y"]);
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+
+    // (Not where a column doesn't go)
+    replace(el, "x >= 5 ");
+    press(input(el), "Escape");
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+    expect(list(el).hidden).toBe(true);
+  });
+
+  it("has the columns' names in code, and their labels in the table's font", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    toggle(el).click();
+    const items = Array.from(list(el).querySelectorAll("li"));
+    expect(items.map((li) => li.querySelector(".gt-i-query-code")?.textContent)).toEqual(["x", "y"]);
+    expect(items[1]?.querySelector(".gt-i-query-detail:not(.gt-i-query-code)")?.textContent).toBe("Kind");
+    // (And a facet's values, beside what they are)
+    replace(el, "y in (");
+    expect(list(el).querySelector(".gt-i-query-code")?.classList.contains("gt-i-query-detail")).toBe(true);
+  });
+
+  it("shows the columns' names over the table as it's open, to put in at the caret", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const at = this.id === "t-x" ? 0 : this.id === "t-y" ? 100 : -1;
+      return at < 0 ? new DOMRect(0, 0, 400, 300) : new DOMRect(at, 50, 100, 20);
+    });
+    toggle(el).click();
+    const layer = el.querySelector(".gt-i-names") as HTMLElement;
+    expect(layer.getAttribute("aria-hidden")).toBe("true");
+    const names = Array.from(layer.querySelectorAll<HTMLElement>(".gt-i-names-name"));
+    expect(names.map((name) => name.textContent)).toEqual(["x", "y"]);
+    replace(el, "x >= 5 and");
+    names[1]?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 and y ");
+    expect(input(el).selectionStart).toBe(13);
+    expect(document.activeElement).toBe(input(el));
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+    // (In place of a column being typed)
+    replace(el, "x >= 5 or k");
+    input(el).setSelectionRange(11, 11);
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 or y ");
+
+    press(input(el), "Escape");
+    press(input(el), "Escape");
+    expect(el.querySelector(".gt-i-names")).toBeNull();
   });
 
   it("doesn't suggest as text is deleted, or for none", async () => {
