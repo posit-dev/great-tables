@@ -31,16 +31,20 @@ import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { type Box, type Part, type Place, placeParts, union } from "./parts";
 import { Profile, timeOf } from "./profile";
 import {
+  aliasOf,
   formatColumn,
   formatQuery,
   formatValue,
+  labelAliases,
   NEGATED,
   parseQuery,
   type QueryContext,
   type QuerySyntaxError,
+  queryAliases,
   queryContext,
   queryProblem,
   readQuery,
+  typedLabel,
 } from "./query";
 import { CellText, fold, searchTerms } from "./search";
 import {
@@ -110,8 +114,11 @@ export const VIEW_EVENT = "gt-table-view";
 export const SEARCH_HIGHLIGHT = "gt-i-search";
 
 /**
- * The prefix of the names of the query box's highlights, for styling them: `-keyword`, `-string`,
- * `-number` (and `true`, `false` and `null`) and `-error` (the place of what's wrong).
+ * The prefix of the names of the query box's highlights, for styling them: `-column`, `-keyword`
+ * (an op), `-logic` (`and`, `or` and `not`), `-string` (and a pattern), `-number` (and a date
+ * bound), `-literal` (`true`, `false` and `null`), `-punct` (and a pattern's flags), `-error` (the
+ * place of what's wrong, or a column that isn't one with a filter) and `-fixed` (a column's label
+ * just put right, as its name).
  */
 const QUERY_HIGHLIGHT = "gt-i-query";
 
@@ -412,12 +419,24 @@ interface QueryBox {
   /** Its highlights' ranges, in the mirror's text, and the place of what's wrong in the text. */
   ranges: [Highlight, Range][];
   mark: [number, number] | null;
+  /** Where the text being put in starts (before it's in), and while the runtime puts text in. */
+  before: number | null;
+  fixing: boolean;
+  /** The columns' names just put in place of their labels, shown for a moment. */
+  fixed: [number, number][];
+  fixedTimer: ReturnType<typeof setTimeout> | null;
+  /** The layer over the table with the names of the columns with filters, by their labels. */
+  names: HTMLElement | null;
+  namesFrame: number;
+  namesDrawn: string;
 }
 
 interface Suggestion {
   text: string;
   /** What else it is (a column's label, a value as the query has it), if it says more. */
   detail: string;
+  /** Which of those is the query's text (in a monospaced font): `text`, unless it's `detail`. */
+  code?: "detail";
   insert: string;
   /** How far before the end of what's inserted the caret goes. */
   back: number;
@@ -5643,6 +5662,25 @@ export class GtTable extends HTMLElement {
     }
   };
 
+  // Where a layer over the table can draw (from the element's padding box's corner, at `x0` and
+  // `y0` in the view): within the view across (and the page's top), and what clips the element (a
+  // container that scrolls, as Quarto's for a wide table)
+  private layerBounds(x0: number, y0: number): Box {
+    const doc = this.ownerDocument;
+    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0), right: doc.documentElement.clientWidth, bottom: Infinity };
+    for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
+      const { overflowX, overflowY } = getComputedStyle(node);
+      if (overflowX !== "visible" || overflowY !== "visible") {
+        const { left, top, right, bottom } = node.getBoundingClientRect();
+        view.left = Math.max(view.left, left);
+        view.top = Math.max(view.top, top);
+        view.right = Math.min(view.right, right);
+        view.bottom = Math.min(view.bottom, bottom);
+      }
+    }
+    return { left: view.left - x0, top: view.top - y0, right: view.right - x0, bottom: view.bottom - y0 };
+  }
+
   /** Draw the parts' outlines and names on `layer`, where the parts are now (if they've moved). */
   private drawParts(layer: HTMLElement): void {
     const bar = this.bar as Bar;
@@ -5702,21 +5740,8 @@ export class GtTable extends HTMLElement {
       const boxes = groups.map(boxOf).filter((box): box is Box => box !== null);
       return boxes.length === 0 ? [] : [{ name, boxes, places }];
     });
-    // Within the view across (and the page's top), and what clips the element (a container that
-    // scrolls, as Quarto's for a wide table)
     const doc = this.ownerDocument;
-    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0), right: doc.documentElement.clientWidth, bottom: Infinity };
-    for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
-      const { overflowX, overflowY } = getComputedStyle(node);
-      if (overflowX !== "visible" || overflowY !== "visible") {
-        const { left, top, right, bottom } = node.getBoundingClientRect();
-        view.left = Math.max(view.left, left);
-        view.top = Math.max(view.top, top);
-        view.right = Math.min(view.right, right);
-        view.bottom = Math.min(view.bottom, bottom);
-      }
-    }
-    const bounds = { left: view.left - x0, top: view.top - y0, right: view.right - x0, bottom: view.bottom - y0 };
+    const bounds = this.layerBounds(x0, y0);
     const drawn = JSON.stringify([origin.width, origin.height, bounds, parts]);
     if (drawn === this.partsDrawn) {
       return;
@@ -7311,7 +7336,7 @@ export class GtTable extends HTMLElement {
     const field = element(doc, "div", "gt-i-query-field");
     const text = element(doc, "span", "gt-i-query-text", { dir: "ltr" });
     const mirror = element(doc, "span", "gt-i-query-mirror", { "aria-hidden": "true" });
-    // (An example, in the first filter's column)
+    // (An example, in the first filter's column, and how to see them all)
     const first = this.filters[0]?.filter as ColumnFilter;
     const input = element(doc, "input", "", {
       type: "text",
@@ -7319,7 +7344,7 @@ export class GtTable extends HTMLElement {
       spellcheck: "false",
       autocapitalize: "off",
       enterkeyhint: "go",
-      placeholder: `${formatColumn(first.column)} ${OP_SUGGESTIONS[first.type][0]?.text}`,
+      placeholder: `${formatColumn(first.column)} ${OP_SUGGESTIONS[first.type][0]?.text} · Tab or ↓ for columns`,
       role: "combobox",
       "aria-label": "Filters as text",
       "aria-autocomplete": "list",
@@ -7352,16 +7377,36 @@ export class GtTable extends HTMLElement {
       context: null,
       ranges: [],
       mark: null,
+      before: null,
+      fixing: false,
+      fixed: [],
+      fixedTimer: null,
+      names: null,
+      namesFrame: 0,
+      namesDrawn: "",
     };
     bar.query = box;
 
     toggle.addEventListener("click", () => (root.hidden ? this.openQuery() : this.closeQuery(false)));
     apply.addEventListener("click", () => this.applyQuery(box));
     cancel.addEventListener("click", () => this.closeQuery(true));
-    // (Suggestions as text is typed, not deleted)
-    input.addEventListener("input", (event) =>
-      this.editQuery(box, !(event as InputEvent).inputType?.startsWith("delete") && input.value.trim() !== ""),
-    );
+    input.addEventListener("beforeinput", () => {
+      box.before = input.selectionStart;
+    });
+    // (Suggestions as text is typed, not deleted; and a column's label just typed, or put in, is
+    // put right, but not one that's back with an undo)
+    input.addEventListener("input", (event) => {
+      if (box.fixing) {
+        return;
+      }
+      const type = (event as InputEvent).inputType ?? "";
+      const caret = input.selectionStart ?? input.value.length;
+      if (type.startsWith("insert") && box.before !== null && box.before <= caret) {
+        this.fixQuery(box, box.before, type.startsWith("insertFrom") ? caret : caret - 1);
+      }
+      box.before = null;
+      this.editQuery(box, !type.startsWith("delete") && input.value.trim() !== "");
+    });
     input.addEventListener("keydown", (event) => this.queryKey(box, event));
     for (const type of ["input", "scroll", "keyup", "pointerup", "select"]) {
       input.addEventListener(type, () => {
@@ -7414,6 +7459,11 @@ export class GtTable extends HTMLElement {
       box.input.scrollLeft = box.input.scrollWidth;
     }
     box.mirror.scrollLeft = box.input.scrollLeft;
+    // (Empty, with the columns to start with, none of them taken by Enter, which applies no filters)
+    if (text === "") {
+      this.suggest(box, true, false);
+    }
+    this.showNames(box, true);
   }
 
   private closeQuery(focus: boolean): void {
@@ -7422,7 +7472,10 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.suggest(box, false);
+    this.showNames(box, false);
     box.mark = null;
+    box.fixed = [];
+    clearTimeout(box.fixedTimer ?? undefined);
     box.input.value = "";
     this.paintQuery(box);
     box.root.hidden = true;
@@ -7456,7 +7509,8 @@ export class GtTable extends HTMLElement {
       if (count === 0) {
         this.suggest(box, true);
       } else {
-        this.setSuggestion(box, (box.active + (key === "ArrowDown" ? 1 : count - 1)) % count);
+        const from = box.active < 0 && key === "ArrowUp" ? 0 : box.active;
+        this.setSuggestion(box, (from + (key === "ArrowDown" ? 1 : count - 1)) % count);
       }
     } else if (key === " " && event.ctrlKey) {
       event.preventDefault();
@@ -7464,6 +7518,15 @@ export class GtTable extends HTMLElement {
     } else if ((key === "Enter" || (key === "Tab" && !event.shiftKey)) && box.active >= 0) {
       event.preventDefault();
       this.takeSuggestion(box, box.active);
+    } else if (key === "Tab" && !event.shiftKey && !event.ctrlKey && count === 0) {
+      // Where a column goes, the columns (none of them taken, so that a second Tab leaves)
+      const caret = box.input.selectionStart ?? 0;
+      if (caret === box.input.selectionEnd && queryContext(box.input.value, caret).expect === "column") {
+        this.suggest(box, true, false);
+        if (box.suggestions.length > 0) {
+          event.preventDefault();
+        }
+      }
     } else if (key === "Enter") {
       // (And don't submit a form the table is in)
       event.preventDefault();
@@ -7502,10 +7565,34 @@ export class GtTable extends HTMLElement {
         box.ranges.push([highlight, range]);
       }
     };
-    for (const { role, from, to } of readQuery(text).parts) {
-      if (role === "keyword" || role === "string" || role === "number" || role === "literal") {
-        mark(role === "literal" ? "number" : role, from, to);
+    const { names, aliases } = this.queryNames();
+    const caret = box.input.selectionStart ?? text.length;
+    for (const { role, kind, from, to, text: piece, open, state } of readQuery(text).parts) {
+      const word = piece.toLowerCase();
+      if (role === "column") {
+        mark("column", from, to);
+        // (A column that's neither a name nor a label of one with a filter, once it's typed)
+        const col = kind === "quoted" ? piece.slice(1, open ? undefined : -1).replace(/``/g, "`") : piece;
+        if ((caret < from || caret > to) && !names.has(col) && aliasOf(col, aliases) === undefined) {
+          mark("error", from, to);
+        }
+      } else if (role === "keyword") {
+        mark(word === "and" || word === "or" || (word === "not" && state.expect === "column") ? "logic" : "keyword", from, to);
+      } else if (role === "string" && kind === "regex") {
+        // (Its flags dimmed)
+        const flags = open ? 0 : (/[A-Za-z0-9_]*$/.exec(piece) as RegExpExecArray)[0].length;
+        mark("string", from, to - flags);
+        mark("punct", to - flags, to);
+      } else if (role === "string" && state.expect === "bound") {
+        // (A date, as a bound, as a number is)
+        const control = this.filters.find((c) => c.filter.column === state.col);
+        mark(control?.filter.type === "date" ? "number" : "string", from, to);
+      } else if (role !== null) {
+        mark(role, from, to);
       }
+    }
+    for (const [from, to] of box.fixed) {
+      mark("fixed", from, to);
     }
     // (One at the end, on the space after the text)
     if (box.mark !== null) {
@@ -7513,15 +7600,75 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // The names of the columns with filters, and their labels to them (see `labelAliases()`)
+  private queryNames(): { names: Set<string>; aliases: Map<string, string> } {
+    return {
+      names: new Set(this.filters.map(({ filter }) => filter.column)),
+      aliases: labelAliases(this.filters.map(({ filter, label }) => [filter.column, label])),
+    };
+  }
+
+  // Put text in place of the query's text from `from` to `to`, as typing would (so that undo takes
+  // it out), but without suggesting or putting it right
+  private replaceQuery(box: QueryBox, from: number, to: number, text: string): void {
+    const { input } = box;
+    box.fixing = true;
+    input.setSelectionRange(from, to);
+    // (Where the browser can't, without its undo)
+    const doc = this.ownerDocument;
+    if (doc.activeElement !== input || typeof doc.execCommand !== "function" || !doc.execCommand("insertText", false, text)) {
+      input.setRangeText(text, from, to, "end");
+    }
+    box.fixing = false;
+  }
+
+  // Put the columns' names in place of their labels (see `labelAliases()`) whose ends are from
+  // `from` to `to`, keeping the caret where it was in the text, and say so
+  private fixQuery(box: QueryBox, from = 0, to = box.input.value.length): void {
+    const { input } = box;
+    const { names, aliases } = this.queryNames();
+    const found = queryAliases(input.value, names, aliases, from, to);
+    if (found.length === 0) {
+      return;
+    }
+    let caret = input.selectionStart ?? input.value.length;
+    // (From the last, so that the others are where they were)
+    for (const { from, to, column } of [...found].reverse()) {
+      const name = formatColumn(column);
+      this.replaceQuery(box, from, to, name);
+      if (to <= caret) {
+        caret += name.length - (to - from);
+      }
+    }
+    input.setSelectionRange(caret, caret);
+    let shift = 0;
+    box.fixed = found.map(({ from, to, column }) => {
+      const [at, length] = [from + shift, formatColumn(column).length];
+      shift += length - (to - from);
+      return [at, at + length];
+    });
+    clearTimeout(box.fixedTimer ?? undefined);
+    box.fixedTimer = setTimeout(() => {
+      box.fixed = [];
+      box.fixedTimer = null;
+      this.paintQuery(box);
+    }, 1500);
+    const label = (col: string) => this.filters.find(({ filter }) => filter.column === col)?.label ?? col;
+    this.announce(found.map(({ column }) => `${label(column)} is ${formatColumn(column)}`).join("; "));
+  }
+
   // Apply the text's query, or say what's wrong with it (and go to where it is)
   private applyQuery(box: QueryBox): void {
+    // (With the columns' names in place of their labels)
+    this.fixQuery(box);
     const text = box.input.value;
     const filters = this.filters.map((control) => control.filter);
+    const labels = new Map(this.filters.map(({ filter, label }) => [filter.column, label]));
     let query: FilterQuery | null;
     let problem: { message: string; mark: [number, number] | null } | null = null;
     try {
       query = parseQuery(text);
-      const found = queryProblem(filters, query);
+      const found = queryProblem(filters, query, labels);
       if (found !== null) {
         problem = { message: found.message, mark: readQuery(text).clauses[found.clause] ?? null };
       }
@@ -7559,22 +7706,26 @@ export class GtTable extends HTMLElement {
   }
 
   // Show the suggestions for the caret's place (or none, without `open`), the first one active
-  private suggest(box: QueryBox, open: boolean): void {
+  // (unless not `pick`), the query's text of each in a monospaced font
+  private suggest(box: QueryBox, open: boolean, pick = true): void {
     const items = open ? this.suggestions(box) : [];
     const { list, input } = box;
     box.suggestions = items;
     list.replaceChildren(
       ...items.map((item, i) => {
-        const li = element(this.ownerDocument, "li", "", { id: `${list.id}-${i}`, role: "option" });
-        const detail = element(this.ownerDocument, "span", "gt-i-query-detail");
+        const doc = this.ownerDocument;
+        const li = element(doc, "li", "", { id: `${list.id}-${i}`, role: "option" });
+        const [text, detail] = [element(doc, "span", ""), element(doc, "span", "gt-i-query-detail")];
+        text.textContent = item.text;
         detail.textContent = item.detail;
-        li.append(item.text, detail);
+        (item.code === "detail" ? detail : text).classList.add("gt-i-query-code");
+        li.append(text, detail);
         return li;
       }),
     );
     list.hidden = items.length === 0;
     input.setAttribute("aria-expanded", String(items.length > 0));
-    this.setSuggestion(box, items.length > 0 ? 0 : -1);
+    this.setSuggestion(box, items.length > 0 && pick ? 0 : -1);
     if (items.length === 0 || box.context === null) {
       return;
     }
@@ -7622,7 +7773,7 @@ export class GtTable extends HTMLElement {
     let items: Suggestion[] = [];
     if (expect === "column") {
       items = this.filters
-        .filter(({ filter, label }) => fits(filter.column, label))
+        .filter(({ filter, label }) => fits(filter.column, label, typedLabel(label)))
         .map(({ filter, label }) => {
           const name = formatColumn(filter.column);
           return { text: name, detail: label === filter.column ? "" : label, insert: `${name} `, back: 0 };
@@ -7653,7 +7804,13 @@ export class GtTable extends HTMLElement {
       items = (control.filter.type === "bool" ? this.boolNames(control) : this.facetNames(control))
         .map(([key, name]) => {
           const literal = key === MISSING ? "null" : formatValue(values[key] ?? null);
-          return { text: name, detail: literal === JSON.stringify(name) ? "" : literal, insert: literal, back: 0 };
+          return {
+            text: name,
+            detail: literal === JSON.stringify(name) ? "" : literal,
+            code: "detail" as const,
+            insert: literal,
+            back: 0,
+          };
         })
         .filter((item) => !chosen.has(item.insert) && fits(item.text, item.insert));
     } else if (expect === "bound" && control?.filter.type === "date" && !(prefix.length > 1 && /^".*"$/s.test(prefix))) {
@@ -7665,7 +7822,7 @@ export class GtTable extends HTMLElement {
         .filter((key, i) => typeof values[key] === "string" && (i === 0 || key > 0))
         .map((key) => {
           const literal = formatValue(values[key] ?? null);
-          return { text: names[key]?.[1] ?? literal, detail: literal, insert: `${literal} `, back: 0 };
+          return { text: names[key]?.[1] ?? literal, detail: literal, code: "detail" as const, insert: `${literal} `, back: 0 };
         })
         .filter((item) => fits(item.text, item.detail));
     } else if (expect === "and" && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
@@ -7698,6 +7855,123 @@ export class GtTable extends HTMLElement {
     const insert = item.insert.endsWith(" ") && /^\s/.test(text.slice(context.to)) ? item.insert.trimEnd() : item.insert;
     const caret = context.from + item.insert.length - item.back;
     input.value = text.slice(0, context.from) + insert + text.slice(context.to);
+    input.setSelectionRange(caret, caret);
+    this.editQuery(box, true);
+    box.mirror.scrollLeft = input.scrollLeft;
+  }
+
+  // While the query box is open, the names of the columns with filters (as the query has them), each
+  // under its label (over its controls), on a layer over the table, so that nothing moves; a
+  // click puts one in at the caret. (Those without a label shown, as a hidden column's, are in the
+  // suggestions.)
+  private showNames(box: QueryBox, show: boolean): void {
+    cancelAnimationFrame(box.namesFrame);
+    box.names?.remove();
+    box.names = null;
+    if (!show) {
+      return;
+    }
+    const layer = element(this.ownerDocument, "div", "gt-i-names", { "aria-hidden": "true" });
+    this.append(layer);
+    box.names = layer;
+    box.namesDrawn = "";
+    // (A press on a name leaves focus in the input, as on a suggestion)
+    layer.addEventListener("mousedown", (event) => event.preventDefault());
+    layer.addEventListener("click", (event) => {
+      const name = (event.target as Element).closest<HTMLElement>("[data-gti-column]");
+      if (name !== null) {
+        this.insertName(box, name.dataset.gtiColumn as string);
+      }
+    });
+    const frame = () => {
+      this.drawNames(box, layer);
+      box.namesFrame = requestAnimationFrame(frame);
+    };
+    frame();
+  }
+
+  // Draw the columns' names on `layer`, where their labels are now (if they've moved)
+  private drawNames(box: QueryBox, layer: HTMLElement): void {
+    const origin = this.getBoundingClientRect();
+    const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
+    // (What's in the scrolling container, as far as it shows)
+    const clip = this.scroller?.getBoundingClientRect();
+    const columns: string[] = [];
+    // (How far across its box each goes, as its label does)
+    const across: number[] = [];
+    const parts = this.filters.flatMap(({ filter, th }): Part[] => {
+      if (th === null) {
+        return [];
+      }
+      // (Over its controls, under its label, which it leaves to be read; or over the label)
+      const controls = th.querySelector(".gt-i-head-controls")?.getBoundingClientRect();
+      let { left, top, right, bottom } = controls?.width ? controls : th.getBoundingClientRect();
+      if (clip !== undefined && this.scroller?.contains(th)) {
+        [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
+        [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
+      }
+      if (right - left < 1 || bottom - top < 1) {
+        return [];
+      }
+      columns.push(filter.column);
+      across.push(th.classList.contains("gt_right") ? 1 : th.classList.contains("gt_center") ? 0.5 : 0);
+      const boxes = [{ left: left - x0, top: top - y0, right: right - x0, bottom: bottom - y0 }];
+      return [{ name: formatColumn(filter.column), boxes, places: ["over"] }];
+    });
+    const bounds = this.layerBounds(x0, y0);
+    // (Off the toolbar and the bar)
+    const avoid = [this.toolbar, this.bar?.root].flatMap((el) => {
+      const rect = el?.getBoundingClientRect();
+      return rect == null || rect.width === 0
+        ? []
+        : [{ left: rect.left - x0, top: rect.top - y0, right: rect.right - x0, bottom: rect.bottom - y0 }];
+    });
+    const drawn = JSON.stringify([origin.width, origin.height, bounds, parts, avoid]);
+    if (drawn === box.namesDrawn) {
+      return;
+    }
+    box.namesDrawn = drawn;
+    const names = parts.map(({ name }, i) => {
+      const el = element(this.ownerDocument, "span", "gt-i-names-name", { "data-gti-column": columns[i] as string });
+      el.textContent = name;
+      return el;
+    });
+    layer.replaceChildren(...names);
+    const sizes = names.map((el) => ({ width: el.offsetWidth, height: el.offsetHeight }));
+    // (Each halfway down what it's over, and across it as its label is: where `placeParts()` puts
+    // it, 4px in from its box's top and left)
+    const middled = parts.map((part, i) => {
+      const { left, top, right, bottom } = part.boxes[0] as Box;
+      const { width = 0, height = 0 } = sizes[i] ?? {};
+      const over = {
+        left: left + Math.max(0, right - left - width - 8) * (across[i] ?? 0),
+        top: (top + bottom - height) / 2 - 4,
+        right,
+        bottom,
+      };
+      return { ...part, boxes: [over] };
+    });
+    placeParts(middled, sizes, bounds, avoid).forEach(({ label }, i) => {
+      const el = names[i] as HTMLElement;
+      el.style.left = `${label.left}px`;
+      el.style.top = `${label.top}px`;
+    });
+  }
+
+  // Put a column's name in at the caret (in place of a column being typed there), with a space
+  // around it where it needs one, and suggest what can go after it
+  private insertName(box: QueryBox, column: string): void {
+    const { input } = box;
+    const text = input.value;
+    const [start, end] = [input.selectionStart ?? text.length, input.selectionEnd ?? text.length];
+    const context = queryContext(text, start);
+    const [from, to] = start === end && context.expect === "column" ? [context.from, context.to] : [start, end];
+    const name = formatColumn(column);
+    const before = from > 0 && !/[\s(]/.test(text[from - 1] as string) ? " " : "";
+    const after = /^\s/.test(text.slice(to)) ? "" : " ";
+    input.focus();
+    this.replaceQuery(box, from, to, `${before}${name}${after}`);
+    const caret = from + before.length + name.length + 1;
     input.setSelectionRange(caret, caret);
     this.editQuery(box, true);
     box.mirror.scrollLeft = input.scrollLeft;
