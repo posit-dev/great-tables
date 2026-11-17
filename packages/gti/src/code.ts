@@ -147,17 +147,25 @@ export function viewCode(
       const term = `${keys}.${pandas ? "isin" : "is_in"}(${list(items)})`;
       return present.length < clause.value.length ? [`${term} | ${missing}`, OR] : [term, ATOM];
     }
+    let nullable = pandas && column?.nullable;
     let term: Term;
     if (clause.op === "top_n" || clause.op === "bottom_n") {
       // (Ranked among all the rows, ties with the n-th kept; a float's NaN and infinities aren't
       // ranked)
       const top = clause.op === "top_n";
+      const float = column?.dtype === "float";
       let ranked = col;
-      if (column?.dtype === "float") {
+      // (A nullable number as a numpy float, its missing values NaN, which aren't ranked (before
+      // pandas 3, a nullable dtype's are) and don't make the rank `pd.NA`)
+      if (nullable && (float || column?.dtype === "integer")) {
+        ranked = `${col}.astype("float64")`;
+        nullable = false;
+      }
+      if (float) {
         if (pandas) {
           imports.add("import numpy as np");
         }
-        ranked = pandas ? `${col}.where(np.isfinite(${col}))` : `${ns}.when(${col}.is_finite()).then(${col})`;
+        ranked = pandas ? `${ranked}.where(np.isfinite(${col}))` : `${ns}.when(${col}.is_finite()).then(${col})`;
       }
       const rank = pandas
         ? `${ranked}.rank(method="min"${top ? ", ascending=False" : ""})`
@@ -178,7 +186,7 @@ export function viewCode(
     }
     // (pandas' nullable dtypes compare to, and rank missing values as, `pd.NA`, which a mask can't
     // have)
-    return pandas && column?.nullable ? [`(${term[0]}).fillna(False)`, ATOM] : term;
+    return nullable ? [`(${term[0]}).fillna(False)`, ATOM] : term;
   };
 
   // A part of the query's term: a group's parts joined by `|` or `&` (each in parentheses unless
