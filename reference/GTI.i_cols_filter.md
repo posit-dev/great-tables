@@ -4,7 +4,7 @@ Let readers filter the table by its columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L820-L956)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L820-L957)
 
 ``` python
 GTI.i_cols_filter(
@@ -13,7 +13,7 @@ GTI.i_cols_filter(
 )
 ```
 
-A filtered column has a filter button in its label, which opens the column's filter. Its rows are filtered by the text they show (`"text"`: those with a cell containing what's typed, ignoring case and accents, as the search does), by a choice of the column's values (`"facet"`: a checklist of them, each with the number of rows that have it, given the other filters and the search), by a range of its numbers (`"range"`: at least one value, and at most another), by a range of its dates (`"date"`: from one date, to another, picked in date fields, or date and time fields for a column with times), or by one of its booleans (`"bool"`: any value, true, false, or missing, with the number of rows that have each, and their text as the table shows it). The facets, ranges, date ranges and booleans go by the column's values, not by how they're formatted. Rows are shown when they pass every filter, and the search; the info panel (from the (i) button in the control bar) says how many filters there are, and can clear them. The bar also shows the filters that are on, and its `{ }` button opens them as text, a query as [`i_view()`](../reference/GTI.i_view.md#great_tables.GTI.i_view) takes it, which readers can edit (with suggestions as they type). Filters are off by default.
+A filtered column has a filter button in its label, which opens the column's filter. Its rows are filtered by the text they show (`"text"`: those with a cell containing what's typed, ignoring case and accents, as the search does), by a choice of the column's values (`"facet"`: a checklist of them, each with the number of rows that have it, given the other filters and the search), by a range of its numbers (`"range"`: at least one value, and at most another), by a range of its dates (`"date"`: from one date, to another, picked in date fields, or date and time fields for a column with times), or by one of its booleans (`"bool"`: any value, true, false, or missing, with the number of rows that have each, and their text as the table shows it). The facets, ranges, date ranges and booleans go by the column's values, not by how they're formatted. Rows are shown when they pass every filter, and the search; the info panel (from the (i) button in the control bar) says how many filters there are, and can clear them. The bar also shows the filters that are on, and its `{ }` button opens them as text, a query as [`i_view()`](../reference/GTI.i_view.md#great_tables.GTI.i_view) takes it, which readers can edit (with suggestions as they type, and a column's label in place of its name, which is put there for it). Filters are off by default.
 
 Each call sets the filters of the columns it's given, so that some columns can be filtered one way, and others another; a later call for a column replaces what an earlier one set.
 
