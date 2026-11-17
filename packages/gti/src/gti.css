@@ -14,6 +14,9 @@ gt-table {
  */
 gt-table th.gt-i-head {
   position: relative;
+  /* (So that what's raised in it, its buttons and handles, stays under the pinned cells it scrolls
+     under: those pinned at the start come before it, at the same z-index) */
+  isolation: isolate;
 }
 
 gt-table .gt-i-head-controls {
