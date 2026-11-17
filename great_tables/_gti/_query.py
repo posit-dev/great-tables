@@ -1298,14 +1298,26 @@ def _free_name(base: str, taken: Any) -> str:
     return name
 
 
+def _view_sort(view: Mapping[str, Any]) -> list[tuple[str, bool]]:
+    """A view's sort keys (each a column, and whether it's descending), after the column it
+    groups the rows by, if any: as the runtime lays out its groups, by their values (descending
+    if the view sorts by the column so), then sorts each group's rows."""
+    sort = [(key["column"], key["descending"]) for key in view["sort"]]
+    group = view.get("group_by")
+    if group is None:
+        return sort
+    descending = any(column == group and desc for column, desc in sort)
+    return [(group, descending), *(key for key in sort if key[0] != group)]
+
+
 def view_rows(gt: GT) -> list[int]:
     """The data rows a table's view shows (on every page), in order, as `<gt-table>` shows them.
 
     The view's filter and sort, compiled to Narwhals and applied to the table's data: rows are
     kept within their blocks (the runs of rows between group headings and summary rows), and
-    sorted within them, ties keeping their order. A table whose stub has cells merged across
-    rows keeps its rows as they are, as the runtime does. (A PyArrow dictionary column is sorted
-    as its text; an ordered one, by its levels.)
+    sorted within them, ties keeping their order (and grouped by a column, sorted by it first). A
+    table whose stub has cells merged across rows keeps its rows as they are, as the runtime does.
+    (A PyArrow dictionary column is sorted as its text; an ordered one, by its levels.)
     """
     import narwhals as nw
 
@@ -1399,8 +1411,7 @@ def view_rows(gt: GT) -> list[int]:
 
     by, descending = [block_col], [False]
     schema = frame.schema
-    for key in view["sort"]:
-        column, desc = key["column"], key["descending"]
+    for column, desc in _view_sort(view):
         dtype = schema[column]
         sort_col = column
         if desc and dtype.is_float():
@@ -1442,7 +1453,8 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     """Code that filters and sorts a table's data (`df`) as its view does, with its imports.
 
     The code keeps and orders the data's rows, not the table's, so doesn't keep rows within their
-    row groups; and drops the columns the view hides. A "contains" clause is a match, ignoring
+    row groups (but sorts by the column the view groups the rows by, if any, first, as the groups
+    are laid out); and drops the columns the view hides. A "contains" clause is a match, ignoring
     case, of the column's values as text (not of the text the table shows, nor ignoring accents);
     and a "matches" clause, a search of them with its pattern, translated for the library's
     regexes. (With pandas, a column that isn't of PyArrow's strings is searched with Python's
@@ -1461,7 +1473,7 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     schema = frame.schema
     # (As the runtime has the query, so that its code is the runtime's, character for character)
     predicates = _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
-    sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
+    sort = _view_sort(spec["view"])
     hidden = spec["view"]["hidden"]
     imports: set[str] = set()
     if backend == "polars":
@@ -1734,20 +1746,21 @@ def _pandas_code(
                 f"{text}.str.contains({_literal(p.needle)}, case=False, regex=False, na=False)",
                 _ATOM,
             )
-        if isinstance(p, _Compare):
-            op = _SYMBOLS[p.op]
-            term: _Term = (f"{col} {op} {_literal(p.value)}", _COMPARE)
-            if p.finite:
-                imports.add("import numpy as np")
-                term = (f"({term[0]}) & np.isfinite({col})", _AND)
-            # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
+        if isinstance(p, (_Compare, _Extreme)):
+            if isinstance(p, _Extreme):
+                ranked = col
+                if p.finite:
+                    imports.add("import numpy as np")
+                    ranked = f"{col}.where(np.isfinite({col}))"
+                term: _Term = (f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE)
+            else:
+                term = (f"{col} {_SYMBOLS[p.op]} {_literal(p.value)}", _COMPARE)
+                if p.finite:
+                    imports.add("import numpy as np")
+                    term = (f"({term[0]}) & np.isfinite({col})", _AND)
+            # (pandas' nullable dtypes compare to, and rank missing values as, `pd.NA`, which a
+            # mask can't have)
             return (f"({term[0]}).fillna(False)", _ATOM) if _nullable(data, p.col) else term
-        if isinstance(p, _Extreme):
-            ranked = col
-            if p.finite:
-                imports.add("import numpy as np")
-                ranked = f"{col}.where(np.isfinite({col}))"
-            return f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE
         if not p.values:
             return f"{col}.isna()", _ATOM
         term_ = f"{col}.isin({_list(p.values)})"
