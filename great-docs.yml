@@ -24,9 +24,10 @@ hero:
   logo_height: 200px
   tagline: "Absolutely Delightful Table-making in Python"
 
-# Scale-to-fit for Great Tables output
+# Scale-to-fit for Great Tables output (but not interactive tables, which scroll sideways in place,
+# with their stub and pinned columns in view)
 scale_to_fit:
-  - ".gt_table"
+  - ".gt_table:not(gt-table .gt_table)"
 
 # GitHub Integration
 github_style: widget
