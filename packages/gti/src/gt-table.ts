@@ -4211,6 +4211,32 @@ export class GtTable extends HTMLElement {
     th.append(grip);
   }
 
+  // The part of the scrolling container in view (all of the window without one), less the pinned
+  // columns for a cell that scrolls under them
+  private viewOf(cell: Element): Box {
+    let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
+    const scroller = this.scroller;
+    if (scroller !== null) {
+      const port = scroller.getBoundingClientRect();
+      left = port.left + scroller.clientLeft;
+      right = left + scroller.clientWidth;
+      top = port.top + scroller.clientTop;
+      bottom = top + scroller.clientHeight;
+    }
+    if (this.hasAttribute("data-gti-wide") && !cell.classList.contains("gt-i-pinned")) {
+      const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
+      const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
+      if (this.isRtl()) {
+        right = Math.min(right, edge?.left ?? right);
+        left = Math.max(left, endEdge?.right ?? left);
+      } else {
+        left = Math.max(left, edge?.right ?? left);
+        right = Math.min(right, endEdge?.left ?? right);
+      }
+    }
+    return { left, top, right, bottom };
+  }
+
   // Place the guide along its column, in the part of the table in view (past the pinned columns,
   // for one that scrolls under them), with its edges thick along the label where they're dragged
   private placeGuide(): void {
@@ -4224,27 +4250,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     const box = th.getBoundingClientRect();
-    let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
-    const scroller = this.scroller;
-    if (scroller !== null) {
-      const port = scroller.getBoundingClientRect();
-      left = port.left + scroller.clientLeft;
-      right = left + scroller.clientWidth;
-      top = port.top + scroller.clientTop;
-      bottom = top + scroller.clientHeight;
-    }
-    const rtl = this.isRtl();
-    if (this.hasAttribute("data-gti-wide") && !th.classList.contains("gt-i-pinned")) {
-      const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
-      const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
-      if (rtl) {
-        right = Math.min(right, edge?.left ?? right);
-        left = Math.max(left, endEdge?.right ?? left);
-      } else {
-        left = Math.max(left, edge?.right ?? left);
-        right = Math.min(right, endEdge?.left ?? right);
-      }
-    }
+    const { left, right, top, bottom } = this.viewOf(th);
     const x0 = Math.max(box.left, left);
     const x1 = Math.min(box.right, right);
     const y0 = Math.max(box.top, top);
@@ -4262,6 +4268,7 @@ export class GtTable extends HTMLElement {
     // (An edge out of view isn't drawn)
     const end = th.classList.contains("gt-i-resizable");
     const before = this.guideBefore !== null;
+    const rtl = this.isRtl();
     const [leftLine, rightLine] = Array.from(guide.children) as HTMLElement[];
     for (const [line, at, grip] of [
       [leftLine, box.left >= left - 0.5, rtl ? end : before],
@@ -7894,11 +7901,10 @@ export class GtTable extends HTMLElement {
   private drawNames(box: QueryBox, layer: HTMLElement): void {
     const origin = this.getBoundingClientRect();
     const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
-    // (What's in the scrolling container, as far as it shows)
-    const clip = this.scroller?.getBoundingClientRect();
     const columns: string[] = [];
-    // (How far across its box each goes, as its label does)
+    // (How far across its box each goes, as its label does, and between which edges it's seen)
     const across: number[] = [];
+    const spans: [number, number][] = [];
     const parts = this.filters.flatMap(({ filter, th }): Part[] => {
       if (th === null) {
         return [];
@@ -7906,7 +7912,9 @@ export class GtTable extends HTMLElement {
       // (Over its controls, under its label, which it leaves to be read; or over the label)
       const controls = th.querySelector(".gt-i-head-controls")?.getBoundingClientRect();
       let { left, top, right, bottom } = controls?.width ? controls : th.getBoundingClientRect();
-      if (clip !== undefined && this.scroller?.contains(th)) {
+      // (As far as it shows in the scrolling container, past the pinned columns)
+      const clip = this.scroller?.contains(th) ? this.viewOf(th) : null;
+      if (clip !== null) {
         [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
         [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
       }
@@ -7915,6 +7923,7 @@ export class GtTable extends HTMLElement {
       }
       columns.push(filter.column);
       across.push(th.classList.contains("gt_right") ? 1 : th.classList.contains("gt_center") ? 0.5 : 0);
+      spans.push(clip === null ? [-Infinity, Infinity] : [clip.left - x0, clip.right - x0]);
       const boxes = [{ left: left - x0, top: top - y0, right: right - x0, bottom: bottom - y0 }];
       return [{ name: formatColumn(filter.column), boxes, places: ["over"] }];
     });
@@ -7938,13 +7947,16 @@ export class GtTable extends HTMLElement {
     });
     layer.replaceChildren(...names);
     const sizes = names.map((el) => ({ width: el.offsetWidth, height: el.offsetHeight }));
-    // (Each halfway down what it's over, and across it as its label is: where `placeParts()` puts
-    // it, 4px in from its box's top and left)
+    // (Each halfway down what it's over, and across it as its label is, kept off the pinned columns
+    // where its label's partly under one: where `placeParts()` puts it, 4px in from its box's top
+    // and left)
     const middled = parts.map((part, i) => {
       const { left, top, right, bottom } = part.boxes[0] as Box;
       const { width = 0, height = 0 } = sizes[i] ?? {};
+      const [from, to] = spans[i] ?? [-Infinity, Infinity];
+      const x = left + Math.max(0, right - left - width - 8) * (across[i] ?? 0);
       const over = {
-        left: left + Math.max(0, right - left - width - 8) * (across[i] ?? 0),
+        left: Math.max(from, Math.min(x, to - width - 8)),
         top: (top + bottom - height) / 2 - 4,
         right,
         bottom,
