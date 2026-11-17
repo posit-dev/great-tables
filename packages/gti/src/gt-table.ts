@@ -1657,8 +1657,8 @@ export class GtTable extends HTMLElement {
   /**
    * The code for the view, as the export panel copies it: Python that filters and sorts the
    * table's data (as `df`) as the filters and sort do (not the search, which is of the text
-   * shown), then drops the columns hidden, for Polars, pandas or Narwhals (by default, the data's
-   * library), with its imports.
+   * shown), and the grouping (sorting by its column first), then drops the columns hidden, for
+   * Polars, pandas or Narwhals (by default, the data's library), with its imports.
    * It's what Great Tables' `query_code()` writes. Empty until hydrated, and for a table without
    * "code" among its export formats (whose spec has what the code needs).
    *
@@ -1670,7 +1670,9 @@ export class GtTable extends HTMLElement {
     if (backend !== undefined && !CODE_BACKENDS.includes(backend)) {
       throw new RangeError(`\`backend\` must be "polars", "pandas" or "narwhals", not ${JSON.stringify(backend)}`);
     }
-    return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, this.hiddenIds, spec.filters ?? [], code, backend ?? code.backend);
+    return spec == null || code == null
+      ? ""
+      : viewCode(this.filter, this.sortKeys, this.hiddenIds, spec.filters ?? [], code, backend ?? code.backend, this.groupColumn);
   }
 
   /**
