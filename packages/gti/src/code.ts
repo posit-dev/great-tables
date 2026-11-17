@@ -64,19 +64,26 @@ export function pyDate(text: string, times: boolean): string {
 }
 
 /**
- * The code for a view (its query, as the `filter` property has it, its sort, and the columns it
- * hides, in column order), with its imports, for `backend`.
+ * The code for a view (its query, as the `filter` property has it, its sort, the columns it
+ * hides, in column order, and the column it groups the rows by), with its imports, for `backend`.
+ * Grouped, the rows are sorted by that column first, as the groups are laid out: by its values,
+ * descending if the view sorts by it so.
  *
  * @throws {RangeError} for a facet's value that can't be written as Python (a duration).
  */
 export function viewCode(
   query: FilterQuery | null,
-  sort: readonly SortKey[],
+  keys: readonly SortKey[],
   hidden: readonly string[],
   filters: readonly FilterSpec[],
   spec: CodeSpec,
   backend: CodeBackend,
+  groupBy: string | null = null,
 ): string {
+  const sort =
+    groupBy === null
+      ? keys
+      : [{ column: groupBy, descending: keys.some((key) => key.column === groupBy && key.descending) }, ...keys.filter((key) => key.column !== groupBy)];
   const pandas = backend === "pandas";
   const ns = backend === "polars" ? "pl" : "nw";
   const imports = new Set<string>();
@@ -140,6 +147,7 @@ export function viewCode(
       const term = `${keys}.${pandas ? "isin" : "is_in"}(${list(items)})`;
       return present.length < clause.value.length ? [`${term} | ${missing}`, OR] : [term, ATOM];
     }
+    let term: Term;
     if (clause.op === "top_n" || clause.op === "bottom_n") {
       // (Ranked among all the rows, ties with the n-th kept; a float's NaN and infinities aren't
       // ranked)
@@ -154,15 +162,12 @@ export function viewCode(
       const rank = pandas
         ? `${ranked}.rank(method="min"${top ? ", ascending=False" : ""})`
         : `${ranked}.rank("min"${top ? ", descending=True" : ""})`;
-      return [`${rank} <= ${clause.value}`, COMPARE];
-    }
-    let term: Term;
-    const op = OPERATORS[clause.op];
-    if (typeof clause.value === "string") {
+      term = [`${rank} <= ${clause.value}`, COMPARE];
+    } else if (typeof clause.value === "string") {
       imports.add("import datetime");
-      term = [`${col} ${op} ${pyDate(clause.value, column?.dtype === "datetime")}`, COMPARE];
+      term = [`${col} ${OPERATORS[clause.op]} ${pyDate(clause.value, column?.dtype === "datetime")}`, COMPARE];
     } else {
-      term = [`${col} ${op} ${pyNumber(clause.value)}`, COMPARE];
+      term = [`${col} ${OPERATORS[clause.op]} ${pyNumber(clause.value)}`, COMPARE];
       // (A float's NaN and infinities aren't kept)
       if (column?.dtype === "float") {
         if (pandas) {
@@ -171,6 +176,8 @@ export function viewCode(
         term = [`(${term[0]}) & ${pandas ? `np.isfinite(${col})` : `${col}.is_finite()`}`, AND];
       }
     }
+    // (pandas' nullable dtypes compare to, and rank missing values as, `pd.NA`, which a mask can't
+    // have)
     return pandas && column?.nullable ? [`(${term[0]}).fillna(False)`, ATOM] : term;
   };
 
