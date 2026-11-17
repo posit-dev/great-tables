@@ -4,7 +4,7 @@ Choose which columns readers can sort by, search, resize, hide, move, and group 
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L956-L1183)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L958-L1185)
 
 ``` python
 GTI.i_cols_controls(
@@ -979,7 +979,7 @@ A table whose readers can group the municipalities by their status, from the "Gr
 | Woolwich | lower-tier | 26,999 |
 | Zorra | lower-tier | 8,628 |
 
-A table of the municipalities' names and populations that can be filtered by their status, which it doesn't show (the filter is in the query bar, from the `<>` button in the control bar):
+A table of the municipalities' names and populations that can be filtered by their status, which it doesn't show (the filter is in the query bar, from the `{ }` button in the control bar):
 
 ``` python
 (

@@ -4,7 +4,7 @@ Set how the table fits a narrow container.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L581-L664)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L581-L665)
 
 ``` python
 GTI.i_responsive(
@@ -20,7 +20,7 @@ Or it can drop columns until it fits (`"collapse"`): those without a priority fi
 
 With `"auto"` (the default), the table drops columns if any have a priority; otherwise it's stacked if it shows no more than six columns (not counting the stub), and scrolls if it shows more. With `"stack"` or `"auto"`, a table in a container as wide as `stack_below` or wider is as with `"scroll"`. So is one in a container that's only as wide as what's in it (a table's cell, or an inline block), once its script runs: before that, such a table has no width.
 
-Whatever the mode, on a touch screen, a control bar narrower than 30em (480 pixels, at 16px text) folds its search, its filters as text and its "Columns" button into one "Filter & sort" button, which opens a sheet from the foot of the window with all of them, and the table's sort and filters. A long press on a column's label opens a sheet for that column (to sort it, filter it, or hide it), while a tap still sorts by it.
+Whatever the mode, in a container narrower than 30em (480 pixels, at 16px text), the control bar folds its search, its filters as text and its "Columns" button into one "Filter & sort" button, which opens a sheet from the foot of the window with all of them, and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less. There, a long press on a column's label opens a sheet for that column (to sort it, filter it, or hide it), while a tap still sorts by it.
 
 ## Parameters
 
