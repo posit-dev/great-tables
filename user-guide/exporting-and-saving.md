@@ -51,9 +51,9 @@ html_str = gt_tbl.as_raw_html()
 print(html_str[:200])
 ```
 
-    <div id="sbzdrlrupc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="iyoskzrwas" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #sbzdrlrupc table {
+    #iyoskzrwas table {
               font
 
 The method accepts several arguments that control the output format.
@@ -209,7 +209,28 @@ gt_tbl.gtsave("with_delay.png", delay=0.5)
 
 > **Note**
 >
-> The [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method requires the `nokap` package and a Chrome or Chromium browser to be installed on your system.
+> For images and PDF, the [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method requires the `nokap` package and a Chrome or Chromium browser to be installed on your system.
+
+## Saving as SVG, Word, Excel, and More
+
+The [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method also saves a table as SVG, a Word document, an Excel workbook, a PowerPoint presentation, RTF, or Typst. These files are written by [gridwell](https://github.com/rich-iannone/gridwell), which draws the same table, with its formatting and styles, in each format's own terms (as far as each format allows), with no browser involved. Install it with the `gridwell` extra:
+
+``` bash
+pip install "great_tables[gridwell]"
+```
+
+Then choose the format by the file extension, just as with images:
+
+``` python
+gt_tbl.gtsave("my_table.svg")   # SVG
+gt_tbl.gtsave("my_table.docx")  # Word
+gt_tbl.gtsave("my_table.xlsx")  # Excel
+gt_tbl.gtsave("my_table.pptx")  # PowerPoint
+gt_tbl.gtsave("my_table.rtf")   # RTF
+gt_tbl.gtsave("my_table.typ")   # Typst
+```
+
+The image options (`zoom=`, `expand=`, and the rest) don't apply to these formats. In an Excel workbook, each cell holds the number, date, or boolean behind its formatted text, so the values can still be summed and sorted. SVG output is experimental in gridwell for now: it is valid and has every cell, but its styling may change between gridwell releases.
 
 ## Choosing the Right Export Method
 
@@ -219,14 +240,21 @@ The following table summarizes when to use each export approach:
 import polars as pl
 
 export_df = pl.DataFrame({
-    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()"],
+    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()", "gtsave() with gridwell"],
     "Use Case": [
         "Interactive display in notebooks or browser",
         "Embedding in web apps, emails, or HTML docs",
         "Inclusion in LaTeX/PDF documents",
         "Static image files for reports and slides",
+        "Office documents, vector graphics, and Typst",
     ],
-    "Output": ["Rendered display", "HTML string", "LaTeX string", "PNG/PDF/JPEG/WebP file"],
+    "Output": [
+        "Rendered display",
+        "HTML string",
+        "LaTeX string",
+        "PNG/PDF/JPEG/WebP file",
+        "SVG/DOCX/XLSX/PPTX/RTF/Typst file",
+    ],
 })
 
 GT(export_df)
@@ -238,5 +266,6 @@ GT(export_df)
 | as_raw_html() | Embedding in web apps, emails, or HTML docs | HTML string |
 | as_latex() | Inclusion in LaTeX/PDF documents | LaTeX string |
 | gtsave() | Static image files for reports and slides | PNG/PDF/JPEG/WebP file |
+| gtsave() with gridwell | Office documents, vector graphics, and Typst | SVG/DOCX/XLSX/PPTX/RTF/Typst file |
 
 Each export method preserves the styling, formatting, and structural components you have built into your table. Choose the method that matches your final output medium, and your carefully crafted table will look great wherever it lands.

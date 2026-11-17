@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Save a GT table to a file (PNG, JPEG, WebP, or PDF).">
+<meta name="description" content="Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).">
 
 <title>GT.gtsave() | Great Tables</title>
 <script type="application/ld+json">[{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "Great Tables", "description": "Easily generate information-rich, publication-quality tables from Python.", "codeRepository": "https://github.com/posit-dev/great-tables", "license": "https://opensource.org/licenses/MIT", "url": "https://posit-dev.github.io/great-tables", "documentation": "https://posit-dev.github.io/great-tables", "programmingLanguage": {"@type": "ComputerLanguage", "name": "Python"}}, {"@context": "https://schema.org", "@type": "WebPage", "name": "GT.gtsave - Great Tables", "isPartOf": {"@type": "WebSite", "name": "Great Tables"}, "url": "https://posit-dev.github.io/great-tables/reference/GT.gtsave.html"}]</script>
@@ -140,10 +140,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <meta property="og:title" content="GT.gtsave() | Great Tables">
-<meta property="og:description" content="Save a GT table to a file (PNG, JPEG, WebP, or PDF).">
+<meta property="og:description" content="Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).">
 <meta property="og:site_name" content="Great Tables">
 <meta name="twitter:title" content="GT.gtsave() | Great Tables">
-<meta name="twitter:description" content="Save a GT table to a file (PNG, JPEG, WebP, or PDF).">
+<meta name="twitter:description" content="Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -1565,11 +1565,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="doc-subject">
-<p>Save a GT table to a file (PNG, JPEG, WebP, or PDF).</p>
+<p>Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).</p>
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L691-L815" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L706-L852" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-function">
 <div class="sourceCode" id="cb1"><pre class="sourceCode pythonsignature"><code class="sourceCode pythonsignature"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">GT</span><span class="op">.</span><span class="fu">gtsave</span>(</span>
@@ -1583,8 +1583,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>The <a href="../reference/GT.gtsave.html#great_tables.GT.gtsave" class="gdls-link gdls-code">gtsave()</a> method renders the table to an image or PDF using a headless Chrome browser via the <code>nokap</code> package. This provides a reliable way to produce high-resolution image files of tables without requiring Selenium or Playwright.</p>
-<p>Chrome or Chromium must be installed on the system for this method to work.</p>
+<p>The <a href="../reference/GT.gtsave.html#great_tables.GT.gtsave" class="gdls-link gdls-code">gtsave()</a> method renders the table to an image or PDF using a headless Chrome browser via the <code>nokap</code> package. This provides a reliable way to produce high-resolution image files of tables without requiring Selenium or Playwright. Chrome or Chromium must be installed on the system for these formats.</p>
+<p>The other formats (SVG, Word, Excel, PowerPoint, RTF, and Typst) are written by <a href="https://github.com/rich-iannone/gridwell">gridwell</a> from the table’s gridwell IR (see <code>GT.as_gridwell()</code>), with no browser needed. Install gridwell with <code>pip install "great_tables[gridwell]"</code>. SVG output is experimental in gridwell, and its styling may change between gridwell releases.</p>
 </div>
 <section id="parameters" class="level2 doc-parameters">
 <h2 class="doc-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -1592,7 +1592,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <dl>
 <dt><code><span class="doc-parameter-name">file</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">Path | str</span></code></dt>
 <dd>
-<p>The file path to write the output to. The format is determined by the file extension: <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.webp</code> for images; <code>.pdf</code> for PDF. If no extension is provided, <code>.png</code> is assumed.</p>
+<p>The file path to write the output to. The format is determined by the file extension: <code>.png</code>, <code>.jpg</code>/<code>.jpeg</code>, <code>.webp</code> for images; <code>.pdf</code> for PDF; and, with gridwell, <code>.svg</code> for SVG, <code>.docx</code> for Word, <code>.xlsx</code> for Excel, <code>.pptx</code> for PowerPoint, <code>.rtf</code> for RTF, and <code>.typ</code> for Typst. If no extension is provided, <code>.png</code> is assumed. The other arguments apply to images and PDF only.</p>
 </dd>
 <dt><code><span class="doc-parameter-name">selector</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"table"</span></span></code></dt>
 <dd>
@@ -1663,6 +1663,9 @@ The GT object is returned (the same object the method is called on), facilitatin
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .gtsave(<span class="st">"my_table.pdf"</span>)</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>With gridwell installed, save the same table as SVG, or as a Word document.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>GT(gtcars_mini).fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>).gtsave(<span class="st">"my_table.svg"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>GT(gtcars_mini).fmt_currency(columns<span class="op">=</span><span class="st">"msrp"</span>).gtsave(<span class="st">"my_table.docx"</span>)</span></code></pre></div>
 
 
 </section>

@@ -509,7 +509,7 @@ Write the runtime's files, for an app to serve.
 There may come a day when you need to export a table to some specific format. A great method for that is [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave), which allows us to save the table as a standalone image file or PDF. You can also get the table code as an HTML fragment with the `*_raw_html()` methods.
 
 [GT.gtsave()](GT.gtsave.md#great_tables.GT.gtsave)  
-Save a GT table to a file (PNG, JPEG, WebP, or PDF).
+Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).
 
 [GT.show()](GT.show.md#great_tables.GT.show)  
 Display the table in a notebook or a web browser.

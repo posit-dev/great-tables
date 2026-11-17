@@ -12329,20 +12329,27 @@ There may come a day when you need to export a table to some specific format. A 
 
 gtsave(self: 'GT', file: 'Path | str', selector: 'str' = 'table', expand: 'int | tuple[int, int, int, int]' = 5, zoom: 'float' = 2.0, delay: 'float' = 0.2, vwidth: 'int' = 992, vheight: 'int' = 744) -> 'GT'
 
-Save a GT table to a file (PNG, JPEG, WebP, or PDF).
+Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).
 
 The `gtsave()` method renders the table to an image or PDF using a headless Chrome browser via
 the `nokap` package. This provides a reliable way to produce high-resolution image files of
-tables without requiring Selenium or Playwright.
+tables without requiring Selenium or Playwright. Chrome or Chromium must be installed on the
+system for these formats.
 
-Chrome or Chromium must be installed on the system for this method to work.
+The other formats (SVG, Word, Excel, PowerPoint, RTF, and Typst) are written by
+[gridwell](https://github.com/rich-iannone/gridwell) from the table's gridwell IR (see
+`GT.as_gridwell()`), with no browser needed. Install gridwell with
+`pip install "great_tables[gridwell]"`. SVG output is experimental in gridwell, and its
+styling may change between gridwell releases.
 
 Parameters
 ----------
 file
     The file path to write the output to. The format is determined by the file extension:
-    `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF. If no extension is provided,
-    `.png` is assumed.
+    `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF; and, with gridwell, `.svg` for
+    SVG, `.docx` for Word, `.xlsx` for Excel, `.pptx` for PowerPoint, `.rtf` for RTF, and
+    `.typ` for Typst. If no extension is provided, `.png` is assumed. The other arguments
+    apply to images and PDF only.
 selector
     A CSS selector targeting the element to capture. Defaults to `"table"`, which captures just
     the table element with tight bounds.
@@ -12410,6 +12417,13 @@ Save a table as a PDF.
     .fmt_currency(columns="msrp")
     .gtsave("my_table.pdf")
 )
+```
+
+With gridwell installed, save the same table as SVG, or as a Word document.
+
+```python
+GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.svg")
+GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.docx")
 ```
 
 show(self: 'GTSelf', target: "Literal['auto', 'notebook', 'browser']" = 'auto')
@@ -20512,9 +20526,37 @@ gt_tbl.gtsave("with_delay.png", delay=0.5)
 ```
 
 :::{.callout-note}
-The `gtsave()` method requires the `nokap` package and a Chrome or Chromium browser to be installed
-on your system.
+For images and PDF, the `gtsave()` method requires the `nokap` package and a Chrome or Chromium
+browser to be installed on your system.
 :::
+
+## Saving as SVG, Word, Excel, and More
+
+The `~~GT.gtsave()` method also saves a table as SVG, a Word document, an Excel workbook, a
+PowerPoint presentation, RTF, or Typst. These files are written by
+[gridwell](https://github.com/rich-iannone/gridwell), which draws the same table, with its
+formatting and styles, in each format's own terms (as far as each format allows), with no browser
+involved. Install it with the `gridwell` extra:
+
+```bash
+pip install "great_tables[gridwell]"
+```
+
+Then choose the format by the file extension, just as with images:
+
+```python
+gt_tbl.gtsave("my_table.svg")   # SVG
+gt_tbl.gtsave("my_table.docx")  # Word
+gt_tbl.gtsave("my_table.xlsx")  # Excel
+gt_tbl.gtsave("my_table.pptx")  # PowerPoint
+gt_tbl.gtsave("my_table.rtf")   # RTF
+gt_tbl.gtsave("my_table.typ")   # Typst
+```
+
+The image options (`zoom=`, `expand=`, and the rest) don't apply to these formats. In an Excel
+workbook, each cell holds the number, date, or boolean behind its formatted text, so the values
+can still be summed and sorted. SVG output is experimental in gridwell for now: it is valid and has
+every cell, but its styling may change between gridwell releases.
 
 ## Choosing the Right Export Method
 
@@ -20524,14 +20566,21 @@ The following table summarizes when to use each export approach:
 import polars as pl
 
 export_df = pl.DataFrame({
-    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()"],
+    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()", "gtsave() with gridwell"],
     "Use Case": [
         "Interactive display in notebooks or browser",
         "Embedding in web apps, emails, or HTML docs",
         "Inclusion in LaTeX/PDF documents",
         "Static image files for reports and slides",
+        "Office documents, vector graphics, and Typst",
     ],
-    "Output": ["Rendered display", "HTML string", "LaTeX string", "PNG/PDF/JPEG/WebP file"],
+    "Output": [
+        "Rendered display",
+        "HTML string",
+        "LaTeX string",
+        "PNG/PDF/JPEG/WebP file",
+        "SVG/DOCX/XLSX/PPTX/RTF/Typst file",
+    ],
 })
 
 GT(export_df)

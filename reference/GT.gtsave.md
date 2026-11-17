@@ -1,10 +1,10 @@
 # GT.gtsave()
 
-Save a GT table to a file (PNG, JPEG, WebP, or PDF).
+Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst).
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L691-L815)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L706-L852)
 
 ``` python
 GT.gtsave(
@@ -18,14 +18,14 @@ GT.gtsave(
 )
 ```
 
-The [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method renders the table to an image or PDF using a headless Chrome browser via the `nokap` package. This provides a reliable way to produce high-resolution image files of tables without requiring Selenium or Playwright.
+The [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) method renders the table to an image or PDF using a headless Chrome browser via the `nokap` package. This provides a reliable way to produce high-resolution image files of tables without requiring Selenium or Playwright. Chrome or Chromium must be installed on the system for these formats.
 
-Chrome or Chromium must be installed on the system for this method to work.
+The other formats (SVG, Word, Excel, PowerPoint, RTF, and Typst) are written by [gridwell](https://github.com/rich-iannone/gridwell) from the table's gridwell IR (see `GT.as_gridwell()`), with no browser needed. Install gridwell with `pip install "great_tables[gridwell]"`. SVG output is experimental in gridwell, and its styling may change between gridwell releases.
 
 ## Parameters
 
 `file: Path | str`  
-The file path to write the output to. The format is determined by the file extension: `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF. If no extension is provided, `.png` is assumed.
+The file path to write the output to. The format is determined by the file extension: `.png`, `.jpg`/`.jpeg`, `.webp` for images; `.pdf` for PDF; and, with gridwell, `.svg` for SVG, `.docx` for Word, `.xlsx` for Excel, `.pptx` for PowerPoint, `.rtf` for RTF, and `.typ` for Typst. If no extension is provided, `.png` is assumed. The other arguments apply to images and PDF only.
 
 `selector: str = "table"`  
 A CSS selector targeting the element to capture. Defaults to `"table"`, which captures just the table element with tight bounds.
@@ -91,4 +91,11 @@ Save a table as a PDF.
     .fmt_currency(columns="msrp")
     .gtsave("my_table.pdf")
 )
+```
+
+With gridwell installed, save the same table as SVG, or as a Word document.
+
+``` python
+GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.svg")
+GT(gtcars_mini).fmt_currency(columns="msrp").gtsave("my_table.docx")
 ```
