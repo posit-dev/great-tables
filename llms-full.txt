@@ -21315,6 +21315,149 @@ names, which follow its parts as you sort, filter, page or scroll it.
 )
 ```
 
+## Scrolling in place
+
+With `~~GTI.i_scroll()`, the table takes up no more than a set height, and its body scrolls within
+it. The table's header and column labels stay in view, each group's heading sticks below them while
+its rows go by, and the grand summary rows at the bottom stick to the bottom. Footnotes and source
+notes scroll with the body. Here are all 47 cars, with pagination off, in a body 400 pixels high.
+
+```{python}
+from great_tables import vals
+
+gtcars_grouped = data.pl.gtcars.select(["ctry_origin", "mfr", "model", "year", "hp", "trq"])
+
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: scrolling in place")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .grand_summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .i_pagination(False)
+    .i_scroll(400)
+)
+```
+
+Drag the height handle at the foot of the body down or up for a taller or shorter one, from a row's
+height to all of the rows; a double click on it puts the set height back. The height can be a number
+of pixels, or a CSS length such as `"60vh"`. Pagination and scrolling go together too: with both,
+each page scrolls within the height.
+
+## Wide tables
+
+A table wider than its container scrolls sideways, with its stub (and the row group column, if row
+groups are shown as one) staying in view on the left. A **Scroll for more →** hint and a shade at
+the edge say there's more to the right, and the table's title, footnotes and source notes stay in
+view as it scrolls. Here's every column of the cars, with each cell's text on one line (with
+`~~GTI.i_display()`), which is more than this page has room for; scroll it with a trackpad, with
+Shift and the mouse wheel, or by dragging the scrollbar.
+
+```{python}
+gtcars_wide = (
+    GTI(data.pl.gtcars, rowname_col="model")
+    .tab_header(title="GT Cars: every column")
+    .tab_source_note("Source: the gtcars dataset.")
+    .cols_label(
+        mfr="Make", year="Year", trim="Trim", bdy_style="Body Style", hp="HP", hp_rpm="HP RPM",
+        trq="Torque", trq_rpm="Torque RPM", mpg_c="MPG City", mpg_h="MPG Highway",
+        drivetrain="Drivetrain", trsmn="Transmission", ctry_origin="Country", msrp="MSRP"
+    )
+    .fmt_integer(
+        columns=["year", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"], use_seps=False
+    )
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_display(wrap=False)
+)
+
+gtcars_wide
+```
+
+Scrolling is one of three ways `~~GTI.i_responsive()` fits a table to a narrow container. A table
+can also be stacked, each row becoming a card with each column's label next to its value, or it can
+drop columns until it fits (those `~~GTI.i_cols_priority()` ranks lowest first), with a button on
+each row that shows the columns dropped from it. By default, a table drops columns if any have a
+priority; otherwise it's stacked in a container under 420 pixels wide if it shows no more than six
+columns, and scrolls if it shows more.
+
+## Pinned columns
+
+With `~~GTI.i_cols_pin()`, more columns stay in view as a wide table scrolls: pinned to the left,
+after the stub, or to the right. Here's the table above, with each car's make staying by its name,
+and its price at the other side.
+
+```{python}
+(
+    gtcars_wide
+    .tab_header(title="GT Cars: with pinned columns")
+    .i_cols_pin(columns="mfr")
+    .i_cols_pin(columns="msrp", side="right")
+)
+```
+
+Pinned columns have to be next to their side of the table, with only other pinned columns between
+them and it (as `mfr` is next to the stub, and `msrp` is the last column), so a column further in is
+moved there first, with `~~GT.cols_move_to_start()` or `~~GT.cols_move_to_end()`. Pinned columns
+can't take up more than half of the table's container; in a narrower one, only the stub stays
+pinned, until the container is wide enough again. The left is the stub's side, so in a page written
+right to left, the columns pinned to the "left" are on the right, by the stub.
+
+## Summary rows
+
+A `GTI` table keeps the summary rows that `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` add
+(see [Summary Rows](06-summary-rows.qmd)). The rows are sorted within their groups, and each
+group's summary rows stay with it: those at its bottom are on the page where the group ends (and
+those at its top, on the page where it starts). The grand summary rows are on every page. Here, the
+most powerful cars of each country come first; page through to see each country's averages, and the
+averages and highest values of all the cars under every page.
+
+```{python}
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: with summary rows")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .grand_summary_rows(
+        fns={"Average": pl.col("hp", "trq").mean(), "Highest": pl.col("hp", "trq").max()},
+        fmt=vals.fmt_integer,
+    )
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_view(sort="-hp")
+)
+```
+
+The summary rows' values are those found in Python, from all of the data: they don't change as
+readers search or filter the rows. (Choose a make in the `Make` filter, and its country's averages
+are still those of all of its cars.) A group with no rows left is hidden, with its heading and
+summary rows.
+
+## Footnotes and source notes
+
+A table's footnotes and source notes are in its footer, as in a `GT` table, and the footnote marks
+stay with their cells as the rows are sorted, filtered and paged. Here, a footnote on the `HP`
+label says what it is, and another marks the cars of over 700 hp; sort by `HP` to bring them to the
+top.
+
+```{python}
+from great_tables import loc
+
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with footnotes and a source note")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .tab_footnote("Horsepower, at the engine's peak.", locations=loc.column_labels(columns="hp"))
+    .tab_footnote("Over 700 hp.", locations=loc.body(columns="hp", rows=pl.col("hp") > 700))
+    .tab_source_note("Source: the gtcars dataset.")
+)
+```
+
+The marks are numbered as the table was first made, so a sorted table can have them out of order.
+The search doesn't match them, and exports leave them out. A table of a lazy frame (a Polars
+LazyFrame, a DuckDB relation or an Ibis table), whose rows are collected as they're shown, can have
+footnotes on its title, column labels and the rest, but not on its body or stub.
+
 ## Row details
 
 With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
@@ -21508,6 +21651,44 @@ but also makes its rows less compact and puts them in the table's own font, unle
 `compact=True` and `monospace=True` too; and `.i_inspect(missing=False)` leaves the row numbers,
 dtypes and dimensions on. `i_inspect()` and `~~GTI.i_display()` work on their own as well, on any
 `GTI` table.
+
+## Exporting the rows
+
+With `~~GTI.i_export()`, an export button in the control bar opens a panel with a button for each
+way readers can take the rows away: downloaded as a CSV, TSV or JSON file (`"csv"`, `"tsv"`,
+`"json"`), copied (`"clipboard"`), or as code that gets them from the data (`"code"`). Here, filter
+the cars to a make or two and sort them, then export what's left; the files are named
+`gtcars.csv`, `gtcars.tsv` and `gtcars.json`.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: exporting the rows")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_export(["csv", "tsv", "json", "clipboard", "code"], filename="gtcars")
+)
+```
+
+An export has the rows readers see: every row the search and filters keep (on every page, not only
+the one shown), in the order shown, with the columns' text as the table shows it (so the Ford GT's
+`MSRP` is exported as `$447,000.00`). Each format has them its own way:
+
+- a CSV or TSV file has the column labels as its first row (each after its spanners' labels, as in
+  "Revenue – gross"), and with row groups, the group's label as a column before the others; a cell
+  a spreadsheet would read as a formula starts with a `'`, so that it's read as text
+- a JSON file has an object for each row, with each cell's text under its column's name in the data
+  (and the row's group label first, under `"group"`)
+- a copy has the rows both as a table, with the cells' styles, for pasting into a document or a
+  spreadsheet, and as text, with tabs between the cells
+- the code filters and sorts the data (as `df`) as the reader's view does, for Polars, Pandas or
+  Narwhals (the data's library, at first); it works on the data's values, so it leaves out the
+  search
+
+The formats' buttons are in the order `i_export()` is given them. With `~~GTI.i_selection()`,
+readers can export the rows they've selected instead.
 
 ## Using the table from Python and in apps
 

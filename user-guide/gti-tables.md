@@ -234,6 +234,390 @@ For a page that shows readers the parts, as this one does, [i_display()](../refe
 | Rolls-Royce   | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
 | Rolls-Royce   | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
 
+## Scrolling in place
+
+With [i_scroll()](../reference/GTI.i_scroll.md#great_tables.GTI.i_scroll), the table takes up no more than a set height, and its body scrolls within it. The table's header and column labels stay in view, each group's heading sticks below them while its rows go by, and the grand summary rows at the bottom stick to the bottom. Footnotes and source notes scroll with the body. Here are all 47 cars, with pagination off, in a body 400 pixels high.
+
+``` python
+from great_tables import vals
+
+gtcars_grouped = data.pl.gtcars.select(["ctry_origin", "mfr", "model", "year", "hp", "trq"])
+
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: scrolling in place")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .grand_summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .i_pagination(False)
+    .i_scroll(400)
+)
+```
+
+| GT Cars: scrolling in place |               |      |     |        |
+|-----------------------------|---------------|------|-----|--------|
+|                             | Make          | Year | HP  | Torque |
+| United States               |               |      |     |        |
+| GT                          | Ford          | 2017 | 647 | 550    |
+| Corvette                    | Chevrolet     | 2016 | 650 | 650    |
+| Viper                       | Dodge         | 2017 | 645 | 600    |
+| Model S                     | Tesla         | 2017 | 259 | 243    |
+| Italy                       |               |      |     |        |
+| 458 Speciale                | Ferrari       | 2015 | 597 | 398    |
+| 458 Spider                  | Ferrari       | 2015 | 562 | 398    |
+| 458 Italia                  | Ferrari       | 2014 | 562 | 398    |
+| 488 GTB                     | Ferrari       | 2016 | 661 | 561    |
+| California                  | Ferrari       | 2015 | 553 | 557    |
+| GTC4Lusso                   | Ferrari       | 2017 | 680 | 514    |
+| FF                          | Ferrari       | 2015 | 652 | 504    |
+| F12Berlinetta               | Ferrari       | 2015 | 731 | 509    |
+| LaFerrari                   | Ferrari       | 2015 | 949 | 664    |
+| Aventador                   | Lamborghini   | 2015 | 700 | 507    |
+| Huracan                     | Lamborghini   | 2015 | 610 | 413    |
+| Gallardo                    | Lamborghini   | 2014 | 550 | 398    |
+| Granturismo                 | Maserati      | 2016 | 454 | 384    |
+| Quattroporte                | Maserati      | 2016 | 404 | 406    |
+| Ghibli                      | Maserati      | 2016 | 345 | 369    |
+| Japan                       |               |      |     |        |
+| NSX                         | Acura         | 2017 | 573 | 476    |
+| GT-R                        | Nissan        | 2016 | 545 | 436    |
+| United Kingdom              |               |      |     |        |
+| Continental GT              | Bentley       | 2016 | 500 | 487    |
+| DB11                        | Aston Martin  | 2017 | 608 | 516    |
+| Rapide S                    | Aston Martin  | 2016 | 552 | 465    |
+| Vanquish                    | Aston Martin  | 2016 | 568 | 465    |
+| Vantage                     | Aston Martin  | 2016 | 430 | 361    |
+| Evora                       | Lotus         | 2017 | 400 | 302    |
+| F-Type                      | Jaguar        | 2016 | 340 | 332    |
+| 570                         | McLaren       | 2016 | 570 | 443    |
+| Dawn                        | Rolls-Royce   | 2016 | 563 | 575    |
+| Wraith                      | Rolls-Royce   | 2016 | 624 | 590    |
+| Germany                     |               |      |     |        |
+| 6-Series                    | BMW           | 2016 | 315 | 330    |
+| i8                          | BMW           | 2016 | 357 | 420    |
+| M4                          | BMW           | 2016 | 425 | 406    |
+| M5                          | BMW           | 2016 | 560 | 500    |
+| M6                          | BMW           | 2016 | 560 | 500    |
+| R8                          | Audi          | 2015 | 430 | 317    |
+| RS 7                        | Audi          | 2016 | 560 | 516    |
+| S6                          | Audi          | 2016 | 450 | 406    |
+| S7                          | Audi          | 2016 | 450 | 406    |
+| S8                          | Audi          | 2016 | 520 | 481    |
+| AMG GT                      | Mercedes-Benz | 2016 | 503 | 479    |
+| SL-Class                    | Mercedes-Benz | 2016 | 329 | 354    |
+| 718 Boxster                 | Porsche       | 2017 | 300 | 280    |
+| 718 Cayman                  | Porsche       | 2017 | 300 | 280    |
+| 911                         | Porsche       | 2016 | 350 | 287    |
+| Panamera                    | Porsche       | 2016 | 310 | 295    |
+| Average                     | ---           | ---  | 515 | 441    |
+
+Drag the height handle at the foot of the body down or up for a taller or shorter one, from a row's height to all of the rows; a double click on it puts the set height back. The height can be a number of pixels, or a CSS length such as `"60vh"`. Pagination and scrolling go together too: with both, each page scrolls within the height.
+
+## Wide tables
+
+A table wider than its container scrolls sideways, with its stub (and the row group column, if row groups are shown as one) staying in view on the left. A **Scroll for more →** hint and a shade at the edge say there's more to the right, and the table's title, footnotes and source notes stay in view as it scrolls. Here's every column of the cars, with each cell's text on one line (with [i_display()](../reference/GTI.i_display.md#great_tables.GTI.i_display)), which is more than this page has room for; scroll it with a trackpad, with Shift and the mouse wheel, or by dragging the scrollbar.
+
+``` python
+gtcars_wide = (
+    GTI(data.pl.gtcars, rowname_col="model")
+    .tab_header(title="GT Cars: every column")
+    .tab_source_note("Source: the gtcars dataset.")
+    .cols_label(
+        mfr="Make", year="Year", trim="Trim", bdy_style="Body Style", hp="HP", hp_rpm="HP RPM",
+        trq="Torque", trq_rpm="Torque RPM", mpg_c="MPG City", mpg_h="MPG Highway",
+        drivetrain="Drivetrain", trsmn="Transmission", ctry_origin="Country", msrp="MSRP"
+    )
+    .fmt_integer(
+        columns=["year", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"], use_seps=False
+    )
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_display(wrap=False)
+)
+
+gtcars_wide
+```
+
+| GT Cars: every column |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+|  | Make | Year | Trim | Body Style | HP | HP RPM | Torque | Torque RPM | MPG City | MPG Highway | Drivetrain | Transmission | Country | MSRP |
+| GT | Ford | 2017 | Base Coupe | coupe | 647 | 6250 | 550 | 5900 | 11 | 18 | rwd | 7a | United States | \$447,000 |
+| 458 Speciale | Ferrari | 2015 | Base Coupe | coupe | 597 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$291,744 |
+| 458 Spider | Ferrari | 2015 | Base | convertible | 562 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$263,553 |
+| 458 Italia | Ferrari | 2014 | Base Coupe | coupe | 562 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$233,509 |
+| 488 GTB | Ferrari | 2016 | Base Coupe | coupe | 661 | 8000 | 561 | 3000 | 15 | 22 | rwd | 7a | Italy | \$245,400 |
+| California | Ferrari | 2015 | Base Convertible | convertible | 553 | 7500 | 557 | 4750 | 16 | 23 | rwd | 7a | Italy | \$198,973 |
+| GTC4Lusso | Ferrari | 2017 | Base Coupe | coupe | 680 | 8250 | 514 | 5750 | 12 | 17 | awd | 7a | Italy | \$298,000 |
+| FF | Ferrari | 2015 | Base Coupe | coupe | 652 | 8000 | 504 | 6000 | 11 | 16 | awd | 7a | Italy | \$295,000 |
+| F12Berlinetta | Ferrari | 2015 | Base Coupe | coupe | 731 | 8250 | 509 | 6000 | 11 | 16 | rwd | 7a | Italy | \$319,995 |
+| LaFerrari | Ferrari | 2015 | Base Coupe | coupe | 949 | 9000 | 664 | 6750 | 12 | 16 | rwd | 7a | Italy | \$1,416,362 |
+| NSX | Acura | 2017 | Base Coupe | coupe | 573 | 6500 | 476 | 2000 | 21 | 22 | awd | 9a | Japan | \$156,000 |
+| GT-R | Nissan | 2016 | Premium Coupe | coupe | 545 | 6400 | 436 | 3200 | 16 | 22 | awd | 6a | Japan | \$101,770 |
+| Aventador | Lamborghini | 2015 | LP 700-4 Coupe | coupe | 700 | 8250 | 507 | 5500 | 11 | 18 | awd | 7a | Italy | \$397,500 |
+| Huracan | Lamborghini | 2015 | LP 610-4 Coupe | coupe | 610 | 8250 | 413 | 6500 | 16 | 20 | rwd | 7a | Italy | \$237,250 |
+| Gallardo | Lamborghini | 2014 | LP 550-2 Coupe | coupe | 550 | 8000 | 398 | 6500 | 12 | 20 | rwd | 6a | Italy | \$191,900 |
+| Continental GT | Bentley | 2016 | V8 Coupe | coupe | 500 | 6000 | 487 | 1700 | 15 | 25 | awd | 8am | United Kingdom | \$198,500 |
+| Granturismo | Maserati | 2016 | Sport Coupe | coupe | 454 | 7600 | 384 | 4750 | 13 | 21 | rwd | 6am | Italy | \$132,825 |
+| Quattroporte | Maserati | 2016 | S Sedan | sedan | 404 | 5500 | 406 | 1500 | 16 | 23 | rwd | 8am | Italy | \$99,900 |
+| Ghibli | Maserati | 2016 | Base Sedan | sedan | 345 | 5250 | 369 | 1750 | 17 | 24 | rwd | 8am | Italy | \$70,600 |
+| 6-Series | BMW | 2016 | 640 I Coupe | coupe | 315 | 5800 | 330 | 1400 | 20 | 30 | rwd | 8am | Germany | \$77,300 |
+| i8 | BMW | 2016 | Mega World Coupe | coupe | 357 | 5800 | 420 | 3700 | 28 | 29 | awd | 6am | Germany | \$140,700 |
+| M4 | BMW | 2016 | Base Coupe | coupe | 425 | 5500 | 406 | 1850 | 17 | 24 | rwd | 6m | Germany | \$65,700 |
+| M5 | BMW | 2016 | Base Sedan | sedan | 560 | 6000 | 500 | 1500 | 15 | 22 | rwd | 7am | Germany | \$94,100 |
+| M6 | BMW | 2016 | Base Coupe | coupe | 560 | 6000 | 500 | 1500 | 15 | 22 | rwd | 7a | Germany | \$113,400 |
+| DB11 | Aston Martin | 2017 | Base Coupe | coupe | 608 | 6500 | 516 | 1500 | 15 | 21 | rwd | 8am | United Kingdom | \$211,195 |
+| Rapide S | Aston Martin | 2016 | Base Sedan | sedan | 552 | 6650 | 465 | 5500 | 14 | 21 | rwd | 8am | United Kingdom | \$205,300 |
+| Vanquish | Aston Martin | 2016 | Base Coupe | coupe | 568 | 6650 | 465 | 5500 | 13 | 21 | rwd | 8am | United Kingdom | \$287,250 |
+| Vantage | Aston Martin | 2016 | V8 GT (Manual) Coupe | coupe | 430 | 7300 | 361 | 5000 | 13 | 19 | rwd | 6m | United Kingdom | \$103,300 |
+| Corvette | Chevrolet | 2016 | Z06 Coupe | coupe | 650 | 6400 | 650 | 3600 | 15 | 22 | rwd | 7m | United States | \$88,345 |
+| Viper | Dodge | 2017 | GT Coupe | coupe | 645 | 5000 | 600 | 5000 | 12 | 19 | rwd | 6m | United States | \$95,895 |
+| R8 | Audi | 2015 | 4.2 (Manual) Coupe | coupe | 430 | 7900 | 317 | 4500 | 11 | 20 | awd | 6m | Germany | \$115,900 |
+| RS 7 | Audi | 2016 | Quattro Hatchback | hatchback | 560 | 5700 | 516 | 1750 | 15 | 25 | awd | 8am | Germany | \$108,900 |
+| S6 | Audi | 2016 | Premium Plus quattro Sedan | sedan | 450 | 5800 | 406 | 1400 | 18 | 27 | awd | 7a | Germany | \$70,900 |
+| S7 | Audi | 2016 | Prestige quattro Hatchback | hatchback | 450 | 5800 | 406 | 1400 | 17 | 27 | awd | 7a | Germany | \$82,900 |
+| S8 | Audi | 2016 | Base Sedan | sedan | 520 | 5800 | 481 | 1700 | 15 | 25 | awd | 8am | Germany | \$114,900 |
+| Evora | Lotus | 2017 | 2+2 Coupe | coupe | 400 | 7000 | 302 | 3500 | 16 | 24 | rwd | 6m | United Kingdom | \$91,900 |
+| F-Type | Jaguar | 2016 | Base (Manual) Coupe | coupe | 340 | 6500 | 332 | 3500 | 16 | 24 | rwd | 6m | United Kingdom | \$65,000 |
+| AMG GT | Mercedes-Benz | 2016 | S Coupe | coupe | 503 | 6250 | 479 | 1750 | 16 | 22 | rwd | 7a | Germany | \$129,900 |
+| SL-Class | Mercedes-Benz | 2016 | SL400 Convertible | convertible | 329 | 5250 | 354 | 1600 | 20 | 27 | rwd | 7am | Germany | \$85,050 |
+| Model S | Tesla | 2017 | 75D | sedan | 259 | 6100 | 243 | None | None | None | awd | 1dd | United States | \$74,500 |
+| 718 Boxster | Porsche | 2017 | Base Convertible | convertible | 300 | 6500 | 280 | 1950 | 21 | 28 | rwd | 6m | Germany | \$56,000 |
+| 718 Cayman | Porsche | 2017 | Base Coupe | coupe | 300 | 6500 | 280 | 1950 | 20 | 29 | rwd | 6m | Germany | \$53,900 |
+| 911 | Porsche | 2016 | Carrera Coupe | coupe | 350 | 7400 | 287 | 5600 | 20 | 28 | rwd | 7m | Germany | \$84,300 |
+| Panamera | Porsche | 2016 | Base Sedan | sedan | 310 | 6200 | 295 | 3750 | 18 | 28 | rwd | 7a | Germany | \$78,100 |
+| 570 | McLaren | 2016 | Base Coupe | coupe | 570 | 7500 | 443 | 5000 | 16 | 23 | rwd | 7a | United Kingdom | \$184,900 |
+| Dawn | Rolls-Royce | 2016 | Base Convertible | convertible | 563 | 5250 | 575 | 1500 | 12 | 19 | rwd | 8a | United Kingdom | \$335,000 |
+| Wraith | Rolls-Royce | 2016 | Base Coupe | coupe | 624 | 5600 | 590 | 1500 | 13 | 21 | rwd | 8a | United Kingdom | \$304,350 |
+| Source: the gtcars dataset. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+Scrolling is one of three ways [i_responsive()](../reference/GTI.i_responsive.md#great_tables.GTI.i_responsive) fits a table to a narrow container. A table can also be stacked, each row becoming a card with each column's label next to its value, or it can drop columns until it fits (those [i_cols_priority()](../reference/GTI.i_cols_priority.md#great_tables.GTI.i_cols_priority) ranks lowest first), with a button on each row that shows the columns dropped from it. By default, a table drops columns if any have a priority; otherwise it's stacked in a container under 420 pixels wide if it shows no more than six columns, and scrolls if it shows more.
+
+## Pinned columns
+
+With [i_cols_pin()](../reference/GTI.i_cols_pin.md#great_tables.GTI.i_cols_pin), more columns stay in view as a wide table scrolls: pinned to the left, after the stub, or to the right. Here's the table above, with each car's make staying by its name, and its price at the other side.
+
+``` python
+(
+    gtcars_wide
+    .tab_header(title="GT Cars: with pinned columns")
+    .i_cols_pin(columns="mfr")
+    .i_cols_pin(columns="msrp", side="right")
+)
+```
+
+| GT Cars: with pinned columns |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+|  | Make | Year | Trim | Body Style | HP | HP RPM | Torque | Torque RPM | MPG City | MPG Highway | Drivetrain | Transmission | Country | MSRP |
+| GT | Ford | 2017 | Base Coupe | coupe | 647 | 6250 | 550 | 5900 | 11 | 18 | rwd | 7a | United States | \$447,000 |
+| 458 Speciale | Ferrari | 2015 | Base Coupe | coupe | 597 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$291,744 |
+| 458 Spider | Ferrari | 2015 | Base | convertible | 562 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$263,553 |
+| 458 Italia | Ferrari | 2014 | Base Coupe | coupe | 562 | 9000 | 398 | 6000 | 13 | 17 | rwd | 7a | Italy | \$233,509 |
+| 488 GTB | Ferrari | 2016 | Base Coupe | coupe | 661 | 8000 | 561 | 3000 | 15 | 22 | rwd | 7a | Italy | \$245,400 |
+| California | Ferrari | 2015 | Base Convertible | convertible | 553 | 7500 | 557 | 4750 | 16 | 23 | rwd | 7a | Italy | \$198,973 |
+| GTC4Lusso | Ferrari | 2017 | Base Coupe | coupe | 680 | 8250 | 514 | 5750 | 12 | 17 | awd | 7a | Italy | \$298,000 |
+| FF | Ferrari | 2015 | Base Coupe | coupe | 652 | 8000 | 504 | 6000 | 11 | 16 | awd | 7a | Italy | \$295,000 |
+| F12Berlinetta | Ferrari | 2015 | Base Coupe | coupe | 731 | 8250 | 509 | 6000 | 11 | 16 | rwd | 7a | Italy | \$319,995 |
+| LaFerrari | Ferrari | 2015 | Base Coupe | coupe | 949 | 9000 | 664 | 6750 | 12 | 16 | rwd | 7a | Italy | \$1,416,362 |
+| NSX | Acura | 2017 | Base Coupe | coupe | 573 | 6500 | 476 | 2000 | 21 | 22 | awd | 9a | Japan | \$156,000 |
+| GT-R | Nissan | 2016 | Premium Coupe | coupe | 545 | 6400 | 436 | 3200 | 16 | 22 | awd | 6a | Japan | \$101,770 |
+| Aventador | Lamborghini | 2015 | LP 700-4 Coupe | coupe | 700 | 8250 | 507 | 5500 | 11 | 18 | awd | 7a | Italy | \$397,500 |
+| Huracan | Lamborghini | 2015 | LP 610-4 Coupe | coupe | 610 | 8250 | 413 | 6500 | 16 | 20 | rwd | 7a | Italy | \$237,250 |
+| Gallardo | Lamborghini | 2014 | LP 550-2 Coupe | coupe | 550 | 8000 | 398 | 6500 | 12 | 20 | rwd | 6a | Italy | \$191,900 |
+| Continental GT | Bentley | 2016 | V8 Coupe | coupe | 500 | 6000 | 487 | 1700 | 15 | 25 | awd | 8am | United Kingdom | \$198,500 |
+| Granturismo | Maserati | 2016 | Sport Coupe | coupe | 454 | 7600 | 384 | 4750 | 13 | 21 | rwd | 6am | Italy | \$132,825 |
+| Quattroporte | Maserati | 2016 | S Sedan | sedan | 404 | 5500 | 406 | 1500 | 16 | 23 | rwd | 8am | Italy | \$99,900 |
+| Ghibli | Maserati | 2016 | Base Sedan | sedan | 345 | 5250 | 369 | 1750 | 17 | 24 | rwd | 8am | Italy | \$70,600 |
+| 6-Series | BMW | 2016 | 640 I Coupe | coupe | 315 | 5800 | 330 | 1400 | 20 | 30 | rwd | 8am | Germany | \$77,300 |
+| i8 | BMW | 2016 | Mega World Coupe | coupe | 357 | 5800 | 420 | 3700 | 28 | 29 | awd | 6am | Germany | \$140,700 |
+| M4 | BMW | 2016 | Base Coupe | coupe | 425 | 5500 | 406 | 1850 | 17 | 24 | rwd | 6m | Germany | \$65,700 |
+| M5 | BMW | 2016 | Base Sedan | sedan | 560 | 6000 | 500 | 1500 | 15 | 22 | rwd | 7am | Germany | \$94,100 |
+| M6 | BMW | 2016 | Base Coupe | coupe | 560 | 6000 | 500 | 1500 | 15 | 22 | rwd | 7a | Germany | \$113,400 |
+| DB11 | Aston Martin | 2017 | Base Coupe | coupe | 608 | 6500 | 516 | 1500 | 15 | 21 | rwd | 8am | United Kingdom | \$211,195 |
+| Rapide S | Aston Martin | 2016 | Base Sedan | sedan | 552 | 6650 | 465 | 5500 | 14 | 21 | rwd | 8am | United Kingdom | \$205,300 |
+| Vanquish | Aston Martin | 2016 | Base Coupe | coupe | 568 | 6650 | 465 | 5500 | 13 | 21 | rwd | 8am | United Kingdom | \$287,250 |
+| Vantage | Aston Martin | 2016 | V8 GT (Manual) Coupe | coupe | 430 | 7300 | 361 | 5000 | 13 | 19 | rwd | 6m | United Kingdom | \$103,300 |
+| Corvette | Chevrolet | 2016 | Z06 Coupe | coupe | 650 | 6400 | 650 | 3600 | 15 | 22 | rwd | 7m | United States | \$88,345 |
+| Viper | Dodge | 2017 | GT Coupe | coupe | 645 | 5000 | 600 | 5000 | 12 | 19 | rwd | 6m | United States | \$95,895 |
+| R8 | Audi | 2015 | 4.2 (Manual) Coupe | coupe | 430 | 7900 | 317 | 4500 | 11 | 20 | awd | 6m | Germany | \$115,900 |
+| RS 7 | Audi | 2016 | Quattro Hatchback | hatchback | 560 | 5700 | 516 | 1750 | 15 | 25 | awd | 8am | Germany | \$108,900 |
+| S6 | Audi | 2016 | Premium Plus quattro Sedan | sedan | 450 | 5800 | 406 | 1400 | 18 | 27 | awd | 7a | Germany | \$70,900 |
+| S7 | Audi | 2016 | Prestige quattro Hatchback | hatchback | 450 | 5800 | 406 | 1400 | 17 | 27 | awd | 7a | Germany | \$82,900 |
+| S8 | Audi | 2016 | Base Sedan | sedan | 520 | 5800 | 481 | 1700 | 15 | 25 | awd | 8am | Germany | \$114,900 |
+| Evora | Lotus | 2017 | 2+2 Coupe | coupe | 400 | 7000 | 302 | 3500 | 16 | 24 | rwd | 6m | United Kingdom | \$91,900 |
+| F-Type | Jaguar | 2016 | Base (Manual) Coupe | coupe | 340 | 6500 | 332 | 3500 | 16 | 24 | rwd | 6m | United Kingdom | \$65,000 |
+| AMG GT | Mercedes-Benz | 2016 | S Coupe | coupe | 503 | 6250 | 479 | 1750 | 16 | 22 | rwd | 7a | Germany | \$129,900 |
+| SL-Class | Mercedes-Benz | 2016 | SL400 Convertible | convertible | 329 | 5250 | 354 | 1600 | 20 | 27 | rwd | 7am | Germany | \$85,050 |
+| Model S | Tesla | 2017 | 75D | sedan | 259 | 6100 | 243 | None | None | None | awd | 1dd | United States | \$74,500 |
+| 718 Boxster | Porsche | 2017 | Base Convertible | convertible | 300 | 6500 | 280 | 1950 | 21 | 28 | rwd | 6m | Germany | \$56,000 |
+| 718 Cayman | Porsche | 2017 | Base Coupe | coupe | 300 | 6500 | 280 | 1950 | 20 | 29 | rwd | 6m | Germany | \$53,900 |
+| 911 | Porsche | 2016 | Carrera Coupe | coupe | 350 | 7400 | 287 | 5600 | 20 | 28 | rwd | 7m | Germany | \$84,300 |
+| Panamera | Porsche | 2016 | Base Sedan | sedan | 310 | 6200 | 295 | 3750 | 18 | 28 | rwd | 7a | Germany | \$78,100 |
+| 570 | McLaren | 2016 | Base Coupe | coupe | 570 | 7500 | 443 | 5000 | 16 | 23 | rwd | 7a | United Kingdom | \$184,900 |
+| Dawn | Rolls-Royce | 2016 | Base Convertible | convertible | 563 | 5250 | 575 | 1500 | 12 | 19 | rwd | 8a | United Kingdom | \$335,000 |
+| Wraith | Rolls-Royce | 2016 | Base Coupe | coupe | 624 | 5600 | 590 | 1500 | 13 | 21 | rwd | 8a | United Kingdom | \$304,350 |
+| Source: the gtcars dataset. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
+Pinned columns have to be next to their side of the table, with only other pinned columns between them and it (as `mfr` is next to the stub, and `msrp` is the last column), so a column further in is moved there first, with [cols_move_to_start()](../reference/GT.cols_move_to_start.md#great_tables.GT.cols_move_to_start) or [cols_move_to_end()](../reference/GT.cols_move_to_end.md#great_tables.GT.cols_move_to_end). Pinned columns can't take up more than half of the table's container; in a narrower one, only the stub stays pinned, until the container is wide enough again. The left is the stub's side, so in a page written right to left, the columns pinned to the "left" are on the right, by the stub.
+
+## Summary rows
+
+A [GTI](../reference/GTI.md#great_tables.GTI) table keeps the summary rows that [summary_rows()](../reference/GT.summary_rows.md#great_tables.GT.summary_rows) and [grand_summary_rows()](../reference/GT.grand_summary_rows.md#great_tables.GT.grand_summary_rows) add (see [Summary Rows](summary-rows.md)). The rows are sorted within their groups, and each group's summary rows stay with it: those at its bottom are on the page where the group ends (and those at its top, on the page where it starts). The grand summary rows are on every page. Here, the most powerful cars of each country come first; page through to see each country's averages, and the averages and highest values of all the cars under every page.
+
+``` python
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: with summary rows")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .grand_summary_rows(
+        fns={"Average": pl.col("hp", "trq").mean(), "Highest": pl.col("hp", "trq").max()},
+        fmt=vals.fmt_integer,
+    )
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_view(sort="-hp")
+)
+```
+
+| GT Cars: with summary rows |               |      |     |        |
+|----------------------------|---------------|------|-----|--------|
+|                            | Make          | Year | HP  | Torque |
+| United States              |               |      |     |        |
+| GT                         | Ford          | 2017 | 647 | 550    |
+| Corvette                   | Chevrolet     | 2016 | 650 | 650    |
+| Viper                      | Dodge         | 2017 | 645 | 600    |
+| Model S                    | Tesla         | 2017 | 259 | 243    |
+| Average                    | ---           | ---  | 550 | 511    |
+| Italy                      |               |      |     |        |
+| 458 Speciale               | Ferrari       | 2015 | 597 | 398    |
+| 458 Spider                 | Ferrari       | 2015 | 562 | 398    |
+| 458 Italia                 | Ferrari       | 2014 | 562 | 398    |
+| 488 GTB                    | Ferrari       | 2016 | 661 | 561    |
+| California                 | Ferrari       | 2015 | 553 | 557    |
+| GTC4Lusso                  | Ferrari       | 2017 | 680 | 514    |
+| FF                         | Ferrari       | 2015 | 652 | 504    |
+| F12Berlinetta              | Ferrari       | 2015 | 731 | 509    |
+| LaFerrari                  | Ferrari       | 2015 | 949 | 664    |
+| Aventador                  | Lamborghini   | 2015 | 700 | 507    |
+| Huracan                    | Lamborghini   | 2015 | 610 | 413    |
+| Gallardo                   | Lamborghini   | 2014 | 550 | 398    |
+| Granturismo                | Maserati      | 2016 | 454 | 384    |
+| Quattroporte               | Maserati      | 2016 | 404 | 406    |
+| Ghibli                     | Maserati      | 2016 | 345 | 369    |
+| Average                    | ---           | ---  | 601 | 465    |
+| Japan                      |               |      |     |        |
+| NSX                        | Acura         | 2017 | 573 | 476    |
+| GT-R                       | Nissan        | 2016 | 545 | 436    |
+| Average                    | ---           | ---  | 559 | 456    |
+| United Kingdom             |               |      |     |        |
+| Continental GT             | Bentley       | 2016 | 500 | 487    |
+| DB11                       | Aston Martin  | 2017 | 608 | 516    |
+| Rapide S                   | Aston Martin  | 2016 | 552 | 465    |
+| Vanquish                   | Aston Martin  | 2016 | 568 | 465    |
+| Vantage                    | Aston Martin  | 2016 | 430 | 361    |
+| Evora                      | Lotus         | 2017 | 400 | 302    |
+| F-Type                     | Jaguar        | 2016 | 340 | 332    |
+| 570                        | McLaren       | 2016 | 570 | 443    |
+| Dawn                       | Rolls-Royce   | 2016 | 563 | 575    |
+| Wraith                     | Rolls-Royce   | 2016 | 624 | 590    |
+| Average                    | ---           | ---  | 516 | 454    |
+| Germany                    |               |      |     |        |
+| 6-Series                   | BMW           | 2016 | 315 | 330    |
+| i8                         | BMW           | 2016 | 357 | 420    |
+| M4                         | BMW           | 2016 | 425 | 406    |
+| M5                         | BMW           | 2016 | 560 | 500    |
+| M6                         | BMW           | 2016 | 560 | 500    |
+| R8                         | Audi          | 2015 | 430 | 317    |
+| RS 7                       | Audi          | 2016 | 560 | 516    |
+| S6                         | Audi          | 2016 | 450 | 406    |
+| S7                         | Audi          | 2016 | 450 | 406    |
+| S8                         | Audi          | 2016 | 520 | 481    |
+| AMG GT                     | Mercedes-Benz | 2016 | 503 | 479    |
+| SL-Class                   | Mercedes-Benz | 2016 | 329 | 354    |
+| 718 Boxster                | Porsche       | 2017 | 300 | 280    |
+| 718 Cayman                 | Porsche       | 2017 | 300 | 280    |
+| 911                        | Porsche       | 2016 | 350 | 287    |
+| Panamera                   | Porsche       | 2016 | 310 | 295    |
+| Average                    | ---           | ---  | 420 | 391    |
+| Average                    | ---           | ---  | 515 | 441    |
+| Highest                    | ---           | ---  | 949 | 664    |
+
+The summary rows' values are those found in Python, from all of the data: they don't change as readers search or filter the rows. (Choose a make in the `Make` filter, and its country's averages are still those of all of its cars.) A group with no rows left is hidden, with its heading and summary rows.
+
+## Footnotes and source notes
+
+A table's footnotes and source notes are in its footer, as in a [GT](../reference/GT.md#great_tables.GT) table, and the footnote marks stay with their cells as the rows are sorted, filtered and paged. Here, a footnote on the `HP` label says what it is, and another marks the cars of over 700 hp; sort by `HP` to bring them to the top.
+
+``` python
+from great_tables import loc
+
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with footnotes and a source note")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .tab_footnote("Horsepower, at the engine's peak.", locations=loc.column_labels(columns="hp"))
+    .tab_footnote("Over 700 hp.", locations=loc.body(columns="hp", rows=pl.col("hp") > 700))
+    .tab_source_note("Source: the gtcars dataset.")
+)
+```
+
+| GT Cars: with footnotes and a source note |  |  |  |  |  |
+|----|----|----|----|----|----|
+| Make | Model | Year | HP1 | Torque | MSRP |
+| Ford | GT | 2017 | 647 | 550 | \$447,000.00 |
+| Ferrari | 458 Speciale | 2015 | 597 | 398 | \$291,744.00 |
+| Ferrari | 458 Spider | 2015 | 562 | 398 | \$263,553.00 |
+| Ferrari | 458 Italia | 2014 | 562 | 398 | \$233,509.00 |
+| Ferrari | 488 GTB | 2016 | 661 | 561 | \$245,400.00 |
+| Ferrari | California | 2015 | 553 | 557 | \$198,973.00 |
+| Ferrari | GTC4Lusso | 2017 | 680 | 514 | \$298,000.00 |
+| Ferrari | FF | 2015 | 652 | 504 | \$295,000.00 |
+| Ferrari | F12Berlinetta | 2015 | 2 731 | 509 | \$319,995.00 |
+| Ferrari | LaFerrari | 2015 | 2 949 | 664 | \$1,416,362.00 |
+| Acura | NSX | 2017 | 573 | 476 | \$156,000.00 |
+| Nissan | GT-R | 2016 | 545 | 436 | \$101,770.00 |
+| Lamborghini | Aventador | 2015 | 700 | 507 | \$397,500.00 |
+| Lamborghini | Huracan | 2015 | 610 | 413 | \$237,250.00 |
+| Lamborghini | Gallardo | 2014 | 550 | 398 | \$191,900.00 |
+| Bentley | Continental GT | 2016 | 500 | 487 | \$198,500.00 |
+| Maserati | Granturismo | 2016 | 454 | 384 | \$132,825.00 |
+| Maserati | Quattroporte | 2016 | 404 | 406 | \$99,900.00 |
+| Maserati | Ghibli | 2016 | 345 | 369 | \$70,600.00 |
+| BMW | 6-Series | 2016 | 315 | 330 | \$77,300.00 |
+| BMW | i8 | 2016 | 357 | 420 | \$140,700.00 |
+| BMW | M4 | 2016 | 425 | 406 | \$65,700.00 |
+| BMW | M5 | 2016 | 560 | 500 | \$94,100.00 |
+| BMW | M6 | 2016 | 560 | 500 | \$113,400.00 |
+| Aston Martin | DB11 | 2017 | 608 | 516 | \$211,195.00 |
+| Aston Martin | Rapide S | 2016 | 552 | 465 | \$205,300.00 |
+| Aston Martin | Vanquish | 2016 | 568 | 465 | \$287,250.00 |
+| Aston Martin | Vantage | 2016 | 430 | 361 | \$103,300.00 |
+| Chevrolet | Corvette | 2016 | 650 | 650 | \$88,345.00 |
+| Dodge | Viper | 2017 | 645 | 600 | \$95,895.00 |
+| Audi | R8 | 2015 | 430 | 317 | \$115,900.00 |
+| Audi | RS 7 | 2016 | 560 | 516 | \$108,900.00 |
+| Audi | S6 | 2016 | 450 | 406 | \$70,900.00 |
+| Audi | S7 | 2016 | 450 | 406 | \$82,900.00 |
+| Audi | S8 | 2016 | 520 | 481 | \$114,900.00 |
+| Lotus | Evora | 2017 | 400 | 302 | \$91,900.00 |
+| Jaguar | F-Type | 2016 | 340 | 332 | \$65,000.00 |
+| Mercedes-Benz | AMG GT | 2016 | 503 | 479 | \$129,900.00 |
+| Mercedes-Benz | SL-Class | 2016 | 329 | 354 | \$85,050.00 |
+| Tesla | Model S | 2017 | 259 | 243 | \$74,500.00 |
+| Porsche | 718 Boxster | 2017 | 300 | 280 | \$56,000.00 |
+| Porsche | 718 Cayman | 2017 | 300 | 280 | \$53,900.00 |
+| Porsche | 911 | 2016 | 350 | 287 | \$84,300.00 |
+| Porsche | Panamera | 2016 | 310 | 295 | \$78,100.00 |
+| McLaren | 570 | 2016 | 570 | 443 | \$184,900.00 |
+| Rolls-Royce | Dawn | 2016 | 563 | 575 | \$335,000.00 |
+| Rolls-Royce | Wraith | 2016 | 624 | 590 | \$304,350.00 |
+| 1 Horsepower, at the engine's peak. |  |  |  |  |  |
+| 2 Over 700 hp. |  |  |  |  |  |
+| Source: the gtcars dataset. |  |  |  |  |  |
+
+The marks are numbered as the table was first made, so a sorted table can have them out of order. The search doesn't match them, and exports leave them out. A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table), whose rows are collected as they're shown, can have footnotes on its title, column labels and the rest, but not on its body or stub.
+
 ## Row details
 
 With [i_row_details()](../reference/GTI.i_row_details.md#great_tables.GTI.i_row_details), each row can have more to show under it, when the reader asks for it. A function makes a row's details from its values (including those of columns the table hides): as text, with [md()](../reference/md.md#great_tables.md) or [html()](../reference/html.md#great_tables.md), or as a [GT](../reference/GT.md#great_tables.GT) table of their own. Here, each car has a few lines about its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info panel to show every car's.
@@ -708,6 +1092,82 @@ GTI(cars, preset="explorer")
 | Rolls-Royce   | Wraith         | 2016 | 624.0 | 13.0  | 304350.0  |
 
 A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each sets all of its feature's settings, so `.i_display(wrap=True)` on an explorer lets its text wrap, but also makes its rows less compact and puts them in the table's own font, unless it's given `compact=True` and `monospace=True` too; and `.i_inspect(missing=False)` leaves the row numbers, dtypes and dimensions on. [i_inspect()](../reference/GTI.i_inspect.md#great_tables.GTI.i_inspect) and [i_display()](../reference/GTI.i_display.md#great_tables.GTI.i_display) work on their own as well, on any [GTI](../reference/GTI.md#great_tables.GTI) table.
+
+## Exporting the rows
+
+With [i_export()](../reference/GTI.i_export.md#great_tables.GTI.i_export), an export button in the control bar opens a panel with a button for each way readers can take the rows away: downloaded as a CSV, TSV or JSON file (`"csv"`, `"tsv"`, `"json"`), copied (`"clipboard"`), or as code that gets them from the data (`"code"`). Here, filter the cars to a make or two and sort them, then export what's left; the files are named `gtcars.csv`, `gtcars.tsv` and `gtcars.json`.
+
+``` python
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: exporting the rows")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_export(["csv", "tsv", "json", "clipboard", "code"], filename="gtcars")
+)
+```
+
+| GT Cars: exporting the rows |                |      |     |        |                |
+|-----------------------------|----------------|------|-----|--------|----------------|
+| Make                        | Model          | Year | HP  | Torque | MSRP           |
+| Ford                        | GT             | 2017 | 647 | 550    | \$447,000.00   |
+| Ferrari                     | 458 Speciale   | 2015 | 597 | 398    | \$291,744.00   |
+| Ferrari                     | 458 Spider     | 2015 | 562 | 398    | \$263,553.00   |
+| Ferrari                     | 458 Italia     | 2014 | 562 | 398    | \$233,509.00   |
+| Ferrari                     | 488 GTB        | 2016 | 661 | 561    | \$245,400.00   |
+| Ferrari                     | California     | 2015 | 553 | 557    | \$198,973.00   |
+| Ferrari                     | GTC4Lusso      | 2017 | 680 | 514    | \$298,000.00   |
+| Ferrari                     | FF             | 2015 | 652 | 504    | \$295,000.00   |
+| Ferrari                     | F12Berlinetta  | 2015 | 731 | 509    | \$319,995.00   |
+| Ferrari                     | LaFerrari      | 2015 | 949 | 664    | \$1,416,362.00 |
+| Acura                       | NSX            | 2017 | 573 | 476    | \$156,000.00   |
+| Nissan                      | GT-R           | 2016 | 545 | 436    | \$101,770.00   |
+| Lamborghini                 | Aventador      | 2015 | 700 | 507    | \$397,500.00   |
+| Lamborghini                 | Huracan        | 2015 | 610 | 413    | \$237,250.00   |
+| Lamborghini                 | Gallardo       | 2014 | 550 | 398    | \$191,900.00   |
+| Bentley                     | Continental GT | 2016 | 500 | 487    | \$198,500.00   |
+| Maserati                    | Granturismo    | 2016 | 454 | 384    | \$132,825.00   |
+| Maserati                    | Quattroporte   | 2016 | 404 | 406    | \$99,900.00    |
+| Maserati                    | Ghibli         | 2016 | 345 | 369    | \$70,600.00    |
+| BMW                         | 6-Series       | 2016 | 315 | 330    | \$77,300.00    |
+| BMW                         | i8             | 2016 | 357 | 420    | \$140,700.00   |
+| BMW                         | M4             | 2016 | 425 | 406    | \$65,700.00    |
+| BMW                         | M5             | 2016 | 560 | 500    | \$94,100.00    |
+| BMW                         | M6             | 2016 | 560 | 500    | \$113,400.00   |
+| Aston Martin                | DB11           | 2017 | 608 | 516    | \$211,195.00   |
+| Aston Martin                | Rapide S       | 2016 | 552 | 465    | \$205,300.00   |
+| Aston Martin                | Vanquish       | 2016 | 568 | 465    | \$287,250.00   |
+| Aston Martin                | Vantage        | 2016 | 430 | 361    | \$103,300.00   |
+| Chevrolet                   | Corvette       | 2016 | 650 | 650    | \$88,345.00    |
+| Dodge                       | Viper          | 2017 | 645 | 600    | \$95,895.00    |
+| Audi                        | R8             | 2015 | 430 | 317    | \$115,900.00   |
+| Audi                        | RS 7           | 2016 | 560 | 516    | \$108,900.00   |
+| Audi                        | S6             | 2016 | 450 | 406    | \$70,900.00    |
+| Audi                        | S7             | 2016 | 450 | 406    | \$82,900.00    |
+| Audi                        | S8             | 2016 | 520 | 481    | \$114,900.00   |
+| Lotus                       | Evora          | 2017 | 400 | 302    | \$91,900.00    |
+| Jaguar                      | F-Type         | 2016 | 340 | 332    | \$65,000.00    |
+| Mercedes-Benz               | AMG GT         | 2016 | 503 | 479    | \$129,900.00   |
+| Mercedes-Benz               | SL-Class       | 2016 | 329 | 354    | \$85,050.00    |
+| Tesla                       | Model S        | 2017 | 259 | 243    | \$74,500.00    |
+| Porsche                     | 718 Boxster    | 2017 | 300 | 280    | \$56,000.00    |
+| Porsche                     | 718 Cayman     | 2017 | 300 | 280    | \$53,900.00    |
+| Porsche                     | 911            | 2016 | 350 | 287    | \$84,300.00    |
+| Porsche                     | Panamera       | 2016 | 310 | 295    | \$78,100.00    |
+| McLaren                     | 570            | 2016 | 570 | 443    | \$184,900.00   |
+| Rolls-Royce                 | Dawn           | 2016 | 563 | 575    | \$335,000.00   |
+| Rolls-Royce                 | Wraith         | 2016 | 624 | 590    | \$304,350.00   |
+
+An export has the rows readers see: every row the search and filters keep (on every page, not only the one shown), in the order shown, with the columns' text as the table shows it (so the Ford GT's `MSRP` is exported as `$447,000.00`). Each format has them its own way:
+
+- a CSV or TSV file has the column labels as its first row (each after its spanners' labels, as in "Revenue - gross"), and with row groups, the group's label as a column before the others; a cell a spreadsheet would read as a formula starts with a `'`, so that it's read as text
+- a JSON file has an object for each row, with each cell's text under its column's name in the data (and the row's group label first, under `"group"`)
+- a copy has the rows both as a table, with the cells' styles, for pasting into a document or a spreadsheet, and as text, with tabs between the cells
+- the code filters and sorts the data (as `df`) as the reader's view does, for Polars, Pandas or Narwhals (the data's library, at first); it works on the data's values, so it leaves out the search
+
+The formats' buttons are in the order [i_export()](../reference/GTI.i_export.md#great_tables.GTI.i_export) is given them. With [i_selection()](../reference/GTI.i_selection.md#great_tables.GTI.i_selection), readers can export the rows they've selected instead.
 
 ## Using the table from Python and in apps
 
