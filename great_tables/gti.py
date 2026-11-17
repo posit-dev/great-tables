@@ -607,10 +607,11 @@ class GTI(GT):
         it (a table's cell, or an inline block), once its script runs: before that, such a table
         has no width.
 
-        Whatever the mode, on a touch screen, a control bar narrower than 30em (480 pixels, at 16px text) folds
-        its search, its filters as text and its "Columns" button into one "Filter & sort" button,
-        which opens a sheet from the foot of the window with all of them, and the table's sort and
-        filters. A long press on a column's label opens a sheet for that column (to sort it, filter
+        Whatever the mode, in a container narrower than 30em (480 pixels, at 16px text), the
+        control bar folds its search, its filters as text and its "Columns" button into one
+        "Filter & sort" button, which opens a sheet from the foot of the window with all of them,
+        and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less.
+        There, a long press on a column's label opens a sheet for that column (to sort it, filter
         it, or hide it), while a tap still sorts by it.
 
         Parameters
@@ -831,9 +832,10 @@ class GTI(GT):
         each, and their text as the table shows it). The facets, ranges, date ranges and booleans
         go by the column's values, not by how they're formatted. Rows are shown when they
         pass every filter, and the search; the info panel (from the (i) button in the control bar)
-        says how many filters there are, and can clear them. The bar also shows the filters that are on, and its <> button opens them as
-        text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
-        (with suggestions as they type). Filters are off by default.
+        says how many filters there are, and can clear them. The bar also shows the filters that
+        are on, and its `{ }` button opens them as text, a query as
+        [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit (with suggestions
+        as they type). Filters are off by default.
 
         Each call sets the filters of the columns it's given, so that some columns can be filtered
         one way, and others another; a later call for a column replaces what an earlier one set.
@@ -1113,7 +1115,7 @@ class GTI(GT):
         ```
 
         A table of the municipalities' names and populations that can be filtered by their status,
-        which it doesn't show (the filter is in the query bar, from the `<>` button in the control
+        which it doesn't show (the filter is in the query bar, from the `{ }` button in the control
         bar):
 
         ```{python}
