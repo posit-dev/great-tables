@@ -326,9 +326,9 @@ CodeBackend = Literal["polars", "pandas", "narwhals"]
 
 
 class CodeColumnSpec(TypedDict):
-    # (What the code goes by: a column of strings, of floats, of categories, of dates, of dates
-    # and times, or of another type)
-    dtype: Literal["string", "float", "categorical", "date", "datetime", "other"]
+    # (What the code goes by: a column of strings, of floats, of integers, of categories, of dates,
+    # of dates and times, or of another type)
+    dtype: Literal["string", "float", "integer", "categorical", "date", "datetime", "other"]
     nullable: bool  # a pandas nullable dtype, whose comparisons can be missing
     literals: list[str | None] | None  # a facet's values as Python (`None` where it can't be)
 
