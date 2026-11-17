@@ -1594,6 +1594,8 @@ def code_spec(
                 if dtype == nw.String
                 else "float"
                 if dtype.is_float()
+                else "integer"
+                if dtype.is_integer()
                 else "categorical"
                 if isinstance(dtype, (nw.Categorical, nw.Enum))
                 else "date"
@@ -1747,11 +1749,17 @@ def _pandas_code(
                 _ATOM,
             )
         if isinstance(p, (_Compare, _Extreme)):
+            nullable = _nullable(data, p.col)
             if isinstance(p, _Extreme):
+                # (A nullable number as a numpy float, its missing values NaN, which aren't ranked
+                # (before pandas 3, a nullable dtype's are) and don't make the rank `pd.NA`)
                 ranked = col
+                if nullable and (p.finite or schema[p.col].is_integer()):
+                    ranked = f'{col}.astype("float64")'
+                    nullable = False
                 if p.finite:
                     imports.add("import numpy as np")
-                    ranked = f"{col}.where(np.isfinite({col}))"
+                    ranked = f"{ranked}.where(np.isfinite({col}))"
                 term: _Term = (f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE)
             else:
                 term = (f"{col} {_SYMBOLS[p.op]} {_literal(p.value)}", _COMPARE)
@@ -1760,7 +1768,7 @@ def _pandas_code(
                     term = (f"({term[0]}) & np.isfinite({col})", _AND)
             # (pandas' nullable dtypes compare to, and rank missing values as, `pd.NA`, which a
             # mask can't have)
-            return (f"({term[0]}).fillna(False)", _ATOM) if _nullable(data, p.col) else term
+            return (f"({term[0]}).fillna(False)", _ATOM) if nullable else term
         if not p.values:
             return f"{col}.isna()", _ATOM
         term_ = f"{col}.isin({_list(p.values)})"
