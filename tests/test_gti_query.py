@@ -1408,6 +1408,30 @@ def test_query_code_of_top_and_bottom():
         assert run_code(query_code(gti, backend), data) == [0]
 
 
+def test_query_code_of_top_and_bottom_of_nullable_columns():
+    # (A nullable dtype's missing values rank as `pd.NA`, which `~` would keep and the mask then
+    # drop: filled, as a comparison's are, so that a `not` keeps them, as the view does)
+    data = pd.DataFrame(
+        {
+            "a": pd.array([None, 5, 3], dtype="Int64"),
+            "b": pd.array([2, None, 2], dtype="Int64"),
+            "c": pd.array([None, None, None], dtype="Int64"),
+        }
+    )
+    gti = GTI(data).i_cols_filter(columns=["a", "b", "c"], type="range")
+    # (As Hypothesis found it)
+    found = gti.i_view(filter={"and": [not_(clause("a", "top_n", 1))]})
+    assert query_code(found, "pandas") == (
+        'df[\n    ~(df["a"].rank(method="min", ascending=False) <= 1).fillna(False)\n]\n'
+    )
+    assert view_rows(found) == run_code(query_code(found, "pandas"), data) == [0, 2]
+    for col in ["a", "b", "c"]:
+        for op in ["top_n", "bottom_n"]:
+            for item in [clause(col, op, 1), not_(clause(col, op, 1))]:
+                view = gti.i_view(filter={"and": [item]})
+                assert run_code(query_code(view, "pandas"), data) == view_rows(view), item
+
+
 # (Booleans, one of them missing: pandas' nullable ones)
 FLAGS = pd.DataFrame({"on": pd.array([True, None, False, True], dtype="boolean")})
 
@@ -1699,6 +1723,43 @@ def test_query_code_drops_the_hidden_columns(backend: str, code_backend: str):
         "num",
     ]
     assert len(result) == 2
+
+
+def grouped(data: Any, column: str, **view: Any) -> GTI:
+    return GTI(data).i_cols_controls(columns=column, groupable=True).i_view(group_by=column, **view)
+
+
+def test_query_code_of_a_view_grouped_by_a_column():
+    # (`few` is "x", "y", "x", missing; `num` is 1.5, 2.0, missing, 3.0: sorted by the column first,
+    # as the groups are laid out, the missing last; descending, if the view sorts by it so)
+    gti = grouped(DF, "few", sort="-num")
+    assert query_code(gti, "pandas") == (
+        'df.sort_values(["few", "num"], ascending=[True, False], na_position="last", kind="stable")\n'
+    )
+    assert query_code(gti, "polars") == (
+        "import polars as pl\n\n"
+        'df.sort(["few", "num"], descending=[False, True], nulls_last=True, maintain_order=True)\n'
+    )
+    assert query_code(grouped(DF, "few"), "pandas") == (
+        'df.sort_values(["few"], ascending=[True], na_position="last", kind="stable")\n'
+    )
+    assert query_code(grouped(DF, "few", sort=["name", "-few"]), "pandas") == (
+        'df.sort_values(["few", "name"], ascending=[False, True], na_position="last", kind="stable")\n'
+    )
+    for view, expected in [
+        ({"sort": "-num"}, [0, 2, 1, 3]),
+        ({"sort": ["name", "-few"]}, [1, 0, 2, 3]),
+        ({}, [0, 2, 1, 3]),
+    ]:
+        gti = grouped(DF, "few", **view)
+        assert view_rows(gti) == expected
+        for backend, data in [
+            ("polars", pl.from_pandas(DF)),
+            ("pandas", DF),
+            ("narwhals", DF),
+            ("narwhals", pa.Table.from_pandas(DF)),
+        ]:
+            assert run_code(query_code(gti, backend), data) == expected, (view, backend)
 
 
 def test_query_code_needs_a_backend():
@@ -2089,6 +2150,25 @@ def test_views_of_groups(engine: Callable[[GT], dict], backend: str):
         assert assert_same_rows(engine, filtered) == [0, 1, 3, 5]
 
 
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_views_grouped_by_a_column(engine: Callable[[GT], dict], backend: str):
+    # (A float's NaN is missing with pandas, and a number after every other with the others)
+    columns = {
+        "f": ("float", [1.5, math.nan, None, 2.0, 1.5, math.nan]),
+        "s": ("str", ["b", None, "a", "b", "a", None]),
+        "n": ("int", [5, 3, 1, 4, 2, 6]),
+    }
+    data = frame(backend, columns)
+    assert assert_same_rows(engine, grouped(data, "s")) == [2, 4, 0, 3, 1, 5]
+    assert assert_same_rows(engine, grouped(data, "s", sort=["-s", "-n"])) == [0, 3, 4, 2, 5, 1]
+    for view in [{}, {"sort": "-f"}, {"sort": ["n", "f"]}, {"sort": ["-n"]}]:
+        gti = grouped(data, "f", **view)
+        rows = assert_same_rows(engine, gti)
+        for code_backend in ["narwhals", "pandas" if backend == "pandas" else "polars"]:
+            if backend != "pyarrow" or code_backend == "narwhals":
+                assert run_code(query_code(gti, code_backend), data) == rows, (view, code_backend)
+
+
 def test_views_of_merged_stub_cells(engine: Callable[[GT], dict]):
     df = pd.DataFrame({"a": ["x", "x", "y"], "b": ["1", "2", "3"], "n": [3, 1, 2]})
     gti = GTI(df, rowname_col=["a", "b"]).i_cols_filter(columns="n").i_view(sort="n")
@@ -2346,6 +2426,47 @@ def test_random_query_code(code_backend: str, backend: str, data: Any):
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
+@hypothesis.settings(max_examples=60, deadline=None)
+@hypothesis.given(data=st.data())
+def test_random_grouped_views(node_engine: Callable[[dict], dict], backend: str, data: Any):
+    # (The rows the runtime shows grouped by a column, its code, and the rows the code keeps)
+    gti, _ = data.draw(tables(backend, groups=False))
+    spec = render_parts(gti)[1]
+    groupable = [
+        c["id"] for c in spec["columns"] if c["role"] == "data" and c["id"] in spec["ranks"]
+    ]
+    hypothesis.assume(groupable)
+    column = data.draw(st.sampled_from(groupable))
+    filter, sort = data.draw(views(spec))
+    if filter is not None:
+        filter = {
+            "and": [
+                item
+                for item in filter["and"]
+                if all(leaf["op"] not in ("contains", "matches") for leaf in leaves([item]))
+            ]
+        }
+    gti = gti.i_cols_controls(columns=column, groupable=True).i_view(
+        filter=filter, sort=sort, group_by=column
+    )
+    shown = node_engine(
+        {"html": render_gti_html(gti.i_export("code"), runtime="none"), "code": True}
+    )
+    assert shown["state"] == "ready"
+    assert shown["warnings"] == []
+    rows = view_rows(gti)
+    assert shown["rows"] == rows
+    assert shown["code"] == {lib: query_code(gti, lib) for lib in LIBRARIES}
+    if backend == "pyarrow":
+        # (Narwhals can't sort PyArrow's dictionaries)
+        kinds = {c["id"]: c["kind"] for c in spec["columns"]}
+        hypothesis.assume(kinds[column] != "category")
+        hypothesis.assume(not any(kinds[key.lstrip("-")] == "category" for key in sort))
+    for lib in ["narwhals", backend] if backend != "pyarrow" else ["narwhals"]:
+        assert run_code(query_code(gti, lib), gti._tbl_data) == rows, lib
+
+
+@pytest.mark.parametrize("backend", BACKENDS)
 def test_a_facet_has_one_zero(engine: Callable[[GT], dict], backend: str):
     # (As JavaScript's `Map` has it, and the ranks: -0.0 is 0.0)
     gti = GTI(frame(backend, {"x": ("float", [0.0, -0.0, 1.0, -0.0])})).i_cols_filter(type="facet")
@@ -2388,6 +2509,21 @@ def test_runtime_code_drops_the_hidden_columns(node_engine: Callable[[dict], dic
     code = runtime_code(node_engine, gti)
     assert code == {lib: query_code(gti, lib) for lib in LIBRARIES}
     assert code["pandas"].endswith('.drop(columns=["name", "flag"])\n')
+
+
+def test_runtime_code_of_a_view_grouped_by_a_column(node_engine: Callable[[dict], dict]):
+    for view in [{}, {"sort": "-num"}, {"sort": ["name", "-few"]}]:
+        gti = grouped(DF, "few", **view)
+        assert runtime_code(node_engine, gti) == {lib: query_code(gti, lib) for lib in LIBRARIES}
+    # (And of the ranks of a nullable column, filled)
+    gti = (
+        GTI(DF.assign(n=pd.array([1, None, 3, 2], dtype="Int64")))
+        .i_cols_filter(columns="n", type="range")
+        .i_view(filter={"and": [not_(clause("n", "top_n", 1))]})
+    )
+    code = runtime_code(node_engine, gti)
+    assert code == {lib: query_code(gti, lib) for lib in LIBRARIES}
+    assert ".fillna(False)" in code["pandas"]
 
 
 def test_runtime_code_of_other_values(node_engine: Callable[[dict], dict]):
