@@ -3,7 +3,8 @@
  *
  * Matching ignores case and accents ("cafe" finds "Café"). A search is split into terms at
  * whitespace, and a row matches when every term is in one of its cells. The text of each cell is
- * kept with a map back to the cell's text nodes, so that matches can be highlighted.
+ * kept with a map back to the cell's text nodes, so that matches can be highlighted; the text of
+ * blocks in a cell (paragraphs, lines) is kept apart by a space, as it's shown apart.
  */
 
 // Removes combining marks once characters are decomposed (NFD)
@@ -26,6 +27,10 @@ function foldMapped(text: string): { folded: string; starts: number[]; ends: num
   let i = 0;
   for (const char of text) {
     const out = char.normalize("NFD").replace(MARKS, "").toLowerCase();
+    // (A combining mark on its own folds away: a match ending on its letter takes it too)
+    if (out === "" && ends.length > 0) {
+      ends[ends.length - 1] = i + char.length;
+    }
     folded += out;
     for (let k = 0; k < out.length; k++) {
       starts.push(i);
@@ -54,7 +59,7 @@ export class CellText {
   /** The folded text: the shown text, then (after a newline) text that isn't shown, like `alt`. */
   readonly folded: string;
   private readonly nodes: Text[];
-  /** Where each node starts in the shown text. */
+  /** Where each node starts in the shown text (a space after a block's text). */
   private readonly offsets: number[];
   /** How much of `folded` is the shown text. */
   private readonly shownLength: number;
@@ -67,14 +72,16 @@ export class CellText {
   constructor(cell: Element) {
     const nodes: Text[] = [];
     const extra: string[] = [];
-    collect(cell, nodes, extra);
+    const gaps = new Set<number>();
+    collect(cell, nodes, extra, gaps);
 
     const offsets: number[] = [];
     let shown = "";
-    for (const node of nodes) {
+    nodes.forEach((node, i) => {
+      shown += i > 0 && gaps.has(i) ? " " : "";
       offsets.push(shown.length);
       shown += node.data;
-    }
+    });
     this.nodes = nodes;
     this.offsets = offsets;
 
@@ -98,7 +105,11 @@ export class CellText {
 
   /** The text as `folded` has it, unfolded (for a `matches` clause's pattern). */
   get text(): string {
-    return this.nodes.map((node) => node.data).join("") + this.extra;
+    let text = "";
+    this.nodes.forEach((node, i) => {
+      text += (text.length < (this.offsets[i] as number) ? " " : "") + node.data;
+    });
+    return text + this.extra;
   }
 
   /** Where `terms` are in the shown text (not in text that isn't shown). */
@@ -135,8 +146,11 @@ export class CellText {
 
 // Footnote marks aren't part of a cell's value
 const SKIPPED = "gt_footnote_marks";
+// Elements shown as blocks (or a line break), whose text isn't run into the text beside them
+const BLOCK = /^(?:address|article|aside|blockquote|br|caption|d[dlt]|details|div|fig(?:caption|ure)|footer|form|h[1-6r]|header|li|main|nav|ol|p|pre|section|summary|t(?:able|body|d|foot|h|head|r)|ul)$/;
 
-function collect(node: Node, nodes: Text[], extra: string[]): void {
+// A cell's text nodes, its text that isn't shown, and the nodes a block parts from those before
+function collect(node: Node, nodes: Text[], extra: string[], gaps: Set<number>): void {
   for (const child of node.childNodes) {
     if (child.nodeType === Node.TEXT_NODE) {
       nodes.push(child as Text);
@@ -155,7 +169,14 @@ function collect(node: Node, nodes: Text[], extra: string[]): void {
           extra.push(alt);
         }
       } else if (tag !== "script" && tag !== "style" && tag !== "template" && !el.classList.contains(SKIPPED)) {
-        collect(el, nodes, extra);
+        const block = BLOCK.test(tag);
+        if (block) {
+          gaps.add(nodes.length);
+        }
+        collect(el, nodes, extra, gaps);
+        if (block) {
+          gaps.add(nodes.length);
+        }
       }
     }
   }
