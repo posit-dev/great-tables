@@ -442,6 +442,28 @@ describe("sorting", () => {
     expect(header(el, "x").classList.contains("gt-i-sortable")).toBe(true);
   });
 
+  it("names each label by its text, not with its controls'", async () => {
+    const el = await mountTable(GROUPED, {
+      yLabel: 'y (<span>units</span>)<span class="gt_footnote_marks">1</span>',
+      columns: { x: { dtype: "f64" } },
+      filters: [{ column: "x", type: "range", values: [5, 10, 20] }],
+    });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(header(el, "y").getAttribute("aria-label")).toBe("y (units)");
+    // (A label without controls is named by its text already)
+    const plain = await mountTable(GROUPED, { controls: { sorting: false } });
+    expect(header(plain, "x").hasAttribute("aria-label")).toBe(false);
+    // (And the stubhead, with a resize handle, by its text too)
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const stub = await mountTable(GROUPED, {
+      controls: { resizing: true },
+      thead:
+        `<tr class="gt_col_headings"><th class="gt_col_heading">Row</th>` +
+        `<th class="gt_col_heading gt_right" id="t-x">x</th><th class="gt_col_heading gt_left" id="t-y">y</th></tr>`,
+    });
+    expect(stub.querySelector("thead th:not([id])")?.getAttribute("aria-label")).toBe("Row");
+  });
+
   it("leaves the label's markup as it is", async () => {
     const label = "<em>y</em> (<span>units</span>)";
     const el = await mountTable(GROUPED, { yLabel: label });
@@ -3318,7 +3340,7 @@ describe("export", () => {
       ["a", "row_3", "10", "c"],
     ]);
     expect(table.querySelectorAll("thead th")).toHaveLength(4);
-    expect(table.querySelectorAll("[class], [id], [rowspan], [headers]")).toHaveLength(0);
+    expect(table.querySelectorAll("[class], [id], [rowspan], [headers], [aria-label], [aria-describedby]")).toHaveLength(0);
     // (The stub's cells are still header cells)
     const row1 = table.rows[2] as HTMLTableRowElement;
     expect(Array.from(row1.cells, (cell) => cell.tagName)).toEqual(["TD", "TH", "TD", "TD"]);
@@ -6132,10 +6154,26 @@ describe("column resizing", () => {
       expect(handle.getAttribute("aria-valuenow")).toBe("100");
       expect(handle.getAttribute("aria-valuetext")).toBe("100 pixels");
       expect(handle.tabIndex).toBe(0);
+      expect(handle.getAttribute("aria-valuemin")).toBe("32");
       // (Beside the sort button, not in it)
       expect(handle.parentElement?.classList.contains("gt-i-resizable")).toBe(true);
       expect(handle.closest("button")).toBeNull();
     }
+  });
+
+  it("says how narrow and how wide a column can be made", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(600);
+    const el = await resizable();
+    const handle = handles(el)[1] as HTMLElement;
+    const range = () => ["aria-valuemin", "aria-valuenow", "aria-valuemax"].map((name) => handle.getAttribute(name));
+    // (From 2em to the table's width, and wider as it's made so)
+    expect(range()).toEqual(["32", "100", "600"]);
+    for (let i = 0; i < 60; i++) {
+      press(handle, "ArrowRight", true);
+    }
+    expect(range()).toEqual(["32", "3100", "3100"]);
+    press(handle, "Home");
+    expect(range()).toEqual(["32", "32", "600"]);
   });
 
   it("resizes a column with the arrow keys, fixing every column's width", async () => {
@@ -8473,6 +8511,30 @@ describe("column profiles", () => {
     expect(caption(el, "y")).toBe("3 values");
   });
 
+  it("describes each profiled label by its dtype and summary, which a screen reader reads", async () => {
+    const el = await mountProfiles({ columns: { x: { dtype: "f64" } }, export: { formats: ["csv"] } });
+    const about = (column: string) => {
+      const th = header(el, column);
+      const found = el.ownerDocument.getElementById(th.getAttribute("aria-describedby") ?? "");
+      expect(found?.parentElement).toBe(th);
+      expect(found?.hidden).toBe(true);
+      return found?.textContent;
+    };
+    expect(about("x")).toBe("f64, 5 to 20, 20% missing");
+    expect(about("y")).toBe("3 values");
+    el.search = "zzz";
+    expect(about("x")).toBe("f64, No rows");
+    el.search = "a";
+    expect(about("y")).toBe("1 value");
+    // (Not part of the label's text)
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+    // (And a dtype without a profile is described too)
+    const plain = await mountTable(GROUPED, { columns: { y: { dtype: "str" } } });
+    expect(plain.ownerDocument.getElementById(header(plain, "y").getAttribute("aria-describedby") ?? "")?.textContent).toBe("str");
+    expect(header(plain, "x").hasAttribute("aria-describedby")).toBe(false);
+  });
+
   it("counts again only when other rows are kept, not when the table is sorted or paged", async () => {
     const count = vi.spyOn(Profile.prototype, "count");
     const el = await mountProfiles({ pagination: { enabled: true } });
@@ -8536,6 +8598,28 @@ describe("grouping rows", () => {
     expect(rows(el)).toEqual([0, 1, 2, 3, 4]);
     expect(headings(el)).toHaveLength(0);
     expect(() => (el.groupBy = "row")).toThrow(RangeError);
+  });
+
+  it("puts each group's heading among its cells' headers, as GT does a row group's", async () => {
+    const { el } = await mountGroup();
+    const trs = () => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt_group_heading_row)"));
+    // (Each row's x cell with its label as its header, as GT has it; its y cell without)
+    for (const tr of trs()) {
+      tr.querySelector("td")?.setAttribute("headers", "t-x");
+    }
+    const headers = (row: number) =>
+      Array.from(trs().find((tr) => el.bodyRow(tr) === row)?.querySelectorAll("td") ?? [], (td) => td.getAttribute("headers"));
+    el.groupBy = "y";
+    const ids = headings(el).map((tr) => tr.cells[0]?.id ?? "");
+    expect(ids.every((id) => /^gt-i-group-\d+$/.test(id))).toBe(true);
+    expect(new Set(ids).size).toBe(3);
+    expect(headers(1)).toEqual([`${ids[0]} t-x`, null]);
+    expect(headers(0)).toEqual([`${ids[1]} t-x`, null]);
+    // (The old group's gone)
+    el.groupBy = "x";
+    expect(headers(1)).toEqual([`${headings(el)[0]?.cells[0]?.id} t-x`, null]);
+    el.groupBy = null;
+    expect(headers(1)).toEqual(["t-x", null]);
   });
 
   it("sorts the rows in their groups, and the groups as their column is sorted", async () => {
