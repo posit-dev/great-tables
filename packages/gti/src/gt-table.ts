@@ -1609,7 +1609,7 @@ export class GtTable extends HTMLElement {
       (event) => {
         const target = (event.target as Element).closest("button, input[type=checkbox], input[type=radio], label");
         const control = target instanceof HTMLLabelElement ? target.control : target;
-        if (control instanceof HTMLElement && this.ownerDocument.activeElement !== control) {
+        if (control instanceof HTMLElement && this.focusedElement() !== control) {
           control.focus({ preventScroll: true });
         }
       },
@@ -5282,7 +5282,7 @@ export class GtTable extends HTMLElement {
       reset.hidden = true;
       reset.addEventListener("click", () => {
         // (Focus, on the button going, goes on to the next)
-        const focused = reset.contains(doc.activeElement);
+        const focused = reset.contains(this.focusedElement());
         this.userResetView();
         if (focused) {
           info.button.focus();
@@ -5690,7 +5690,7 @@ export class GtTable extends HTMLElement {
       });
       section("Search").append(input);
       syncs.push(() => {
-        if (doc.activeElement !== input) {
+        if (this.focusedElement() !== input) {
           input.value = this.searchValue;
         }
       });
@@ -6259,6 +6259,12 @@ export class GtTable extends HTMLElement {
     return Object.assign(popup, { pageKeys, open });
   }
 
+  // The element with focus, in the table's root: in a shadow root (as in Panel), the document's is
+  // the host (and a table out of the document has none)
+  private focusedElement(): Element | null {
+    return (this.getRootNode() as Document | ShadowRoot).activeElement ?? null;
+  }
+
   private openPanel(popup: Popup): void {
     if (this.popup === popup) {
       return;
@@ -6308,9 +6314,11 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Close the open panel (if it's `popup`)
-  private closePanel(focus: boolean, popup = this.popup): void {
-    if (popup === null || popup !== this.popup) {
+  // Close the open panel (if it's `popup`'s: by its panel, as the shortcuts' is opened from the
+  // info panel's button too, as a copy of their popup with that button)
+  private closePanel(focus: boolean, which = this.popup): void {
+    const popup = this.popup;
+    if (popup === null || popup.panel !== which?.panel) {
       return;
     }
     this.popup = null;
@@ -6546,7 +6554,7 @@ export class GtTable extends HTMLElement {
         return id == null ? [] : (columns.items.get(id)?.root ?? []);
       });
       if (roots.some((root, i) => columns.list.children[i] !== root)) {
-        const focused = (this.getRootNode() as Document | ShadowRoot).activeElement;
+        const focused = this.focusedElement();
         arrange(roots, roots.find((root) => root.contains(focused)), columns.list);
       }
     }
@@ -8030,7 +8038,7 @@ export class GtTable extends HTMLElement {
     input.setSelectionRange(from, to);
     // (Where the browser can't, without its undo)
     const doc = this.ownerDocument;
-    if (doc.activeElement !== input || typeof doc.execCommand !== "function" || !doc.execCommand("insertText", false, text)) {
+    if (this.focusedElement() !== input || typeof doc.execCommand !== "function" || !doc.execCommand("insertText", false, text)) {
       input.setRangeText(text, from, to, "end");
     }
     box.fixing = false;
@@ -8523,7 +8531,7 @@ export class GtTable extends HTMLElement {
     if (field != null) {
       if (this.searchValue !== "") {
         this.openSearch(false);
-      } else if (!field.contains(this.ownerDocument.activeElement)) {
+      } else if (!field.contains(this.focusedElement())) {
         this.closeSearch(false);
       }
     }
@@ -8591,7 +8599,7 @@ export class GtTable extends HTMLElement {
     }
     // (Before the input is hidden, which takes its focus and so ends the jump again)
     this.jumping = false;
-    const focused = bar.jump.contains(this.ownerDocument.activeElement);
+    const focused = bar.jump.contains(this.focusedElement());
     const value = bar.jumpInput.value.trim();
     bar.jump.hidden = true;
     bar.readout.hidden = false;
@@ -9567,7 +9575,7 @@ export class GtTable extends HTMLElement {
       }
       tr = tr.nextElementSibling as HTMLTableRowElement | null;
     }
-    const focused = this.ownerDocument.activeElement;
+    const focused = this.focusedElement();
     for (const tr of edges) {
       if (!tr.contains(focused)) {
         tbody.insertBefore(tr, tr.nextSibling);
@@ -10051,7 +10059,7 @@ export class GtTable extends HTMLElement {
     }
     numbers.dataset.gtiPages = key;
     // A page number keeps focus as it's replaced: the new page's has it
-    const active = this.ownerDocument.activeElement;
+    const active = this.focusedElement();
     const focused = active !== null && numbers.contains(active);
     numbers.replaceChildren(
       ...pageItems(page, count).map((item) => {

@@ -2141,6 +2141,58 @@ describe("the control bar", () => {
   });
 });
 
+describe("a table in a shadow root", () => {
+  // (As Panel shows one: there, the document's focused element is the shadow root's host)
+  async function mountShadow(options: TableOptions = {}) {
+    const { html, spec } = gtTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+    document.body.innerHTML = "<div></div>";
+    const root = (document.body.firstElementChild as HTMLElement).attachShadow({ mode: "open" });
+    root.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    await tick();
+    return { el: root.querySelector(TAG_NAME) as GtTable, root };
+  }
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+
+  it("keeps the bar's search open when `search` is emptied while it has focus", async () => {
+    const { el, root } = await mountShadow();
+    part(el, "search").click();
+    el.search = "a";
+    el.search = "";
+    expect((el.querySelector(".gt-i-search-field") as HTMLElement).hidden).toBe(false);
+    expect(root.activeElement).toBe(searchBox(el));
+  });
+
+  it("puts focus back on the readout after a jump to a page", async () => {
+    const { el, root } = await mountShadow();
+    const readout = el.querySelector(".gt-i-readout") as HTMLButtonElement;
+    readout.click();
+    const input = el.querySelector(".gt-i-readout-jump input") as HTMLInputElement;
+    expect(root.activeElement).toBe(input);
+    input.value = "3";
+    press(input, "Enter");
+    expect(el.page).toBe(3);
+    expect(root.activeElement).toBe(readout);
+  });
+
+  it("keeps focus on the current page number as the numbers change", async () => {
+    const { el, root } = await mountShadow({ controls: { search: false, bar: false } });
+    const page = (target: string) =>
+      el.querySelector(`.gt-i-pager button[data-gti-page="${target}"]`) as HTMLButtonElement;
+    page("2").focus();
+    page("2").click();
+    expect(el.page).toBe(2);
+    expect(root.activeElement).toBe(page("2"));
+    expect(root.activeElement?.getAttribute("aria-current")).toBe("page");
+  });
+});
+
 describe("the info panel", () => {
   const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
   const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
@@ -2531,6 +2583,31 @@ describe("the bar's reset, shortcuts and tooltips", () => {
     paged.pageSize = 10;
     expect(part(paged, "keys").hidden).toBe(true);
     expect(pagedOpen.hidden).toBe(true);
+  });
+
+  it("closes the shortcuts opened from the info panel as their button would close them", async () => {
+    // (As the search opens)
+    const el = await mountBar();
+    const info = part(el, "info");
+    info.click();
+    (panelOf(el, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(el, "keys").hidden).toBe(false);
+    part(el, "search").click();
+    expect(panelOf(el, "keys").hidden).toBe(true);
+    expect(info.getAttribute("aria-expanded")).toBe("false");
+
+    // (As the shortcuts go)
+    const paged = await mountTable(GROUPED, {
+      controls: { search: false, sorting: false, bar: true },
+      pagination: { enabled: true },
+    });
+    const pagedInfo = part(paged, "info");
+    pagedInfo.click();
+    (panelOf(paged, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(paged, "keys").hidden).toBe(false);
+    paged.pageSize = 10;
+    expect(panelOf(paged, "keys").hidden).toBe(true);
+    expect(pagedInfo.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("keeps a panel open as a press in it that focuses nothing there focuses the table", async () => {
