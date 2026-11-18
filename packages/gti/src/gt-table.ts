@@ -634,6 +634,13 @@ function labelText(cell: Element): string {
 const labelCells = (table: HTMLTableElement) =>
   new Map(Array.from(table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]"), (th) => [th.id, th]));
 
+// A copy of a cell's value (a row's column dropped) given the cell's own fill and text color
+function paintCopy(cell: HTMLElement, value: HTMLElement): void {
+  value.style.backgroundColor = cell.style.backgroundColor;
+  value.style.color = cell.style.color;
+  value.classList.toggle("gt-i-tinted", cell.style.backgroundColor !== "");
+}
+
 // A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
@@ -1214,8 +1221,11 @@ export class GtTable extends HTMLElement {
   private expanders = new Map<HTMLTableRowElement, HTMLButtonElement>();
   private opened = new Set<HTMLTableRowElement>();
   private details = new Map<HTMLTableRowElement, HTMLTableRowElement>();
-  /** The text of the copies of the columns dropped, in a row under a row open, by column. */
-  private droppedTexts = new WeakMap<HTMLTableRowElement, [number, CellText][]>();
+  /**
+   * The copies of the columns dropped, in a row under a row open: each one's column, its text,
+   * the cell it copies and the copy.
+   */
+  private droppedCells = new WeakMap<HTMLTableRowElement, [number, CellText, HTMLElement, HTMLElement][]>();
   /** The data rows' details, by row: each one's `<template>`. */
   private contents = new Map<HTMLTableRowElement, HTMLTemplateElement>();
   /** Whether a row's button (or a tap on a row with details) opens it yet. */
@@ -2506,7 +2516,7 @@ export class GtTable extends HTMLElement {
     const doc = this.ownerDocument;
     // (Kept in view, as the cells across the table)
     const body = element(doc, "div", "gt-i-details-body gt-i-inview");
-    const texts: [number, CellText][] = [];
+    const copies: [number, CellText, HTMLElement, HTMLElement][] = [];
     if (this.dropped.length > 0) {
       const labels = labelCells(this.table as HTMLTableElement);
       const cells = this.dataCells(tr);
@@ -2520,8 +2530,9 @@ export class GtTable extends HTMLElement {
         if (id != null && cell !== undefined && this.dropped.includes(id)) {
           const value = element(doc, "dd", "");
           value.append(...Array.from(withoutMarks(cell).childNodes));
-          // (To highlight the search's matches in, as in the cell)
-          texts.push([c, new CellText(value)]);
+          // (To highlight the search's matches in, and color, as the cell)
+          copies.push([c, new CellText(value), cell as HTMLElement, value]);
+          paintCopy(cell as HTMLElement, value);
           const term = element(doc, "dt", "");
           term.textContent = this.columnTitle(id, labels);
           list.append(term, value);
@@ -2536,7 +2547,7 @@ export class GtTable extends HTMLElement {
       body.append(content);
     }
     const details = element(doc, "tr", "gt-i-details");
-    this.droppedTexts.set(details, texts);
+    this.droppedCells.set(details, copies);
     const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
     td.append(body);
     details.append(td);
@@ -4155,6 +4166,12 @@ export class GtTable extends HTMLElement {
           }
         }
       });
+    }
+    // (And the copies of the cells dropped, under the rows open)
+    for (const details of this.details.values()) {
+      for (const [, , cell, value] of this.droppedCells.get(details) ?? []) {
+        paintCopy(cell, value);
+      }
     }
   }
 
@@ -6945,7 +6962,8 @@ export class GtTable extends HTMLElement {
     });
   }
 
-  // A column's label, after its spanners' ("Revenue – gross"), or its id, without one
+  // A column's label, after its spanners' ("Revenue – gross", as a stacked table's cards have it),
+  // or its id, without one
   private columnTitle(id: string, labels: Map<string, HTMLTableCellElement>, spanned = true): string {
     const spec = this.spec as Spec;
     const label = (key: string | null) => {
@@ -10221,7 +10239,7 @@ export class GtTable extends HTMLElement {
       // (And in the copies of its columns dropped, under it when it's open)
       const details = this.details.get(tr);
       // (Not `of (...) ?? []`, which Panel's Sucrase makes `of_nullishCoalesce(...)`)
-      const dropped = details === undefined ? [] : (this.droppedTexts.get(details) ?? []);
+      const dropped = details === undefined ? [] : (this.droppedCells.get(details) ?? []);
       for (const [c, cell] of dropped) {
         // (Not hidden, as it's dropped)
         if (!this.unsearched.has(c)) {
