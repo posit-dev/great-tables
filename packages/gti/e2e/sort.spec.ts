@@ -186,6 +186,24 @@ test("column labels stay as GT has them, with their controls lined up under them
   expect(errors).toEqual([]);
 });
 
+test("a sort button stays on its controls' one line in a table wider than its container", async ({ page }) => {
+  // (pin.spec.ts's table, its text wrapping, in a container 480px wide: none of its labels'
+  // buttons wraps under it, as wide as some of them are)
+  const errors = await ready(page, "pin.html");
+  await expect(page.locator("gt-table")).toHaveAttribute("data-gti-wide", "");
+  const buttons = await page.locator("thead th.gt-i-sortable").evaluateAll((ths) =>
+    ths.map((th) => {
+      const button = (th.querySelector(".gt-i-sort") as HTMLElement).getBoundingClientRect();
+      const row = (th.querySelector(".gt-i-head-controls") as HTMLElement).getBoundingClientRect();
+      return { top: button.top, within: button.top >= row.top && button.bottom <= row.bottom, oneLine: row.height < 2 * button.height };
+    }),
+  );
+  expect(buttons.length).toBeGreaterThan(4);
+  expect(new Set(buttons.map((button) => button.top)).size).toBe(1);
+  expect(buttons.every((button) => button.within && button.oneLine)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test("the line over the labels' controls is one, on a page that sizes boxes, which has no more to scroll", async ({
   page,
 }) => {
