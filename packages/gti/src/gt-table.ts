@@ -2882,7 +2882,7 @@ export class GtTable extends HTMLElement {
       const padding = getComputedStyle(scroller);
       const padTop = parseFloat(padding.paddingTop) || 0;
       const padBottom = parseFloat(padding.paddingBottom) || 0;
-      const head = table.tHead?.getBoundingClientRect().height ?? 0;
+      const head = table.tHead === null ? 0 : this.rect(table.tHead).height;
       let foot = 0;
       for (let i = this.stuckBottom.length - 1; i >= 0; i--) {
         const tr = this.stuckBottom[i] as HTMLTableRowElement;
@@ -2892,9 +2892,9 @@ export class GtTable extends HTMLElement {
         for (const cell of Array.from(tr.cells)) {
           setStyle(cell, "bottom", `${foot - padBottom}px`);
         }
-        foot += tr.getBoundingClientRect().height;
+        foot += this.rect(tr).height;
       }
-      const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => tr.getBoundingClientRect().height));
+      const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => this.rect(tr).height));
       this.foot = foot;
       setStyle(this, "--gt-i-pad", `${padTop}px`);
       setStyle(this, "--gt-i-head", `${head - padTop}px`);
@@ -2967,7 +2967,7 @@ export class GtTable extends HTMLElement {
         const at = before[c];
         for (const p of starts) {
           if (at !== undefined && p.c0 === c && before[p.c1 + 1] === undefined) {
-            before[p.c1 + 1] = at + p.cell.getBoundingClientRect().width;
+            before[p.c1 + 1] = at + this.rect(p.cell).width;
           }
         }
       }
@@ -2977,7 +2977,7 @@ export class GtTable extends HTMLElement {
         const at = after[c];
         for (const p of endings) {
           if (at !== undefined && p.c1 === c - 1 && after[p.c0] === undefined) {
-            after[p.c0] = at + p.cell.getBoundingClientRect().width;
+            after[p.c0] = at + this.rect(p.cell).width;
           }
         }
       }
@@ -3114,9 +3114,9 @@ export class GtTable extends HTMLElement {
     if (scroller === null || table === null) {
       return;
     }
-    const outer = this.getBoundingClientRect();
-    const port = scroller.getBoundingClientRect();
-    const box = table.getBoundingClientRect();
+    const outer = this.rect(this);
+    const port = this.rect(scroller);
+    const box = this.rect(table);
     const top = port.top + scroller.clientTop;
     const bottom = top + scroller.clientHeight;
     const start = port.left + scroller.clientLeft;
@@ -3128,14 +3128,14 @@ export class GtTable extends HTMLElement {
       const left = Math.max(box.left, start);
       const right = Math.min(box.right, end);
       // (Measured, since the column labels stick only once the container's padding scrolls by)
-      const head = table.tHead === null ? top : table.tHead.getBoundingClientRect().bottom;
+      const head = table.tHead === null ? top : this.rect(table.tHead).bottom;
       let under = Math.max(0, head - top);
       for (const tr of this.stuckTop) {
         const cell = tr.hidden ? undefined : tr.cells[0];
         if (cell === undefined) {
           continue;
         }
-        const rect = cell.getBoundingClientRect();
+        const rect = this.rect(cell);
         if (rect.top > head + 0.5) {
           // (Headings further down aren't stuck)
           break;
@@ -3157,11 +3157,11 @@ export class GtTable extends HTMLElement {
     }
     const wide = this.hasAttribute("data-gti-wide");
     const labels = table.querySelector(":scope > thead > tr.gt_col_headings") ?? this.tbody;
-    const y0 = Math.max(top, labels?.getBoundingClientRect().top ?? box.top);
-    const y1 = Math.min(bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom);
+    const y0 = Math.max(top, labels == null ? box.top : this.rect(labels).top);
+    const y1 = Math.min(bottom, this.tbody === null ? box.bottom : this.rect(this.tbody).bottom);
     const rtl = this.isRtl();
-    const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
-    const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
+    const edge = this.edgeCell?.isConnected ? this.rect(this.edgeCell) : null;
+    const endEdge = this.endEdge?.isConnected ? this.rect(this.endEdge) : null;
     const scrolled = Math.abs(scroller.scrollLeft);
     const place = (shade: HTMLElement, at: number, shown: boolean) => {
       setStyle(shade, "top", y(y0));
@@ -3799,7 +3799,7 @@ export class GtTable extends HTMLElement {
         if (event.pointerType === "mouse" && caption.contains(event.target as Node)) {
           this.hideProfileTip();
         } else {
-          this.showProfileTip(view, barAt(svg.getBoundingClientRect(), view.rects.length, event.clientX));
+          this.showProfileTip(view, barAt(this.rect(svg), view.rects.length, event.clientX / this.zoom()));
         }
       };
       root.addEventListener("pointerdown", point);
@@ -3895,10 +3895,10 @@ export class GtTable extends HTMLElement {
 
     // (Measured at the element's start, where it has all of the element's width)
     tip.style.left = "0";
-    const host = this.getBoundingClientRect();
-    const th = view.th.getBoundingClientRect();
-    const plot = view.svg.getBoundingClientRect();
-    const { width, height } = tip.getBoundingClientRect();
+    const host = this.rect(this);
+    const th = this.rect(view.th);
+    const plot = this.rect(view.svg);
+    const { width, height } = this.rect(tip);
     const x = plot.left + ((i + 0.5) / view.rects.length) * plot.width;
     const above = th.top - TIP_GAP - height >= host.top || th.bottom + TIP_GAP + height > host.bottom;
     const top = above ? th.top - TIP_GAP - height : th.bottom + TIP_GAP;
@@ -4073,7 +4073,7 @@ export class GtTable extends HTMLElement {
         bars.forEach((bar, k) => bar.classList.toggle("gt-i-profile-on", k === i));
         readout.textContent = bin(i);
       };
-      const point = (event: PointerEvent) => read(barAt(plot.getBoundingClientRect(), n, event.clientX));
+      const point = (event: PointerEvent) => read(barAt(this.rect(plot), n, event.clientX / this.zoom()));
       plot.addEventListener("pointerdown", point);
       plot.addEventListener("pointermove", point);
       plot.addEventListener("keydown", (event) => {
@@ -4105,8 +4105,8 @@ export class GtTable extends HTMLElement {
       this.closeProfile(false);
       return;
     }
-    const host = this.getBoundingClientRect();
-    const th = view.th.getBoundingClientRect();
+    const host = this.rect(this);
+    const th = this.rect(view.th);
     const width = panel.offsetWidth;
     const start = this.isRtl() ? th.right - width : th.left;
     panel.style.left = `${Math.max(0, Math.min(start - host.left, host.width - width))}px`;
@@ -4219,7 +4219,7 @@ export class GtTable extends HTMLElement {
     handle.setAttribute("aria-orientation", "vertical");
     handle.setAttribute("aria-label", `Resize ${labelText(th) || `column ${index + 1}`}`);
     const resizer: Resizer = { handle, th, index };
-    this.showWidth(resizer, th.getBoundingClientRect().width);
+    this.showWidth(resizer, this.rect(th).width);
     th.classList.add("gt-i-resizable");
     th.append(handle);
     this.resizers.push(resizer);
@@ -4261,7 +4261,8 @@ export class GtTable extends HTMLElement {
     // (No text selection, and no scrolling by touch)
     event.preventDefault();
     const x = event.clientX;
-    const direction = this.isRtl() ? -1 : 1;
+    // (The pointer's way across, in the table's CSS pixels)
+    const direction = (this.isRtl() ? -1 : 1) / this.zoom();
     let width = start;
     const move = (event: PointerEvent) => {
       width = this.setColumnWidth(resizer, start + (event.clientX - x) * direction);
@@ -4380,7 +4381,7 @@ export class GtTable extends HTMLElement {
       } else if (step === undefined) {
         return;
       } else if (rows) {
-        const shown = this.rowsShown();
+        const shown = this.footRows();
         const size = this.rowsWithin(shown + step);
         if (size !== shown) {
           this.userPageSize(size, "size");
@@ -4402,13 +4403,22 @@ export class GtTable extends HTMLElement {
     return Math.min(this.size ?? Infinity, (this.spec as Spec).nrows);
   }
 
+  // The rows the foot of the page is at: a page's size, as it's padded to it, or the rows shown on
+  // one that isn't (a search's, on the one page of every row)
+  private footRows(): number {
+    return this.pads(this.size) ? this.rowsShown() : Math.max(1, this.view.end - this.view.start);
+  }
+
+  // A page size the foot can go to: one row to every row, or one short of every row while a search
+  // or filter leaves some out (whose one page of every row isn't padded, and shrinks back to them)
   private rowsWithin(size: number): number {
-    return Math.max(1, Math.min(size, (this.spec as Spec).nrows));
+    const { nrows } = this.spec as Spec;
+    return Math.max(1, Math.min(size, this.view.total < nrows ? nrows - 1 : nrows));
   }
 
   // The height of the container the body scrolls in
   private portHeight(): number {
-    return (this.scroller as HTMLElement).getBoundingClientRect().height;
+    return this.rect(this.scroller as HTMLElement).height;
   }
 
   // A height for the body to scroll within (in whole px): from the column labels and the rows stuck
@@ -4421,7 +4431,7 @@ export class GtTable extends HTMLElement {
 
   private leastHeight(): number {
     const scroller = this.scroller as HTMLElement;
-    const head = this.table?.tHead?.getBoundingClientRect().height ?? 0;
+    const head = this.table?.tHead == null ? 0 : this.rect(this.table.tHead).height;
     return head + this.foot + this.oneRow() + scroller.offsetHeight - scroller.clientHeight;
   }
 
@@ -4429,7 +4439,7 @@ export class GtTable extends HTMLElement {
   private oneRow(): number {
     for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
-        return tr.getBoundingClientRect().height || 24;
+        return this.rect(tr).height || 24;
       }
     }
     return 24;
@@ -4474,20 +4484,22 @@ export class GtTable extends HTMLElement {
     event.preventDefault();
     const scrolls = (this.spec as Spec).layout.height !== null;
     const before = scrolls ? this.heightValue : this.size;
-    const start = scrolls ? this.portHeight() : this.rowsShown();
+    const start = scrolls ? this.portHeight() : this.footRows();
     const first = (this.page - 1) * (this.size ?? 0);
     const rows = this.view.end - this.view.start;
     const height = scrolls ? 1 : (rows > 0 ? this.dataRowsHeight() / rows : 0) || this.rowHeight || 24;
     const y = event.clientY;
+    const zoom = this.zoom();
     const move = (event: PointerEvent) => {
-      const dy = event.clientY - y;
+      const dy = (event.clientY - y) / zoom;
       if (scrolls) {
         this.heightValue = this.heightWithin(start + dy);
         this.applyHeight();
         return;
       }
       const size = this.rowsWithin(start + Math.round(dy / height));
-      if (size !== this.size) {
+      // (Not yet, at the rows it starts at, which may not be the page's size)
+      if (size !== this.size && !(size === start && this.size === before)) {
         this.pageSizeValue = size;
         this.pageValue = Math.floor(first / size) + 1;
         this.render();
@@ -4524,7 +4536,7 @@ export class GtTable extends HTMLElement {
     let height = 0;
     for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
-        height += tr.getBoundingClientRect().height;
+        height += this.rect(tr).height;
       }
     }
     return height;
@@ -4547,10 +4559,10 @@ export class GtTable extends HTMLElement {
       return;
     }
     const grand = this.grandBottom();
-    let { left, right } = table.getBoundingClientRect();
-    let y = grand !== null && !grand.hidden ? grand.getBoundingClientRect().top : tbody.getBoundingClientRect().bottom;
+    let { left, right } = this.rect(table);
+    let y = grand !== null && !grand.hidden ? this.rect(grand).top : this.rect(tbody).bottom;
     if (scroller !== null) {
-      const port = scroller.getBoundingClientRect();
+      const port = this.rect(scroller);
       left = Math.max(left, port.left + scroller.clientLeft);
       right = Math.min(right, left + scroller.clientWidth);
       if (scrolls) {
@@ -4558,7 +4570,7 @@ export class GtTable extends HTMLElement {
         y = port.bottom - (scroller.style.borderBottomColor === "transparent" ? parseFloat(scroller.style.borderBottomWidth) : 0);
       }
     }
-    const outer = this.getBoundingClientRect();
+    const outer = this.rect(this);
     setStyle(handle, "top", `${y - outer.top - this.clientTop}px`);
     setStyle(handle, "left", `${left - outer.left - this.clientLeft}px`);
     setStyle(handle, "width", `${Math.max(0, right - left)}px`);
@@ -4577,11 +4589,11 @@ export class GtTable extends HTMLElement {
   // are shown, moved and hidden), in the same row
   private resizerBefore(th: HTMLTableCellElement): Resizer | null {
     const rtl = this.isRtl();
-    const box = th.getBoundingClientRect();
+    const box = this.rect(th);
     const at = rtl ? box.right : box.left;
     return (
       this.resizers.find((resizer) => {
-        const other = resizer.th === th ? null : resizer.th.getBoundingClientRect();
+        const other = resizer.th === th ? null : this.rect(resizer.th);
         return (
           other != null &&
           other.width > 0 &&
@@ -4619,15 +4631,15 @@ export class GtTable extends HTMLElement {
     let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
     const scroller = this.scroller;
     if (scroller !== null) {
-      const port = scroller.getBoundingClientRect();
+      const port = this.rect(scroller);
       left = port.left + scroller.clientLeft;
       right = left + scroller.clientWidth;
       top = port.top + scroller.clientTop;
       bottom = top + scroller.clientHeight;
     }
     if (this.hasAttribute("data-gti-wide") && !cell.classList.contains("gt-i-pinned")) {
-      const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
-      const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
+      const edge = this.edgeCell?.isConnected ? this.rect(this.edgeCell) : null;
+      const endEdge = this.endEdge?.isConnected ? this.rect(this.endEdge) : null;
       if (this.isRtl()) {
         right = Math.min(right, edge?.left ?? right);
         left = Math.max(left, endEdge?.right ?? left);
@@ -4651,17 +4663,17 @@ export class GtTable extends HTMLElement {
     if (!shown) {
       return;
     }
-    const box = th.getBoundingClientRect();
+    const box = this.rect(th);
     const { left, right, top, bottom } = this.viewOf(th);
     const x0 = Math.max(box.left, left);
     const x1 = Math.min(box.right, right);
     const y0 = Math.max(box.top, top);
-    const y1 = Math.min(Math.max(box.bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom), bottom);
+    const y1 = Math.min(Math.max(box.bottom, this.tbody === null ? box.bottom : this.rect(this.tbody).bottom), bottom);
     if (x1 - x0 < 1 || y1 - y0 < 1) {
       guide.removeAttribute("data-gti-shown");
       return;
     }
-    const outer = this.getBoundingClientRect();
+    const outer = this.rect(this);
     setStyle(guide, "left", `${x0 - outer.left - this.clientLeft}px`);
     setStyle(guide, "top", `${y0 - outer.top - this.clientTop}px`);
     setStyle(guide, "width", `${x1 - x0}px`);
@@ -4811,8 +4823,8 @@ export class GtTable extends HTMLElement {
     // (A hidden column has none)
     const widths =
       full === undefined
-        ? Array.from({ length: columns }, (_, i) => (this.hiddenGrid.has(i) ? 0 : label(i)?.getBoundingClientRect().width))
-        : Array.from(full.children, (cell) => cell.getBoundingClientRect().width);
+        ? Array.from({ length: columns }, (_, i) => (this.hiddenGrid.has(i) ? 0 : this.rectOf(label(i))?.width))
+        : Array.from(full.children, (cell) => this.rect(cell).width);
     return columns > 0 && widths.every((width) => width !== undefined) ? (widths as number[]) : null;
   }
 
@@ -4855,7 +4867,7 @@ export class GtTable extends HTMLElement {
     const grid = new Set([...this.hiddenIds, ...this.dropped].map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     // (The width each column hidden has, which it has again if the widths are fixed while it's hidden)
     for (const c of grid) {
-      const width = (p: Placed) => p.cell.getBoundingClientRect().width;
+      const width = (p: Placed) => this.rect(p.cell).width;
       const shown = this.hiddenGrid.has(c)
         ? undefined
         : this.columnCells.find((p) => p.c0 === c && p.c1 === c && width(p) > 0);
@@ -5557,9 +5569,9 @@ export class GtTable extends HTMLElement {
       tip.textContent = target.dataset.gtiTip as string;
       tip.hidden = false;
       doc.addEventListener("keydown", escape, true);
-      const bar = root.getBoundingClientRect();
-      const box = target.getBoundingClientRect();
-      const { width, height } = tip.getBoundingClientRect();
+      const bar = this.rect(root);
+      const box = this.rect(target);
+      const { width, height } = this.rect(tip);
       const top = box.top - height - TIP_GAP;
       tip.style.left = `${Math.max(Math.min(box.left + (box.width - width) / 2, bar.right - width), bar.left) - bar.left}px`;
       tip.style.top = `${(top < 0 ? box.bottom + TIP_GAP : top) - bar.top}px`;
@@ -6080,11 +6092,12 @@ export class GtTable extends HTMLElement {
   // container that scrolls, as Quarto's for a wide table)
   private layerBounds(x0: number, y0: number): Box {
     const doc = this.ownerDocument;
-    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0), right: doc.documentElement.clientWidth, bottom: Infinity };
+    const zoom = this.zoom();
+    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0) / zoom, right: doc.documentElement.clientWidth / zoom, bottom: Infinity };
     for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
       const { overflowX, overflowY } = getComputedStyle(node);
       if (overflowX !== "visible" || overflowY !== "visible") {
-        const { left, top, right, bottom } = node.getBoundingClientRect();
+        const { left, top, right, bottom } = this.rect(node);
         view.left = Math.max(view.left, left);
         view.top = Math.max(view.top, top);
         view.right = Math.min(view.right, right);
@@ -6097,16 +6110,16 @@ export class GtTable extends HTMLElement {
   /** Draw the parts' outlines and names on `layer`, where the parts are now (if they've moved). */
   private drawParts(layer: HTMLElement): void {
     const bar = this.bar as Bar;
-    const origin = this.getBoundingClientRect();
+    const origin = this.rect(this);
     const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
     // (What's in the scrolling container, as far as it shows)
-    const clip = this.scroller?.getBoundingClientRect();
+    const clip = this.rectOf(this.scroller);
     const boxOf = (els: (Element | null | undefined)[]): Box | null => {
       const boxes = els.flatMap((el) => {
         if (el == null) {
           return [];
         }
-        let { left, top, right, bottom } = el.getBoundingClientRect();
+        let { left, top, right, bottom } = this.rect(el);
         if (clip !== undefined && this.scroller?.contains(el)) {
           [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
           [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
@@ -6265,6 +6278,24 @@ export class GtTable extends HTMLElement {
     return (this.getRootNode() as Document | ShadowRoot).activeElement ?? null;
   }
 
+  // The table's zoom (a CSS `zoom` on it or around it, as in a slide scaled to fit), by which its
+  // boxes on the page are larger than its CSS pixels; 1 where the browser doesn't say
+  private zoom(): number {
+    return (this as { currentCSSZoom?: number }).currentCSSZoom || 1;
+  }
+
+  // A box, in the table's CSS pixels (as its styles and the DOM's sizes are), from the window's
+  // corner: events' points are divided by the zoom to go with it
+  private rect(of: Element | Range): DOMRect {
+    const box = of.getBoundingClientRect();
+    const zoom = this.zoom();
+    return zoom === 1 ? box : new DOMRect(box.x / zoom, box.y / zoom, box.width / zoom, box.height / zoom);
+  }
+
+  private rectOf(el: Element | null | undefined): DOMRect | undefined {
+    return el == null ? undefined : this.rect(el);
+  }
+
   private openPanel(popup: Popup): void {
     if (this.popup === popup) {
       return;
@@ -6301,11 +6332,11 @@ export class GtTable extends HTMLElement {
   private placePanel(panel: HTMLElement): void {
     panel.removeAttribute("data-gti-below");
     panel.style.maxHeight = "";
-    const bar = (this.bar as Bar).root.getBoundingClientRect();
+    const bar = this.rect((this.bar as Bar).root);
     const gap = 8;
     const above = bar.top - gap;
-    const below = this.ownerDocument.documentElement.clientHeight - bar.bottom - gap;
-    const height = panel.getBoundingClientRect().height;
+    const below = this.ownerDocument.documentElement.clientHeight / this.zoom() - bar.bottom - gap;
+    const height = this.rect(panel).height;
     const down = height > above && below > above;
     panel.toggleAttribute("data-gti-below", down);
     const room = down ? below : above;
@@ -6639,8 +6670,8 @@ export class GtTable extends HTMLElement {
       }
       const others = items().filter((item) => item !== root);
       const at = others.filter((item) => {
-        const box = item.getBoundingClientRect();
-        return event.clientY > box.top + box.height / 2;
+        const box = this.rect(item);
+        return event.clientY / this.zoom() > box.top + box.height / 2;
       }).length;
       others.splice(at, 0, root);
       arrange(others, root);
@@ -7440,8 +7471,8 @@ export class GtTable extends HTMLElement {
     if (anchor === null || panel == null || this.sheet?.contains(panel)) {
       return;
     }
-    const host = this.getBoundingClientRect();
-    const button = anchor.getBoundingClientRect();
+    const host = this.rect(this);
+    const button = this.rect(anchor);
     const width = panel.offsetWidth;
     const height = panel.offsetHeight;
     const start = this.isRtl() ? button.right - width : button.left;
@@ -8157,7 +8188,7 @@ export class GtTable extends HTMLElement {
     if (node !== null) {
       const range = this.ownerDocument.createRange();
       range.setStart(node, box.context.from);
-      left = range.getBoundingClientRect().left - box.root.getBoundingClientRect().left;
+      left = this.rect(range).left - this.rect(box.root).left;
     }
     list.style.left = `${Math.max(0, Math.min(left, box.root.clientWidth - list.offsetWidth))}px`;
   }
@@ -8314,7 +8345,7 @@ export class GtTable extends HTMLElement {
 
   // Draw the columns' names on `layer`, where their labels are now (if they've moved)
   private drawNames(box: QueryBox, layer: HTMLElement): void {
-    const origin = this.getBoundingClientRect();
+    const origin = this.rect(this);
     const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
     const columns: string[] = [];
     // (How far across its box each goes, as its label does, and between which edges it's seen)
@@ -8325,8 +8356,8 @@ export class GtTable extends HTMLElement {
         return [];
       }
       // (Over its controls, under its label, which it leaves to be read; or over the label)
-      const controls = th.querySelector(".gt-i-head-controls")?.getBoundingClientRect();
-      let { left, top, right, bottom } = controls?.width ? controls : th.getBoundingClientRect();
+      const controls = this.rectOf(th.querySelector(".gt-i-head-controls"));
+      let { left, top, right, bottom } = controls?.width ? controls : this.rect(th);
       // (As far as it shows in the scrolling container, past the pinned columns)
       const clip = this.scroller?.contains(th) ? this.viewOf(th) : null;
       if (clip !== null) {
@@ -8345,7 +8376,7 @@ export class GtTable extends HTMLElement {
     const bounds = this.layerBounds(x0, y0);
     // (Off the toolbar and the bar)
     const avoid = [this.toolbar, this.bar?.root].flatMap((el) => {
-      const rect = el?.getBoundingClientRect();
+      const rect = this.rectOf(el);
       return rect == null || rect.width === 0
         ? []
         : [{ left: rect.left - x0, top: rect.top - y0, right: rect.right - x0, bottom: rect.bottom - y0 }];
@@ -8813,8 +8844,8 @@ export class GtTable extends HTMLElement {
         bar.style.marginLeft = bar.style.width = "";
       }
     }
-    const outer = this.getBoundingClientRect();
-    const table = this.table.getBoundingClientRect();
+    const outer = this.rect(this);
+    const table = this.rect(this.table);
     const left = Math.max(0, table.left - outer.left);
     for (const bar of bars) {
       bar.style.marginLeft = `${left}px`;
@@ -8856,7 +8887,7 @@ export class GtTable extends HTMLElement {
     if (bar === null || bar.root.getClientRects().length === 0) {
       return;
     }
-    const last = bar.info.button.getBoundingClientRect().top;
+    const last = this.rect(bar.info.button).top;
     let first = last;
     for (const child of bar.root.children) {
       if (
@@ -8867,10 +8898,10 @@ export class GtTable extends HTMLElement {
       ) {
         continue;
       }
-      first = Math.min(first, child.getBoundingClientRect().top);
+      first = Math.min(first, this.rect(child).top);
     }
     if (last - first > 1) {
-      bar.root.style.setProperty("--gt-i-controls-top", `${first - bar.root.getBoundingClientRect().top}px`);
+      bar.root.style.setProperty("--gt-i-controls-top", `${first - this.rect(bar.root).top}px`);
     } else {
       bar.root.style.removeProperty("--gt-i-controls-top");
     }
@@ -9295,8 +9326,7 @@ export class GtTable extends HTMLElement {
     if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
     }
-    // (Not a stacked table's, whose cards are as tall as their contents)
-    const pads = size !== null && this.spec.nrows > size && !this.stacked;
+    const pads = this.pads(size);
     if (pads) {
       this.measurePage(size);
     }
@@ -9747,8 +9777,8 @@ export class GtTable extends HTMLElement {
       return null;
     }
     return {
-      columns: Array.from(full.children).map((cell) => cell.getBoundingClientRect().width),
-      table: table.getBoundingClientRect().width,
+      columns: Array.from(full.children).map((cell) => this.rect(cell).width),
+      table: this.rect(table).width,
     };
   }
 
@@ -9854,20 +9884,20 @@ export class GtTable extends HTMLElement {
     const table = this.table;
     return table === null || table.getClientRects().length === 0
       ? ""
-      : `${size} ${Math.round(table.getBoundingClientRect().width)}`;
+      : `${size} ${Math.round(this.rect(table).width)}`;
   }
 
   // Whether short pages are padded to a height measured at another page size or table width (or
   // not measured, as the table wasn't laid out); not while a column is being resized
   private padStale(): boolean {
     const size = this.size;
-    return (
-      size !== null &&
-      (this.spec?.nrows ?? 0) > size &&
-      !this.stacked &&
-      this.padKey !== this.padKeyNow(size) &&
-      !this.hasAttribute("data-gti-resizing")
-    );
+    return this.pads(size) && this.padKey !== this.padKeyNow(size) && !this.hasAttribute("data-gti-resizing");
+  }
+
+  // Whether short pages of a size are padded: while there are pages, and not in a stacked table,
+  // whose cards are as tall as their contents
+  private pads(size: number | null): size is number {
+    return size !== null && (this.spec?.nrows ?? 0) > size && !this.stacked;
   }
 
   /**
@@ -9893,16 +9923,16 @@ export class GtTable extends HTMLElement {
     this.measuring = false;
     this.borders?.redraw();
     this.padHeight = this.bodyHeight();
-    const heights = shown.map((tr) => tr.getBoundingClientRect().height);
+    const heights = shown.map((tr) => this.rect(tr).height);
     this.rowHeight = heights.length === 0 ? 0 : heights.reduce((a, b) => a + b, 0) / heights.length;
   }
 
   // The body's height, but for the rows under rows open
   private bodyHeight(): number {
-    let height = (this.tbody as HTMLTableSectionElement).getBoundingClientRect().height;
+    let height = this.rect(this.tbody as HTMLTableSectionElement).height;
     for (const details of this.details.values()) {
       if (!details.hidden && details.isConnected) {
-        height -= details.getBoundingClientRect().height;
+        height -= this.rect(details).height;
       }
     }
     return height;
