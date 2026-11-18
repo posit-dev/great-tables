@@ -1214,6 +1214,8 @@ export class GtTable extends HTMLElement {
   private expanders = new Map<HTMLTableRowElement, HTMLButtonElement>();
   private opened = new Set<HTMLTableRowElement>();
   private details = new Map<HTMLTableRowElement, HTMLTableRowElement>();
+  /** The text of the copies of the columns dropped, in a row under a row open, by column. */
+  private droppedTexts = new WeakMap<HTMLTableRowElement, [number, CellText][]>();
   /** The data rows' details, by row: each one's `<template>`. */
   private contents = new Map<HTMLTableRowElement, HTMLTemplateElement>();
   /** Whether a row's button (or a tap on a row with details) opens it yet. */
@@ -2504,6 +2506,7 @@ export class GtTable extends HTMLElement {
     const doc = this.ownerDocument;
     // (Kept in view, as the cells across the table)
     const body = element(doc, "div", "gt-i-details-body gt-i-inview");
+    const texts: [number, CellText][] = [];
     if (this.dropped.length > 0) {
       const labels = labelCells(this.table as HTMLTableElement);
       const cells = this.dataCells(tr);
@@ -2517,6 +2520,8 @@ export class GtTable extends HTMLElement {
         if (id != null && cell !== undefined && this.dropped.includes(id)) {
           const value = element(doc, "dd", "");
           value.append(...Array.from(withoutMarks(cell).childNodes));
+          // (To highlight the search's matches in, as in the cell)
+          texts.push([c, new CellText(value)]);
           const term = element(doc, "dt", "");
           term.textContent = this.columnTitle(id, labels);
           list.append(term, value);
@@ -2531,6 +2536,7 @@ export class GtTable extends HTMLElement {
       body.append(content);
     }
     const details = element(doc, "tr", "gt-i-details");
+    this.droppedTexts.set(details, texts);
     const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
     td.append(body);
     details.append(td);
@@ -10211,6 +10217,19 @@ export class GtTable extends HTMLElement {
       const found = this.searched(cells).flatMap((cell) => cell.find(this.terms));
       for (const filter of texts) {
         found.push(...(cells[filter.index]?.find([filter.needle]) ?? []));
+      }
+      // (And in the copies of its columns dropped, under it when it's open)
+      const details = this.details.get(tr);
+      // (Not `of (...) ?? []`, which Panel's Sucrase makes `of_nullishCoalesce(...)`)
+      const dropped = details === undefined ? [] : (this.droppedTexts.get(details) ?? []);
+      for (const [c, cell] of dropped) {
+        // (Not hidden, as it's dropped)
+        if (!this.unsearched.has(c)) {
+          found.push(...cell.find(this.terms));
+        }
+        for (const filter of texts) {
+          found.push(...(filter.index === c ? cell.find([filter.needle]) : []));
+        }
       }
       for (const { startNode, startOffset, endNode, endOffset } of found) {
         const range = this.ownerDocument.createRange();
