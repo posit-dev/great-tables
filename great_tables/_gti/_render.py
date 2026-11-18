@@ -298,7 +298,8 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
         if header is None:
             continue
         spanners = [spanner_labels.get(id, "") for id in header_ids.column_spanners[info.var]]
-        prefix = "".join(f"{label} · " for label in spanners if label)
+        # (After its spanners' labels, as the runtime has them: "Revenue – gross")
+        prefix = "".join(f"{label} – " for label in spanners if label)
         label = prefix + (_label(info.column_label) or info.var)
         rules.append(
             f"{root} [headers~={_css_string(header)}]{{--gt-i-label:{_css_string(label)}}}"

@@ -55,8 +55,8 @@ test.describe("a table in a narrow container", () => {
     await expect(values).toHaveText(["5,550.00", "$1,325.81", "None", "five"]);
     const labels = await values.evaluateAll((cells) => cells.map((td) => getComputedStyle(td, "::before").content));
     expect(labels.map((text) => text.replace(/ \/ ""$/, ""))).toEqual([
-      '"Numbers · num"',
-      '"Numbers · currency"',
+      '"Numbers – num"',
+      '"Numbers – currency"',
       '"char"',
       '"fctr"',
     ]);
@@ -103,7 +103,7 @@ test.describe("a table in a narrow container", () => {
           .map(({ text }) => text),
       );
     expect(chips).toEqual(["", "num", "currency", "char", "fctr"]);
-    expect(await chip(page, "num").evaluate((th) => getComputedStyle(th, "::before").content)).toBe('"Numbers · "');
+    expect(await chip(page, "num").evaluate((th) => getComputedStyle(th, "::before").content)).toBe('"Numbers – "');
     expect(await chip(page, "char").evaluate((th) => getComputedStyle(th, "::before").content)).toBe("none");
     await expect(chip(page, "num")).toHaveCSS("border-radius", "999px");
     const first = await rect(card(page, "row_5"));
@@ -175,7 +175,7 @@ test.describe("a table that can be stacked, without JavaScript", () => {
     await expect(card(page, "row_5")).toHaveCSS("display", "flex");
     await expect(el(page).locator("thead tr.gt_col_headings:visible")).toHaveCount(0);
     await expect(el(page).locator("thead .gt_title")).toHaveText("exibble");
-    expect(await label(cell(page, "num").first())).toBe('"Numbers · num"');
+    expect(await label(cell(page, "num").first())).toBe('"Numbers – num"');
     expect(await label(cell(page, "fctr").first())).toBe('"fctr"');
     const container = await rect(page.locator("body > div"));
     expect((await rect(table(page))).right).toBeLessThanOrEqual(container.right + 0.5);

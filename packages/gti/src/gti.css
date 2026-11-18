@@ -762,6 +762,13 @@ gt-table .gt-i-details-list dd {
   margin: 0;
 }
 
+/* (A value with its cell's fill, as `data_color()` or `tab_style()` gave it: around the value) */
+gt-table .gt-i-details-list dd.gt-i-tinted {
+  justify-self: start;
+  padding: 0 0.35em;
+  border-radius: 2px;
+}
+
 /* (A row's details, in a shadow root, which inherits from the cell: as wide as the cell, scrolling
    sideways if they're wider, and wrapping whether or not the table's cells do) */
 gt-table .gt-i-details-content {
