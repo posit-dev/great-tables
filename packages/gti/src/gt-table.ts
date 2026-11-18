@@ -29,7 +29,7 @@ import {
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { type Box, type Part, type Place, placeParts, union } from "./parts";
-import { Profile, timeOf } from "./profile";
+import { type Bar as Bin, type Counts, Profile, timeOf } from "./profile";
 import {
   aliasOf,
   formatColumn,
@@ -569,6 +569,10 @@ interface Exported {
 // How long the mouse is on a bar's button before its tooltip shows, and how far from it that is
 const TIP_DELAY_MS = 500;
 const TIP_GAP = 6;
+// How long a profile's bar's tooltip stays after a touch lifts, and the most ms between a double
+// tap's taps
+const TIP_HOLD_MS = 1500;
+const TAP_MS = 350;
 
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
@@ -879,14 +883,28 @@ function edgeFormat(profile: Profile, lang: string | undefined): (x: number) => 
   return (x) => format.format(x);
 }
 
+// A share of a profile's rows ("3 rows (12%)")
+const share = (count: number, rows: number) => (count === 0 ? plural(0) : `${plural(count)} (${percent(count, rows)})`);
+
+// The bar of a plot of `n` across `box` nearest to `x`, a pointer's
+const barAt = (box: DOMRect, n: number, x: number) => Math.max(0, Math.min(n - 1, Math.floor(((x - box.left) / box.width) * n) || 0));
+
 /** A column's profile under its label (see `addProfiles()`). */
 interface ProfileView {
   profile: Profile;
-  /** Its bars, their tooltips and what they name, and its caption. */
+  /** The column's label and its text, the profile, its plot and bars, what they name, and its caption. */
+  th: HTMLTableCellElement;
+  label: string;
+  root: HTMLElement;
+  svg: SVGSVGElement;
   rects: SVGRectElement[];
-  titles: SVGTitleElement[];
   names: string[];
   caption: HTMLElement;
+  /** The rows kept, as last counted (`null` before), and each bar's height, from 0 to 1. */
+  counts: Counts | null;
+  heights: number[];
+  /** How a histogram's bins' edges are written (see `edgeFormat()`). */
+  edge: (x: number) => string;
   /** The label's description, and the column's dtype, which it starts with (if it has one). */
   about: HTMLElement;
   dtype: string;
@@ -954,6 +972,19 @@ export class GtTable extends HTMLElement {
   /** The columns' profiles, and the rows (`matched`) they last counted (`undefined` before). */
   private profileViews: ProfileView[] = [];
   private profiled: Uint8Array | null | undefined = undefined;
+  /**
+   * A profile's bar's tooltip and the line from it to the bar (made when one's first shown), whose
+   * profile and bar they're of, and the timer hiding them; and the larger view of a profile (see
+   * `openProfile()`), whose profile it's of (`null` while closed), and its bar read out (-1 for none).
+   */
+  private profileTip: HTMLElement | null = null;
+  private profileLead: HTMLElement | null = null;
+  private tipView: ProfileView | null = null;
+  private tipBar = -1;
+  private tipTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+  private profilePanel: HTMLElement | null = null;
+  private profileOpen: ProfileView | null = null;
+  private profileBar = -1;
   /** The cells colored from the rows kept, and the rows (`matched`) they were last colored for. */
   private colorings: Coloring[] = [];
   private colored: Uint8Array | null | undefined = undefined;
@@ -1611,6 +1642,8 @@ export class GtTable extends HTMLElement {
     this.showParts(false);
     this.closePanel(false);
     this.closeFilter(false);
+    this.closeProfile(false);
+    this.hideProfileTip();
     this.stopObserving();
     this.layout?.disconnect();
     this.layout = null;
@@ -3624,7 +3657,7 @@ export class GtTable extends HTMLElement {
   private nameLabels(table: HTMLTableElement): void {
     for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th")) {
       const label = labelText(th);
-      if (label !== "" && th.querySelector(".gt-i-head-controls, .gt-i-resizer") !== null) {
+      if (label !== "" && th.querySelector(".gt-i-head-controls, .gt-i-resizer, [role=button]") !== null) {
         th.setAttribute("aria-label", label);
       }
     }
@@ -3664,8 +3697,10 @@ export class GtTable extends HTMLElement {
   }
 
   // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
-  // other labels in the bottom row, so that they line up. Profiles are hidden from assistive
-  // technology, which has their summaries in the labels' descriptions
+  // other labels in the bottom row, so that they line up. A profile is a button, opening its larger
+  // view (see `openProfile()`) on a double click or tap too; across it, the pointer shows the
+  // tooltip of the bar nearest it (see `showProfileTip()`). Its plot and caption are hidden from
+  // assistive technology, which has their summaries in the labels' descriptions
   private addProfiles(table: HTMLTableElement, spec: Spec): void {
     const cells = labelCells(table);
     const doc = this.ownerDocument;
@@ -3681,11 +3716,18 @@ export class GtTable extends HTMLElement {
       const profile = new Profile(profileSpec, ranks);
       const about = aboutSlot(th);
       const root = profileSlot(th);
+      const label = labelText(th) || profileSpec.column;
       root.classList.add(`gt-i-profile-${profileSpec.plot}`);
+      root.removeAttribute("aria-hidden");
+      root.setAttribute("role", "button");
+      root.setAttribute("aria-label", `Show the profile of ${label}`);
+      root.setAttribute("aria-expanded", "false");
+      root.tabIndex = 0;
       th.classList.add("gt-i-profiled");
       const svg = root.appendChild(doc.createElementNS(SVG_NS, "svg"));
       svg.setAttribute("viewBox", `0 0 ${Math.max(1, profile.bars.length)} 1`);
       svg.setAttribute("preserveAspectRatio", "none");
+      svg.setAttribute("aria-hidden", "true");
       const known = new Map<number, string>();
       const valueName = (rank: number) => {
         let name = known.get(rank);
@@ -3699,23 +3741,29 @@ export class GtTable extends HTMLElement {
       };
       const edge = edgeFormat(profile, lang);
       // (Its description is its dtype so far, from `addDtypes()`)
-      const view: ProfileView = { profile, rects: [], titles: [], names: [], caption: root, about, dtype: about.textContent ?? "", valueName };
+      const view: ProfileView = {
+        profile,
+        th,
+        label,
+        root,
+        svg,
+        rects: [],
+        names: [],
+        caption: root,
+        counts: null,
+        heights: [],
+        edge,
+        about,
+        dtype: about.textContent ?? "",
+        valueName,
+      };
       profile.bars.forEach((bar, i) => {
-        const g = svg.appendChild(doc.createElementNS(SVG_NS, "g"));
-        view.titles.push(g.appendChild(doc.createElementNS(SVG_NS, "title")));
-        // (The column the bar is in, which shows its tooltip, then the bar)
-        for (const hit of [true, false]) {
-          const rect = g.appendChild(doc.createElementNS(SVG_NS, "rect"));
-          rect.setAttribute("x", String(hit ? i : i + 0.1));
-          rect.setAttribute("width", hit ? "1" : "0.8");
-          rect.setAttribute("height", hit ? "1" : "0");
-          if (hit) {
-            rect.classList.add("gt-i-profile-hit");
-          } else {
-            rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
-            view.rects.push(rect);
-          }
-        }
+        const rect = svg.appendChild(doc.createElementNS(SVG_NS, "rect"));
+        rect.setAttribute("x", String(i + 0.1));
+        rect.setAttribute("width", "0.8");
+        rect.setAttribute("height", "0");
+        rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
+        view.rects.push(rect);
         view.names.push(
           bar.rank >= 0
             ? valueName(bar.rank)
@@ -3726,7 +3774,40 @@ export class GtTable extends HTMLElement {
                 : `${edge(bar.low)} – ${edge(bar.high)}`,
         );
       });
-      view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text"));
+      const caption = (view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text", { "aria-hidden": "true" })));
+
+      // (Not over the caption, by the mouse, which has the caption's own tooltip; a touch's tooltip
+      // stays a moment after it lifts, from under the finger)
+      const point = (event: PointerEvent) => {
+        if (event.pointerType === "mouse" && caption.contains(event.target as Node)) {
+          this.hideProfileTip();
+        } else {
+          this.showProfileTip(view, barAt(svg.getBoundingClientRect(), view.rects.length, event.clientX));
+        }
+      };
+      root.addEventListener("pointerdown", point);
+      root.addEventListener("pointermove", point);
+      root.addEventListener("pointerleave", (event) => this.hideProfileTip(event.pointerType === "mouse" ? 0 : TIP_HOLD_MS));
+      root.addEventListener("dblclick", () => this.openProfile(view));
+      // (A double tap, which a browser may not make a double click)
+      let tapped = -Infinity;
+      let tapX = 0;
+      root.addEventListener("pointerup", (event) => {
+        if (event.pointerType !== "mouse") {
+          const twice = event.timeStamp - tapped < TAP_MS && Math.abs(event.clientX - tapX) < 2 * PRESS_SLOP;
+          tapped = twice ? -Infinity : event.timeStamp;
+          tapX = event.clientX;
+          if (twice) {
+            this.openProfile(view);
+          }
+        }
+      });
+      root.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          this.openProfile(view);
+        }
+      });
       this.profileViews.push(view);
     }
     if (this.profileViews.length > 0) {
@@ -3740,15 +3821,17 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.profiled = this.matched;
-    for (const { profile, rects, titles, names, caption, about, dtype, valueName } of this.profileViews) {
-      const counts = profile.count(this.matched);
+    this.hideProfileTip();
+    for (const view of this.profileViews) {
+      const { profile, rects, caption, about, dtype, valueName } = view;
+      const counts = (view.counts = profile.count(this.matched));
       const most = Math.max(1, ...counts.bars);
-      counts.bars.forEach((count, i) => {
+      view.heights = counts.bars.map((count, i) => {
         // (A bar of a few rows is still seen)
         const height = count === 0 ? 0 : Math.max(count / most, 0.06);
         rects[i]?.setAttribute("y", String(1 - height));
         rects[i]?.setAttribute("height", String(height));
-        (titles[i] as SVGTitleElement).textContent = `${names[i]}: ${plural(count)}`;
+        return height;
       });
       // (The values' range, its ends joined by " – " in the caption and " to " in the description)
       const values =
@@ -3762,6 +3845,270 @@ export class GtTable extends HTMLElement {
       caption.textContent = parts(" – ").join(" · ");
       caption.title = caption.textContent;
       about.textContent = [dtype, ...parts(" to ")].filter((part) => part !== "").join(", ");
+    }
+    this.drawProfile();
+  }
+
+  /**
+   * Show the tooltip of a profile's bar: what it is, and its rows, over the column's label (or
+   * under it, without room in the element above), as far toward the element's sides as fits, with
+   * a line from it to the top of the bar (or, from under the label, its foot)
+   */
+  private showProfileTip(view: ProfileView, i: number): void {
+    clearTimeout(this.tipTimer);
+    const counts = view.counts;
+    if (counts === null || (this.tipView === view && this.tipBar === i)) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const tip = (this.profileTip ??= element(doc, "div", "gt-i-tip gt-i-profile-tip", { "aria-hidden": "true" }));
+    const lead = (this.profileLead ??= element(doc, "div", "gt-i-profile-lead", { "aria-hidden": "true" }));
+    if (tip.parentNode !== this) {
+      this.append(tip, lead);
+    }
+    this.tipView?.rects[this.tipBar]?.classList.remove("gt-i-profile-on");
+    view.rects[i]?.classList.add("gt-i-profile-on");
+    this.tipView = view;
+    this.tipBar = i;
+    const name = element(doc, "strong", "");
+    name.textContent = view.names[i] as string;
+    tip.replaceChildren(name, element(doc, "br", ""), share(counts.bars[i] as number, counts.rows));
+    tip.hidden = lead.hidden = false;
+    this.listenProfiles(true);
+
+    // (Measured at the element's start, where it has all of the element's width)
+    tip.style.left = "0";
+    const host = this.getBoundingClientRect();
+    const th = view.th.getBoundingClientRect();
+    const plot = view.svg.getBoundingClientRect();
+    const { width, height } = tip.getBoundingClientRect();
+    const x = plot.left + ((i + 0.5) / view.rects.length) * plot.width;
+    const above = th.top - TIP_GAP - height >= host.top || th.bottom + TIP_GAP + height > host.bottom;
+    const top = above ? th.top - TIP_GAP - height : th.bottom + TIP_GAP;
+    const left = Math.max(host.left, Math.min(x - width / 2, host.right - width));
+    // (The line leaves the tooltip's edge, not its rounded corners)
+    const fromX = Math.max(left + 6, Math.min(x, left + width - 6));
+    const fromY = above ? top + height : top;
+    const dx = x - fromX;
+    const dy = (above ? plot.top + (1 - (view.heights[i] as number)) * plot.height : plot.bottom) - fromY;
+    tip.style.left = `${left - host.left}px`;
+    tip.style.top = `${top - host.top}px`;
+    lead.style.left = `${fromX - host.left}px`;
+    lead.style.top = `${fromY - host.top}px`;
+    lead.style.width = `${Math.hypot(dx, dy)}px`;
+    lead.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+    lead.style.color = getComputedStyle(view.th).color;
+  }
+
+  // Hide the tooltip of a profile's bar (after `delay` ms)
+  private hideProfileTip(delay = 0): void {
+    clearTimeout(this.tipTimer);
+    if (delay > 0) {
+      this.tipTimer = setTimeout(() => this.hideProfileTip(), delay);
+      return;
+    }
+    this.tipView?.rects[this.tipBar]?.classList.remove("gt-i-profile-on");
+    this.tipView = null;
+    this.tipBar = -1;
+    if (this.profileTip !== null && this.profileLead !== null) {
+      this.profileTip.hidden = this.profileLead.hidden = true;
+    }
+    if (this.profileOpen === null) {
+      this.listenProfiles(false);
+    }
+  }
+
+  // While a profile's tooltip or larger view shows: anything scrolling hides the tooltip and moves
+  // the view, as Escape and a press elsewhere hide the tooltip, and a press outside the view closes it
+  private readonly profileEvent = (event: Event) => {
+    const path = event.composedPath();
+    const open = this.profileOpen;
+    if (event.type === "scroll") {
+      this.placeProfile();
+    } else if (event.type === "pointerdown") {
+      if (open !== null && !path.includes(this.profilePanel as HTMLElement) && !path.includes(open.root)) {
+        this.closeProfile(false);
+      }
+      if (this.tipView !== null && path.includes(this.tipView.root)) {
+        return;
+      }
+    } else if ((event as KeyboardEvent).key !== "Escape") {
+      return;
+    }
+    this.hideProfileTip();
+  };
+
+  private listenProfiles(on: boolean): void {
+    for (const type of ["scroll", "keydown", "pointerdown"]) {
+      this.ownerDocument[on ? "addEventListener" : "removeEventListener"](type, this.profileEvent, true);
+    }
+  }
+
+  /**
+   * Open a profile's larger view, under its column's label: the profile's whole caption, and its
+   * plot, with axes (a histogram's, with its bins' edges under it and its counts beside it, its
+   * bars read out as the pointer goes over them or the arrow keys move along them), or "top"'s
+   * bars with their values and counts. It's drawn again as the rows kept change
+   */
+  private openProfile(view: ProfileView): void {
+    this.hideProfileTip();
+    if (this.profileOpen === view) {
+      return;
+    }
+    this.closeProfile(false);
+    this.closeFilter(false);
+    this.closePanel(false);
+    const doc = this.ownerDocument;
+    let panel = this.profilePanel;
+    if (panel === null) {
+      panel = this.profilePanel = element(doc, "div", "gt-i-filter gt-i-profile-panel", { role: "group", id: `gt-i-profile-${++infoCount}` });
+      const head = panel.appendChild(element(doc, "div", "gt-i-filter-head"));
+      head.append(element(doc, "span", "gt-i-filter-title"));
+      const close = head.appendChild(element(doc, "button", "gt-i-info-button", { type: "button" }));
+      close.textContent = "Close";
+      close.addEventListener("click", () => this.closeProfile(true));
+      panel.append(element(doc, "div", "gt-i-profile-body"));
+      // Escape closes it, as Tab does out of either end of it (back to its profile)
+      panel.addEventListener("keydown", (event) => {
+        const stops = panel?.querySelectorAll("button, [tabindex]") ?? [];
+        if (
+          event.key === "Escape" ||
+          (event.key === "Tab" && event.target === stops[event.shiftKey ? 0 : stops.length - 1])
+        ) {
+          // (And don't, say, close a dialog the table is in)
+          event.preventDefault();
+          event.stopPropagation();
+          this.closeProfile(true);
+        }
+      });
+    }
+    // (Over the table, so filled with what's behind it; in the table's font)
+    panel.style.backgroundColor = backdropColor(this);
+    panel.style.fontFamily = familyOf(this.table as HTMLTableElement);
+    panel.setAttribute("aria-label", `Profile of ${view.label}`);
+    (panel.firstChild?.firstChild as HTMLElement).textContent = view.label;
+    panel.hidden = false;
+    this.append(panel);
+    view.root.setAttribute("aria-controls", panel.id);
+    view.root.setAttribute("aria-expanded", "true");
+    this.profileOpen = view;
+    this.profileBar = -1;
+    this.drawProfile();
+    this.placeProfile();
+    this.listenProfiles(true);
+    panel.querySelector("button")?.focus();
+  }
+
+  // Draw the open larger view (see `openProfile()`) from its profile's counts
+  private drawProfile(): void {
+    const view = this.profileOpen;
+    const panel = this.profilePanel;
+    const counts = view?.counts;
+    if (view == null || panel === null || counts == null) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const { profile, names } = view;
+    const n = names.length;
+    const most = Math.max(1, ...counts.bars);
+    const text = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, content: string) => {
+      const el = element(doc, tag, className);
+      el.textContent = content;
+      return el;
+    };
+    const body = element(doc, "div", "gt-i-profile-body");
+    body.append(text("p", "gt-i-profile-sum", counts.rows === 0 ? `${view.caption.textContent}` : `${plural(counts.rows)} · ${view.caption.textContent}`));
+    const focused = panel.querySelector(".gt-i-profile-plot:focus") !== null;
+    if (profile.spec.plot === "top") {
+      const rows = body.appendChild(element(doc, "div", "gt-i-profile-rows"));
+      counts.bars.forEach((count, i) => {
+        const meter = element(doc, "span", "gt-i-profile-meter");
+        meter.appendChild(element(doc, "i", profile.bars[i]?.rank === -1 ? "gt-i-profile-other" : "")).style.width = `${(count / most) * 100}%`;
+        rows.append(text("span", "", names[i] as string), meter, text("span", "", share(count, counts.rows)));
+      });
+    } else if (n > 0) {
+      // Its plot, with the most rows a bin has and 0 beside it, and its ends and middle under it (a
+      // bin's value, for bins of one value, else the edges)
+      const chart = body.appendChild(element(doc, "div", "gt-i-profile-chart"));
+      const yAxis = element(doc, "div", "gt-i-profile-y");
+      yAxis.append(text("span", "", String(most)), text("span", "", "0"));
+      const plot = element(doc, "div", "gt-i-profile-plot", { tabindex: "0", role: "img", "aria-label": `Histogram of ${view.label}` });
+      const bars = counts.bars.map((count) => {
+        const bar = plot.appendChild(element(doc, "i", ""));
+        bar.style.height = count === 0 ? "0" : `max(2px, ${(count / most) * 100}%)`;
+        return bar;
+      });
+      const { bars: bins } = profile;
+      const ends = bins.every((bin) => bin.low === bin.high)
+        ? [n > 1 ? names[0] : "", n % 2 === 1 ? names[(n - 1) / 2] : "", n > 1 ? names[n - 1] : ""]
+        : [view.edge((bins[0] as Bin).low), n % 2 === 0 ? view.edge((bins[n / 2] as Bin).low) : "", view.edge((bins[n - 1] as Bin).high)];
+      const xAxis = element(doc, "div", "gt-i-profile-x");
+      xAxis.append(...ends.map((end) => text("span", "", end as string)));
+      chart.append(yAxis, plot, element(doc, "span", ""), xAxis);
+
+      // (Its bins are a list for assistive technology, which doesn't have the plot nor its readout)
+      const readout = body.appendChild(element(doc, "p", "gt-i-profile-read", { "aria-hidden": "true" }));
+      const list = body.appendChild(element(doc, "ul", "gt-i-hidden"));
+      const bin = (i: number) => `${names[i]}: ${share(counts.bars[i] as number, counts.rows)}`;
+      names.forEach((_, i) => list.append(text("li", "", bin(i))));
+      const read = (i: number) => {
+        this.profileBar = i;
+        bars.forEach((bar, k) => bar.classList.toggle("gt-i-profile-on", k === i));
+        readout.textContent = bin(i);
+      };
+      const point = (event: PointerEvent) => read(barAt(plot.getBoundingClientRect(), n, event.clientX));
+      plot.addEventListener("pointerdown", point);
+      plot.addEventListener("pointermove", point);
+      plot.addEventListener("keydown", (event) => {
+        const to = ({ ArrowLeft: this.profileBar - 1, ArrowRight: this.profileBar + 1, Home: 0, End: n - 1 } as Record<string, number>)[event.key];
+        if (to !== undefined) {
+          event.preventDefault();
+          read(Math.max(0, Math.min(n - 1, to)));
+        }
+      });
+      if (this.profileBar >= 0) {
+        read(Math.min(this.profileBar, n - 1));
+      }
+    }
+    panel.lastChild?.replaceWith(body);
+    if (focused) {
+      panel.querySelector<HTMLElement>(".gt-i-profile-plot")?.focus();
+    }
+  }
+
+  // The larger view is under its column's label, from the label's inline start (as far as the
+  // element's width allows); it closes once the profile is hidden, as the table is stacked
+  private placeProfile(): void {
+    const panel = this.profilePanel;
+    const view = this.profileOpen;
+    if (panel === null || view === null) {
+      return;
+    }
+    if (this.stacked) {
+      this.closeProfile(false);
+      return;
+    }
+    const host = this.getBoundingClientRect();
+    const th = view.th.getBoundingClientRect();
+    const width = panel.offsetWidth;
+    const start = this.isRtl() ? th.right - width : th.left;
+    panel.style.left = `${Math.max(0, Math.min(start - host.left, host.width - width))}px`;
+    panel.style.top = `${th.bottom + 4 - host.top}px`;
+  }
+
+  private closeProfile(focus: boolean): void {
+    const view = this.profileOpen;
+    if (view === null) {
+      return;
+    }
+    this.profileOpen = null;
+    (this.profilePanel as HTMLElement).hidden = true;
+    view.root.setAttribute("aria-expanded", "false");
+    if (this.tipView === null) {
+      this.listenProfiles(false);
+    }
+    if (focus) {
+      view.root.focus();
     }
   }
 
@@ -5491,7 +5838,7 @@ export class GtTable extends HTMLElement {
       this.pressed = false;
       const target = event.target as Element;
       const th = target.closest("th");
-      if (event.pointerType === "mouse" || th === null || target.closest(".gt-i-resizer") !== null) {
+      if (event.pointerType === "mouse" || th === null || target.closest(".gt-i-resizer, .gt-i-profile") !== null) {
         return;
       }
       const id =
@@ -8388,6 +8735,7 @@ export class GtTable extends HTMLElement {
       this.outlineBar();
       this.placeFoot();
       this.placeFilter();
+      this.placeProfile();
       this.stick();
       // (In the next frame, like the column widths below)
       this.queuePin();
@@ -10014,6 +10362,8 @@ export class GtTable extends HTMLElement {
     this.asked++;
     this.waiting = null;
     this.removeAttribute("aria-busy");
+    this.closeProfile(false);
+    this.hideProfileTip();
     this.profileViews = [];
     this.profiled = undefined;
     this.filters = [];

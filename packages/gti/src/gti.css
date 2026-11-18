@@ -73,6 +73,8 @@ gt-table th.gt-i-sortable {
  */
 gt-table th.gt-i-profiled {
   min-width: 6em;
+  /* (So that its profile, raised over its resize handles, stays under pinned columns' labels) */
+  isolation: isolate;
 }
 
 gt-table .gt-i-profile {
@@ -97,17 +99,33 @@ gt-table .gt-i-profile rect {
   opacity: 0.45;
 }
 
-/* (The bar of the values "top" doesn't show is fainter; a bar's column shows its tooltip) */
+/* (The bar of the values "top" doesn't show is fainter; the bar whose tooltip shows is stronger) */
 gt-table .gt-i-profile rect.gt-i-profile-other {
   opacity: 0.25;
 }
 
-gt-table .gt-i-profile rect.gt-i-profile-hit {
-  fill: transparent;
+gt-table .gt-i-profile rect.gt-i-profile-on {
+  opacity: 0.75;
 }
 
-gt-table .gt-i-profile g:hover rect {
-  opacity: 0.75;
+/*
+ * A profile is a button (see `addProfiles()`) over its label's resize handles, which are still
+ * beside it, in the label's padding: so the pointer has its edge bars. Across it, the pointer (or
+ * a finger sliding along it) shows the tooltip of the bar nearest it; a double tap doesn't zoom
+ */
+gt-table th.gt-i-profiled > .gt-i-profile {
+  position: relative;
+  z-index: 4;
+  touch-action: pan-y pinch-zoom;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+gt-table .gt-i-profile:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
 }
 
 gt-table .gt-i-profile-text {
@@ -1244,6 +1262,36 @@ gt-table .gt-i-tip {
   pointer-events: none;
 }
 
+/* A profile's bar's tooltip (see `showProfileTip()`), and the line from it to the bar */
+gt-table .gt-i-profile-tip {
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(20em, 100%);
+  overflow-wrap: anywhere;
+}
+
+gt-table .gt-i-profile-lead {
+  position: absolute;
+  z-index: 11;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+  transform-origin: 0 50%;
+  pointer-events: none;
+  forced-color-adjust: none;
+}
+
+gt-table .gt-i-profile-lead::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: inherit;
+}
+
 /*
  * A table whose parts are named for good (`display.parts`, for a docs page) keeps room below it,
  * from the start, for two lines of the bar's names: within a container that would clip them (as
@@ -2067,6 +2115,123 @@ gt-table .gt-i-filter {
 
 gt-table .gt-i-filter[hidden] {
   display: none;
+}
+
+/*
+ * A profile's larger view (see `openProfile()`): its whole caption, then its plot, with its axes
+ * and a readout of the bar the pointer is over (or the arrow keys have moved to); or "top"'s
+ * values, each with a bar and its rows. A histogram's values go left to right, as in its profile
+ */
+gt-table .gt-i-profile-panel {
+  width: min(22em, 100%);
+}
+
+gt-table .gt-i-profile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+gt-table .gt-i-profile-body p {
+  margin: 0;
+}
+
+gt-table .gt-i-profile-chart {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.375em;
+  direction: ltr;
+  font-size: 0.85em;
+}
+
+gt-table :is(.gt-i-profile-y, .gt-i-profile-x) {
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+gt-table .gt-i-profile-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  line-height: 1;
+  text-align: end;
+}
+
+gt-table .gt-i-profile-plot {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 8em;
+  border-top: 1px dashed rgba(128, 128, 128, 0.4);
+  border-bottom: 1px solid;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+
+gt-table .gt-i-profile-plot:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+gt-table :is(.gt-i-profile-plot, .gt-i-profile-meter) > i {
+  background: currentColor;
+  opacity: 0.45;
+  forced-color-adjust: none;
+}
+
+gt-table .gt-i-profile-plot > i {
+  flex: 1;
+}
+
+gt-table .gt-i-profile-plot > i.gt-i-profile-on {
+  opacity: 0.85;
+}
+
+gt-table .gt-i-profile-meter > i.gt-i-profile-other {
+  opacity: 0.25;
+}
+
+gt-table .gt-i-profile-x {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.5em;
+  margin-top: 0.25em;
+}
+
+gt-table .gt-i-profile-x > :nth-child(2) {
+  text-align: center;
+}
+
+gt-table .gt-i-profile-x > :last-child {
+  text-align: end;
+}
+
+gt-table .gt-i-profile-read {
+  min-height: 1.4em;
+  font-variant-numeric: tabular-nums;
+}
+
+gt-table .gt-i-profile-rows {
+  display: grid;
+  grid-template-columns: fit-content(50%) minmax(3em, 1fr) auto;
+  align-items: center;
+  gap: 0.25em 0.5em;
+}
+
+gt-table .gt-i-profile-rows > :nth-child(3n + 1) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+gt-table .gt-i-profile-rows > :nth-child(3n) {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+gt-table .gt-i-profile-meter {
+  display: flex;
+  height: 0.75em;
 }
 
 gt-table .gt-i-filter-head {
