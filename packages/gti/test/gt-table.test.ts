@@ -2909,14 +2909,49 @@ describe("the handle under the rows", () => {
     expect(el.pageSize).toBe(2);
   });
 
-  it("works on a search's rows, up to every row of the table", async () => {
+  it("goes from the rows a search shows to one short of every row, past which its page isn't padded", async () => {
+    // (3 of the 5 rows match: on pages of 2, then 3 and 4, padded to them)
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    el.search = "a";
+    press(rows, "ArrowDown");
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    press(rows, "ArrowDown");
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(4);
+
+    // (On a page of every row, the foot is at the 3 shown)
+    el.pageSize = 5;
+    press(rows, "ArrowUp");
+    expect(el.pageSize).toBe(2);
+    el.pageSize = 5;
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    el.pageSize = 5;
+    pointer(rows, "pointerdown", { clientY: 100 });
+    pointer(rows, "pointermove", { clientY: 105 });
+    expect(el.pageSize).toBe(5);
+    pointer(rows, "pointermove", { clientY: 76 });
+    expect(el.pageSize).toBe(2);
+    pointer(rows, "pointermove", { clientY: 1000 });
+    expect(el.pageSize).toBe(4);
+    pointer(rows, "pointerup", { clientY: 1000 });
+
+    // (Every row, with no search)
+    el.search = "";
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(5);
+  });
+
+  it("works on a search's rows, up to one short of every row of the table", async () => {
     const el = await mountRows();
     const rows = handle(el) as HTMLElement;
     el.search = "row_1";
     press(rows, "ArrowDown");
     expect(el.pageSize).toBe(3);
     press(rows, "PageDown");
-    expect(el.pageSize).toBe(5);
+    expect(el.pageSize).toBe(4);
   });
 
   it("is a size a kept view can have", async () => {
