@@ -371,9 +371,9 @@ def test_i_responsive_stack_css_labels_the_cells():
         .i_responsive("stack")
     )
     css = stack_style(gti)
-    assert '#t [headers~="t-num"]{--gt-i-label:"Top · Sp · num"}' in css
-    assert '#t th[id="t-num"]{--gt-i-spanner:"Top · Sp · "}' in css
-    assert '#t [headers~="t-char"]{--gt-i-label:"Top · Sp · Text"}' in css
+    assert '#t [headers~="t-num"]{--gt-i-label:"Top – Sp – num"}' in css
+    assert '#t th[id="t-num"]{--gt-i-spanner:"Top – Sp – "}' in css
+    assert '#t [headers~="t-char"]{--gt-i-label:"Top – Sp – Text"}' in css
     assert '#t [headers~="t-fctr"]{--gt-i-label:"fctr"}' in css
     # (No spanner, no prefix for its chip)
     assert 'th[id="t-fctr"]' not in css
