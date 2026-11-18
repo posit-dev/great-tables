@@ -2546,7 +2546,7 @@ The details are in the table's HTML, made as it's rendered, but aren't searched,
 
 ## Column profiles
 
-With [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile), columns get a small plot under their labels of how their values are spread: a histogram of numbers and dates, and bars for the most common values of the others, each with the share of rows that have a missing value. The plots follow the rows a search or filter keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch the horsepower and prices narrow; point at a bar to see its values and its number of rows.
+With [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile), columns get a small plot under their labels of how their values are spread: a histogram of numbers and dates, and bars for the most common values of the others, each with the share of rows that have a missing value. The plots follow the rows a search or filter keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch the horsepower and prices narrow; point at a bar (or slide a finger along the plot) to see its values and its number of rows. A double click or double tap on a profile (or Enter on it) opens a larger view of it, with axes, the whole caption, and each bar's rows.
 
 ``` python
 (
