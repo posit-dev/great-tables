@@ -709,11 +709,12 @@ def n_colors(gt: GT, rows: list[int]) -> dict[str, list[str | None]]:
     return found
 
 
-def colors_html() -> str:
+def colors_html(collapse: bool = False) -> str:
     # Fruits (apple, avocado, banana, blueberry, cherry, date; date's n is missing), whose n and m
     # are colored blue, and apple's n red; n's colors made again from the rows a search keeps,
     # m's left as they are. Then, as JSON, n's colors (as `n_colors()` has them) with every row
-    # shown, and with each search, as `data_color()` makes them from the rows kept
+    # shown, and with each search, as `data_color()` makes them from the rows kept. Optionally
+    # dropping n to fit a narrow container (m has priority), in a monospace font
     gti = (
         GTI(COLOR_DF, rowname_col="fruit", id="c")
         .data_color(columns=["n", "m"], palette="Blues")
@@ -721,6 +722,12 @@ def colors_html() -> str:
         .i_cols_controls("n", data_color="recompute")
         .i_pagination(False)
     )
+    if collapse:
+        gti = (
+            gti.opt_table_font(font="monospace", add=False)
+            .i_cols_priority("m")
+            .i_responsive("collapse")
+        )
     first = n_colors(gti, list(range(len(COLOR_DF))))
     expected = {"": first}
     for search, kept in COLOR_SEARCHES.items():
@@ -1374,6 +1381,11 @@ def main() -> None:
         "link.html": page(link_html() + "\n" + runtime_src, head=styles),
         # A table whose colors are made again from the rows a search keeps
         "colors.html": page(colors_html() + "\n" + runtime_src, head=styles),
+        # (Dropping n, which a row open shows under it, in those colors)
+        "colors-collapse.html": page(
+            '<div style="width: 160px">' + colors_html(collapse=True) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
         "collapse-nostub.html": page(
             '<div style="width: 240px">'
             + render_gti_html(
