@@ -209,6 +209,33 @@ test.describe("a table that drops columns", () => {
     expect(errors).toEqual([]);
   });
 
+  test("highlights the search's matches in the columns dropped, under a row open", async ({ page }) => {
+    const errors = await ready(page, "collapse.html");
+    // (Each highlight's text, and whether it's in a row under a row open)
+    const highlights = () =>
+      page.evaluate(() =>
+        Array.from(CSS.highlights.get("gt-i-search") ?? [], (range) => {
+          const node = (range as Range).startContainer.parentElement;
+          return [(range as Range).toString(), node?.closest("tr.gt-i-details") !== null];
+        }).filter(([, under]) => under),
+      );
+    await el(page).evaluate((node) => ((node as any).search = "honeydew"));
+    await expect(row(page, "row_8")).toBeVisible();
+    // (Made as the row opens)
+    await button(page, "row_8").click();
+    await expect(details(page, "row_8")).toBeVisible();
+    await expect.poll(highlights).toEqual([["honeydew", true]]);
+    // (And again as the search changes)
+    await el(page).evaluate((node) => ((node as any).search = "dew 2015"));
+    await expect.poll(highlights).toEqual([
+      ["dew", true],
+      ["2015", true],
+    ]);
+    await el(page).evaluate((node) => ((node as any).search = ""));
+    await expect.poll(highlights).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
   test("exports the columns dropped", async ({ page }) => {
     const errors = await ready(page, "collapse.html");
     await el(page).locator(".gt-i-bar").getByRole("button", { name: "Export the table", exact: true }).click();
