@@ -8245,6 +8245,14 @@ describe("the filter & sort sheet", () => {
     expect(sheet(el).open).toBe(true);
   });
 
+  it("doesn't open on a long press of a column's profile, along which a finger reads its bars", async () => {
+    const el = await mountSheet({ profiles: [{ column: "y", plot: "top", values: null }] });
+    vi.useFakeTimers();
+    pointer(header(el, "y").querySelector(".gt-i-profile svg") as Element, "pointerdown", { clientX: 10, clientY: 10 });
+    vi.advanceTimersByTime(600);
+    expect(el.querySelector("dialog")).toBeNull();
+  });
+
   it("can't hide a column that's the only one shown", async () => {
     const el = await mountSheet({ columns: { x: { hideable: true } } });
     vi.useFakeTimers();
@@ -8447,12 +8455,23 @@ describe("column profiles", () => {
   const mountProfiles = (options: TableOptions = {}) => mountTable(GROUPED, { profiles: PROFILES, ...options });
   const profile = (th: Element) => th.querySelector<HTMLElement>(":scope > .gt-i-profile");
   const caption = (el: GtTable, column: string) => profile(header(el, column))?.querySelector(".gt-i-profile-text")?.textContent;
-  const titles = (el: GtTable, column: string) =>
-    Array.from(profile(header(el, column))?.querySelectorAll("title") ?? [], (title) => title.textContent);
   const heights = (el: GtTable, column: string) =>
-    Array.from(profile(header(el, column))?.querySelectorAll("rect:not(.gt-i-profile-hit)") ?? [], (rect) =>
-      Number(rect.getAttribute("height")),
-    );
+    Array.from(profile(header(el, column))?.querySelectorAll("rect") ?? [], (rect) => Number(rect.getAttribute("height")));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
+  const shownTip = (el: GtTable) => {
+    const tip = el.querySelector<HTMLElement>(":scope > .gt-i-profile-tip");
+    return tip === null || tip.hidden ? null : `${tip.firstChild?.textContent}: ${tip.lastChild?.textContent}`;
+  };
+  // (The mouse over a column's bar `i`, of a plot 10px a bar)
+  const hover = (el: GtTable, column: string, i: number, init: PointerEventInit = {}) => {
+    const svg = profile(header(el, column))?.querySelector("svg") as SVGSVGElement;
+    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 10 * svg.childElementCount, 10));
+    pointer(svg, "pointermove", { clientX: 10 * i + 5, ...init });
+    return shownTip(el);
+  };
+  // Each bar's tooltip
+  const titles = (el: GtTable, column: string) => heights(el, column).map((_, i) => hover(el, column, i));
 
   it("draws a profile under each profiled column's label (after its controls), and room for one under the others", async () => {
     const el = await mountProfiles();
@@ -8461,7 +8480,15 @@ describe("column profiles", () => {
       expect(th.classList.contains("gt-i-profiled")).toBe(true);
       expect(th.lastElementChild).toBe(profile(th));
       expect(profile(th)?.previousElementSibling?.classList.contains("gt-i-head-controls")).toBe(true);
-      expect(profile(th)?.getAttribute("aria-hidden")).toBe("true");
+      // (A button opening its larger view, whose plot and caption are hidden)
+      expect(profile(th)?.hasAttribute("aria-hidden")).toBe(false);
+      expect(profile(th)?.getAttribute("role")).toBe("button");
+      expect(profile(th)?.getAttribute("aria-label")).toBe(`Show the profile of ${column}`);
+      expect(profile(th)?.getAttribute("aria-expanded")).toBe("false");
+      expect(profile(th)?.tabIndex).toBe(0);
+      expect(profile(th)?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector(".gt-i-profile-text")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector("title")).toBeNull();
     }
     expect(profile(header(el, "x"))?.classList.contains("gt-i-profile-histogram")).toBe(true);
     expect(profile(header(el, "y"))?.classList.contains("gt-i-profile-top")).toBe(true);
@@ -8470,6 +8497,7 @@ describe("column profiles", () => {
     expect(heights(el, "y")).toHaveLength(3);
     const stubhead = el.querySelector("thead th:not([id])") as HTMLTableCellElement;
     expect(profile(stubhead)?.childElementCount).toBe(0);
+    expect(profile(stubhead)?.getAttribute("aria-hidden")).toBe("true");
     expect(stubhead.classList.contains("gt-i-profiled")).toBe(false);
   });
 
@@ -8481,17 +8509,17 @@ describe("column profiles", () => {
   it("names each bar's values and rows, and says the range shown and the share missing", async () => {
     const el = await mountProfiles();
     const x = titles(el, "x");
-    expect(x[0]).toBe("5: 1 row");
+    expect(x[0]).toBe("5: 1 row (20%)");
     expect(x[1]).toBe("6: 0 rows");
-    expect(x[5]).toBe("10: 1 row");
-    expect(x[15]).toBe("20: 2 rows");
+    expect(x[5]).toBe("10: 1 row (20%)");
+    expect(x[15]).toBe("20: 2 rows (40%)");
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
     // (The bars go up to the most rows, a few rows' still seen)
     expect(heights(el, "x")[15]).toBe(1);
     expect(heights(el, "x")[0]).toBe(0.5);
     expect(heights(el, "x")[1]).toBe(0);
     // (y's values, as its cells show them, most rows' first)
-    expect(titles(el, "y")).toEqual(["a: 3 rows", "b: 1 row", "c: 1 row"]);
+    expect(titles(el, "y")).toEqual(["a: 3 rows (60%)", "b: 1 row (20%)", "c: 1 row (20%)"]);
     expect(caption(el, "y")).toBe("3 values");
   });
 
@@ -8500,7 +8528,7 @@ describe("column profiles", () => {
     el.search = "a";
     // (Rows 1, 3 and 4: 5, a missing value and 20)
     expect(caption(el, "x")).toBe("5 – 20 · 33% missing");
-    expect(titles(el, "x")[15]).toBe("20: 1 row");
+    expect(titles(el, "x")[15]).toBe("20: 1 row (33%)");
     expect(heights(el, "x")).toHaveLength(16);
     expect(caption(el, "y")).toBe("1 value");
     expect(heights(el, "y")).toEqual([1, 0, 0]);
@@ -8557,6 +8585,228 @@ describe("column profiles", () => {
     const el = await mountProfiles({ controls: { sorting: false } });
     expect(el.querySelector(".gt-i-head-controls")).toBeNull();
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+  });
+
+  // (The element, x's label and its plot (16 bars of 5px), and the tooltip, where they are)
+  const place = (host: DOMRect, th: DOMRect) => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.matches("gt-table")
+        ? host
+        : this.matches("th")
+          ? th
+          : this.matches("svg")
+            ? new DOMRect(th.x + 5, th.bottom - 30, 80, 20)
+            : this.matches(".gt-i-profile-tip")
+              ? new DOMRect(0, 0, 60, 30)
+              : new DOMRect();
+    });
+  };
+  const tipBox = (el: GtTable) => {
+    const tip = el.querySelector(":scope > .gt-i-profile-tip") as HTMLElement;
+    const lead = el.querySelector(":scope > .gt-i-profile-lead") as HTMLElement;
+    const { left, top, width, transform } = lead.style;
+    return { tip: [tip.style.left, tip.style.top], lead: { left, top, width, transform }, hidden: tip.hidden || lead.hidden };
+  };
+
+  it("shows the tooltip of the bar nearest the pointer, over the label, with a line down to the bar", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(0, 0, 400, 300), new DOMRect(100, 50, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    // (Past the plot's end, the last bar's: 20, the bar of the most rows, its top at the plot's)
+    pointer(svg, "pointermove", { clientX: 199 });
+    expect(shownTip(el)).toBe("20: 2 rows (40%)");
+    expect(tipBox(el)).toEqual({
+      tip: ["152.5px", "14px"],
+      lead: { left: "182.5px", top: "44px", width: "36px", transform: `rotate(${Math.PI / 2}rad)` },
+      hidden: false,
+    });
+    expect(svg.querySelectorAll("rect")[15]?.classList.contains("gt-i-profile-on")).toBe(true);
+    expect(el.querySelector(".gt-i-profile-tip")?.getAttribute("aria-hidden")).toBe("true");
+    // (The mouse leaving, it goes)
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerleave");
+    expect(shownTip(el)).toBeNull();
+    expect(tipBox(el).hidden).toBe(true);
+    expect(svg.querySelector(".gt-i-profile-on")).toBeNull();
+  });
+
+  it("keeps the tooltip within the element, the line going aslant, and under the label without room over it", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(150, 20, 250, 300), new DOMRect(100, 20, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    pointer(svg, "pointermove", { clientX: 106 });
+    expect(shownTip(el)).toBe("5: 1 row (20%)");
+    const { tip, lead } = tipBox(el);
+    // (At the element's start, under the label; the line from near its corner up to the bar's foot)
+    expect(tip).toEqual(["0px", "66px"]);
+    expect([lead.left, lead.top]).toEqual(["6px", "66px"]);
+    const [dx, dy] = [107.5 - 156, 70 - 86];
+    expect(parseFloat(lead.width)).toBeCloseTo(Math.hypot(dx, dy), 4);
+    expect(lead.transform).toBe(`rotate(${Math.atan2(dy, dx)}rad)`);
+  });
+
+  it("shows a bar's tooltip as a finger slides along the profile, for a moment after it lifts", async () => {
+    const el = await mountProfiles();
+    vi.useFakeTimers();
+    try {
+      const root = profile(header(el, "x")) as HTMLElement;
+      const svg = root.querySelector("svg") as SVGSVGElement;
+      vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 10));
+      pointer(svg, "pointerdown", { pointerType: "touch", clientX: 2 });
+      expect(shownTip(el)).toBe("5: 1 row (20%)");
+      pointer(svg, "pointermove", { pointerType: "touch", clientX: 55 });
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      pointer(root, "pointerleave", { pointerType: "touch" });
+      vi.advanceTimersByTime(1000);
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      vi.advanceTimersByTime(500);
+      expect(shownTip(el)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("hides the tooltip on Escape, a scroll, a press elsewhere, or new counts, and not over the caption", async () => {
+    const el = await mountProfiles();
+    const outside = document.body.appendChild(document.createElement("button"));
+    for (const away of [
+      () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })),
+      () => outside.dispatchEvent(new Event("scroll")),
+      () => pointer(outside, "pointerdown"),
+      () => (el.search = "a"),
+    ]) {
+      el.search = "";
+      expect(hover(el, "x", 0)).not.toBeNull();
+      away();
+      expect(shownTip(el)).toBeNull();
+    }
+    // (Nor a press on its own profile)
+    expect(hover(el, "x", 0)).not.toBeNull();
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerdown", { clientX: 5 });
+    expect(shownTip(el)).not.toBeNull();
+    // (By the mouse, the caption has its own tooltip)
+    pointer(profile(header(el, "x"))?.querySelector(".gt-i-profile-text") as Element, "pointermove");
+    expect(shownTip(el)).toBeNull();
+  });
+
+  const view = (el: GtTable) => el.querySelector<HTMLElement>(":scope > .gt-i-profile-panel");
+  const texts = (root: Element | null | undefined, selector: string) =>
+    Array.from(root?.querySelectorAll(selector) ?? [], (part) => part.textContent);
+
+  it("opens a larger view of a histogram on a double click: its whole caption, and its plot with axes", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    root.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el) as HTMLElement;
+    expect(panel.hidden).toBe(false);
+    expect(panel.getAttribute("role")).toBe("group");
+    expect(panel.getAttribute("aria-label")).toBe("Profile of x");
+    expect(root.getAttribute("aria-expanded")).toBe("true");
+    expect(root.getAttribute("aria-controls")).toBe(panel.id);
+    expect(panel.querySelector(".gt-i-filter-title")?.textContent).toBe("x");
+    expect(document.activeElement?.textContent).toBe("Close");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 5 – 20 · 20% missing");
+    // (The most rows a bar has, beside it, and the first and last bins' values under it)
+    expect(texts(panel, ".gt-i-profile-y > span")).toEqual(["2", "0"]);
+    expect(texts(panel, ".gt-i-profile-x > span")).toEqual(["5", "", "20"]);
+    const plot = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(plot.children).toHaveLength(16);
+    expect((plot.children[1] as HTMLElement).style.height).toBe("0px");
+    expect(plot.getAttribute("role")).toBe("img");
+    expect(plot.getAttribute("aria-label")).toBe("Histogram of x");
+    // (Its bins, for assistive technology)
+    const bins = texts(panel, "ul.gt-i-hidden > li");
+    expect(bins).toHaveLength(16);
+    expect([bins[0], bins[15]]).toEqual(["5: 1 row (20%)", "20: 2 rows (40%)"]);
+
+    // Its readout, of the bar the pointer is over, or the arrow keys move to
+    const readout = () => panel.querySelector(".gt-i-profile-read")?.textContent;
+    expect(readout()).toBe("");
+    vi.spyOn(plot, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 100));
+    pointer(plot, "pointermove", { clientX: 52 });
+    expect(readout()).toBe("10: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(true);
+    const key = (name: string) => {
+      const event = new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true });
+      plot.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    expect(key("ArrowRight")).toBe(true);
+    expect(readout()).toBe("11: 0 rows");
+    key("End");
+    key("ArrowRight");
+    expect(readout()).toBe("20: 2 rows (40%)");
+    key("Home");
+    key("ArrowLeft");
+    expect(readout()).toBe("5: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(false);
+
+    // It's drawn again as the rows kept change, the plot keeping focus and its bar
+    plot.focus();
+    el.search = "a";
+    const again = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(document.activeElement).toBe(again);
+    expect(readout()).toBe("5: 1 row (33%)");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("3 rows · 5 – 20 · 33% missing");
+    el.search = "zzz";
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("No rows");
+  });
+
+  it("opens a larger view of the most common values, with their bars and rows", async () => {
+    const el = await mountProfiles();
+    profile(header(el, "y"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el);
+    expect(panel?.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 3 values");
+    expect(texts(panel, ".gt-i-profile-rows > *")).toEqual(["a", "", "3 rows (60%)", "b", "", "1 row (20%)", "c", "", "1 row (20%)"]);
+    const meters = Array.from(panel?.querySelectorAll<HTMLElement>(".gt-i-profile-meter > i") ?? [], (bar) => bar.style.width);
+    expect(meters.map((width) => Math.round(parseFloat(width)))).toEqual([100, 33, 33]);
+    expect(panel?.querySelector(".gt-i-profile-plot")).toBeNull();
+  });
+
+  it("opens the larger view on Enter or a double tap, and closes it on Escape, its button, or a press elsewhere", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    const key = (target: Element, name: string) => target.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true }));
+    root.focus();
+    key(root, "Enter");
+    expect(view(el)?.hidden).toBe(false);
+    key(document.activeElement as Element, "Escape");
+    expect(view(el)?.hidden).toBe(true);
+    expect(root.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(root);
+
+    key(root, " ");
+    expect(view(el)?.hidden).toBe(false);
+    (view(el)?.querySelector("button") as HTMLButtonElement).click();
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+
+    // (A tap doesn't, two do)
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 10 });
+    expect(view(el)?.hidden).toBe(true);
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 14 });
+    expect(view(el)?.hidden).toBe(false);
+    // (A press in it or on its profile keeps it; elsewhere, even another profile, closes it)
+    pointer(view(el) as HTMLElement, "pointerdown");
+    pointer(root, "pointerdown");
+    expect(view(el)?.hidden).toBe(false);
+    pointer(profile(header(el, "y")) as HTMLElement, "pointerdown");
+    expect(view(el)?.hidden).toBe(true);
+    // (Tab out of either end closes it, back to its profile)
+    key(root, "Enter");
+    const stops = Array.from(view(el)?.querySelectorAll<HTMLElement>("button, [tabindex]") ?? []);
+    expect(stops.map((stop) => stop.className)).toEqual(["gt-i-info-button", "gt-i-profile-plot"]);
+    stops[1]?.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+  });
+
+  it("closes the larger view as the table is made again, and names a label with a profile", async () => {
+    const el = await mountProfiles({ controls: { sorting: false } });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    profile(header(el, "x"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(view(el)?.hidden).toBe(false);
+    el.remove();
+    expect(view(el)?.hidden).toBe(true);
   });
 });
 
