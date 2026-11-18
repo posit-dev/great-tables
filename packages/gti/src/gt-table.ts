@@ -633,7 +633,7 @@ const labelCells = (table: HTMLTableElement) =>
 // A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
-  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile, .gt-i-dtype")) {
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile, .gt-i-dtype, .gt-i-about")) {
     mark.remove();
   }
   return clone;
@@ -837,6 +837,20 @@ function profileSlot(th: HTMLTableCellElement): HTMLElement {
   );
 }
 
+// The narrowest a column can be made: 2em of its label
+const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComputedStyle(th).fontSize) || 16));
+
+// A column label's description (its dtype, and its profile's summary), which a screen reader
+// reads on the label itself, not with each of its cells: hidden, as its name is the label's text
+function aboutSlot(th: HTMLTableCellElement): HTMLElement {
+  let about = th.querySelector<HTMLElement>(":scope > .gt-i-about");
+  if (about === null) {
+    about = th.insertBefore(element(th.ownerDocument, "span", "gt-i-about", { id: `gt-i-about-${++infoCount}`, hidden: "" }), th.firstChild);
+    th.setAttribute("aria-describedby", about.id);
+  }
+  return about;
+}
+
 // A profile's share of rows, as a percentage ("<1%" for a few)
 const percent = (part: number, whole: number) => (part / whole < 0.005 ? "<1%" : `${Math.round((part / whole) * 100)}%`);
 
@@ -873,6 +887,9 @@ interface ProfileView {
   titles: SVGTitleElement[];
   names: string[];
   caption: HTMLElement;
+  /** The label's description, and the column's dtype, which it starts with (if it has one). */
+  about: HTMLElement;
+  dtype: string;
   /** A value's text, by its rank, as its cells show it. */
   valueName: (rank: number) => string;
 }
@@ -1787,6 +1804,7 @@ export class GtTable extends HTMLElement {
     if (spec.controls.resizing) {
       this.addResizers(table, spec);
     }
+    this.nameLabels(table);
     this.addGuide(table);
     this.addFootHandle(spec);
     this.hideable = spec.columns.flatMap((column) =>
@@ -3600,6 +3618,18 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // A label (or the stubhead) with controls or a resize handle in it is named by its text alone: a
+  // screen reader reads its name with each of its cells, which would otherwise take in its
+  // controls' names ("num Sort by num Filter num")
+  private nameLabels(table: HTMLTableElement): void {
+    for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th")) {
+      const label = labelText(th);
+      if (label !== "" && th.querySelector(".gt-i-head-controls, .gt-i-resizer") !== null) {
+        th.setAttribute("aria-label", label);
+      }
+    }
+  }
+
   // Once a column label has controls, every label in the bottom row of labels has their row (empty,
   // if it has none), so that the labels line up over it
   private alignLabels(table: HTMLTableElement): void {
@@ -3616,6 +3646,7 @@ export class GtTable extends HTMLElement {
       if (th !== undefined && typeof dtype === "string") {
         const row = controlsRow(th);
         row.insertBefore(element(this.ownerDocument, "span", "gt-i-dtype"), row.firstChild).textContent = dtype;
+        aboutSlot(th).textContent = dtype;
       }
     }
   }
@@ -3634,7 +3665,7 @@ export class GtTable extends HTMLElement {
 
   // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
   // other labels in the bottom row, so that they line up. Profiles are hidden from assistive
-  // technology, as they'd be part of the labels' names
+  // technology, which has their summaries in the labels' descriptions
   private addProfiles(table: HTMLTableElement, spec: Spec): void {
     const cells = labelCells(table);
     const doc = this.ownerDocument;
@@ -3648,6 +3679,7 @@ export class GtTable extends HTMLElement {
         continue;
       }
       const profile = new Profile(profileSpec, ranks);
+      const about = aboutSlot(th);
       const root = profileSlot(th);
       root.classList.add(`gt-i-profile-${profileSpec.plot}`);
       th.classList.add("gt-i-profiled");
@@ -3666,7 +3698,8 @@ export class GtTable extends HTMLElement {
         return name;
       };
       const edge = edgeFormat(profile, lang);
-      const view: ProfileView = { profile, rects: [], titles: [], names: [], caption: root, valueName };
+      // (Its description is its dtype so far, from `addDtypes()`)
+      const view: ProfileView = { profile, rects: [], titles: [], names: [], caption: root, about, dtype: about.textContent ?? "", valueName };
       profile.bars.forEach((bar, i) => {
         const g = svg.appendChild(doc.createElementNS(SVG_NS, "g"));
         view.titles.push(g.appendChild(doc.createElementNS(SVG_NS, "title")));
@@ -3707,7 +3740,7 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.profiled = this.matched;
-    for (const { profile, rects, titles, names, caption, valueName } of this.profileViews) {
+    for (const { profile, rects, titles, names, caption, about, dtype, valueName } of this.profileViews) {
       const counts = profile.count(this.matched);
       const most = Math.max(1, ...counts.bars);
       counts.bars.forEach((count, i) => {
@@ -3717,21 +3750,18 @@ export class GtTable extends HTMLElement {
         rects[i]?.setAttribute("height", String(height));
         (titles[i] as SVGTitleElement).textContent = `${names[i]}: ${plural(count)}`;
       });
-      const parts: string[] = [];
-      if (counts.distinct > 0) {
-        parts.push(
-          profile.spec.plot === "top"
-            ? `${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`
-            : counts.low === counts.high
-              ? valueName(counts.low)
-              : `${valueName(counts.low)} – ${valueName(counts.high)}`,
-        );
-      }
-      if (counts.missing > 0) {
-        parts.push(`${percent(counts.missing, counts.rows)} missing`);
-      }
-      caption.textContent = counts.rows === 0 ? "No rows" : parts.join(" · ");
+      // (The values' range, its ends joined by " – " in the caption and " to " in the description)
+      const values =
+        counts.distinct === 0
+          ? []
+          : profile.spec.plot === "top"
+            ? [`${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`]
+            : [...new Set([valueName(counts.low), valueName(counts.high)])];
+      const missing = counts.missing > 0 ? `${percent(counts.missing, counts.rows)} missing` : "";
+      const parts = (joint: string) => (counts.rows === 0 ? ["No rows"] : [values.join(joint), missing]).filter((part) => part !== "");
+      caption.textContent = parts(" – ").join(" · ");
       caption.title = caption.textContent;
+      about.textContent = [dtype, ...parts(" to ")].filter((part) => part !== "").join(", ");
     }
   }
 
@@ -4300,17 +4330,21 @@ export class GtTable extends HTMLElement {
   // A new width for a column, at least 2em of its label; returns the width it gets
   private setColumnWidth(resizer: Resizer, width: number): number {
     const col = this.resizerCol(resizer) as HTMLElement;
-    const min = Math.ceil(2 * (parseFloat(getComputedStyle(resizer.th).fontSize) || 16));
-    width = Math.max(min, Math.round(width));
+    width = Math.max(minWidth(resizer.th), Math.round(width));
     col.style.width = `${width}px`;
     this.showWidth(resizer, width);
     return width;
   }
 
+  // A column's width on its handle: from the narrowest it can be made to the table's box (or as
+  // narrow or wide as it is, if it's more so)
   private showWidth(resizer: Resizer, width: number): void {
-    const px = String(Math.round(width));
-    resizer.handle.setAttribute("aria-valuenow", px);
-    resizer.handle.setAttribute("aria-valuetext", `${px} pixels`);
+    const px = Math.round(width);
+    const { handle } = resizer;
+    handle.setAttribute("aria-valuenow", String(px));
+    handle.setAttribute("aria-valuetext", `${px} pixels`);
+    handle.setAttribute("aria-valuemin", String(Math.min(px, minWidth(resizer.th))));
+    handle.setAttribute("aria-valuemax", String(Math.max(px, Math.round((this.scroller ?? this).clientWidth))));
   }
 
   // A double-click or Enter puts the column back to its width before any column was resized
@@ -6469,7 +6503,7 @@ export class GtTable extends HTMLElement {
         if (cell == null) {
           copy.textContent = label;
         }
-        for (const name of ["class", "id", "rowspan", "headers"]) {
+        for (const name of ["class", "id", "rowspan", "headers", "aria-label", "aria-describedby"]) {
           copy.removeAttribute(name);
         }
         for (const property of Array.from(copy.style)) {
@@ -8930,6 +8964,13 @@ export class GtTable extends HTMLElement {
     if (laidOut === this.laidOut) {
       return;
     }
+    // (The cells name their group's heading, as a screen reader reads it with them, as GT's cells
+    // do: by its id, first in their `headers`, which are taken out for another grouping)
+    for (const tr of this.rowElements) {
+      for (const td of tr.querySelectorAll(":scope > td[headers]")) {
+        td.setAttribute("headers", (td.getAttribute("headers") as string).replace(/^gt-i-group-\d+ /, ""));
+      }
+    }
     this.laidOut = laidOut;
     // (The body is as tall as its headings make it, on a full page, measured again)
     this.padKey = "";
@@ -8966,8 +9007,13 @@ export class GtTable extends HTMLElement {
     this.blocks = values.map((rank) => {
       const members = byRank.get(rank) as number[];
       const tr = element(doc, "tr", "gt_group_heading_row");
-      const th = element(doc, "th", "gt_group_heading", { scope: "colgroup" });
+      const th = element(doc, "th", "gt_group_heading", { scope: "colgroup", id: `gt-i-group-${++infoCount}` });
       th.colSpan = this.emptySpan();
+      for (const row of members) {
+        for (const td of (this.rowElements[row] as HTMLTableRowElement).querySelectorAll(":scope > td[headers]")) {
+          td.setAttribute("headers", `${th.id} ${td.getAttribute("headers")}`);
+        }
+      }
       const cell = this.dataCells(this.rowElements[members[0] as number] as HTMLTableRowElement)[index];
       if (rank === null || cell === undefined) {
         th.textContent = "(Missing)";
