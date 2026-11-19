@@ -4,7 +4,7 @@ An interactive table in a Panel app or notebook, whose view and selection are pa
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L70-L376)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L108-L412)
 
 ``` python
 panel.GTIPane(
@@ -58,7 +58,7 @@ The table's data, with the rows its view keeps, in the order shown (see `rows`),
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L340-L356)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L376-L392)
 
 ``` python
 data(selected=False)
