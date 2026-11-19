@@ -7595,16 +7595,19 @@ describe("a table that can be stacked", () => {
   });
 
   it("isn't stacked in a container as wide as what's in it", async () => {
-    // (Shown, and widened by a width for what's in it, as it would be in a table's cell)
+    // (Shown, and GT's <div> around the table, the container queried, widened by a width for
+    // what's in it, as it would be in a table's cell)
     vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(() => [{}] as unknown as DOMRectList);
     vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
-      return this.style.getPropertyValue("contain-intrinsic-inline-size") === "" ? 0 : 400;
+      const sized = this.style.getPropertyValue("contain-intrinsic-inline-size") !== "";
+      return sized && this.querySelector(":scope > table") !== null ? 400 : 0;
     });
     for (const responsive of ["stack", "auto"] as const) {
       const el = await stackable({ layout: { responsive }, columns: { y: { hideable: true } } });
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
       expect(el.hasAttribute("data-gti-stacked")).toBe(false);
-      expect(el.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
+      const div = el.querySelector("table")?.parentElement as HTMLElement;
+      expect(div.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
       // (And still not, as it shows fewer columns)
       el.hiddenColumns = ["y"];
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
