@@ -2228,7 +2228,7 @@ A table wider than its container scrolls, as above, but [i_responsive()](../refe
 | Dawn                      | Rolls-Royce   | 2016 | 563 | 575    | \$335,000   |
 | Wraith                    | Rolls-Royce   | 2016 | 624 | 590    | \$304,350   |
 
-A table is stacked by its CSS alone, so it's stacked before its script runs (or without it). The column profiles aren't shown on the cards, and a table in a container only as wide as what's in it (a table's cell, or an inline block) isn't stacked.
+A table is stacked by its CSS alone, so it's stacked before its script runs (or without it). The column profiles aren't shown on the cards, and a table in a container only as wide as what's in it (a table's cell, or an inline block) isn't stacked, unless [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options)'s `container_width=` gives it a width of its own. That width is the one `stack_below=` is compared with: a table with `container_width="360px"` is stacked in a wide page.
 
 With `"collapse"`, the table drops columns until it fits: first those without a priority from [i_cols_priority()](../reference/GTI.i_cols_priority.md#great_tables.GTI.i_cols_priority) (from the last), then those with the highest numbers. A column with priority 1 is never dropped, nor is the stub. Each row gets a button by its first cell that shows the columns dropped from it, under it, as labels and values, and the columns come back as the container widens. Here's the wide table of every column again, which keeps each car's make and price, and its year and horsepower for as long as it can; it drops what this page has no room for, and more as the window narrows. Click the arrow by a car's name to see what it dropped.
 

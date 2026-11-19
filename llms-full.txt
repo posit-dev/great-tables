@@ -21598,7 +21598,9 @@ width; sort by `HP` with its chip, or filter by `Make` with the filter button on
 
 A table is stacked by its CSS alone, so it's stacked before its script runs (or without it). The
 column profiles aren't shown on the cards, and a table in a container only as wide as what's in it
-(a table's cell, or an inline block) isn't stacked.
+(a table's cell, or an inline block) isn't stacked, unless `~~GT.tab_options()`'s
+`container_width=` gives it a width of its own. That width is the one `stack_below=` is compared
+with: a table with `container_width="360px"` is stacked in a wide page.
 
 With `"collapse"`, the table drops columns until it fits: first those without a priority from
 `~~GTI.i_cols_priority()` (from the last), then those with the highest numbers. A column with
