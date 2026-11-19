@@ -37,6 +37,26 @@ const STATE = ["_view", "_rows", "_selection"];
 const ASK_AGAIN = 1000;
 const ASK_LAST = 16000;
 
+// (The table's HTML, and the state each way, have each `</` in their strings written with a NUL
+// after the `<`, as Panel puts a notebook's parameters in a script as they are, which the first
+// `</script` would end)
+const swapped =
+  (from: string, to: string) =>
+  (value: unknown): unknown => {
+    if (typeof value === "string") {
+      return value.split(from).join(to);
+    }
+    if (Array.isArray(value)) {
+      return value.map(swapped(from, to));
+    }
+    if (value !== null && typeof value === "object") {
+      return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, swapped(from, to)(item)]));
+    }
+    return value;
+  };
+const escaped = swapped("</", "<\0/");
+const unescaped = swapped("<\0/", "</");
+
 /** The component's model, as an anywidget's, and how to stop following its changes. */
 export function modelOf(model: PanelModel): Model & { close(): void } {
   const id = Math.random().toString(36).slice(2);
@@ -50,11 +70,12 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
   const asks = new Map<string, ReturnType<typeof setTimeout>>();
 
   // (Python's changes, and another view's, set on the state, and each told)
-  const take = (changes: unknown) => {
-    if (changes === null || typeof changes !== "object") {
+  const take = (sent: unknown) => {
+    if (sent === null || typeof sent !== "object") {
       return;
     }
-    const { n, from } = changes as Record<string, unknown>;
+    const changes = unescaped(sent) as Record<string, unknown>;
+    const { n, from } = changes;
     if (typeof n === "number") {
       if (n <= (last.get(from) ?? -1)) {
         return;
@@ -63,7 +84,7 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
     }
     const names = STATE.filter((name) => name in changes);
     for (const name of names) {
-      state[name] = (changes as Record<string, unknown>)[name];
+      state[name] = changes[name];
     }
     for (const name of names) {
       for (const callback of callbacks.get(`change:${name}`) ?? []) {
@@ -99,17 +120,14 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
   model.on("msg:custom", answered);
 
   return {
-    // (The table's HTML has each `</` written with a NUL after the `<`, as Panel puts a notebook's
-    // parameters in a script as they are, which the first `</script` would end)
-    get: (name) =>
-      name === "_html" ? String(model[name]).split("<\0/").join("</") : STATE.includes(name) ? state[name] : model[name],
+    get: (name) => (name === "_html" ? unescaped(String(model[name])) : STATE.includes(name) ? state[name] : model[name]),
     set: (name, value) => {
       state[name] = value;
       pending[name] = value;
     },
     save_changes: () => {
       if (Object.keys(pending).length > 0) {
-        model._report = { ...pending, n: ++count, from: id };
+        model._report = escaped({ ...pending, n: ++count, from: id });
         for (const name of Object.keys(pending)) {
           delete pending[name];
         }
