@@ -25,9 +25,12 @@ const sizes = (page: Page) =>
   });
 
 test.describe("a table under a CSS zoom", () => {
-  test("has the columns it has without it, and a bar as wide as it", async ({ page, browserName }) => {
-    // (WebKit zooms a <col>'s width twice: see BUGS.md)
-    test.skip(browserName === "webkit", "WebKit lays out a <col>'s width zoomed twice");
+  // (WebKit lays a table out under a zoom in its own way, and differently on macOS and Linux: a
+  // <col>'s width zoomed twice, and on Linux its pinned columns not stuck, and a column resized
+  // too far. See BUGS.md)
+  test.skip(({ browserName }) => browserName === "webkit", "WebKit lays out a table under a zoom in its own way");
+
+  test("has the columns it has without it, and a bar as wide as it", async ({ page }) => {
     await ready(page, "bar.html");
     const unzoomed = await sizes(page);
     const errors = await ready(page, "bar-zoom.html");
