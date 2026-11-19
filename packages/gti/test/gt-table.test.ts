@@ -10564,6 +10564,21 @@ describe("a table in a Panel app", () => {
     expect(model.get("_rows")).toEqual([7]);
   });
 
+  it("has the state each way without a `</`, which would end a notebook's script", () => {
+    const fake = fakeProxy({ _update: { ...FIRST, _view: { ...VIEW, search: "<\0/script>" } }, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</script>" });
+    // (Its reports, each of whose strings is written as Python's are)
+    model.set("_view", { ...VIEW, search: "a</b</c" });
+    model.set("_rows", [1]);
+    model.save_changes();
+    expect(fake.state._report).toEqual({ _view: { ...VIEW, search: "a<\0/b<\0/c" }, _rows: [1], n: 1, from: expect.any(String) });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "a</b</c" });
+    // (And another view's)
+    fake.update({ _report: { _view: { ...VIEW, search: "<\0/p>", hidden: ["<\0/x"] }, n: 1, from: "other" } });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</p>", hidden: ["</x"] });
+  });
+
   it("asks again what Python hasn't answered, until it's answered", () => {
     // (A notebook's Panel can lose a message, either way)
     vi.useFakeTimers();

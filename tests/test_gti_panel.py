@@ -128,6 +128,43 @@ def test_pane_puts_back_what_cant_be_set(name: str, value: Any, message: str):
     assert sent(pane) == model and pane._update["n"] == 0
 
 
+def test_pane_sorts_by_a_column_name_or_none():
+    # (As the widget's sort, `update_gti()` and `i_view()` take them; and a list once set)
+    pane = GTIPane(make_gti())
+    seen = []
+    pane.param.watch(lambda event: seen.append(event.new), ["sort"])
+    pane.sort = "-num"
+    assert pane.sort == ["-num"] and seen == [["-num"]]
+    assert sent(pane)["_view"]["sort"] == [{"column": "num", "descending": True}]
+    pane.param.update(sort=None)
+    assert pane.sort == [] and sent(pane)["_view"]["sort"] == []
+    with pytest.raises(ValueError, match="nope"):
+        pane.sort = "nope"
+    with pytest.raises(ValueError, match="a column name, or `None`"):
+        pane.sort = 3
+    with pytest.raises(ValueError, match="a list of them"):
+        pane.sort = ["num", 3]
+    assert pane.sort == [] and pane._update["n"] == 2
+
+
+def test_pane_has_no_end_of_a_script_in_a_notebook(monkeypatch: pytest.MonkeyPatch):
+    # (As a notebook has the parameters in a script, as they are: each `</` in the state's
+    # strings, Python's and the browser's, is sent with a NUL after the `<`, as src/panel.ts does)
+    from panel.config import panel_extension
+
+    monkeypatch.setattr(panel_extension, "_loaded", True)
+    pane = GTIPane(make_gti().i_cols_filter(columns="char", type="text"))
+    pane.query = 'char contains "</script>"'
+    assert pane._update["_view"]["filter"]["and"][0]["value"] == "<\x00/script>"
+    assert sent(pane)["_view"]["filter"]["and"][0]["value"] == "</script>"
+    report(pane, _view={**pane._update["_view"], "search": "<\x00/b>"})
+    assert pane.search == "</b>" and sent(pane)["_view"]["search"] == "</b>"
+    assert pane._update["_view"]["search"] == "<\x00/b>"
+    pane.search = "</p>"
+    data, _ = pane._repr_mimebundle_()
+    assert data["text/html"].count("</script") == 1 and data["text/html"].endswith("</script>")
+
+
 def test_pane_gives_its_data():
     pane = GTIPane(make_gti())
     pane.param.update(sort=["-num"], selection=[1, 3])
