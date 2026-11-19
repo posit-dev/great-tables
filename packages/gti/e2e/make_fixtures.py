@@ -1161,6 +1161,18 @@ def main() -> None:
             '<div style="width: 480px">' + pin_html("pn", filters=True) + "</div>\n" + runtime_src,
             head=styles,
         ),
+        # Tables under a CSS zoom of 1.25: with the control bar; with the pinned columns, in a
+        # container 480px wide; and with resize handles
+        **{
+            f"{name}-zoom.html": page(
+                f'<div style="zoom: 1.25">{table}</div>\n' + runtime_src, head=styles
+            )
+            for name, table in [
+                ("bar", bar_html("c")),
+                ("pin", '<div style="width: 480px">' + pin_html("pn") + "</div>"),
+                ("resize", resize_html("r")),
+            ]
+        },
         # Hiding columns: of the pinned columns' table, in a container 480px wide, and right to
         # left; and of a table without a stub, whose last column shown can't be hidden
         "hide.html": page(
