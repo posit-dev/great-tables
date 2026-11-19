@@ -8638,6 +8638,16 @@ describe("column profiles", () => {
     expect(caption(el, "y")).toBe("3 values");
   });
 
+  it("names a histogram's bins of times in a time zone by its clock, as its cells show them", async () => {
+    // (x's values, in Tokyo: midnight, 5am and 10am, written as the cells show them)
+    const zoned = ["2015-06-15T00:00:00+09:00", "2015-06-15T05:00:00+09:00", "2015-06-15T10:00:00+09:00"];
+    const el = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "histogram", values: zoned }] });
+    const x = titles(el, "x");
+    expect(x).toHaveLength(20);
+    expect(x[0]).toBe("Jun 15, 2015, 12:00 AM – Jun 15, 2015, 12:30 AM: 1 row (20%)");
+    expect(x[19]).toBe("Jun 15, 2015, 9:30 AM – Jun 15, 2015, 10:00 AM: 2 rows (40%)");
+  });
+
   it("counts the rows the search and filters keep, with the same bars", async () => {
     const el = await mountProfiles();
     el.search = "a";

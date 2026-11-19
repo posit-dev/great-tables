@@ -15,8 +15,13 @@ describe("timeOf()", () => {
     expect(timeOf("0050-01-01")).toBe(new Date("0050-01-01T00:00:00Z").getTime());
   });
 
-  it("reads them with an offset at their time, and other text as NaN", () => {
-    expect(timeOf("2015-06-15T09:30:00+02:00")).toBe(Date.UTC(2015, 5, 15, 7, 30));
+  it("reads them with an offset at the time their own clock shows, and other text as NaN", () => {
+    // (As their cells show them, in their time zone)
+    expect(timeOf("2015-06-15T09:30:00+02:00")).toBe(Date.UTC(2015, 5, 15, 9, 30));
+    expect(timeOf("2015-06-15T09:30:00.123456-05:00")).toBe(Date.UTC(2015, 5, 15, 9, 30, 0, 123));
+    expect(timeOf("2015-06-15T09:30:00+05:30:15")).toBe(Date.UTC(2015, 5, 15, 9, 30));
+    expect(timeOf("2015-06-15T09:30Z")).toBe(Date.UTC(2015, 5, 15, 9, 30));
+    expect(timeOf("2015-06-15")).toBe(Date.UTC(2015, 5, 15));
     expect(timeOf("June")).toBeNaN();
   });
 });
@@ -75,6 +80,18 @@ describe("Profile", () => {
     const times = new Profile(histogram(["2015-06-15T00:00", "2015-06-15T10:00"]), [0, 1]);
     expect(times.bars).toHaveLength(BINS);
     expect(times.bars[0]?.high).toBe(Date.UTC(2015, 5, 15, 0, 30));
+  });
+
+  it("bins dates and times in a time zone by its days, and its clock", () => {
+    // (Midnights in New York, across the change to summer time, a bin a day)
+    const days = new Profile(histogram(["2024-03-09T00:00:00-05:00", "2024-03-11T00:00:00-04:00"]), [0, 1]);
+    expect(ranges(days)).toEqual([
+      [Date.UTC(2024, 2, 9), Date.UTC(2024, 2, 9)],
+      [Date.UTC(2024, 2, 10), Date.UTC(2024, 2, 10)],
+      [Date.UTC(2024, 2, 11), Date.UTC(2024, 2, 11)],
+    ]);
+    const times = new Profile(histogram(["2015-06-15T00:00:00+09:00", "2015-06-15T10:00:00+09:00"]), [0, 1]);
+    expect(times.bars[0]).toMatchObject({ low: Date.UTC(2015, 5, 15), high: Date.UTC(2015, 5, 15, 0, 30) });
   });
 
   it("counts a value NaN stood for (null) as missing", () => {
