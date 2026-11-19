@@ -1,6 +1,6 @@
 import { expect, type FrameLocator, type Page, test } from "@playwright/test";
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -171,6 +171,13 @@ async function lab(page: Page, notebook: string, body: () => Promise<void>): Pro
   const port = await freePort();
   const token = "gti-hosts";
   const base = `http://127.0.0.1:${port}`;
+  // (With each comm's messages on the kernel's main thread, not on a subshell (a thread) of their
+  // own, as JupyterLab sends them by default to a kernel that has subshells (ipykernel's, from 7):
+  // which makes rarer a stall of the kernel's own, where the browser's messages wait, unread, on
+  // its shell socket, and the kernel answers nothing more; see BUGS.md)
+  const settings = join(dir, "settings", "@jupyterlab", "apputils-extension");
+  mkdirSync(settings, { recursive: true });
+  writeFileSync(join(settings, "kernels-settings.jupyterlab-settings"), JSON.stringify({ commsOverSubshells: "disabled" }));
   const server = await serve(
     `${base}/api/status?token=${token}`,
     "-m", "jupyter", "lab", "--no-browser", `--port=${port}`, "--ip=127.0.0.1",

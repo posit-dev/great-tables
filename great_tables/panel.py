@@ -6,9 +6,10 @@ the glue (packages/gti/src/panel.ts), which is the widget's (`GTI.i_as_widget()`
 `_gti/_widget.py`), given a model of its own: the widget's state (`_view`, `_rows`, `_selection`),
 kept here as the browser has it (in `_model`), is synced as one parameter each way, `_update`
 (the state, as Python changes it, with a count) and `_report` (the reader's changes), as a notebook's Panel has each change
-after the first of a message from the browser only once the next one comes. A table whose rows are
-kept in Python (see `_gti/_kernel.py`) asks for them with Panel's messages, as the widget does with
-its own. Its public parameters (`query`, `search`, `sort`, `selection`, `rows`) are Python's only,
+after the first of a message from the browser only once the next one comes. (Each is counted, and
+one older than the last from where it's from is left, as a notebook's Panel can send one again.) A
+table whose rows are kept in Python (see `_gti/_kernel.py`) asks for them with Panel's messages, as
+the widget does with its own (and asks again for what isn't answered, as Panel can lose one). Its public parameters (`query`, `search`, `sort`, `selection`, `rows`) are Python's only,
 kept in step with the state.
 """
 
@@ -16,6 +17,8 @@ from __future__ import annotations
 
 __all__ = ("GTIPane",)
 
+import threading
+from collections import OrderedDict
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -59,6 +62,9 @@ def _sources() -> tuple[str, str]:
 
 
 _ESM, _CSS = _sources()
+
+# (How many answers a pane keeps, for an ask that comes again)
+_ANSWERS_KEPT = 16
 
 
 class GTIPane(ReactiveESM):
@@ -167,6 +173,12 @@ class GTIPane(ReactiveESM):
         self._spec: Spec = spec
         self._engine = engine
         self._syncing = False
+        # (Panel's syncing, a step at a time; the count of Python's changes, and of each view's
+        # reports taken; and the last answers, for an ask that comes again)
+        self._lock = threading.RLock()
+        self._sent = 0
+        self._reports: dict[str, int] = {}
+        self._answers: OrderedDict[str, dict[str, Any]] = OrderedDict()
         view = author_view(spec)
         # (The widget's state, as the browser has it, or will once it's sent)
         self._model: dict[str, Any] = {"_view": view, "_rows": None, "_selection": []}
@@ -194,6 +206,34 @@ class GTIPane(ReactiveESM):
             yield
         finally:
             self._syncing = syncing
+
+    # -----
+    # Panel's syncing, a step at a time
+
+    # (A kernel can run each view's messages on a thread of its own, as ipykernel 7 does; and
+    # Panel's syncing of the changes the views share, and of what's sent to each, isn't safe for
+    # that: a message to a view can be lost. So each step of it is taken in turn: a view's change,
+    # and its message, each until what it changed is sent, and the sending of each parameter Python
+    # sets.)
+
+    # (Bokeh calls this with the change, by these names)
+    def _comm_change(
+        self, doc: Any, ref: str, comm: Any, subpath: str | None, attr: str, old: Any, new: Any
+    ) -> None:
+        with self._lock:
+            super()._comm_change(doc, ref, comm, subpath, attr, old, new)
+
+    def _schedule_change(self, doc: Any, comm: Any) -> None:
+        with self._lock:
+            super()._schedule_change(doc, comm)
+
+    def _process_bokeh_event(self, doc: Any, event: Any) -> None:
+        with self._lock:
+            super()._process_bokeh_event(doc, event)
+
+    def _param_change(self, *events: param.parameterized.Event) -> None:
+        with self._lock:
+            super()._param_change(*events)
 
     # -----
     # From the browser
@@ -227,12 +267,18 @@ class GTIPane(ReactiveESM):
 
     def _reported(self, event: param.parameterized.Event) -> None:
         report = event.new if isinstance(event.new, dict) else {}
+        # (Not one older than the last from its view, which a notebook's Panel can send again)
+        sender, n = report.get("from"), report.get("n")
+        if isinstance(sender, str) and isinstance(n, int):
+            if n <= self._reports.get(sender, -1):
+                return
+            self._reports[sender] = n
         changes = {name: report[name] for name in self._model if name in report}
         self._model.update(changes)
         # (Which a view made from now on starts with, as when the pane's shown again; but isn't
         # sent to the views there are, which have it, or have another view's report)
         with param.discard_events(self):
-            self._update = {**self._model, "n": self._update["n"]}
+            self._update = {**self._model, "n": self._sent}
         with self._sync():
             if "_view" in changes and changes["_view"] is not None:
                 self._take_view(changes["_view"])
@@ -242,9 +288,11 @@ class GTIPane(ReactiveESM):
                 self._take_rows(self._model["_rows"])
 
     def _send(self, **changes: Any) -> None:
-        # (The whole state, with a count, so that it's a change, if it's the same as the last)
+        # (The whole state, with a count, so that it's a change, if it's the same as the last; and
+        # Python's own, as Panel can set `_update` from the browser, to an older one)
         self._model.update(changes)
-        self._update = {**self._model, "n": self._update["n"] + 1}
+        self._sent += 1
+        self._update = {**self._model, "n": self._sent}
 
     # -----
     # From Python
@@ -312,9 +360,17 @@ class GTIPane(ReactiveESM):
         # (an error is the browser's to show, as it shows a source's)
         if not isinstance(data, dict) or data.get("type") != "ask" or self._engine is None:
             return
-        try:
-            answer = self._engine.answer(data)
-        except Exception as err:  # noqa: BLE001
-            self._send_msg({"type": "answer", "id": data.get("id"), "error": str(err)})
-        else:
-            self._send_msg({"type": "answer", "id": data.get("id"), "answer": answer})
+        # (An ask that comes again, as the browser asks again what isn't answered, is answered as
+        # it was)
+        ident = data.get("id")
+        message = self._answers.get(ident) if isinstance(ident, str) else None
+        if message is None:
+            try:
+                message = {"type": "answer", "id": ident, "answer": self._engine.answer(data)}
+            except Exception as err:  # noqa: BLE001
+                message = {"type": "answer", "id": ident, "error": str(err)}
+            if isinstance(ident, str):
+                self._answers[ident] = message
+                while len(self._answers) > _ANSWERS_KEPT:
+                    self._answers.popitem(last=False)
+        self._send_msg(message)

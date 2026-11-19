@@ -186,6 +186,69 @@ def test_pane_answers_the_browsers_asks():
     assert len(sent) == 2
 
 
+def test_pane_answers_an_ask_again_as_it_did():
+    # (As the browser asks again what isn't answered, as a notebook's Panel can lose a message)
+    pane = big_pane()
+    sent: list[Any] = []
+    pane._send_msg = sent.append  # type: ignore[method-assign]
+    answers: list[Any] = []
+    engine = pane._engine
+    assert engine is not None
+    answer = engine.answer
+
+    def counted(data: Any) -> Any:
+        answers.append(data)
+        return answer(data)
+
+    engine.answer = counted  # type: ignore[method-assign]
+    ask = {"type": "ask", "id": "v:1", "kind": "page", "query": {**QUERY, "start": 0, "size": 5}}
+    pane._handle_msg(ask)
+    pane._handle_msg(ask)
+    assert len(answers) == 1 and len(sent) == 2 and sent[0] is sent[1]
+    assert sent[1]["answer"]["rows"] == [0, 1, 2, 3, 4]
+    # (The last 16 kept)
+    for n in range(2, 19):
+        pane._handle_msg({**ask, "id": f"v:{n}"})
+    pane._handle_msg({**ask, "id": "v:2"})
+    pane._handle_msg({**ask, "id": "v:18"})
+    assert len(answers) == 19
+
+
+def test_pane_leaves_a_report_older_than_the_last():
+    # (Which a notebook's Panel can send again, after a later one)
+    pane = GTIPane(make_gti())
+    descending = {**sent(pane)["_view"], "sort": [{"column": "num", "descending": True}]}
+    pane._report = {"_view": {**descending, "sort": []}, "n": 1, "from": "view"}
+    pane._report = {"_view": descending, "n": 2, "from": "view"}
+    pane._report = {"_view": {**descending, "sort": []}, "n": 1, "from": "view"}
+    assert pane.sort == ["-num"] and sent(pane)["_view"] == descending
+    # (Each view's counted on its own)
+    pane._report = {"_selection": [1], "n": 1, "from": "other"}
+    assert pane.selection == [1]
+
+
+def test_pane_counts_its_changes_on_its_own():
+    # (As Panel can set `_update` from the browser, to an older one)
+    pane = GTIPane(make_gti())
+    pane.sort = ["-num"]
+    pane.sort = ["num"]
+    pane._update = {**pane._update, "n": 1}
+    pane.sort = []
+    assert pane._update["n"] == 3
+
+
+def test_pane_in_a_notebook_syncs_through_its_comm():
+    # (Through Panel's syncing of a notebook's view, each step taken in turn)
+    from pyviz_comms import Comm
+
+    pane = GTIPane(make_gti())
+    model = pane.get_root(comm=Comm())
+    model.data._report = {"_view": {**sent(pane)["_view"], "search": "an"}, "n": 1, "from": "v"}
+    assert pane.search == "an"
+    pane.sort = ["-num"]
+    assert model.data._update["_view"]["sort"] == [{"column": "num", "descending": True}]
+
+
 def test_pane_in_browser_mode_ignores_asks():
     pane = GTIPane(make_gti())
     sent: list[Any] = []
