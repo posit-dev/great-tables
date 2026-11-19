@@ -180,6 +180,30 @@ test.describe("a table that can be stacked, without JavaScript", () => {
     const container = await rect(page.locator("body > div"));
     expect((await rect(table(page))).right).toBeLessThanOrEqual(container.right + 0.5);
   });
+
+  test("is stacked in GT's own container, narrowed by `container_width=`", async ({ page }) => {
+    await open(page, "stack-container.html");
+    await expect(card(page, "row_5")).toHaveCSS("display", "flex");
+  });
+});
+
+test.describe("a table in GT's own container, 360px wide (`container_width=`), in a wide page", () => {
+  test("is stacked in it, by itself or in an inline block", async ({ page }) => {
+    for (const name of ["stack-container.html", "stack-container-inline.html"]) {
+      const errors = await ready(page, name);
+      await expect(el(page)).toHaveAttribute("data-gti-stacked", "");
+      await expect(el(page)).not.toHaveAttribute("data-gti-stack-off");
+      await expect(el(page)).not.toHaveAttribute("data-gti-wide");
+      await expect(card(page, "row_5")).toHaveCSS("display", "flex");
+      // (The cards fit GT's container, which doesn't scroll sideways)
+      const container = el(page).locator("#k");
+      const box = await rect(container);
+      expect(box.right - box.left).toBeCloseTo(360, 0);
+      expect((await rect(table(page))).right).toBeLessThanOrEqual(box.right + 0.5);
+      expect(await container.evaluate((div) => div.scrollWidth - div.clientWidth)).toBeLessThanOrEqual(1);
+      expect(errors).toEqual([]);
+    }
+  });
 });
 
 test.describe("a table that can be stacked, on a phone", () => {
