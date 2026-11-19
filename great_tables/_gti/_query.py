@@ -89,6 +89,17 @@ if TYPE_CHECKING:
 
 Query = dict[str, list[dict[str, Any]]]
 
+
+def require_narwhals(what: str) -> None:
+    """Raise an `ImportError` if the narwhals package isn't installed, saying `what` needs it."""
+    try:
+        import narwhals  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            f"{what} needs the narwhals package: install it with `pip install narwhals`."
+        ) from None
+
+
 # A sort: column names, each with whether it's descending
 SortKeys = tuple[tuple[str, bool], ...]
 
@@ -1319,6 +1330,9 @@ def view_rows(gt: GT) -> list[int]:
     table whose stub has cells merged across rows keeps its rows as they are, as the runtime does.
     (A PyArrow dictionary column is sorted as its text; an ordered one, by its levels.)
     """
+    require_narwhals(
+        "Finding a view's rows in Python (for a widget's, Streamlit's or Panel's table)"
+    )
     import narwhals as nw
 
     from .._tbl_data import _get_column_levels

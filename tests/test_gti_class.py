@@ -2174,6 +2174,17 @@ def test_write_raw_html(tmp_path):
     assert "<gt-table" not in (tmp_path / "gt.html").read_text(encoding="utf-8")
 
 
+def test_write_raw_html_runtime(tmp_path):
+    # (Without the runtime, for a page that has it once, as `as_raw_html()` has it)
+    for name, table in [("gti", GTI(DF, id="t")), ("gt", GT(DF, id="t").opt_interactive())]:
+        table.write_raw_html(tmp_path / f"{name}.html", runtime="none")
+        table.write_raw_html(tmp_path / f"{name}-inline.html")
+        text = (tmp_path / f"{name}.html").read_text(encoding="utf-8")
+        assert text == table.as_raw_html(runtime="none")
+        assert "<gt-table" in text and "<script>" not in text
+        assert "<script>" in (tmp_path / f"{name}-inline.html").read_text(encoding="utf-8")
+
+
 @pytest.mark.parametrize("method", ["save", "gtsave", "as_latex"])
 def test_static_output_is_not_available(method: str, tmp_path):
     with pytest.raises(TypeError, match="interactive HTML only"):

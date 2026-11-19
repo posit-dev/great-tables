@@ -69,6 +69,7 @@ extra = [
 
 widget = [
     "anywidget>=0.9",
+    "narwhals",
 ]
 
 # For `GT.gtsave()` to SVG, Word, Excel, PowerPoint, RTF, and Typst
@@ -78,10 +79,12 @@ gridwell = [
 
 streamlit = [
     "streamlit>=1.56",
+    "narwhals",
 ]
 
 panel = [
     "panel>=1.6.2",
+    "narwhals",
 ]
 
 solara = [

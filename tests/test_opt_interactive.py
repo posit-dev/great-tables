@@ -131,9 +131,19 @@ class TestAsRawHtml:
         assert "!important" not in table_in(gt.as_raw_html())
         assert re.search(r"#t \.gt_row {[^}]*?!important", gt.as_raw_html(all_important=True))
 
-    def test_inline_css_is_ignored(self, gt_mini: GT):
+    def test_inline_css_is_ignored_with_a_warning(self, gt_mini: GT):
         gt = gt_mini.opt_interactive()
-        assert gt.as_raw_html(inline_css=True) == gt.as_raw_html()
+        with pytest.warns(UserWarning, match=r"`inline_css=True` is ignored"):
+            assert gt.as_raw_html(inline_css=True) == gt.as_raw_html()
+
+    def test_inline_css_of_a_table_not_interactive_any_more(self, gt_mini: GT):
+        # (Inlined, without the warning)
+        pytest.importorskip("css_inline")
+        gt = gt_mini.opt_interactive()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            html = gt.opt_interactive(active=False).as_raw_html(inline_css=True)
+        assert "<gt-table" not in html and "<style>" not in html
 
     def test_unique_ids_across_tables(self):
         df = pl.DataFrame({"x": [1, 2]})

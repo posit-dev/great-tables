@@ -50,6 +50,7 @@ from ._query import (
     fold,
     label_text,
     match_text,
+    require_narwhals,
 )
 from ._render import (
     MAX_BYTES,
@@ -151,6 +152,10 @@ class KernelEngine:
     """A table's rows, in Python: the pages of its views, as the runtime would show them."""
 
     def __init__(self, gti: GTI) -> None:
+        require_narwhals(
+            "Keeping a table's rows in Python (`i_scale()`, as a widget or an app does for one of "
+            "more than 3,000 rows)"
+        )
         import narwhals as nw
 
         self._gti = gti

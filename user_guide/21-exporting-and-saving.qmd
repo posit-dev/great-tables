@@ -103,8 +103,9 @@ a file (with UTF-8 encoding by default).
 gt_tbl.write_raw_html("my_table.html")
 ```
 
-It takes the same `inline_css=` and `make_page=` options as `as_raw_html()`, so the file can hold an
-email-ready fragment or a complete page.
+It takes the same options as `as_raw_html()` (`inline_css=`, `make_page=`, `all_important=`, and
+for an interactive table, `runtime=`), so the file can hold an email-ready fragment or a complete
+page.
 
 ## LaTeX Output
 
