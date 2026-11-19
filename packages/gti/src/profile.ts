@@ -40,12 +40,17 @@ export interface Counts {
   distinct: number;
 }
 
+// (A date and time, then its offset, as Python writes a time zone's: "+02:00", "-05:00", or with
+// seconds)
+const ZONED = /^(.*T.*?)(?:Z|[+-]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?)$/;
+
 /**
- * The time (ms since 1970) ISO 8601 text gives: a date, or a date and time, without an offset as
- * UTC; NaN for text that isn't one.
+ * The time (ms since 1970) ISO 8601 text gives, as UTC: a date, or a date and time, with an offset
+ * at the time its own clock shows (as its cells show it, so that a column in a time zone is binned,
+ * and its bins written, in it); NaN for text that isn't one.
  */
 export function timeOf(text: string): number {
-  const key = dateKey(text);
+  const key = dateKey(ZONED.exec(text)?.[1] ?? text);
   if (key === null) {
     return Date.parse(text);
   }
