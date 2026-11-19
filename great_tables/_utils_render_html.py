@@ -904,6 +904,20 @@ def _calculate_hierarchical_stub_rowspans(
 
 
 def create_body_component_h(data: GTData) -> str:
+    all_body_rows = "\n".join(create_body_rows_h(data))
+
+    return f"""<tbody class="gt_table_body">
+{all_body_rows}
+</tbody>"""
+
+
+def create_body_rows_h(
+    data: GTData, cell_classes: dict[int, dict[str, str]] | None = None
+) -> list[str]:
+    # The body's `<tr>`s. (`cell_classes` gives classes to add to the data rows' cells: by each
+    # row's place among the data rows shown, from 0, then by column, as a GTI table's kernel mode
+    # tints missing values)
+
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
     _str_orig_data = cast_frame_to_string(data._tbl_data)
@@ -1143,6 +1157,7 @@ def create_body_component_h(data: GTData) -> str:
             row_class="gt_row_group_first" if leading_cell else None,
             stub_col_rowspans=row_stub_rowspans,
             stub_col_rows=row_stub_rows,
+            cell_classes=cell_classes.get(j) if cell_classes else None,
         )
         body_rows.append(row_html)
 
@@ -1201,11 +1216,7 @@ def create_body_component_h(data: GTData) -> str:
         )
         body_rows.append(row_html)
 
-    all_body_rows = "\n".join(body_rows)
-
-    return f"""<tbody class="gt_table_body">
-{all_body_rows}
-</tbody>"""
+    return body_rows
 
 
 def _create_row_component_h(
@@ -1228,6 +1239,7 @@ def _create_row_component_h(
     stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
     stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
     header_ids: _HeaderIds | None = None,  # Ids of the header cells, for `headers` attributes
+    cell_classes: dict[str, str] | None = None,  # Classes to add to cells, by column
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -1342,6 +1354,8 @@ def _create_row_component_h(
             cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 
         classes = [css_class] if css_class else []
+        if cell_classes and colinfo.var in cell_classes:
+            classes.append(cell_classes[colinfo.var])
 
         cell_str = str(cell_content)
         cell_alignment = colinfo.defaulted_align
