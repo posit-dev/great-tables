@@ -1722,7 +1722,8 @@ class GTI(GT):
         data, at first). The code works on the data's values, so it leaves out the search, and
         a `contains` or `matches` match is of a column's values as text (not of the text the
         table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
-        their row groups.
+        their row groups. (It needs the [Narwhals](https://narwhals-dev.github.io/narwhals/)
+        package, to know the data's types: `pip install narwhals`.)
 
         Parameters
         ----------
@@ -1770,6 +1771,10 @@ class GTI(GT):
                 )
             if fmt not in chosen:
                 chosen.append(fmt)
+        if "code" in chosen:
+            from ._gti._query import require_narwhals
+
+            require_narwhals('The "code" export (`i_export("code")`)')
 
         if filename is None:
             filename = Settings().export_filename
