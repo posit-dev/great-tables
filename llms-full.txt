@@ -11451,7 +11451,8 @@ With `"code"`, readers can also copy code that filters and sorts the table's dat
 data, at first). The code works on the data's values, so it leaves out the search, and
 a `contains` or `matches` match is of a column's values as text (not of the text the
 table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
-their row groups.
+their row groups. (It needs the [Narwhals](https://narwhals-dev.github.io/narwhals/)
+package, to know the data's types: `pip install narwhals`.)
 
 Parameters
 ----------
@@ -12481,7 +12482,8 @@ inline_css
     This is essential for email clients, which often strip out `<style>` blocks but preserve
     inline styles. It doesn't apply to an interactive table (one made with
     [`opt_interactive()`](`great_tables.GT.opt_interactive`)), which needs its `<style>` block
-    and its script.
+    and its script: it's ignored, with a warning (for a table in an email, use
+    `opt_interactive(active=False)`).
 make_page
     If `True`, the table will be wrapped in a complete HTML page with proper `<html>`, `<head>`,
     and `<body>` tags. This is useful when you want to display the table in a web browser or
@@ -12562,7 +12564,7 @@ to get an HTML string with all CSS inlined into the HTML tags.
 gt_tbl.as_raw_html(inline_css=True)
 ```
 
-write_raw_html(gt: 'GT', filename: 'str | Path', encoding: 'str' = 'utf-8', inline_css: 'bool' = False, newline: 'str | None' = None, make_page: 'bool' = False, all_important: 'bool' = False) -> 'None'
+write_raw_html(gt: 'GT', filename: 'str | Path', encoding: 'str' = 'utf-8', inline_css: 'bool' = False, newline: 'str | None' = None, make_page: 'bool' = False, all_important: 'bool' = False, runtime: "Literal['inline', 'none']" = 'inline') -> 'None'
 
 Write the table to an HTML file.
 
@@ -12583,6 +12585,18 @@ inline_css
     largely supported in email clients over using CSS in a `<style>` block.
 newline
     The newline character to use when writing the file. Defaults to `os.linesep`.
+make_page
+    If `True`, the table is wrapped in a complete HTML page, with `<html>`, `<head>` and
+    `<body>` tags.
+all_important
+    If `True`, all CSS declarations are marked with `!important`.
+runtime
+    Whether an interactive table's HTML is followed by the runtime that makes it interactive,
+    its JavaScript and CSS: `"inline"` (the default) or `"none"`, for a page that has the
+    runtime once, however many tables it shows (see
+    [`runtime_tags()`](`great_tables.web.runtime_tags`)). A static table has no runtime, so
+    this doesn't change it.
+
 Returns
 -------
 None
@@ -20402,8 +20416,9 @@ a file (with UTF-8 encoding by default).
 gt_tbl.write_raw_html("my_table.html")
 ```
 
-It takes the same `inline_css=` and `make_page=` options as `as_raw_html()`, so the file can hold an
-email-ready fragment or a complete page.
+It takes the same options as `as_raw_html()` (`inline_css=`, `make_page=`, `all_important=`, and
+for an interactive table, `runtime=`), so the file can hold an email-ready fragment or a complete
+page.
 
 ## LaTeX Output
 
@@ -22269,8 +22284,8 @@ An app that makes its own pages, with templates (as [Flask](https://flask.pallet
 interactive table as its HTML, which `as_raw_html()` gives: the table's `<gt-table>` element,
 followed by the runtime that makes it interactive (its JavaScript and CSS). The table works in the
 browser, as in an HTML file, without asking the app for anything. A table put in a Jinja template
-(as Flask's are, `{{ table }}`) or in a FastHTML component (`Div(table)`) is shown as its HTML,
-as it is.
+(as Flask's are, `{{ table }}`) or in a FastHTML component (`Div(table)`), or returned by a
+FastHTML route on its own, is shown as its HTML, as it is.
 
 A page with several tables needs the runtime only once: `runtime_tags()`, from
 `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it,

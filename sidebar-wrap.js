@@ -147,7 +147,13 @@
             triggers[i].removeAttribute('data-bs-toggle');
             triggers[i].removeAttribute('data-bs-target');
             triggers[i].removeAttribute('aria-expanded');
+            triggers[i].removeAttribute('aria-controls');
             triggers[i].removeAttribute('role');
+            // Quarto 1.11 renders section headings as a <button>; keep the
+            // now-inert heading out of the tab order
+            if (triggers[i].tagName === 'BUTTON') {
+                triggers[i].setAttribute('tabindex', '-1');
+            }
         }
 
         // Ensure all collapsible sections are permanently shown

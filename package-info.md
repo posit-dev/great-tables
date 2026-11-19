@@ -92,6 +92,7 @@
 | Package | Version Constraint | Last Published | PyPI |
 |----|----|----|----|
 | `panel` | `>=1.6.2` | 2026-10-23 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/panel/) |
+| `narwhals` | -- | 2026-11-17 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/narwhals/) |
 
 ### `solara`
 
@@ -106,12 +107,14 @@
 | Package | Version Constraint | Last Published | PyPI |
 |----|----|----|----|
 | `streamlit` | `>=1.56` | 2026-11-05 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/streamlit/) |
+| `narwhals` | -- | 2026-11-17 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/narwhals/) |
 
 ### `widget`
 
 | Package | Version Constraint | Last Published | PyPI |
 |----|----|----|----|
 | `anywidget` | `>=0.9` | 2026-04-27 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/anywidget/) |
+| `narwhals` | -- | 2026-11-17 | [![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgdmlld2JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzIGFyaWEtaGlkZGVuPSJ0cnVlIj48cGF0aCBkPSJNMTUgM2g2djYiIC8+PHBhdGggZD0iTTEwIDE0IDIxIDMiIC8+PHBhdGggZD0iTTE4IDEzdjZhMiAyIDAgMCAxLTIgMkg1YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDYiIC8+PC9zdmc+)](https://pypi.org/project/narwhals/) |
 
 ## Summary
 

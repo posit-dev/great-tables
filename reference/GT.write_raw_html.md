@@ -4,7 +4,7 @@ Write the table to an HTML file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L644-L688)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L654-L711)
 
 ``` python
 GT.write_raw_html(
@@ -15,6 +15,7 @@ GT.write_raw_html(
     newline=None,
     make_page=False,
     all_important=False,
+    runtime="inline",
 )
 ```
 
@@ -36,6 +37,15 @@ An option to supply styles to table elements as inlined CSS styles. This is usef
 
 `newline: str | None = None`  
 The newline character to use when writing the file. Defaults to `os.linesep`.
+
+`make_page: bool = False`  
+If `True`, the table is wrapped in a complete HTML page, with `<html>`, `<head>` and `<body>` tags.
+
+`all_important: bool = False`  
+If `True`, all CSS declarations are marked with `!important`.
+
+`runtime: Literal["inline", "none"] = "inline"`  
+Whether an interactive table's HTML is followed by the runtime that makes it interactive, its JavaScript and CSS: `"inline"` (the default) or `"none"`, for a page that has the runtime once, however many tables it shows (see [`runtime_tags()`](../reference/web.runtime_tags.md#great_tables.web.runtime_tags)). A static table has no runtime, so this doesn't change it.
 
 ## Returns
 

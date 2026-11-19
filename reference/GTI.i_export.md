@@ -4,7 +4,7 @@ Let readers export the table's rows.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1690-L1785)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1690-L1790)
 
 ``` python
 GTI.i_export(
@@ -18,7 +18,7 @@ An export button in the control bar below the table opens a panel that copies th
 
 A copy has the rows both as a table, with the cells' styles (for pasting into a document or a spreadsheet), and as text, with tabs between the cells; a TSV file has them as that text does, with a cell's tabs and line breaks as spaces. In a CSV or TSV file, a cell a spreadsheet would read as a formula (one starting with `=`, `+`, `-` or `@`, but not a number) starts with a `'`, so that it's read as text. A JSON file has an object for each row instead of the labels, with each cell's text under its column's name in the data, and the row's group label first, under `"group"` (with a `_` before it if a column has that name). Exporting is off by default.
 
-With `"code"`, readers can also copy code that filters and sorts the table's data (as `df`) as their view of it does, for Polars, Pandas, or Narwhals (the library of the data, at first). The code works on the data's values, so it leaves out the search, and a `contains` or `matches` match is of a column's values as text (not of the text the table shows; and `contains` ignores case, but not accents); it doesn't keep rows within their row groups.
+With `"code"`, readers can also copy code that filters and sorts the table's data (as `df`) as their view of it does, for Polars, Pandas, or Narwhals (the library of the data, at first). The code works on the data's values, so it leaves out the search, and a `contains` or `matches` match is of a column's values as text (not of the text the table shows; and `contains` ignores case, but not accents); it doesn't keep rows within their row groups. (It needs the [Narwhals](https://narwhals-dev.github.io/narwhals/) package, to know the data's types: `pip install narwhals`.)
 
 ## Parameters
 

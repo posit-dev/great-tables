@@ -4,7 +4,7 @@ Let readers show more about each row, under it.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1787-L1893)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1792-L1898)
 
 ``` python
 GTI.i_row_details(content)

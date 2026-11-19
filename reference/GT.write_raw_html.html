@@ -87,7 +87,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-151fdbb47a8651509f971c0db08fab16.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1568,7 +1568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L644-L688" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L654-L711" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-function">
 <div class="sourceCode" id="cb1"><pre class="sourceCode pythonsignature"><code class="sourceCode pythonsignature"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">GT</span><span class="op">.</span><span class="fu">write_raw_html</span>(</span>
@@ -1579,7 +1579,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">newline</span><span class="op">=</span><span class="cn">None</span>,</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">make_page</span><span class="op">=</span><span class="bn">False</span>,</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">all_important</span><span class="op">=</span><span class="bn">False</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">runtime</span><span class="op">=</span><span class="st">"inline"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
 <p>This helper function saves the output of <a href="../reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">GT.as_raw_html()</a> to an HTML file specified by the user.</p>
@@ -1606,7 +1607,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt><code><span class="doc-parameter-name">newline</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str | None</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default">None</span></code></dt>
 <dd>
-The newline character to use when writing the file. Defaults to <code>os.linesep</code>.
+<p>The newline character to use when writing the file. Defaults to <code>os.linesep</code>.</p>
+</dd>
+<dt><code><span class="doc-parameter-name">make_page</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
+<dd>
+<p>If <code>True</code>, the table is wrapped in a complete HTML page, with <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code> and <code>&lt;body&gt;</code> tags.</p>
+</dd>
+<dt><code><span class="doc-parameter-name">all_important</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">bool</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="va">False</span></span></code></dt>
+<dd>
+<p>If <code>True</code>, all CSS declarations are marked with <code>!important</code>.</p>
+</dd>
+<dt><code><span class="doc-parameter-name">runtime</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">Literal[<span class="st">"inline"</span>, <span class="st">"none"</span>]</span> <span class="doc-parameter-default-sep op">=</span> <span class="doc-parameter-default"><span class="st">"inline"</span></span></code></dt>
+<dd>
+Whether an interactive table’s HTML is followed by the runtime that makes it interactive, its JavaScript and CSS: <code>"inline"</code> (the default) or <code>"none"</code>, for a page that has the runtime once, however many tables it shows (see <a href="../reference/web.runtime_tags.html#great_tables.web.runtime_tags" class="gdls-link"><code>runtime_tags()</code></a>). A static table has no runtime, so this doesn’t change it.
 </dd>
 </dl>
 </div>

@@ -51,9 +51,9 @@ html_str = gt_tbl.as_raw_html()
 print(html_str[:200])
 ```
 
-    <div id="ipdblaatha" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="plmykaempk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #ipdblaatha table {
+    #plmykaempk table {
               font
 
 The method accepts several arguments that control the output format.
@@ -88,7 +88,7 @@ The [write_raw_html()](../reference/GT.write_raw_html.md#great_tables.GT.write_r
 gt_tbl.write_raw_html("my_table.html")
 ```
 
-It takes the same `inline_css=` and `make_page=` options as [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html), so the file can hold an email-ready fragment or a complete page.
+It takes the same options as [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) (`inline_css=`, `make_page=`, `all_important=`, and for an interactive table, `runtime=`), so the file can hold an email-ready fragment or a complete page.
 
 ## LaTeX Output
 
