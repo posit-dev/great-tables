@@ -312,7 +312,32 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
 
 
 def _label(label: object) -> str:
-    return label_text(str(_process_text(label)))  # type: ignore[arg-type]
+    """A label's text for a card, with its superscripts and subscripts (as `km<sup>2</sup>`) in
+    Unicode's (`km²`), as a CSS string can't have markup."""
+    html = str(_process_text(label))  # type: ignore[arg-type]
+    return label_text(_SCRIPT.sub(_scripted, html))
+
+
+# The characters with a superscript or subscript form, and the elements whose text may be in them
+_SCRIPTS = {
+    "sup": dict(zip("0123456789+-−=()in", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻⁼⁽⁾ⁱⁿ", strict=True)),
+    "sub": dict(
+        zip("0123456789+-−=()aehijklmnoprstuvx", "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ", strict=True)
+    ),
+}
+_SCRIPT = re.compile(
+    r"<(sup|sub)\b[^>]*>((?:(?!</?su[pb]\b).)*)</\1\s*>", re.IGNORECASE | re.DOTALL
+)
+
+
+def _scripted(found: re.Match[str]) -> str:
+    """A `<sup>` or `<sub>` as its text in superscript or subscript characters, if each of them has
+    one (otherwise as it is, its text run into the text before it)."""
+    forms = _SCRIPTS[found.group(1).lower()]
+    text = label_text(found.group(2))
+    if text and all(char in forms for char in text):
+        return "".join(forms[char] for char in text)
+    return found.group(0)
 
 
 def _shown_columns(spec: Spec) -> int:

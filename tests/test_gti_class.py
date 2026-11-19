@@ -340,6 +340,8 @@ def test_i_responsive_stack_css_is_the_tables():
     assert STACK_ROOT not in css and STACK_WIDTH not in css
     assert "@container gt-i-stack (width < 500px)" in css
     assert "gt-table:not([data-gti-stack-off]) #t table{" in css
+    # (The width queried is that of GT's `<div>`, which `container_width=` sets)
+    assert "gt-table[data-gti-stack]:not([data-gti-stack-off]) #t{container:gt-i-stack" in css
 
 
 def test_i_responsive_stack_css_has_a_random_id():
@@ -382,6 +384,22 @@ def test_i_responsive_stack_css_labels_the_cells():
 def test_i_responsive_stack_css_labels_are_text():
     gti = GTI(DF, id="t").cols_label(y=html("<b>Big</b> &amp; y")).i_responsive("stack")
     assert '#t [headers~="t-y"]{--gt-i-label:"Big & y"}' in stack_style(gti)
+
+
+@pytest.mark.parametrize(
+    "label, text",
+    [
+        (md("Density (/km<sup>2</sup>)"), "Density (/km²)"),
+        (html("CO<SUB>2</SUB> &amp; H<sub>2</sub>O"), "CO₂ & H₂O"),
+        ("Speed ({{m s^-1}})", "Speed (m s⁻¹)"),
+        ("{{x_i^2}}", "xᵢ²"),
+        # (Not every character has a form, so they're left as they are)
+        (html("x<sup>a b</sup>, x<sub>y</sub>"), "xa b, xy"),
+    ],
+)
+def test_i_responsive_stack_css_labels_scripts_as_characters(label: object, text: str):
+    gti = GTI(DF, id="t").cols_label(y=label).i_responsive("stack")
+    assert f'#t [headers~="t-y"]{{--gt-i-label:"{text}"}}' in stack_style(gti)
 
 
 @pytest.mark.parametrize(

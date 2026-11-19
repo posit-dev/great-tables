@@ -485,12 +485,16 @@ def group_html(table_id: str, height: str | None = None) -> str:
 
 
 def stack_html(
-    table_id: str, mode: str = "stack", columns: list[str] | None = None, dark: bool = False
+    table_id: str,
+    mode: str = "stack",
+    columns: list[str] | None = None,
+    dark: bool = False,
+    container_width: str | None = None,
 ) -> str:
     # exibble (8 rows, grp_b then grp_a, each with a summary row, then a grand summary row), with
     # a title, a spanner, a stub, a filter on fctr and selectable rows, 5 to a page: shown as
     # cards in a container narrower than 420px. Its columns can be hidden; with `dark=True`, it's
-    # light text on a dark background.
+    # light text on a dark background; with `container_width`, GT's own container is that wide.
     columns = columns or ["num", "char", "fctr", "currency"]
     gti = (
         GTI(
@@ -520,6 +524,8 @@ def stack_html(
             column_labels_background_color="#1e1e1e",
             row_group_background_color="#2a2a2a",
         )
+    if container_width is not None:
+        gti = gti.tab_options(container_width=container_width)
     return render_gti_html(gti, runtime="none")
 
 
@@ -1276,6 +1282,18 @@ def main() -> None:
                 mode="auto",
                 columns=["num", "char", "fctr", "date", "time", "datetime", "currency"],
             )
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        # Stacked tables in GT's own container 360px wide (`container_width=`), in the page: by
+        # itself, and in an inline block
+        "stack-container.html": page(
+            stack_html("k", container_width="360px") + "\n" + runtime_src, head=styles
+        ),
+        "stack-container-inline.html": page(
+            '<div style="display: inline-block">'
+            + stack_html("k", container_width="360px")
             + "</div>\n"
             + runtime_src,
             head=styles,
