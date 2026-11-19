@@ -47,7 +47,7 @@ gt_ex
 | row_5                                  | 5,550.00 | None    | \$1,325.81  |
 | This is only a portion of the dataset. |          |         |             |
 
-## [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize): Premade Themes
+## `opt_stylize()`: Premade Themes
 
 Below are the first two premade styles. The first uses `color="blue"`, and the second uses `color="red"`.
 

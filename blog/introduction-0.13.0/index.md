@@ -204,7 +204,7 @@ Task \#2 is more interesting. Like [loc.body()](../../reference/loc.body.md#grea
 
 We've dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!
 
-### Using custom style rules with the new [style.css()](../../reference/style.css.md#great_tables.style.css)
+### Using custom style rules with the new `style.css()`
 
 Aside from decking out the `loc` module with all manner of location methods, we've added a little something to the `style` module: [style.css()](../../reference/style.css.md#great_tables.style.css)! What's it for? It lets you supply style declarations to its single `rule=` argument.
 
@@ -245,7 +245,7 @@ gt_tbl
 
 We targeted the cells in the stub that corresponded to the stable isotopes (carbon-12 and -13) with a Polars expression (same one as in the previous code cell) and now we have a 4px indentation of the 'C-12' and 'C-13' text! This new bonus functionality really allows almost any type of styling possible, provided you have those CSS skillz.
 
-### The *combined* location helpers: [loc.column_header()](../../reference/loc.column_header.md#great_tables.loc.column_header) and [loc.footer()](../../reference/loc.footer.md#great_tables.loc.footer)
+### The *combined* location helpers: `loc.column_header()` and `loc.footer()`
 
 Look, I know we brought up the expression *fine-grained* before--right in the first paragraph--but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of *combined* location helpers.
 
@@ -408,7 +408,7 @@ gt_tbl
 
 Though the order of things matters when setting styles via [tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style), it's not a problem here to set a style for the combined 'header' location after doing so for the 'title' and 'subtitle' locations because the 'font' attribute *wasn't* set by [tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style) for those smaller locations.
 
-### How [tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style) fits in with [tab_options()](../../reference/GT.tab_options.md#great_tables.GT.tab_options)
+### How `tab_style()` fits in with `tab_options()`
 
 When it comes to styling, you can use [tab_options()](../../reference/GT.tab_options.md#great_tables.GT.tab_options) for some of the basics and use [tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style) for the more demanding styling tasks. And you could combine the usage of both in your table. Let's set a default honeydew background fill on the body values:
 

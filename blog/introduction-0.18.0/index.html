@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -211,9 +211,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#quick-spanner-creation-with-tab_spanner_delim" id="toc-quick-spanner-creation-with-tab_spanner_delim" class="nav-link active" data-scroll-target="#quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with tab_spanner_delim()</a></li>
-  <li><a href="#beautiful-boolean-formatting-with-fmt_tf" id="toc-beautiful-boolean-formatting-with-fmt_tf" class="nav-link" data-scroll-target="#beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with fmt_tf()</a></li>
-  <li><a href="#rotating-column-labels-with-cols_label_rotate" id="toc-rotating-column-labels-with-cols_label_rotate" class="nav-link" data-scroll-target="#rotating-column-labels-with-cols_label_rotate">Rotating column labels with cols_label_rotate()</a></li>
+  <li><a href="#quick-spanner-creation-with-tab_spanner_delim" id="toc-quick-spanner-creation-with-tab_spanner_delim" class="nav-link active" data-scroll-target="#quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with <code>tab_spanner_delim()</code></a></li>
+  <li><a href="#beautiful-boolean-formatting-with-fmt_tf" id="toc-beautiful-boolean-formatting-with-fmt_tf" class="nav-link" data-scroll-target="#beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with <code>fmt_tf()</code></a></li>
+  <li><a href="#rotating-column-labels-with-cols_label_rotate" id="toc-rotating-column-labels-with-cols_label_rotate" class="nav-link" data-scroll-target="#rotating-column-labels-with-cols_label_rotate">Rotating column labels with <code>cols_label_rotate()</code></a></li>
   <li><a href="#enhanced-datetime-formatting-with-fmt_datetime" id="toc-enhanced-datetime-formatting-with-fmt_datetime" class="nav-link" data-scroll-target="#enhanced-datetime-formatting-with-fmt_datetime">Enhanced datetime formatting with <code>fmt_datetime()</code></a></li>
   <li><a href="#acknowledgements-and-whats-next" id="toc-acknowledgements-and-whats-next" class="nav-link" data-scroll-target="#acknowledgements-and-whats-next">Acknowledgements and what’s next</a></li>
   </ul>
@@ -262,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>Let’s explore each of these interesting new features!</p>
 <section id="quick-spanner-creation-with-tab_spanner_delim" class="level2">
-<h2 class="anchored" data-anchor-id="quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a></h2>
+<h2 class="anchored" data-anchor-id="quick-spanner-creation-with-tab_spanner_delim">Quick spanner creation with <code>tab_spanner_delim()</code></h2>
 <p>Working with data that has hierarchical column names can be tedious when manually creating spanners. The new <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">.tab_spanner_delim()</a> method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.</p>
 <p>Here’s a practical example using the <a href="../../reference/data.towny.html#great_tables.data.towny" class="gdls-link gdls-code">towny</a> dataset, which contains population data for a collection of municipalities across multiple census years. Let’s start by looking at the most populated cities and examining their column structure:</p>
 <div id="0188f84d" class="cell" data-execution_count="1">
@@ -480,7 +480,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The <a href="../../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">.tab_spanner_delim()</a> method recognizes the underscore delimiter and creates a hierarchical structure: <code>"population"</code> and <code>"density"</code> become top-level spanners, with the years (<code>1996</code>, <code>2001</code>, <code>2021</code>) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of <a href="../../reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">.cols_label()</a> and <a href="../../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">.tab_spanner()</a> (which requires a separate invocation per spanner added).</p>
 </section>
 <section id="beautiful-boolean-formatting-with-fmt_tf" class="level2">
-<h2 class="anchored" data-anchor-id="beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a></h2>
+<h2 class="anchored" data-anchor-id="beautiful-boolean-formatting-with-fmt_tf">Beautiful boolean formatting with <code>fmt_tf()</code></h2>
 <p>Boolean data is common in analytical tables, but raw <code>True</code>/<code>False</code> values can look unprofessional. The new <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a> method provides elegant ways to display boolean data using symbols, words, or custom formatting.</p>
 <p>Here’s a simple example showing different <code>tf_style=</code> options:</p>
 <div id="cf201013" class="cell" data-execution_count="3">
@@ -734,7 +734,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The <a href="../../reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">.fmt_tf()</a> method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.</p>
 </section>
 <section id="rotating-column-labels-with-cols_label_rotate" class="level2">
-<h2 class="anchored" data-anchor-id="rotating-column-labels-with-cols_label_rotate">Rotating column labels with <a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">cols_label_rotate()</a></h2>
+<h2 class="anchored" data-anchor-id="rotating-column-labels-with-cols_label_rotate">Rotating column labels with <code>cols_label_rotate()</code></h2>
 <p>When dealing with many columns or long column names, horizontal space becomes precious. The <a href="../../reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">.cols_label_rotate()</a> method solves this by rotating column labels vertically, allowing for more compact table layouts.</p>
 <p>Here’s an example where we use the <a href="../../reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset to create a table which communicates a feature matrix:</p>
 <div id="b60676ad" class="cell" data-execution_count="5">

@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -212,7 +212,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
   <li><a href="#modifying-the-widths-of-columns" id="toc-modifying-the-widths-of-columns" class="nav-link active" data-scroll-target="#modifying-the-widths-of-columns">Modifying the widths of columns</a></li>
-  <li><a href="#setting-options-across-the-entire-table-with-tab_options" id="toc-setting-options-across-the-entire-table-with-tab_options" class="nav-link" data-scroll-target="#setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with tab_options()</a></li>
+  <li><a href="#setting-options-across-the-entire-table-with-tab_options" id="toc-setting-options-across-the-entire-table-with-tab_options" class="nav-link" data-scroll-target="#setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with <code>tab_options()</code></a></li>
   <li><a href="#using-the-new-opt_-methods-to-do-more-complex-tasks-with-table-options" id="toc-using-the-new-opt_-methods-to-do-more-complex-tasks-with-table-options" class="nav-link" data-scroll-target="#using-the-new-opt_-methods-to-do-more-complex-tasks-with-table-options">Using the new <code>opt_*()</code> methods to do more complex tasks with table options</a></li>
   <li><a href="#a-new-formatting-method-fmt_image" id="toc-a-new-formatting-method-fmt_image" class="nav-link" data-scroll-target="#a-new-formatting-method-fmt_image">A new formatting method: <code>fmt_image()</code></a></li>
   <li><a href="#wrapping-up" id="toc-wrapping-up" class="nav-link" data-scroll-target="#wrapping-up">Wrapping up</a></li>
@@ -405,7 +405,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>You don’t have to define widths for all columns with <a href="../../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link"><code>cols_width()</code></a>, and you’re free to use either <code>px</code> or <code>%</code> values when defining widths. See the <a href="../../reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link">reference page</a> for more information and relevant examples.</p>
 </section>
 <section id="setting-options-across-the-entire-table-with-tab_options" class="level2">
-<h2 class="anchored" data-anchor-id="setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></h2>
+<h2 class="anchored" data-anchor-id="setting-options-across-the-entire-table-with-tab_options">Setting options across the entire table with <code>tab_options()</code></h2>
 <p>The new <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that’s used across all cells? Use the <code>table_font_names=</code> option. Do you need to make the text smaller, but only in the stub? Use <code>stub_font_size=</code> for that. The number of options is perhaps overwhelming at first but we think you’ll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.</p>
 <p>Here’s an example that creates a table with a few common components and then uses <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link"><code>tab_options()</code></a> to set up a collection of fonts for the table with the (also new) <a href="../../reference/system_fonts.html#great_tables.system_fonts" class="gdls-link"><code>system_fonts()</code></a> function:</p>
 <div id="22fdc3ae" class="cell" data-execution_count="2">

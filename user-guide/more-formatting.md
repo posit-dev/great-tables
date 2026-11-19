@@ -545,7 +545,7 @@ measure_df = pl.DataFrame({
 
 Because the alignment happens after formatting, it works with the output of any of the `fmt_*()` methods, including values with a `%` or other suffix.
 
-## Custom Formatting with [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt)
+## Custom Formatting with `fmt()`
 
 When none of the built-in formatters fit your needs, the generic [fmt()](../reference/GT.fmt.md#great_tables.GT.fmt) method lets you supply any function as a formatter. The function receives a raw cell value and should return a formatted string.
 

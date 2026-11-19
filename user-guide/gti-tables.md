@@ -137,7 +137,7 @@ GTI.from_gt(gt_tbl).i_cols_filter(columns="mfr", type="facet")
 
 Each of the `i_` methods has examples on its reference page (e.g., [i_cols_filter()](../reference/GTI.i_cols_filter.md#great_tables.GTI.i_cols_filter)), and the [API Reference](../reference/index.md#interactive-table-controls) has them all.
 
-## The parts of a [GTI](../reference/GTI.md#great_tables.GTI) table
+## The parts of a `GTI` table
 
 A [GTI](../reference/GTI.md#great_tables.GTI) table is the table GT made, with a few parts added around it. Here they are in teal, on a table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 

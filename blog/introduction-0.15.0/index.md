@@ -8,7 +8,7 @@ The development of Great Tables is really moving along these days. We just relea
 
 Let's look at each of these in turn!
 
-### Using [fmt_flag()](../../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag) to incorporate country flag icons
+### Using `fmt_flag()` to incorporate country flag icons
 
 When tables contain country-level data, having a more visual representation for a country can help the reader more quickly parse the table contents. The new [fmt_flag()](../../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag) method makes this easy to accomplish. You just need to have either [two-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or [three-letter country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) in a column.
 
@@ -89,7 +89,7 @@ films_mini = (
 
 The column `countries_of_origin` has these combined strings for each of the co-production films, where countries are arranged by decreasing level of contribution (e.g., `"FR,AT,RO,DE"` in the second row). The [fmt_flag()](../../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag) method parses these strings into a sequence of flag icons that are displayed in the order provided. Each of the flags is separated by a space character but you can always change that default separator with the `sep=` argument.
 
-### Using [fmt_icon()](../../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) to include Font Awesome icons
+### Using `fmt_icon()` to include Font Awesome icons
 
 The new [fmt_icon()](../../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) method gives you the ability to easily include Font Awesome icons in a table. It uses a similar input/output scheme as with [fmt_flag()](../../reference/GT.fmt_flag.md#great_tables.GT.fmt_flag): provide the *short* icon name (e.g., `"table"`, `"music"`, `"globe"`, etc.) or a comma-separated list of them, and [fmt_icon()](../../reference/GT.fmt_icon.md#great_tables.GT.fmt_icon) will provide the Font Awesome icon in place. Let's see it in action with an example that uses the [metro](../../reference/data.metro.md#great_tables.data.metro) dataset:
 

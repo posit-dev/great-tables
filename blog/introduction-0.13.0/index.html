@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -218,10 +218,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#starting-things-off-with-a-big-gt-table" id="toc-starting-things-off-with-a-big-gt-table" class="nav-link active" data-scroll-target="#starting-things-off-with-a-big-gt-table">Starting things off with a big GT table</a></li>
   <li><a href="#styling-the-body" id="toc-styling-the-body" class="nav-link" data-scroll-target="#styling-the-body">Styling the body</a></li>
   <li><a href="#dont-forget-the-stub" id="toc-dont-forget-the-stub" class="nav-link" data-scroll-target="#dont-forget-the-stub">Don’t forget the stub!</a></li>
-  <li><a href="#using-custom-style-rules-with-the-new-style.css" id="toc-using-custom-style-rules-with-the-new-style.css" class="nav-link" data-scroll-target="#using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new style.css()</a></li>
-  <li><a href="#the-combined-location-helpers-loc.column_header-and-loc.footer" id="toc-the-combined-location-helpers-loc.column_header-and-loc.footer" class="nav-link" data-scroll-target="#the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: loc.column_header() and loc.footer()</a></li>
+  <li><a href="#using-custom-style-rules-with-the-new-style.css" id="toc-using-custom-style-rules-with-the-new-style.css" class="nav-link" data-scroll-target="#using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new <code>style.css()</code></a></li>
+  <li><a href="#the-combined-location-helpers-loc.column_header-and-loc.footer" id="toc-the-combined-location-helpers-loc.column_header-and-loc.footer" class="nav-link" data-scroll-target="#the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: <code>loc.column_header()</code> and <code>loc.footer()</code></a></li>
   <li><a href="#styling-the-title-and-the-subtitle" id="toc-styling-the-title-and-the-subtitle" class="nav-link" data-scroll-target="#styling-the-title-and-the-subtitle">Styling the title and the subtitle</a></li>
-  <li><a href="#how-tab_style-fits-in-with-tab_options" id="toc-how-tab_style-fits-in-with-tab_options" class="nav-link" data-scroll-target="#how-tab_style-fits-in-with-tab_options">How tab_style() fits in with tab_options()</a></li>
+  <li><a href="#how-tab_style-fits-in-with-tab_options" id="toc-how-tab_style-fits-in-with-tab_options" class="nav-link" data-scroll-target="#how-tab_style-fits-in-with-tab_options">How <code>tab_style()</code> fits in with <code>tab_options()</code></a></li>
   <li><a href="#wrapping-up" id="toc-wrapping-up" class="nav-link" data-scroll-target="#wrapping-up">Wrapping up</a></li>
   </ul>
 </nav>
@@ -1063,7 +1063,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We’ve dressed up the stub so that it is that much more prominent. And that linen-colored stub goes so well with the light-cyan rows, representative of carbon-12 and carbon-13!</p>
 </section>
 <section id="using-custom-style-rules-with-the-new-style.css" class="level2">
-<h2 class="anchored" data-anchor-id="using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a></h2>
+<h2 class="anchored" data-anchor-id="using-custom-style-rules-with-the-new-style.css">Using custom style rules with the new <code>style.css()</code></h2>
 <p>Aside from decking out the <code>loc</code> module with all manner of location methods, we’ve added a little something to the <code>style</code> module: <a href="../../reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css()</a>! What’s it for? It lets you supply style declarations to its single <code>rule=</code> argument.</p>
 <p>As an example, I might want to indent some text in one or more table cells. You can’t really do that with the <a href="../../reference/style.text.html#great_tables.style.text" class="gdls-link gdls-code">style.text()</a> method since it doesn’t have an <code>indent=</code> argument. So, in Great Tables <code>0.13.0</code> you can manually indent the row label text for the ‘STABLE’ rows using a CSS style rule:</p>
 <div id="b1372b81" class="cell" data-execution_count="4">
@@ -1303,7 +1303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We targeted the cells in the stub that corresponded to the stable isotopes (carbon-12 and -13) with a Polars expression (same one as in the previous code cell) and now we have a 4px indentation of the ‘C-12’ and ‘C-13’ text! This new bonus functionality really allows almost any type of styling possible, provided you have those CSS skillz.</p>
 </section>
 <section id="the-combined-location-helpers-loc.column_header-and-loc.footer" class="level2">
-<h2 class="anchored" data-anchor-id="the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: <a href="../../reference/loc.column_header.html#great_tables.loc.column_header" class="gdls-link gdls-code">loc.column_header()</a> and <a href="../../reference/loc.footer.html#great_tables.loc.footer" class="gdls-link gdls-code">loc.footer()</a></h2>
+<h2 class="anchored" data-anchor-id="the-combined-location-helpers-loc.column_header-and-loc.footer">The <em>combined</em> location helpers: <code>loc.column_header()</code> and <code>loc.footer()</code></h2>
 <p>Look, I know we brought up the expression <em>fine-grained</em> before—right in the first paragraph—but sometimes you need just the opposite. There are lots of little locations in a GT table and some make for logical groupings. To that end, we have the concept of <em>combined</em> location helpers.</p>
 <p>Let’s set a grey background fill on the stubhead, column header, and footer:</p>
 <div id="f4aa06e3" class="cell" data-execution_count="5">
@@ -2263,7 +2263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Though the order of things matters when setting styles via <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>, it’s not a problem here to set a style for the combined ‘header’ location after doing so for the ‘title’ and ‘subtitle’ locations because the ‘font’ attribute <em>wasn’t</em> set by <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> for those smaller locations.</p>
 </section>
 <section id="how-tab_style-fits-in-with-tab_options" class="level2">
-<h2 class="anchored" data-anchor-id="how-tab_style-fits-in-with-tab_options">How <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> fits in with <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></h2>
+<h2 class="anchored" data-anchor-id="how-tab_style-fits-in-with-tab_options">How <code>tab_style()</code> fits in with <code>tab_options()</code></h2>
 <p>When it comes to styling, you can use <a href="../../reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> for some of the basics and use <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> for the more demanding styling tasks. And you could combine the usage of both in your table. Let’s set a default honeydew background fill on the body values:</p>
 <div id="67747149" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>gt_tbl <span class="op">=</span> gt_tbl.tab_options(table_background_color<span class="op">=</span><span class="st">"HoneyDew"</span>)</span>

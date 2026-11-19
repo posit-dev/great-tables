@@ -38,7 +38,7 @@ exibble_mini = exibble[["num", "char", "date", "datetime", "row"]].head(5)
 
 You don't have to define widths for all columns with [`cols_width()`](../../reference/GT.cols_width.md#great_tables.GT.cols_width), and you're free to use either `px` or `%` values when defining widths. See the [reference page](../../reference/GT.cols_width.md#great_tables.GT.cols_width) for more information and relevant examples.
 
-### Setting options across the entire table with [tab_options()](../../reference/GT.tab_options.md#great_tables.GT.tab_options)
+### Setting options across the entire table with `tab_options()`
 
 The new [`tab_options()`](../../reference/GT.tab_options.md#great_tables.GT.tab_options) method gives you the freedom to specify any of dozens of global style and layout options for the table. Want a font that's used across all cells? Use the `table_font_names=` option. Do you need to make the text smaller, but only in the stub? Use `stub_font_size=` for that. The number of options is perhaps overwhelming at first but we think you'll enjoy having them around nonetheless. It makes styling the table (and developing your own table themes) a relatively simple task.
 

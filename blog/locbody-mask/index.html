@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -212,8 +212,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul class="collapse">
   <li><a href="#preparations" id="toc-preparations" class="nav-link active" data-scroll-target="#preparations">Preparations</a></li>
-  <li><a href="#leveraging-the-mask-parameter-in-loc.body" id="toc-leveraging-the-mask-parameter-in-loc.body" class="nav-link" data-scroll-target="#leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in loc.body()</a></li>
-  <li><a href="#utilizing-the-locations-parameter-in-gt.tab_style" id="toc-utilizing-the-locations-parameter-in-gt.tab_style" class="nav-link" data-scroll-target="#utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in GT.tab_style()</a></li>
+  <li><a href="#leveraging-the-mask-parameter-in-loc.body" id="toc-leveraging-the-mask-parameter-in-loc.body" class="nav-link" data-scroll-target="#leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in <code>loc.body()</code></a></li>
+  <li><a href="#utilizing-the-locations-parameter-in-gt.tab_style" id="toc-utilizing-the-locations-parameter-in-gt.tab_style" class="nav-link" data-scroll-target="#utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in <code>GT.tab_style()</code></a></li>
   <li><a href="#wrapping-up" id="toc-wrapping-up" class="nav-link" data-scroll-target="#wrapping-up">Wrapping up</a></li>
   </ul>
 </nav>
@@ -418,7 +418,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The numbers in the cells represent the average horsepower for each combination of <code>mfr</code> and <code>drivetrain</code> for a specific year.</p>
 </section>
 <section id="leveraging-the-mask-parameter-in-loc.body" class="level2">
-<h2 class="anchored" data-anchor-id="leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a></h2>
+<h2 class="anchored" data-anchor-id="leveraging-the-mask-parameter-in-loc.body">Leveraging the <code>mask=</code> parameter in <code>loc.body()</code></h2>
 <p>The <code>mask=</code> parameter in <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> accepts a Polars expression that evaluates to a boolean result for each cell.</p>
 <p>Here’s how we can use it to achieve the two goals:</p>
 <ul>
@@ -594,7 +594,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 <section id="utilizing-the-locations-parameter-in-gt.tab_style" class="level2">
-<h2 class="anchored" data-anchor-id="utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">GT.tab_style()</a></h2>
+<h2 class="anchored" data-anchor-id="utilizing-the-locations-parameter-in-gt.tab_style">Utilizing the <code>locations=</code> parameter in <code>GT.tab_style()</code></h2>
 <p>A more “old-fashioned” approach involves passing a list of <a href="../../reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> objects to the <code>locations=</code> parameter in <a href="../../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">GT.tab_style()</a>:</p>
 <div id="6dbf1039" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(</span>

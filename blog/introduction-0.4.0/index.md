@@ -133,7 +133,7 @@ single_vals_df = pl.DataFrame(
 
 Notice that there is some light interactivity available here as well! When hovering over a plotted bar or line the data value will appear.
 
-### Customizing with [nanoplot_options()](../../reference/nanoplot_options.md#great_tables.nanoplot_options)
+### Customizing with `nanoplot_options()`
 
 We provide a lot of options for customizing your nanoplots. With the [`nanoplot_options()`](../../reference/nanoplot_options.md#great_tables.nanoplot_options) helper function, it's possible to change the look and feel for a set of nanoplots. The `options=` argument of [`fmt_nanoplot()`](../../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot) is where you'd need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here's an example where both line- and bar-based nanoplots retain their basic compositional elements, but their appearance is quite different.
 

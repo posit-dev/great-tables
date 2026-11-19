@@ -121,7 +121,7 @@ If you hover along or touch the left side of any of the plots above, you'll see 
 
 Keep in mind the tradeoff: `autoscale=True` sacrifices within-row detail for cross-row comparability. If some rows have values in the thousands and others in single digits, autoscaling may compress the smaller series into a nearly flat line, hiding their internal variation. In those cases, independent scales (the default) are a better choice because they let each row's nanoplot use its full vertical range to show that row's own pattern.
 
-## Using the [nanoplot_options()](../reference/nanoplot_options.md#great_tables.nanoplot_options) Helper Function
+## Using the `nanoplot_options()` Helper Function
 
 There are many options for customization. You can radically change the look of a collection of nanoplots with the [nanoplot_options()](../reference/nanoplot_options.md#great_tables.nanoplot_options) helper function. With that function, you invoke it in the `options=` argument of [fmt_nanoplot()](../reference/GT.fmt_nanoplot.md#great_tables.GT.fmt_nanoplot). You can modify the sizes and colors of different elements, decide which elements are even present, and much more! Here's an example where a line-based nanoplot retains all of its elements, but the overall appearance is greatly altered.
 

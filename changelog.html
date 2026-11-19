@@ -51,7 +51,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -238,16 +238,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="v1.1.0" class="level1 changelog-version">
 <h1 class="changelog-version">v1.1.0</h1>
 <p><em>2026-10-15</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v1.1.0">GitHub</a></p>
-<p>Great Tables <code>v1.1.0</code> is quite a hefty release, and it’s centered on richer color scaling, accessibility, and much more reliable LaTeX output. Tables can now have a stub made of several columns, and the new <a href="./reference/GT.cols_align_decimal.html#great_tables.GT.cols_align_decimal" class="gdls-link gdls-code">cols_align_decimal()</a> method lines up numbers on their decimal mark. <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> gains custom color functions, a <code>midpoint=</code> for diverging scales, row-wise coloring, and perceptually based text contrast (APCA). HTML tables now carry semantic markup for screen readers by default. This release also fixes more than 60 bugs, with most of the fixes in the number formatters (rounding, infinite and missing values) and in LaTeX rendering.</p>
+<p>Great Tables <code>v1.1.0</code> is quite a hefty release, and it’s centered on richer color scaling, accessibility, and much more reliable LaTeX output. Tables can now have a stub made of several columns, and the new <code>cols_align_decimal()</code> method lines up numbers on their decimal mark. <code>data_color()</code> gains custom color functions, a <code>midpoint=</code> for diverging scales, row-wise coloring, and perceptually based text contrast (APCA). HTML tables now carry semantic markup for screen readers by default. This release also fixes more than 60 bugs, with most of the fixes in the number formatters (rounding, infinite and missing values) and in LaTeX rendering.</p>
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New Features</h3>
 <ul>
 <li><strong>Multi-column stubs</strong> — <code>rowname_col=</code> now accepts a list of columns, so the stub can show several levels of row labels. Use the new <code>stub(n)</code> selector in any <code>columns=</code> argument to target one stub level (e.g., <code>cols_width(cases={stub(1): "70px", stub(2): "200px"})</code>). (<a href="https://github.com/posit-dev/great-tables/issues/861">#861</a>, <a href="https://github.com/posit-dev/great-tables/issues/933">#933</a>)</li>
-<li><strong><a href="./reference/GT.cols_align_decimal.html#great_tables.GT.cols_align_decimal" class="gdls-link gdls-code">cols_align_decimal()</a></strong> — Aligns the numeric values in a column on their decimal mark, with optional <code>dec_mark=</code> and <code>locale=</code> settings. (<a href="https://github.com/posit-dev/great-tables/issues/944">#944</a>)</li>
-<li><strong>Custom color functions in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a></strong> — The new <code>fn=</code> argument takes a function that maps a list of values to a list of colors, giving you full control over the color mapping. (<a href="https://github.com/posit-dev/great-tables/issues/898">#898</a>)</li>
+<li><strong><code>cols_align_decimal()</code></strong> — Aligns the numeric values in a column on their decimal mark, with optional <code>dec_mark=</code> and <code>locale=</code> settings. (<a href="https://github.com/posit-dev/great-tables/issues/944">#944</a>)</li>
+<li><strong>Custom color functions in <code>data_color()</code></strong> — The new <code>fn=</code> argument takes a function that maps a list of values to a list of colors, giving you full control over the color mapping. (<a href="https://github.com/posit-dev/great-tables/issues/898">#898</a>)</li>
 <li><strong>Diverging scales with <code>midpoint=</code></strong> — <code>data_color(midpoint=0)</code> centers the palette on a value. The domain is made symmetric around it unless you supply one. (<a href="https://github.com/posit-dev/great-tables/issues/911">#911</a>)</li>
 <li><strong>Row-wise coloring</strong> — <code>data_color(direction="row")</code> computes colors across each row instead of down each column. (<a href="https://github.com/posit-dev/great-tables/issues/950">#950</a>)</li>
-<li><strong>APCA text contrast</strong> — The new <code>contrast_algo=</code> argument in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> chooses between <code>"apca"</code> (the new default) and <code>"wcag"</code> for automatic text coloring. (<a href="https://github.com/posit-dev/great-tables/issues/897">#897</a>)</li>
+<li><strong>APCA text contrast</strong> — The new <code>contrast_algo=</code> argument in <code>data_color()</code> chooses between <code>"apca"</code> (the new default) and <code>"wcag"</code> for automatic text coloring. (<a href="https://github.com/posit-dev/great-tables/issues/897">#897</a>)</li>
 <li><strong>Accessible HTML tables</strong> — Header cells now have unique ids, and body cells link to them through <code>headers</code>. Stub and row group header cells get <code>scope</code> attributes. Tables are named and described by their title and subtitle (<code>aria-labelledby</code>/<code>aria-describedby</code>). (<a href="https://github.com/posit-dev/great-tables/issues/936">#936</a>, <a href="https://github.com/posit-dev/great-tables/issues/957">#957</a>, <a href="https://github.com/posit-dev/great-tables/issues/959">#959</a>)</li>
 <li><strong><code>min_sep_threshold=</code> in number formatters</strong> — Sets the minimum number of digits before digit grouping applies, and follows each locale’s own minimum grouping digits by default, as in gt. (<a href="https://github.com/posit-dev/great-tables/issues/956">#956</a>)</li>
 </ul>
@@ -265,16 +265,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="behavior-changes" class="level3">
 <h3 class="anchored" data-anchor-id="behavior-changes">Behavior Changes</h3>
 <ul>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now picks text colors with APCA by default instead of the WCAG contrast ratio, so some cells may get different text colors. Use <code>contrast_algo="wcag"</code> to keep the old behavior. (<a href="https://github.com/posit-dev/great-tables/issues/897">#897</a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> palettes are now interpolated in CIELAB, which gives smoother, more perceptually even gradients. Colors between palette stops will differ slightly from earlier versions. (<a href="https://github.com/posit-dev/great-tables/issues/964">#964</a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now uses the declared level order of ordered Pandas <code>Categorical</code> and Polars <code>Enum</code> columns as the inferred domain. (<a href="https://github.com/posit-dev/great-tables/issues/902">#902</a>)</li>
-<li>Stub and row group columns are now excluded from column selections, as originally intended. When <code>columns=</code> is omitted, methods target body columns only, so <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> no longer colors stub cells. <a href="./reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> and <code>cols_move*()</code> raise a clear error when given a stub or group column. (<a href="https://github.com/posit-dev/great-tables/issues/933">#933</a>)</li>
+<li><code>data_color()</code> now picks text colors with APCA by default instead of the WCAG contrast ratio, so some cells may get different text colors. Use <code>contrast_algo="wcag"</code> to keep the old behavior. (<a href="https://github.com/posit-dev/great-tables/issues/897">#897</a>)</li>
+<li><code>data_color()</code> palettes are now interpolated in CIELAB, which gives smoother, more perceptually even gradients. Colors between palette stops will differ slightly from earlier versions. (<a href="https://github.com/posit-dev/great-tables/issues/964">#964</a>)</li>
+<li><code>data_color()</code> now uses the declared level order of ordered Pandas <code>Categorical</code> and Polars <code>Enum</code> columns as the inferred domain. (<a href="https://github.com/posit-dev/great-tables/issues/902">#902</a>)</li>
+<li>Stub and row group columns are now excluded from column selections, as originally intended. When <code>columns=</code> is omitted, methods target body columns only, so <code>data_color()</code> no longer colors stub cells. <code>loc.body()</code> and <code>cols_move*()</code> raise a clear error when given a stub or group column. (<a href="https://github.com/posit-dev/great-tables/issues/933">#933</a>)</li>
 </ul>
 </section>
 <section id="deprecations" class="level3">
 <h3 class="anchored" data-anchor-id="deprecations">Deprecations</h3>
 <ul>
-<li>The <code>placeholder=</code> parameter of <a href="./reference/shiny.output_gt.html#great_tables.shiny.output_gt" class="gdls-link gdls-code">output_gt()</a> is deprecated. (<a href="https://github.com/posit-dev/great-tables/issues/909">#909</a>)</li>
+<li>The <code>placeholder=</code> parameter of <code>output_gt()</code> is deprecated. (<a href="https://github.com/posit-dev/great-tables/issues/909">#909</a>)</li>
 <li>The <code>islands</code> and <code>airquality</code> datasets are deprecated and now emit a <code>FutureWarning</code>. They will be removed in a future release. (<a href="https://github.com/posit-dev/great-tables/issues/939">#939</a>)</li>
 </ul>
 </section>
@@ -292,22 +292,22 @@ ul.task-list li input[type="checkbox"] {
 <li>NaN and infinite values are now handled consistently across the formatters. This includes <code>fmt_scientific()</code>, <code>fmt_engineering()</code>, <code>fmt_bytes()</code>, <code>fmt_roman()</code>, <code>fmt_duration()</code>, <code>fmt_number_si()</code>, <code>n_sigfig=</code>, and <code>compact=True</code>. (<a href="https://github.com/posit-dev/great-tables/issues/917">#917</a>, <a href="https://github.com/posit-dev/great-tables/issues/920">#920</a>, <a href="https://github.com/posit-dev/great-tables/issues/922">#922</a>, <a href="https://github.com/posit-dev/great-tables/issues/926">#926</a>)</li>
 <li>Missing values in nullable Pandas columns no longer render as <code>0</code>. (<a href="https://github.com/posit-dev/great-tables/issues/949">#949</a>)</li>
 <li><code>fmt_fraction()</code>, <code>fmt_roman()</code>, and <code>fmt_index()</code> now format NumPy integer and <code>float32</code> values. (<a href="https://github.com/posit-dev/great-tables/issues/958">#958</a>)</li>
-<li><a href="./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a> now accepts NumPy booleans from Pandas columns. (<a href="https://github.com/posit-dev/great-tables/issues/921">#921</a>)</li>
+<li><code>fmt_tf()</code> now accepts NumPy booleans from Pandas columns. (<a href="https://github.com/posit-dev/great-tables/issues/921">#921</a>)</li>
 <li>Pandas columns of PyArrow-backed strings are now auto-aligned. (<a href="https://github.com/posit-dev/great-tables/issues/900">#900</a>)</li>
 <li><code>sub_large_vals(sign="-")</code> now shows the negative threshold. (<a href="https://github.com/posit-dev/great-tables/issues/913">#913</a>)</li>
-<li><a href="./reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals" class="gdls-link gdls-code">sub_small_vals()</a> and <a href="./reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals" class="gdls-link gdls-code">sub_large_vals()</a> now substitute NumPy scalars and treat booleans and <code>Decimal</code> values consistently. (<a href="https://github.com/posit-dev/great-tables/issues/946">#946</a>, <a href="https://github.com/posit-dev/great-tables/issues/967">#967</a>)</li>
-<li><a href="./reference/GT.sub_zero.html#great_tables.GT.sub_zero" class="gdls-link gdls-code">sub_zero()</a> now skips missing values in nullable Pandas columns and leaves boolean values alone. (<a href="https://github.com/posit-dev/great-tables/issues/962">#962</a>, <a href="https://github.com/posit-dev/great-tables/issues/971">#971</a>)</li>
+<li><code>sub_small_vals()</code> and <code>sub_large_vals()</code> now substitute NumPy scalars and treat booleans and <code>Decimal</code> values consistently. (<a href="https://github.com/posit-dev/great-tables/issues/946">#946</a>, <a href="https://github.com/posit-dev/great-tables/issues/967">#967</a>)</li>
+<li><code>sub_zero()</code> now skips missing values in nullable Pandas columns and leaves boolean values alone. (<a href="https://github.com/posit-dev/great-tables/issues/962">#962</a>, <a href="https://github.com/posit-dev/great-tables/issues/971">#971</a>)</li>
 <li>A <code>sub_*()</code> call no longer turns off HTML/LaTeX escaping for the cells it skips. PyArrow tables are now escaped too. (<a href="https://github.com/posit-dev/great-tables/issues/938">#938</a>)</li>
 <li><code>fmt_time()</code> now accepts datetime values and the documented <code>YYYY-MM-DD HH:MM:SS</code> strings, and rejects date-only strings. (<a href="https://github.com/posit-dev/great-tables/issues/919">#919</a>, <a href="https://github.com/posit-dev/great-tables/issues/930">#930</a>)</li>
 <li>The <code>year_week</code> date style now uses the week-based year. (<a href="https://github.com/posit-dev/great-tables/issues/924">#924</a>)</li>
 <li>In ISO durations, the <code>T</code> designator now comes before the time parts. (<a href="https://github.com/posit-dev/great-tables/issues/947">#947</a>)</li>
 <li>In units notation, a slashed unit now has its exponent negated, and inverted first powers are dropped. (<a href="https://github.com/posit-dev/great-tables/issues/942">#942</a>, <a href="https://github.com/posit-dev/great-tables/issues/969">#969</a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now applies <code>alpha=</code> to gradient palette colors. (<a href="https://github.com/posit-dev/great-tables/issues/892">#892</a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now handles Pandas <code>string</code> columns with <code>pd.NA</code>, scales <code>Decimal</code> values as numbers, and gives infinite values the colors at either end of the palette. (<a href="https://github.com/posit-dev/great-tables/issues/902">#902</a>)</li>
+<li><code>data_color()</code> now applies <code>alpha=</code> to gradient palette colors. (<a href="https://github.com/posit-dev/great-tables/issues/892">#892</a>)</li>
+<li><code>data_color()</code> now handles Pandas <code>string</code> columns with <code>pd.NA</code>, scales <code>Decimal</code> values as numbers, and gives infinite values the colors at either end of the palette. (<a href="https://github.com/posit-dev/great-tables/issues/902">#902</a>)</li>
 <li>Nanoplots now keep a stroke width of zero, use a separate area pattern for each fill color, and draw reference lines in single-value plots. (<a href="https://github.com/posit-dev/great-tables/issues/893">#893</a>, <a href="https://github.com/posit-dev/great-tables/issues/894">#894</a>, <a href="https://github.com/posit-dev/great-tables/issues/901">#901</a>)</li>
 <li>Missing values in nanoplots are now handled correctly. (<a href="https://github.com/posit-dev/great-tables/issues/905">#905</a>)</li>
 <li>Nanoplot number formatting at range boundaries and for compact currency values is now correct. (<a href="https://github.com/posit-dev/great-tables/issues/928">#928</a>)</li>
-<li><a href="./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> now handles invalid country codes. (<a href="https://github.com/posit-dev/great-tables/issues/912">#912</a>)</li>
+<li><code>fmt_flag()</code> now handles invalid country codes. (<a href="https://github.com/posit-dev/great-tables/issues/912">#912</a>)</li>
 <li>In LaTeX output, special characters are now escaped in the <code>fmt_index()</code> pattern, <code>&lt;</code>/<code>&gt;</code> characters, summary row labels, and the <code>&lt;</code> of sub-unit durations. (<a href="https://github.com/posit-dev/great-tables/issues/895">#895</a>, <a href="https://github.com/posit-dev/great-tables/issues/941">#941</a>, <a href="https://github.com/posit-dev/great-tables/issues/945">#945</a>, <a href="https://github.com/posit-dev/great-tables/issues/954">#954</a>)</li>
 <li>LaTeX: the stubhead label now renders in the column headings, including when it’s empty. (<a href="https://github.com/posit-dev/great-tables/issues/907">#907</a>, <a href="https://github.com/posit-dev/great-tables/issues/932">#932</a>)</li>
 <li>LaTeX: <code>sub_*()</code> replacement text now renders, and substitution thresholds are shown compactly. (<a href="https://github.com/posit-dev/great-tables/issues/934">#934</a>, <a href="https://github.com/posit-dev/great-tables/issues/941">#941</a>)</li>
@@ -317,7 +317,7 @@ ul.task-list li input[type="checkbox"] {
 <li>LaTeX: <code>fmt_url()</code> and <code>fmt_email()</code> links are now written with <code>\href</code>. (<a href="https://github.com/posit-dev/great-tables/issues/955">#955</a>)</li>
 <li>LaTeX: group summary rows with <code>side="top"</code> are now placed at the top of the group. (<a href="https://github.com/posit-dev/great-tables/issues/948">#948</a>)</li>
 <li>LaTeX: row groups are now separated by a midrule when <code>row_group_as_column=True</code>. (<a href="https://github.com/posit-dev/great-tables/issues/951">#951</a>)</li>
-<li>LaTeX: <a href="./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent" class="gdls-link gdls-code">tab_stub_indent()</a> now indents row labels, including for <code>rem</code>/<code>%</code> lengths and with correct point rounding. (<a href="https://github.com/posit-dev/great-tables/issues/952">#952</a>, <a href="https://github.com/posit-dev/great-tables/issues/961">#961</a>)</li>
+<li>LaTeX: <code>tab_stub_indent()</code> now indents row labels, including for <code>rem</code>/<code>%</code> lengths and with correct point rounding. (<a href="https://github.com/posit-dev/great-tables/issues/952">#952</a>, <a href="https://github.com/posit-dev/great-tables/issues/961">#961</a>)</li>
 <li>LaTeX: decimal alignment, summary row values, and grouped summary rows now render correctly. (<a href="https://github.com/posit-dev/great-tables/issues/965">#965</a>)</li>
 <li>LaTeX tables where a row starts with <code>[</code> no longer break. (<a href="https://github.com/posit-dev/great-tables/issues/974">#974</a>)</li>
 <li><code>great_tables.data</code> now defines <code>__all__</code>, so star imports no longer overwrite <code>pd</code>/<code>pl</code>. (<a href="https://github.com/posit-dev/great-tables/issues/937">#937</a>)</li>
@@ -328,9 +328,9 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>Added an Accessibility page to the User Guide. (<a href="https://github.com/posit-dev/great-tables/issues/960">#960</a>)</li>
 <li>Added a correlation matrix example to the gallery. (<a href="https://github.com/posit-dev/great-tables/issues/857">#857</a>)</li>
-<li>The <a href="./reference/GT.as_latex.html#great_tables.GT.as_latex" class="gdls-link gdls-code">as_latex()</a> Limitations list has been updated to match current LaTeX output. (<a href="https://github.com/posit-dev/great-tables/issues/972">#972</a>)</li>
-<li>References to formatters that exist in both <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> and <code>vals</code> are now fully qualified. (<a href="https://github.com/posit-dev/great-tables/issues/975">#975</a>)</li>
-<li>Fixed the Premade Themes link in the <a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> docs. (<a href="https://github.com/posit-dev/great-tables/issues/976">#976</a>)</li>
+<li>The <code>as_latex()</code> Limitations list has been updated to match current LaTeX output. (<a href="https://github.com/posit-dev/great-tables/issues/972">#972</a>)</li>
+<li>References to formatters that exist in both <code>GT</code> and <code>vals</code> are now fully qualified. (<a href="https://github.com/posit-dev/great-tables/issues/975">#975</a>)</li>
+<li>Fixed the Premade Themes link in the <code>opt_stylize()</code> docs. (<a href="https://github.com/posit-dev/great-tables/issues/976">#976</a>)</li>
 </ul>
 </section>
 <section id="maintenance" class="level3">
@@ -348,11 +348,11 @@ ul.task-list li input[type="checkbox"] {
 <section id="v1.0.0" class="level1 changelog-version">
 <h1 class="changelog-version">v1.0.0</h1>
 <p><em>2026-09-25</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v1.0.0">GitHub</a></p>
-<p>Great Tables <code>v1.0.0</code> is here. This milestone release introduces these powerful new formatting methods: <code>fmt_fraction()</code> for mixed fractions, <code>fmt_chem()</code> for chemical formulas, <code>fmt_index()</code> for alphabetical indices, and <code>fmt_url()</code>/<code>fmt_email()</code> for clickable links and buttons. The new <a href="./reference/GT.tab_style_body.html#great_tables.GT.tab_style_body" class="gdls-link gdls-code">tab_style_body()</a> method lets you style cells based on their data values, and <a href="./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec" class="gdls-link gdls-code">opt_footnote_spec()</a> gives you fine-grained control over footnote presentation. Cell body values are now HTML-escaped by default, a breaking change that strengthens security against XSS. A new <a href="./reference/load_dataset.html#great_tables.load_dataset" class="gdls-link gdls-code">load_dataset()</a> function provides a single entry point for all bundled example datasets.</p>
+<p>Great Tables <code>v1.0.0</code> is here. This milestone release introduces these powerful new formatting methods: <code>fmt_fraction()</code> for mixed fractions, <code>fmt_chem()</code> for chemical formulas, <code>fmt_index()</code> for alphabetical indices, and <code>fmt_url()</code>/<code>fmt_email()</code> for clickable links and buttons. The new <code>tab_style_body()</code> method lets you style cells based on their data values, and <code>opt_footnote_spec()</code> gives you fine-grained control over footnote presentation. Cell body values are now HTML-escaped by default, a breaking change that strengthens security against XSS. A new <code>load_dataset()</code> function provides a single entry point for all bundled example datasets.</p>
 <section id="breaking-changes" class="level3">
 <h3 class="anchored" data-anchor-id="breaking-changes">Breaking Changes</h3>
 <ul>
-<li><strong>Automatic HTML escaping</strong> — Unformatted body cell values are now automatically HTML-escaped before rendering. Cells that previously contained intentional raw HTML will now display the literal markup. Use the <a href="./reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> helper, <code>fmt_passthrough(escape=False)</code>, <code>fmt_markdown()</code>, or other formatting methods to opt out of escaping for specific cells. (<a href="https://github.com/posit-dev/great-tables/issues/881">#881</a>)</li>
+<li><strong>Automatic HTML escaping</strong> — Unformatted body cell values are now automatically HTML-escaped before rendering. Cells that previously contained intentional raw HTML will now display the literal markup. Use the <code>html()</code> helper, <code>fmt_passthrough(escape=False)</code>, <code>fmt_markdown()</code>, or other formatting methods to opt out of escaping for specific cells. (<a href="https://github.com/posit-dev/great-tables/issues/881">#881</a>)</li>
 </ul>
 </section>
 <section id="new-features-1" class="level3">
@@ -362,9 +362,9 @@ ul.task-list li input[type="checkbox"] {
 <li><strong><code>fmt_chem()</code></strong> — Format text as properly typeset chemical formulas and reactions, automatically rendering subscripts, superscripts, isotope notation, and reaction arrows. (<a href="https://github.com/posit-dev/great-tables/issues/887">#887</a>)</li>
 <li><strong><code>fmt_index()</code></strong> — Convert numeric values to alphabetical index characters (1 → “A”, 2 → “B”) with <code>"repeat"</code> and <code>"excel"</code> modes for values beyond the alphabet. (<a href="https://github.com/posit-dev/great-tables/issues/888">#888</a>)</li>
 <li><strong><code>fmt_url()</code> and <code>fmt_email()</code></strong> — Transform URLs and email addresses into clickable links with options for custom labels, button styling, and configurable colors. (<a href="https://github.com/posit-dev/great-tables/issues/891">#891</a>)</li>
-<li><strong><a href="./reference/GT.tab_style_body.html#great_tables.GT.tab_style_body" class="gdls-link gdls-code">tab_style_body()</a></strong> — Apply styles to body cells based on their data values using exact matches, regex patterns, or predicate functions, with optional expansion to entire rows or columns. (<a href="https://github.com/posit-dev/great-tables/issues/883">#883</a>)</li>
-<li><strong>Footnote specs and ordering</strong> — New <a href="./reference/GT.opt_footnote_spec.html#great_tables.GT.opt_footnote_spec" class="gdls-link gdls-code">opt_footnote_spec()</a> controls how footnote marks are styled using a compact DSL, and <a href="./reference/GT.opt_footnote_order.html#great_tables.GT.opt_footnote_order" class="gdls-link gdls-code">opt_footnote_order()</a> controls the arrangement of marked vs.&nbsp;unmarked footnotes in the footer. (<a href="https://github.com/posit-dev/great-tables/issues/884">#884</a>)</li>
-<li><strong><a href="./reference/load_dataset.html#great_tables.load_dataset" class="gdls-link gdls-code">load_dataset()</a></strong> — Load any of Great Tables’ bundled datasets as a Pandas or Polars DataFrame through a single, consistent entry point. (<a href="https://github.com/posit-dev/great-tables/issues/858">#858</a>)</li>
+<li><strong><code>tab_style_body()</code></strong> — Apply styles to body cells based on their data values using exact matches, regex patterns, or predicate functions, with optional expansion to entire rows or columns. (<a href="https://github.com/posit-dev/great-tables/issues/883">#883</a>)</li>
+<li><strong>Footnote specs and ordering</strong> — New <code>opt_footnote_spec()</code> controls how footnote marks are styled using a compact DSL, and <code>opt_footnote_order()</code> controls the arrangement of marked vs.&nbsp;unmarked footnotes in the footer. (<a href="https://github.com/posit-dev/great-tables/issues/884">#884</a>)</li>
+<li><strong><code>load_dataset()</code></strong> — Load any of Great Tables’ bundled datasets as a Pandas or Polars DataFrame through a single, consistent entry point. (<a href="https://github.com/posit-dev/great-tables/issues/858">#858</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-1" class="level3">
@@ -381,7 +381,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Options matching now uses prefix instead of substring, preventing false matches. (<a href="https://github.com/posit-dev/great-tables/issues/873">#873</a>)</li>
 <li>HTTP scheme matching is now case-insensitive. (<a href="https://github.com/posit-dev/great-tables/issues/876">#876</a>)</li>
 <li>Fractional parts are now preserved when scaling padding values. (<a href="https://github.com/posit-dev/great-tables/issues/879">#879</a>)</li>
-<li><a href="./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> is now a no-op when no columns or spanners are selected, instead of raising an error. (<a href="https://github.com/posit-dev/great-tables/issues/865">#865</a>)</li>
+<li><code>tab_spanner()</code> is now a no-op when no columns or spanners are selected, instead of raising an error. (<a href="https://github.com/posit-dev/great-tables/issues/865">#865</a>)</li>
 <li>The LSL currency symbol was corrected. (<a href="https://github.com/posit-dev/great-tables/issues/890">#890</a>)</li>
 </ul>
 </section>
@@ -395,18 +395,18 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="documentation-1">Documentation</h3>
 <ul>
 <li>Added a glossary reference page. (<a href="https://github.com/posit-dev/great-tables/issues/862">#862</a>)</li>
-<li>Added documentation for <a href="./reference/loc.footnotes.html#great_tables.loc.footnotes" class="gdls-link gdls-code">loc.footnotes()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/885">#885</a>)</li>
+<li>Added documentation for <code>loc.footnotes()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/885">#885</a>)</li>
 </ul>
 </section>
 </section>
 <section id="v0.24.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.24.0</h1>
 <p><em>2026-08-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.24.0">GitHub</a></p>
-<p>Great Tables <code>v0.24.0</code> introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to <a href="./reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.</p>
+<p>Great Tables <code>v0.24.0</code> introduces interactive tables, letting users sort, search, filter, and paginate directly in the browser. A single call to <code>opt_interactive()</code> transforms any GT table into a client-side interactive widget while preserving all existing formatting and styling.</p>
 <section id="new-features-2" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-2">New Features</h3>
 <ul>
-<li><strong>Interactive tables</strong> — The new <a href="./reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. (<a href="https://github.com/posit-dev/great-tables/issues/856">#856</a>)</li>
+<li><strong>Interactive tables</strong> — The new <code>opt_interactive()</code> method enables column sorting, global search, per-column filters, pagination, row highlighting, etc. Works well with Jupyter, Quarto, and Shiny. (<a href="https://github.com/posit-dev/great-tables/issues/856">#856</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-2" class="level3">
@@ -419,13 +419,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.23.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.23.0</h1>
 <p><em>2026-07-27</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.23.0">GitHub</a></p>
-<p>Great Tables <code>v0.23.0</code> adds new table management and formatting capabilities. This release introduces <code>rm_*()</code> methods for selectively removing table components, a <a href="./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent" class="gdls-link gdls-code">tab_stub_indent()</a> method for controlling row label hierarchy, and the <code>fmt_number_si()</code> formatter for rendering values with SI (metric) prefixes like kilo, mega, and milli. A targeted bug fix for footnote resolution on spanners is also included.</p>
+<p>Great Tables <code>v0.23.0</code> adds new table management and formatting capabilities. This release introduces <code>rm_*()</code> methods for selectively removing table components, a <code>tab_stub_indent()</code> method for controlling row label hierarchy, and the <code>fmt_number_si()</code> formatter for rendering values with SI (metric) prefixes like kilo, mega, and milli. A targeted bug fix for footnote resolution on spanners is also included.</p>
 <section id="new-features-3" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-3">New Features</h3>
 <ul>
-<li><p><strong><code>rm_*()</code> methods</strong> — New methods (<a href="./reference/GT.rm_header.html#great_tables.GT.rm_header" class="gdls-link gdls-code">rm_header()</a>, <a href="./reference/GT.rm_stubhead.html#great_tables.GT.rm_stubhead" class="gdls-link gdls-code">rm_stubhead()</a>, <a href="./reference/GT.rm_source_notes.html#great_tables.GT.rm_source_notes" class="gdls-link gdls-code">rm_source_notes()</a>, <a href="./reference/GT.rm_footnotes.html#great_tables.GT.rm_footnotes" class="gdls-link gdls-code">rm_footnotes()</a>, <a href="./reference/GT.rm_spanners.html#great_tables.GT.rm_spanners" class="gdls-link gdls-code">rm_spanners()</a>) allow selective removal of table components, making it easier to reshape tables received from other functions or saved objects. (<a href="https://github.com/posit-dev/great-tables/issues/847">#847</a>)</p></li>
-<li><p><strong><a href="./reference/GT.tab_stub_indent.html#great_tables.GT.tab_stub_indent" class="gdls-link gdls-code">tab_stub_indent()</a></strong> — Control indentation of row labels in the stub to establish visual hierarchy. Supports explicit integer levels (0–5) or <code>"increase"</code>/<code>"decrease"</code> keyword directives for fine-grained control. (<a href="https://github.com/posit-dev/great-tables/issues/849">#849</a>)</p></li>
-<li><p><strong><code>fmt_number_si()</code></strong> — Format numeric values with SI (International System of Units) prefixes, automatically selecting the appropriate prefix (e.g., k, M, G, m, µ, n) to keep values readable. Supports unit designation, engineering/decimal prefix modes, significant figures, and locale-aware formatting. Also available as <a href="./reference/vals.fmt_number_si.html#great_tables.vals.fmt_number_si" class="gdls-link gdls-code">vals.fmt_number_si()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/851">#851</a>)</p></li>
+<li><p><strong><code>rm_*()</code> methods</strong> — New methods (<code>rm_header()</code>, <code>rm_stubhead()</code>, <code>rm_source_notes()</code>, <code>rm_footnotes()</code>, <code>rm_spanners()</code>) allow selective removal of table components, making it easier to reshape tables received from other functions or saved objects. (<a href="https://github.com/posit-dev/great-tables/issues/847">#847</a>)</p></li>
+<li><p><strong><code>tab_stub_indent()</code></strong> — Control indentation of row labels in the stub to establish visual hierarchy. Supports explicit integer levels (0–5) or <code>"increase"</code>/<code>"decrease"</code> keyword directives for fine-grained control. (<a href="https://github.com/posit-dev/great-tables/issues/849">#849</a>)</p></li>
+<li><p><strong><code>fmt_number_si()</code></strong> — Format numeric values with SI (International System of Units) prefixes, automatically selecting the appropriate prefix (e.g., k, M, G, m, µ, n) to keep values readable. Supports unit designation, engineering/decimal prefix modes, significant figures, and locale-aware formatting. Also available as <code>vals.fmt_number_si()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/851">#851</a>)</p></li>
 </ul>
 </section>
 <section id="bug-fixes-3" class="level3">
@@ -438,19 +438,19 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.22.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.22.0</h1>
 <p><em>2026-06-12</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.22.0">GitHub</a></p>
-<p>Great Tables <code>v0.22.0</code> is a feature-rich release that greatly expands the formatting, text manipulation, and export capabilities of the library. Highlights include new methods for footnotes, duration formatting, parts-per notation, summary rows, and specialized column merges. A new suite of <code>text_*()</code> methods provides powerful cell-content transformations, while <a href="./reference/GT.gtsave.html#great_tables.GT.gtsave" class="gdls-link gdls-code">gtsave()</a> replaces the deprecated <code>save()</code> with a modern headless-Chrome export pipeline. LaTeX output now supports stubs, row groups, and Markdown/HTML conversion. Pandas is no longer a required dependency—Polars-only usage is fully supported.</p>
+<p>Great Tables <code>v0.22.0</code> is a feature-rich release that greatly expands the formatting, text manipulation, and export capabilities of the library. Highlights include new methods for footnotes, duration formatting, parts-per notation, summary rows, and specialized column merges. A new suite of <code>text_*()</code> methods provides powerful cell-content transformations, while <code>gtsave()</code> replaces the deprecated <code>save()</code> with a modern headless-Chrome export pipeline. LaTeX output now supports stubs, row groups, and Markdown/HTML conversion. Pandas is no longer a required dependency—Polars-only usage is fully supported.</p>
 <section id="new-features-4" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-4">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.tab_footnote.html#great_tables.GT.tab_footnote" class="gdls-link gdls-code">tab_footnote()</a></strong> — Add table footnotes with automatic, sequentially-ordered marks (symbols, numbers, or letters) attached to targeted cells. Supports placement control and styled text via <a href="./reference/md.html#great_tables.md" class="gdls-link gdls-code">md()</a> and <a href="./reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/763">#763</a>)</li>
+<li><strong><code>tab_footnote()</code></strong> — Add table footnotes with automatic, sequentially-ordered marks (symbols, numbers, or letters) attached to targeted cells. Supports placement control and styled text via <code>md()</code> and <code>html()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/763">#763</a>)</li>
 <li><strong><code>fmt_duration()</code></strong> — Format duration values in narrow (<code>5d 3h</code>), wide (<code>5 days, 3 hours</code>), colon-separated (<code>02:15:30</code>), or ISO 8601 styles. Auto-detects Polars <code>Duration</code> dtype and supports locale-aware plural forms. (<a href="https://github.com/posit-dev/great-tables/issues/831">#831</a>)</li>
 <li><strong><code>fmt_partsper()</code></strong> — Format values as parts-per quantities (per-mille ‰, ppm, ppb, ppt, and more) with automatic scaling and context-aware symbol rendering for HTML and LaTeX. (<a href="https://github.com/posit-dev/great-tables/issues/837">#837</a>)</li>
-<li><strong><a href="./reference/GT.cols_reorder.html#great_tables.GT.cols_reorder" class="gdls-link gdls-code">cols_reorder()</a></strong> — Completely rearrange all table columns in a single call, replacing multiple <code>cols_move_*()</code> invocations for full reordering. (<a href="https://github.com/posit-dev/great-tables/issues/625">#625</a>)</li>
-<li><strong><code>cols_merge_*()</code> methods</strong> — Specialized column merge variants: <a href="./reference/GT.cols_merge_uncert.html#great_tables.GT.cols_merge_uncert" class="gdls-link gdls-code">cols_merge_uncert()</a> for value ± uncertainty, <a href="./reference/GT.cols_merge_range.html#great_tables.GT.cols_merge_range" class="gdls-link gdls-code">cols_merge_range()</a> for begin–end ranges, <a href="./reference/GT.cols_merge_n_pct.html#great_tables.GT.cols_merge_n_pct" class="gdls-link gdls-code">cols_merge_n_pct()</a> for count (percent) pairs, and the generic <a href="./reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a> with pattern templating. (<a href="https://github.com/posit-dev/great-tables/issues/832">#832</a>)</li>
-<li><strong><a href="./reference/GT.summary_rows.html#great_tables.GT.summary_rows" class="gdls-link gdls-code">summary_rows()</a></strong> — Add group-wise summary rows (e.g., totals, means) above or below each row group, with support for Polars expressions and custom aggregation functions. (<a href="https://github.com/posit-dev/great-tables/issues/834">#834</a>)</li>
-<li><strong><a href="./reference/GT.text_transform.html#great_tables.GT.text_transform" class="gdls-link gdls-code">text_transform()</a> and <code>text_*()</code> methods</strong> — New text manipulation suite: <a href="./reference/GT.text_transform.html#great_tables.GT.text_transform" class="gdls-link gdls-code">text_transform()</a> for custom functions, <a href="./reference/GT.text_replace.html#great_tables.GT.text_replace" class="gdls-link gdls-code">text_replace()</a> for regex substitution, <a href="./reference/GT.text_case_match.html#great_tables.GT.text_case_match" class="gdls-link gdls-code">text_case_match()</a> for switch-like replacements, and <a href="./reference/GT.text_case_when.html#great_tables.GT.text_case_when" class="gdls-link gdls-code">text_case_when()</a> for predicate-based logic. (<a href="https://github.com/posit-dev/great-tables/issues/835">#835</a>, <a href="https://github.com/posit-dev/great-tables/issues/836">#836</a>)</li>
-<li><strong>Substitution family methods</strong> — Replace specific cell values with <a href="./reference/GT.sub_missing.html#great_tables.GT.sub_missing" class="gdls-link gdls-code">sub_missing()</a>, <a href="./reference/GT.sub_zero.html#great_tables.GT.sub_zero" class="gdls-link gdls-code">sub_zero()</a>, <a href="./reference/GT.sub_small_vals.html#great_tables.GT.sub_small_vals" class="gdls-link gdls-code">sub_small_vals()</a>, <a href="./reference/GT.sub_large_vals.html#great_tables.GT.sub_large_vals" class="gdls-link gdls-code">sub_large_vals()</a>, and <a href="./reference/GT.sub_values.html#great_tables.GT.sub_values" class="gdls-link gdls-code">sub_values()</a> for clean, readable tables. (<a href="https://github.com/posit-dev/great-tables/issues/833">#833</a>)</li>
-<li><strong><a href="./reference/GT.gtsave.html#great_tables.GT.gtsave" class="gdls-link gdls-code">gtsave()</a></strong> — Save tables to PNG, JPEG, WebP, or PDF using headless Chrome with viewport, zoom, and padding controls. Replaces the deprecated <code>save()</code> method. (<a href="https://github.com/posit-dev/great-tables/issues/841">#841</a>)</li>
+<li><strong><code>cols_reorder()</code></strong> — Completely rearrange all table columns in a single call, replacing multiple <code>cols_move_*()</code> invocations for full reordering. (<a href="https://github.com/posit-dev/great-tables/issues/625">#625</a>)</li>
+<li><strong><code>cols_merge_*()</code> methods</strong> — Specialized column merge variants: <code>cols_merge_uncert()</code> for value ± uncertainty, <code>cols_merge_range()</code> for begin–end ranges, <code>cols_merge_n_pct()</code> for count (percent) pairs, and the generic <code>cols_merge()</code> with pattern templating. (<a href="https://github.com/posit-dev/great-tables/issues/832">#832</a>)</li>
+<li><strong><code>summary_rows()</code></strong> — Add group-wise summary rows (e.g., totals, means) above or below each row group, with support for Polars expressions and custom aggregation functions. (<a href="https://github.com/posit-dev/great-tables/issues/834">#834</a>)</li>
+<li><strong><code>text_transform()</code> and <code>text_*()</code> methods</strong> — New text manipulation suite: <code>text_transform()</code> for custom functions, <code>text_replace()</code> for regex substitution, <code>text_case_match()</code> for switch-like replacements, and <code>text_case_when()</code> for predicate-based logic. (<a href="https://github.com/posit-dev/great-tables/issues/835">#835</a>, <a href="https://github.com/posit-dev/great-tables/issues/836">#836</a>)</li>
+<li><strong>Substitution family methods</strong> — Replace specific cell values with <code>sub_missing()</code>, <code>sub_zero()</code>, <code>sub_small_vals()</code>, <code>sub_large_vals()</code>, and <code>sub_values()</code> for clean, readable tables. (<a href="https://github.com/posit-dev/great-tables/issues/833">#833</a>)</li>
+<li><strong><code>gtsave()</code></strong> — Save tables to PNG, JPEG, WebP, or PDF using headless Chrome with viewport, zoom, and padding controls. Replaces the deprecated <code>save()</code> method. (<a href="https://github.com/posit-dev/great-tables/issues/841">#841</a>)</li>
 </ul>
 </section>
 <section id="enhancements-2" class="level3">
@@ -466,7 +466,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bug-fixes-4">Bug Fixes</h3>
 <ul>
 <li>Polars container dtype entries (e.g., lists) are now correctly converted in <code>_get_cell</code>. (<a href="https://github.com/posit-dev/great-tables/issues/794">#794</a>)</li>
-<li>PyArrow array slicing in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color</a> now works correctly. (<a href="https://github.com/posit-dev/great-tables/issues/741">#741</a>)</li>
+<li>PyArrow array slicing in <code>data_color</code> now works correctly. (<a href="https://github.com/posit-dev/great-tables/issues/741">#741</a>)</li>
 <li>A charset meta tag is now prepended to HTML output in <code>save()</code> for proper encoding. (<a href="https://github.com/posit-dev/great-tables/issues/823">#823</a>)</li>
 <li>Nanoplot number streams now gracefully handle <code>nan</code> values. (<a href="https://github.com/posit-dev/great-tables/issues/838">#838</a>)</li>
 <li>Removed the internal <code>NpNan</code> backend in favor of expanded normalization logic. (<a href="https://github.com/posit-dev/great-tables/issues/840">#840</a>)</li>
@@ -494,21 +494,21 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.21.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.21.0</h1>
 <p><em>2026-03-03</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.21.0">GitHub</a></p>
-<p>This release adds <a href="./reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a> for combining cell contents across columns, <a href="./reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a> for function-based relabeling, <code>fmt_engineering()</code> for engineering notation, and <a href="./reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> for injecting custom CSS rules.</p>
+<p>This release adds <code>cols_merge()</code> for combining cell contents across columns, <code>cols_label_with()</code> for function-based relabeling, <code>fmt_engineering()</code> for engineering notation, and <code>opt_css()</code> for injecting custom CSS rules.</p>
 <section id="deprecations-1" class="level3">
 <h3 class="anchored" data-anchor-id="deprecations-1">Deprecations</h3>
 <ul>
-<li><a href="./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> now uses <a href="./reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels</a>, <a href="./reference/loc.stub.html#great_tables.loc.stub" class="gdls-link gdls-code">loc.stub</a>, and <a href="./reference/loc.row_groups.html#great_tables.loc.row_groups" class="gdls-link gdls-code">loc.row_groups</a> for the <code>locations=</code> argument. String-based locations still work but trigger a deprecation warning. (<a href="https://github.com/posit-dev/great-tables/issues/436">#436</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><code>opt_all_caps()</code> now uses <code>loc.column_labels</code>, <code>loc.stub</code>, and <code>loc.row_groups</code> for the <code>locations=</code> argument. String-based locations still work but trigger a deprecation warning. (<a href="https://github.com/posit-dev/great-tables/issues/436">#436</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
 <section id="new-features-5" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-5">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a> method</strong> — Combine cell contents across two or more columns using format patterns. (<a href="https://github.com/posit-dev/great-tables/issues/780">#780</a>)</li>
-<li><strong><a href="./reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a> method</strong> — Relabel columns using a function (e.g., <code>str.upper</code>, <code>str.replace</code>). (<a href="https://github.com/posit-dev/great-tables/issues/816">#816</a>)</li>
+<li><strong><code>cols_merge()</code> method</strong> — Combine cell contents across two or more columns using format patterns. (<a href="https://github.com/posit-dev/great-tables/issues/780">#780</a>)</li>
+<li><strong><code>cols_label_with()</code> method</strong> — Relabel columns using a function (e.g., <code>str.upper</code>, <code>str.replace</code>). (<a href="https://github.com/posit-dev/great-tables/issues/816">#816</a>)</li>
 <li><strong><code>fmt_engineering()</code> method</strong> — Format values in engineering notation (exponents that are multiples of 3). (<a href="https://github.com/posit-dev/great-tables/issues/786">#786</a>)</li>
-<li><strong><a href="./reference/GT.opt_css.html#great_tables.GT.opt_css" class="gdls-link gdls-code">opt_css()</a> method</strong> — Define arbitrary CSS rules for an HTML table. (<a href="https://github.com/posit-dev/great-tables/issues/775">#775</a>)</li>
-<li><strong>Container padding in <a href="./reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a></strong> — Set padding around the table container element. (<a href="https://github.com/posit-dev/great-tables/issues/802">#802</a>, <a href="https://github.com/thriller08"><span class="citation" data-cites="thriller08">@thriller08</span></a>)</li>
+<li><strong><code>opt_css()</code> method</strong> — Define arbitrary CSS rules for an HTML table. (<a href="https://github.com/posit-dev/great-tables/issues/775">#775</a>)</li>
+<li><strong>Container padding in <code>tab_options()</code></strong> — Set padding around the table container element. (<a href="https://github.com/posit-dev/great-tables/issues/802">#802</a>, <a href="https://github.com/thriller08"><span class="citation" data-cites="thriller08">@thriller08</span></a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-5" class="level3">
@@ -517,7 +517,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Refactored internal auto-align code for Pandas 3.0.0 compatibility. (<a href="https://github.com/posit-dev/great-tables/issues/810">#810</a>)</li>
 <li>Added <code>int</code> to the <code>RowSelectExpr</code> type definition. (<a href="https://github.com/posit-dev/great-tables/issues/800">#800</a>, <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a>)</li>
 <li>Updated the Polars selector type annotation to use <code>Selector</code>. (<a href="https://github.com/posit-dev/great-tables/issues/770">#770</a>, <a href="https://github.com/schmidma"><span class="citation" data-cites="schmidma">@schmidma</span></a>)</li>
-<li>Annotated the <a href="./reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> method’s first argument type as <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a>. (<a href="https://github.com/posit-dev/great-tables/issues/757">#757</a>, <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a>)</li>
+<li>Annotated the <code>pipe()</code> method’s first argument type as <code>GT</code>. (<a href="https://github.com/posit-dev/great-tables/issues/757">#757</a>, <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a>)</li>
 <li><code>interactive_data_values=</code> is now handled correctly in nanoplots. (<a href="https://github.com/posit-dev/great-tables/issues/792">#792</a>, <a href="https://github.com/lorenzo-w"><span class="citation" data-cites="lorenzo-w">@lorenzo-w</span></a>)</li>
 <li>Group labels are now properly modified when <code>render_formats()</code> is called. (<a href="https://github.com/posit-dev/great-tables/issues/769">#769</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 </ul>
@@ -526,10 +526,10 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="documentation-3">Documentation</h3>
 <ul>
 <li>Added docs for <code>val_fmt_engineering()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/808">#808</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Corrected the <code>fns=</code> parameter docs in <a href="./reference/GT.fmt.html#great_tables.GT.fmt" class="gdls-link gdls-code">fmt()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/818">#818</a>)</li>
-<li>Improved docs for the <a href="./reference/from_column.html#great_tables.from_column" class="gdls-link gdls-code">from_column()</a> function. (<a href="https://github.com/posit-dev/great-tables/issues/766">#766</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Corrected the <code>fns=</code> parameter docs in <code>fmt()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/818">#818</a>)</li>
+<li>Improved docs for the <code>from_column()</code> function. (<a href="https://github.com/posit-dev/great-tables/issues/766">#766</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Added a gt-extras example to the Examples page. (<a href="https://github.com/posit-dev/great-tables/issues/759">#759</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
-<li>Added an example demonstrating <a href="./reference/define_units.html#great_tables.define_units" class="gdls-link gdls-code">define_units()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/446">#446</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Added an example demonstrating <code>define_units()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/446">#446</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
 <section id="internal" class="level3">
@@ -538,7 +538,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Updated copyright end year to 2026. (<a href="https://github.com/posit-dev/great-tables/issues/804">#804</a>)</li>
 <li>Fixed several typos. (<a href="https://github.com/posit-dev/great-tables/issues/798">#798</a>, <a href="https://github.com/kianmeng"><span class="citation" data-cites="kianmeng">@kianmeng</span></a>)</li>
 <li>Added Plausible analytics to the project website. (<a href="https://github.com/posit-dev/great-tables/issues/806">#806</a>)</li>
-<li>Added tests for <a href="./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/812">#812</a>)</li>
+<li>Added tests for <code>opt_all_caps()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/812">#812</a>)</li>
 <li>Fixed the checkout version tag in CI. (<a href="https://github.com/posit-dev/great-tables/issues/768">#768</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 </ul>
 </section>
@@ -555,11 +555,11 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.20.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.20.0</h1>
 <p><em>2025-10-31</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.20.0">GitHub</a></p>
-<p>This release adds the <a href="./reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows" class="gdls-link gdls-code">grand_summary_rows()</a> method for table-wide aggregation rows and Polars expression support in <code>vals</code> functions.</p>
+<p>This release adds the <code>grand_summary_rows()</code> method for table-wide aggregation rows and Polars expression support in <code>vals</code> functions.</p>
 <section id="new-features-6" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-6">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.grand_summary_rows.html#great_tables.GT.grand_summary_rows" class="gdls-link gdls-code">grand_summary_rows()</a> method</strong> — Add summary rows at the bottom of the entire table for grand totals and other aggregate statistics. (<a href="https://github.com/posit-dev/great-tables/issues/765">#765</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
+<li><strong><code>grand_summary_rows()</code> method</strong> — Add summary rows at the bottom of the entire table for grand totals and other aggregate statistics. (<a href="https://github.com/posit-dev/great-tables/issues/765">#765</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 <li><strong>Polars expressions in <code>vals</code> functions</strong> — The <code>vals</code> module now accepts Polars expressions for more flexible value formatting. (<a href="https://github.com/posit-dev/great-tables/issues/793">#793</a>)</li>
 </ul>
 </section>
@@ -567,7 +567,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.19.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.19.0</h1>
 <p><em>2025-10-07</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.19.0">GitHub</a></p>
-<p>This release removes NumPy from the dependencies list, fixes <code>row_group_as_column</code> to work as intended, and improves color contrast in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> and row striping.</p>
+<p>This release removes NumPy from the dependencies list, fixes <code>row_group_as_column</code> to work as intended, and improves color contrast in <code>data_color()</code> and row striping.</p>
 <section id="enhancements-3" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-3">Enhancements</h3>
 <ul>
@@ -579,8 +579,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="bug-fixes-6" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-6">Bug Fixes</h3>
 <ul>
-<li>Fixed an error when setting <code>groupname_col=</code> without <code>rowname_col=</code> in the <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> constructor. (<a href="https://github.com/posit-dev/great-tables/issues/756">#756</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now accounts for the alpha value of cell background colors when choosing foreground text color. (<a href="https://github.com/posit-dev/great-tables/issues/747">#747</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
+<li>Fixed an error when setting <code>groupname_col=</code> without <code>rowname_col=</code> in the <code>GT</code> constructor. (<a href="https://github.com/posit-dev/great-tables/issues/756">#756</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
+<li><code>data_color()</code> now accounts for the alpha value of cell background colors when choosing foreground text color. (<a href="https://github.com/posit-dev/great-tables/issues/747">#747</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 <li>Row striping now has better color contrast between text and the cell background. (<a href="https://github.com/posit-dev/great-tables/issues/745">#745</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 <li>Column names are now accessed consistently via <code>get_column_names()</code> instead of <code>.columns</code>. (<a href="https://github.com/posit-dev/great-tables/issues/736">#736</a>, <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a>)</li>
 <li>Avoided double use of <code>clear</code> internally with Polars DataFrames. (<a href="https://github.com/posit-dev/great-tables/issues/729">#729</a>, <a href="https://github.com/FBruzzesi"><span class="citation" data-cites="FBruzzesi">@FBruzzesi</span></a>)</li>
@@ -609,32 +609,32 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.18.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.18.0</h1>
 <p><em>2025-07-10</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.18.0">GitHub</a></p>
-<p>This release introduces <a href="./reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a> for automatic spanner creation from delimited column names, rotatable column labels, boolean formatting with <a href="./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a>, and custom datetime format strings. Tables can now be pickled for serialization.</p>
+<p>This release introduces <code>tab_spanner_delim()</code> for automatic spanner creation from delimited column names, rotatable column labels, boolean formatting with <code>fmt_tf()</code>, and custom datetime format strings. Tables can now be pickled for serialization.</p>
 <section id="new-features-7" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-7">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a> method</strong> — Automatically create column spanners by splitting column names on a delimiter. (<a href="https://github.com/posit-dev/great-tables/issues/647">#647</a>)</li>
-<li><strong><a href="./reference/GT.cols_label_rotate.html#great_tables.GT.cols_label_rotate" class="gdls-link gdls-code">cols_label_rotate()</a> method</strong> — Rotate column label text 90 degrees for compact headers. (<a href="https://github.com/posit-dev/great-tables/issues/696">#696</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
-<li><strong><a href="./reference/GT.fmt_tf.html#great_tables.GT.fmt_tf" class="gdls-link gdls-code">fmt_tf()</a> method</strong> — Format boolean values with customizable true/false representations. (<a href="https://github.com/posit-dev/great-tables/issues/665">#665</a>, <a href="https://github.com/posit-dev/great-tables/issues/704">#704</a>)</li>
+<li><strong><code>tab_spanner_delim()</code> method</strong> — Automatically create column spanners by splitting column names on a delimiter. (<a href="https://github.com/posit-dev/great-tables/issues/647">#647</a>)</li>
+<li><strong><code>cols_label_rotate()</code> method</strong> — Rotate column label text 90 degrees for compact headers. (<a href="https://github.com/posit-dev/great-tables/issues/696">#696</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
+<li><strong><code>fmt_tf()</code> method</strong> — Format boolean values with customizable true/false representations. (<a href="https://github.com/posit-dev/great-tables/issues/665">#665</a>, <a href="https://github.com/posit-dev/great-tables/issues/704">#704</a>)</li>
 <li><strong>Custom datetime format strings</strong> — <code>fmt_datetime()</code> now accepts a <code>format_str=</code> parameter for arbitrary datetime formatting. (<a href="https://github.com/posit-dev/great-tables/issues/645">#645</a>)</li>
 <li><strong>Pickle support</strong> — GT tables can now be serialized with <code>pickle</code>. (<a href="https://github.com/posit-dev/great-tables/issues/641">#641</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li><strong>Compact currency formatting</strong> — <code>fmt_currency()</code> gained a <code>compact=</code> parameter (e.g., <code>$13.4M</code>). (<a href="https://github.com/posit-dev/great-tables/issues/664">#664</a>)</li>
-<li><strong><code>truncate=</code> option in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a></strong> — Truncate values to the domain bounds instead of erroring on out-of-range data. (<a href="https://github.com/posit-dev/great-tables/issues/673">#673</a>, <a href="https://github.com/mahdibaghbanzadeh"><span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span></a>)</li>
+<li><strong><code>truncate=</code> option in <code>data_color()</code></strong> — Truncate values to the domain bounds instead of erroring on out-of-range data. (<a href="https://github.com/posit-dev/great-tables/issues/673">#673</a>, <a href="https://github.com/mahdibaghbanzadeh"><span class="citation" data-cites="mahdibaghbanzadeh">@mahdibaghbanzadeh</span></a>)</li>
 </ul>
 </section>
 <section id="enhancements-4" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-4">Enhancements</h3>
 <ul>
-<li>Removed the Pandas dependency from <a href="./reference/vals.fmt_integer.html#great_tables.vals.fmt_integer" class="gdls-link gdls-code">vals.fmt_integer()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/719">#719</a>)</li>
+<li>Removed the Pandas dependency from <code>vals.fmt_integer()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/719">#719</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-7" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-7">Bug Fixes</h3>
 <ul>
-<li>Fixed an off-by-one bug in <code>rescale_factor()</code> that affected <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> output. (<a href="https://github.com/posit-dev/great-tables/issues/718">#718</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
+<li>Fixed an off-by-one bug in <code>rescale_factor()</code> that affected <code>data_color()</code> output. (<a href="https://github.com/posit-dev/great-tables/issues/718">#718</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
 <li>Google Fonts import statements are no longer duplicated in HTML output. (<a href="https://github.com/posit-dev/great-tables/issues/708">#708</a>)</li>
 <li>Fixed row striping applying to incorrect rows due to an indexing issue. (<a href="https://github.com/posit-dev/great-tables/issues/701">#701</a>, <a href="https://github.com/juleswg23"><span class="citation" data-cites="juleswg23">@juleswg23</span></a>)</li>
-<li>Spanners can now be correctly styled with <a href="./reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/695">#695</a>, <a href="https://github.com/ChristopherRussell"><span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span></a>)</li>
+<li>Spanners can now be correctly styled with <code>tab_style()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/695">#695</a>, <a href="https://github.com/ChristopherRussell"><span class="citation" data-cites="ChristopherRussell">@ChristopherRussell</span></a>)</li>
 <li>Removed unused <code>sep_mark=</code> parameter from <code>fmt_scientific()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/642">#642</a>)</li>
 </ul>
 </section>
@@ -642,12 +642,12 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="documentation-5">Documentation</h3>
 <ul>
 <li>Added note about using <code>.show("browser")</code> in VS Code. (<a href="https://github.com/posit-dev/great-tables/issues/643">#643</a>)</li>
-<li>Suppressed a <a href="./reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> warning that appeared in the docs. (<a href="https://github.com/posit-dev/great-tables/issues/659">#659</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Suppressed a <code>cols_width()</code> warning that appeared in the docs. (<a href="https://github.com/posit-dev/great-tables/issues/659">#659</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Updated docstrings for date/time formatting methods. (<a href="https://github.com/posit-dev/great-tables/issues/658">#658</a>)</li>
 <li>Improved interlinking with quartodoc. (<a href="https://github.com/posit-dev/great-tables/issues/697">#697</a>)</li>
 <li>Added underline to active link in top navigation bar. (<a href="https://github.com/posit-dev/great-tables/issues/706">#706</a>)</li>
-<li>Improved documentation for <a href="./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/707">#707</a>)</li>
-<li>Better introduction of the <a href="./reference/GT.show.html#great_tables.GT.show" class="gdls-link gdls-code">show()</a> method via a callout. (<a href="https://github.com/posit-dev/great-tables/issues/712">#712</a>)</li>
+<li>Improved documentation for <code>as_raw_html()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/707">#707</a>)</li>
+<li>Better introduction of the <code>show()</code> method via a callout. (<a href="https://github.com/posit-dev/great-tables/issues/712">#712</a>)</li>
 </ul>
 </section>
 <section id="internal-2" class="level3">
@@ -669,7 +669,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.17.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.17.0</h1>
 <p><em>2025-03-11</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.17.0">GitHub</a></p>
-<p>This release adds Quarto integration with a table-processing disable option, a new <a href="./reference/GT.cols_unhide.html#great_tables.GT.cols_unhide" class="gdls-link gdls-code">cols_unhide()</a> method, and ensures unique HTML ID attributes for tables. The <code>css-inline</code> package is now an optional extra.</p>
+<p>This release adds Quarto integration with a table-processing disable option, a new <code>cols_unhide()</code> method, and ensures unique HTML ID attributes for tables. The <code>css-inline</code> package is now an optional extra.</p>
 <section id="breaking-changes-1" class="level3">
 <h3 class="anchored" data-anchor-id="breaking-changes-1">Breaking Changes</h3>
 <ul>
@@ -681,7 +681,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="new-features-8">New Features</h3>
 <ul>
 <li><strong>Quarto table-processing option</strong> — Disable Quarto’s default table processing and receive a warning on render when needed. (<a href="https://github.com/posit-dev/great-tables/issues/611">#611</a>)</li>
-<li><strong><a href="./reference/GT.cols_unhide.html#great_tables.GT.cols_unhide" class="gdls-link gdls-code">cols_unhide()</a> method</strong> — Reveal previously hidden columns. (<a href="https://github.com/posit-dev/great-tables/issues/629">#629</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><strong><code>cols_unhide()</code> method</strong> — Reveal previously hidden columns. (<a href="https://github.com/posit-dev/great-tables/issues/629">#629</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li><strong><code>inline_css=</code> argument</strong> — Inline CSS directly on table elements for constrained output contexts. (<a href="https://github.com/posit-dev/great-tables/issues/633">#633</a>, <a href="https://github.com/tylerriccio33"><span class="citation" data-cites="tylerriccio33">@tylerriccio33</span></a>)</li>
 </ul>
 </section>
@@ -698,10 +698,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-6" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-6">Documentation</h3>
 <ul>
-<li>Updated docs for the <code>mask=</code> parameter in <a href="./reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/589">#589</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Updated the preview of the <code>year</code> column in the <a href="./reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset. (<a href="https://github.com/posit-dev/great-tables/issues/587">#587</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Updated docs for the <code>mask=</code> parameter in <code>loc.body()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/589">#589</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Updated the preview of the <code>year</code> column in the <code>gtcars</code> dataset. (<a href="https://github.com/posit-dev/great-tables/issues/587">#587</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Added examples to the documentation. (<a href="https://github.com/posit-dev/great-tables/issues/618">#618</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Added <a href="./reference/style.css.html#great_tables.style.css" class="gdls-link gdls-code">style.css</a> entry to the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/624">#624</a>)</li>
+<li>Added <code>style.css</code> entry to the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/624">#624</a>)</li>
 <li>Aligned the <em>Getting Started</em> guide with the README. (<a href="https://github.com/posit-dev/great-tables/issues/627">#627</a>, <a href="https://github.com/zachvalenta"><span class="citation" data-cites="zachvalenta">@zachvalenta</span></a>)</li>
 </ul>
 </section>
@@ -727,25 +727,25 @@ ul.task-list li input[type="checkbox"] {
 <section id="bug-fixes-9" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-9">Bug Fixes</h3>
 <ul>
-<li>Updated the <code>year</code> column dtype in the <a href="./reference/data.gtcars.html#great_tables.data.gtcars" class="gdls-link gdls-code">gtcars</a> dataset. (<a href="https://github.com/posit-dev/great-tables/issues/586">#586</a>)</li>
+<li>Updated the <code>year</code> column dtype in the <code>gtcars</code> dataset. (<a href="https://github.com/posit-dev/great-tables/issues/586">#586</a>)</li>
 </ul>
 </section>
 </section>
 <section id="v0.16.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.16.0</h1>
 <p><em>2025-01-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.16.0">GitHub</a></p>
-<p>This release introduces the <code>mask=</code> argument for enhanced body cell targeting and a <a href="./reference/GT.write_raw_html.html#great_tables.GT.write_raw_html" class="gdls-link gdls-code">write_raw_html()</a> helper for convenient HTML file output.</p>
+<p>This release introduces the <code>mask=</code> argument for enhanced body cell targeting and a <code>write_raw_html()</code> helper for convenient HTML file output.</p>
 <section id="new-features-9" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-9">New Features</h3>
 <ul>
-<li><strong><code>mask=</code> argument in <a href="./reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a></strong> — Target specific body cells using a boolean mask for more flexible styling and formatting. (<a href="https://github.com/posit-dev/great-tables/issues/566">#566</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li><strong><a href="./reference/GT.write_raw_html.html#great_tables.GT.write_raw_html" class="gdls-link gdls-code">write_raw_html()</a> helper</strong> — Write table HTML output directly to a file without manual string handling. (<a href="https://github.com/posit-dev/great-tables/issues/485">#485</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><strong><code>mask=</code> argument in <code>loc.body()</code></strong> — Target specific body cells using a boolean mask for more flexible styling and formatting. (<a href="https://github.com/posit-dev/great-tables/issues/566">#566</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><strong><code>write_raw_html()</code> helper</strong> — Write table HTML output directly to a file without manual string handling. (<a href="https://github.com/posit-dev/great-tables/issues/485">#485</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-10" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-10">Bug Fixes</h3>
 <ul>
-<li>Fixed a deprecation warning in <a href="./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> for Python 3.13. (<a href="https://github.com/posit-dev/great-tables/issues/563">#563</a>, <a href="https://github.com/stinodego"><span class="citation" data-cites="stinodego">@stinodego</span></a>)</li>
+<li>Fixed a deprecation warning in <code>as_raw_html()</code> for Python 3.13. (<a href="https://github.com/posit-dev/great-tables/issues/563">#563</a>, <a href="https://github.com/stinodego"><span class="citation" data-cites="stinodego">@stinodego</span></a>)</li>
 <li>Nanoplots now support the <code>pl.UInt</code> type. (<a href="https://github.com/posit-dev/great-tables/issues/577">#577</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
@@ -767,16 +767,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.15.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.15.0</h1>
 <p><em>2024-12-14</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.15.0">GitHub</a></p>
-<p>This release brings several new formatting methods (<a href="./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> for country flags, <a href="./reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> for FontAwesome icons), and accounting notation in numeric formatters. PyArrow tables are now experimentally supported as input, <a href="./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a> can inline CSS, and the new <a href="./reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> method enables functional composition in table-building pipelines.</p>
+<p>This release brings several new formatting methods (<code>fmt_flag()</code> for country flags, <code>fmt_icon()</code> for FontAwesome icons), and accounting notation in numeric formatters. PyArrow tables are now experimentally supported as input, <code>as_raw_html()</code> can inline CSS, and the new <code>pipe()</code> method enables functional composition in table-building pipelines.</p>
 <section id="new-features-10" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-10">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.fmt_flag.html#great_tables.GT.fmt_flag" class="gdls-link gdls-code">fmt_flag()</a> method</strong> — Display country flag icons in table cells based on country codes. (<a href="https://github.com/posit-dev/great-tables/issues/523">#523</a>)</li>
-<li><strong><a href="./reference/GT.fmt_icon.html#great_tables.GT.fmt_icon" class="gdls-link gdls-code">fmt_icon()</a> method</strong> — Render FontAwesome icons within table cells. (<a href="https://github.com/posit-dev/great-tables/issues/515">#515</a>)</li>
+<li><strong><code>fmt_flag()</code> method</strong> — Display country flag icons in table cells based on country codes. (<a href="https://github.com/posit-dev/great-tables/issues/523">#523</a>)</li>
+<li><strong><code>fmt_icon()</code> method</strong> — Render FontAwesome icons within table cells. (<a href="https://github.com/posit-dev/great-tables/issues/515">#515</a>)</li>
 <li><strong>Accounting notation</strong> — <code>fmt_number()</code>, <code>fmt_percent()</code>, <code>fmt_integer()</code>, and <code>fmt_currency()</code> now support accounting notation for negative values. (<a href="https://github.com/posit-dev/great-tables/issues/513">#513</a>)</li>
 <li><strong>PyArrow table support (experimental)</strong> — Use a <code>pyarrow.Table</code> as input data. (<a href="https://github.com/posit-dev/great-tables/issues/487">#487</a>, <a href="https://github.com/amol"><span class="citation" data-cites="amol">@amol</span></a>-)</li>
-<li><strong>Inline CSS in <a href="./reference/GT.as_raw_html.html#great_tables.GT.as_raw_html" class="gdls-link gdls-code">as_raw_html()</a></strong> — New <code>inline_css=</code> argument writes CSS-inlined HTML strings for email and other constrained environments. (<a href="https://github.com/posit-dev/great-tables/issues/557">#557</a>)</li>
-<li><strong><a href="./reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> method</strong> — Chain custom functions in a table pipeline, similar to the Pandas and Polars <a href="./reference/GT.pipe.html#great_tables.GT.pipe" class="gdls-link gdls-code">pipe()</a> APIs. (<a href="https://github.com/posit-dev/great-tables/issues/363">#363</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><strong>Inline CSS in <code>as_raw_html()</code></strong> — New <code>inline_css=</code> argument writes CSS-inlined HTML strings for email and other constrained environments. (<a href="https://github.com/posit-dev/great-tables/issues/557">#557</a>)</li>
+<li><strong><code>pipe()</code> method</strong> — Chain custom functions in a table pipeline, similar to the Pandas and Polars <code>pipe()</code> APIs. (<a href="https://github.com/posit-dev/great-tables/issues/363">#363</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li><strong>Enhanced <code>save()</code> method</strong> — Now supports intermediate saves by returning <code>self</code>, enabling chained workflows. (<a href="https://github.com/posit-dev/great-tables/issues/499">#499</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li><strong>HTTP/HTTPS support in <code>fmt_image()</code></strong> — The <code>columns=</code> parameter now supports URLs with <code>http</code>/<code>https</code> schemes. (<a href="https://github.com/posit-dev/great-tables/issues/520">#520</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
@@ -796,7 +796,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Updated README with conda install instructions and usage environment details. (<a href="https://github.com/posit-dev/great-tables/issues/552">#552</a>)</li>
 <li>Improved presentation of Contributing Guidelines. (<a href="https://github.com/posit-dev/great-tables/issues/550">#550</a>)</li>
 <li>Added information about Pandas requirement when using internal datasets. (<a href="https://github.com/posit-dev/great-tables/issues/549">#549</a>, <a href="https://github.com/posit-dev/great-tables/issues/559">#559</a>)</li>
-<li>Included <a href="./reference/vals.fmt_image.html#great_tables.vals.fmt_image" class="gdls-link gdls-code">vals.fmt_image()</a> in the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/486">#486</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Included <code>vals.fmt_image()</code> in the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/486">#486</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Fixed spelling in the contributing guide. (<a href="https://github.com/posit-dev/great-tables/issues/516">#516</a>, <a href="https://github.com/glemaitre"><span class="citation" data-cites="glemaitre">@glemaitre</span></a>)</li>
 </ul>
 </section>
@@ -859,8 +859,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-10" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-10">Documentation</h3>
 <ul>
-<li>Added <a href="./reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper to the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/464">#464</a>, <a href="https://github.com/posit-dev/great-tables/issues/471">#471</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Updated docs and code to support <code>GoogleFont</code> in <a href="./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/470">#470</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Added <code>google_font()</code> helper to the API reference. (<a href="https://github.com/posit-dev/great-tables/issues/464">#464</a>, <a href="https://github.com/posit-dev/great-tables/issues/471">#471</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Updated docs and code to support <code>GoogleFont</code> in <code>opt_table_font()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/470">#470</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Added docstrings for new location methods. (<a href="https://github.com/posit-dev/great-tables/issues/474">#474</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Fixed deprecated warning for <code>pl.DataFrame.pivot()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/472">#472</a>)</li>
 <li>GT members are no longer documented inline on the reference page. (<a href="https://github.com/posit-dev/great-tables/issues/475">#475</a>)</li>
@@ -870,19 +870,19 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.12.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.12.0</h1>
 <p><em>2024-09-27</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.12.0">GitHub</a></p>
-<p>This release adds Google Fonts integration and row striping support, with <a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> now producing striped tables by default.</p>
+<p>This release adds Google Fonts integration and row striping support, with <code>opt_stylize()</code> now producing striped tables by default.</p>
 <section id="breaking-changes-2" class="level3">
 <h3 class="anchored" data-anchor-id="breaking-changes-2">Breaking Changes</h3>
 <ul>
-<li><a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> now produces row stripes by default. Set <code>add_row_striping=False</code> to remove them. (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>)</li>
-<li><a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> now adds borders to certain styles, matching the original design intent. (<a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
+<li><code>opt_stylize()</code> now produces row stripes by default. Set <code>add_row_striping=False</code> to remove them. (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>)</li>
+<li><code>opt_stylize()</code> now adds borders to certain styles, matching the original design intent. (<a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
 </ul>
 </section>
 <section id="new-features-13" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-13">New Features</h3>
 <ul>
-<li><strong><a href="./reference/google_font.html#great_tables.google_font" class="gdls-link gdls-code">google_font()</a> helper</strong> — Easily use Google Fonts in <a href="./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> and <a href="./reference/style.text.html#great_tables.style.text" class="gdls-link gdls-code">style.text()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/423">#423</a>)</li>
-<li><strong>Row striping options</strong> — Configure row striping behavior through <a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> and related options. (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>, <a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
+<li><strong><code>google_font()</code> helper</strong> — Easily use Google Fonts in <code>opt_table_font()</code> and <code>style.text()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/423">#423</a>)</li>
+<li><strong>Row striping options</strong> — Configure row striping behavior through <code>opt_stylize()</code> and related options. (<a href="https://github.com/posit-dev/great-tables/issues/461">#461</a>, <a href="https://github.com/posit-dev/great-tables/issues/463">#463</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-13" class="level3">
@@ -906,7 +906,7 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li>Do not error when URL string supplied to <code>path=</code> argument in <code>fmt_image()</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/444</li>
 <li>Include an <code>encoding=</code> arg in <code>GT.save()</code> (with default <code>"utf-8"</code>) for more dependable saving in Windows by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/454</li>
-<li>Unify the method signatures of <a href="./reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">cols_label()</a> and <a href="./reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> by having them both accept <code>cases=</code> and <code>**kwargs</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/452</li>
+<li>Unify the method signatures of <code>cols_label()</code> and <code>cols_width()</code> by having them both accept <code>cases=</code> and <code>**kwargs</code> by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/452</li>
 </ul>
 </section>
 <section id="chores" class="level2">
@@ -923,9 +923,9 @@ ul.task-list li input[type="checkbox"] {
 <section id="docs" class="level2">
 <h2 class="anchored" data-anchor-id="docs">Docs</h2>
 <ul>
-<li>Update import statement in the <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">GT.data_color()</a> example by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/432</li>
-<li>Indicate that <a href="./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> allows for use of units notation in its <code>label=</code> argument by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/426</li>
-<li>Visually document options for theming table with <a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/438</li>
+<li>Update import statement in the <code>GT.data_color()</code> example by <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a> in https://github.com/posit-dev/great-tables/pull/432</li>
+<li>Indicate that <code>tab_spanner()</code> allows for use of units notation in its <code>label=</code> argument by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/426</li>
+<li>Visually document options for theming table with <code>opt_stylize()</code> by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/438</li>
 <li>Provide updates to PyCon- and SciPy-related blog posts by <a href="https://github.com/rich-iannone"><span class="citation" data-cites="rich-iannone">@rich-iannone</span></a> in https://github.com/posit-dev/great-tables/pull/445</li>
 </ul>
 <p><strong>Full Changelog</strong>: <a href="https://github.com/posit-dev/great-tables/compare/v0.11.0...v0.11.1">https://github.com/posit-dev/great-tables/compare/v0.11.0…v0.11.1</a></p>
@@ -968,13 +968,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.10.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.10.0</h1>
 <p><em>2024-07-08</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.10.0">GitHub</a></p>
-<p>This release adds units notation support in column labels and spanners, a new <a href="./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> method, the <code>.show()</code> method for interactive display, and several new built-in datasets.</p>
+<p>This release adds units notation support in column labels and spanners, a new <code>opt_table_font()</code> method, the <code>.show()</code> method for interactive display, and several new built-in datasets.</p>
 <section id="new-features-14" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-14">New Features</h3>
 <ul>
-<li><strong>Units notation in <a href="./reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">cols_label()</a></strong> — Express measurement units directly in column labels using the units notation syntax. (<a href="https://github.com/posit-dev/great-tables/issues/380">#380</a>)</li>
-<li><strong>Units notation in <a href="./reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a></strong> — Spanner labels can also use units notation for scientific and technical headers. (<a href="https://github.com/posit-dev/great-tables/issues/393">#393</a>)</li>
-<li><strong><a href="./reference/GT.opt_table_font.html#great_tables.GT.opt_table_font" class="gdls-link gdls-code">opt_table_font()</a> method</strong> — Easily set a default font for the entire table. (<a href="https://github.com/posit-dev/great-tables/issues/272">#272</a>)</li>
+<li><strong>Units notation in <code>cols_label()</code></strong> — Express measurement units directly in column labels using the units notation syntax. (<a href="https://github.com/posit-dev/great-tables/issues/380">#380</a>)</li>
+<li><strong>Units notation in <code>tab_spanner()</code></strong> — Spanner labels can also use units notation for scientific and technical headers. (<a href="https://github.com/posit-dev/great-tables/issues/393">#393</a>)</li>
+<li><strong><code>opt_table_font()</code> method</strong> — Easily set a default font for the entire table. (<a href="https://github.com/posit-dev/great-tables/issues/272">#272</a>)</li>
 <li><strong><code>.show()</code> method</strong> — Display a table interactively in notebooks and other environments. (<a href="https://github.com/posit-dev/great-tables/issues/379">#379</a>)</li>
 <li><strong>New datasets</strong> — Several new built-in datasets added, bringing the total to 16. (<a href="https://github.com/posit-dev/great-tables/issues/382">#382</a>)</li>
 </ul>
@@ -1004,41 +1004,41 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.9.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.9.0</h1>
 <p><em>2024-06-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.9.0">GitHub</a></p>
-<p>This release adds row subsetting to <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>, allowing color scales to be applied to specific rows.</p>
+<p>This release adds row subsetting to <code>data_color()</code>, allowing color scales to be applied to specific rows.</p>
 <section id="new-features-15" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-15">New Features</h3>
 <ul>
-<li><strong>Row selection in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a></strong> — A <code>rows=</code> argument enables applying color scales to a subset of rows rather than the entire column. (<a href="https://github.com/posit-dev/great-tables/issues/364">#364</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><strong>Row selection in <code>data_color()</code></strong> — A <code>rows=</code> argument enables applying color scales to a subset of rows rather than the entire column. (<a href="https://github.com/posit-dev/great-tables/issues/364">#364</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
 <section id="breaking-changes-4" class="level3">
 <h3 class="anchored" data-anchor-id="breaking-changes-4">Breaking Changes</h3>
 <ul>
-<li>The <code>rows=</code> parameter is now the third positional argument in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>, which may break code that relied on positional argument order.</li>
+<li>The <code>rows=</code> parameter is now the third positional argument in <code>data_color()</code>, which may break code that relied on positional argument order.</li>
 </ul>
 </section>
 </section>
 <section id="v0.8.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.8.0</h1>
 <p><em>2024-06-06</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.8.0">GitHub</a></p>
-<p>This release adds method equivalents for several constructor options, allowing them to be set in a chained pipeline rather than only at <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a> instantiation.</p>
+<p>This release adds method equivalents for several constructor options, allowing them to be set in a chained pipeline rather than only at <code>GT()</code> instantiation.</p>
 <section id="new-features-16" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-16">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.tab_stub.html#great_tables.GT.tab_stub" class="gdls-link gdls-code">GT.tab_stub()</a></strong> — Set <code>rowname_col=</code> and <code>groupname_col=</code> as a method call instead of only in the <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a> constructor. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
-<li><strong><a href="./reference/GT.with_locale.html#great_tables.GT.with_locale" class="gdls-link gdls-code">GT.with_locale()</a></strong> — Set the locale after construction. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
-<li><strong><a href="./reference/GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">GT.with_id()</a></strong> — Set the table ID after construction. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
+<li><strong><code>GT.tab_stub()</code></strong> — Set <code>rowname_col=</code> and <code>groupname_col=</code> as a method call instead of only in the <code>GT()</code> constructor. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
+<li><strong><code>GT.with_locale()</code></strong> — Set the locale after construction. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
+<li><strong><code>GT.with_id()</code></strong> — Set the table ID after construction. (<a href="https://github.com/posit-dev/great-tables/issues/371">#371</a>)</li>
 </ul>
 </section>
 </section>
 <section id="v0.7.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.7.0</h1>
 <p><em>2024-06-04</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.7.0">GitHub</a></p>
-<p>This release adds the <a href="./reference/GT.fmt_units.html#great_tables.GT.fmt_units" class="gdls-link gdls-code">fmt_units()</a> method for rendering scientific units and improves Polars selector compatibility.</p>
+<p>This release adds the <code>fmt_units()</code> method for rendering scientific units and improves Polars selector compatibility.</p>
 <section id="new-features-17" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-17">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.fmt_units.html#great_tables.GT.fmt_units" class="gdls-link gdls-code">fmt_units()</a> method</strong> — Format measurement units with proper subscripts, superscripts, and symbols for scientific notation. (<a href="https://github.com/posit-dev/great-tables/issues/240">#240</a>)</li>
+<li><strong><code>fmt_units()</code> method</strong> — Format measurement units with proper subscripts, superscripts, and symbols for scientific notation. (<a href="https://github.com/posit-dev/great-tables/issues/240">#240</a>)</li>
 <li><strong>Non-strict Polars <code>expand_selector()</code> support</strong> — Polars selectors now use non-strict mode, avoiding errors when selectors match no columns. (<a href="https://github.com/posit-dev/great-tables/issues/368">#368</a>)</li>
 </ul>
 </section>
@@ -1046,7 +1046,7 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bug-fixes-16">Bug Fixes</h3>
 <ul>
 <li>General enhancements and fixes to several <code>cols_*()</code> methods. (<a href="https://github.com/posit-dev/great-tables/issues/366">#366</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Better error message when list data is used incorrectly in <a href="./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/356">#356</a>, <a href="https://github.com/marcozzxx810"><span class="citation" data-cites="marcozzxx810">@marcozzxx810</span></a>)</li>
+<li>Better error message when list data is used incorrectly in <code>fmt_nanoplot()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/356">#356</a>, <a href="https://github.com/marcozzxx810"><span class="citation" data-cites="marcozzxx810">@marcozzxx810</span></a>)</li>
 </ul>
 </section>
 <section id="documentation-14" class="level3">
@@ -1152,9 +1152,9 @@ ul.task-list li input[type="checkbox"] {
 <section id="bug-fixes-20" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-20">Bug Fixes</h3>
 <ul>
-<li><code>table_font_color=</code> in <a href="./reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> now correctly accepts named colors. (<a href="https://github.com/posit-dev/great-tables/issues/285">#285</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li><code>table_font_color=</code> in <code>tab_options()</code> now correctly accepts named colors. (<a href="https://github.com/posit-dev/great-tables/issues/285">#285</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Group label rows now produce valid HTML. (<a href="https://github.com/posit-dev/great-tables/issues/308">#308</a>)</li>
-<li>Fixed Polars selectors error in <a href="./reference/GT.cols_hide.html#great_tables.GT.cols_hide" class="gdls-link gdls-code">cols_hide()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/316">#316</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Fixed Polars selectors error in <code>cols_hide()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/316">#316</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li><code>fmt_number()</code> now handles missing values correctly. (<a href="https://github.com/posit-dev/great-tables/issues/317">#317</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Fixed display of integer-like values in nanoplots. (<a href="https://github.com/posit-dev/great-tables/issues/319">#319</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
@@ -1169,13 +1169,13 @@ ul.task-list li input[type="checkbox"] {
 <section id="internal-8" class="level3">
 <h3 class="anchored" data-anchor-id="internal-8">Internal</h3>
 <ul>
-<li>Cleaned up implementation of <a href="./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a> and <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/294">#294</a>, <a href="https://github.com/posit-dev/great-tables/issues/295">#295</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Cleaned up implementation of <code>fmt_nanoplot()</code> and <code>data_color()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/294">#294</a>, <a href="https://github.com/posit-dev/great-tables/issues/295">#295</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Refactored <code>fmt_time()</code>, <code>fmt_date()</code>, and <code>fmt_datetime()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/290">#290</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Refactored <code>letters</code> and <code>Letters</code> functions in helpers. (<a href="https://github.com/posit-dev/great-tables/issues/289">#289</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Updated type hints and organized imports. (<a href="https://github.com/posit-dev/great-tables/issues/315">#315</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Codebase cleanup and minor improvements. (<a href="https://github.com/posit-dev/great-tables/issues/292">#292</a>, <a href="https://github.com/posit-dev/great-tables/issues/305">#305</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 <li>Improved test coverage. (<a href="https://github.com/posit-dev/great-tables/issues/311">#311</a>, <a href="https://github.com/posit-dev/great-tables/issues/325">#325</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Added tests for <a href="./reference/GT.cols_align.html#great_tables.GT.cols_align" class="gdls-link gdls-code">cols_align()</a> and extended Polars expression support. (<a href="https://github.com/posit-dev/great-tables/issues/320">#320</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
+<li>Added tests for <code>cols_align()</code> and extended Polars expression support. (<a href="https://github.com/posit-dev/great-tables/issues/320">#320</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
 </section>
@@ -1186,7 +1186,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="new-features-19" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-19">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.sub_missing.html#great_tables.GT.sub_missing" class="gdls-link gdls-code">sub_missing()</a> and <a href="./reference/GT.sub_zero.html#great_tables.GT.sub_zero" class="gdls-link gdls-code">sub_zero()</a> methods</strong> — Substitute missing or zero values with custom text or symbols. (<a href="https://github.com/posit-dev/great-tables/issues/244">#244</a>)</li>
+<li><strong><code>sub_missing()</code> and <code>sub_zero()</code> methods</strong> — Substitute missing or zero values with custom text or symbols. (<a href="https://github.com/posit-dev/great-tables/issues/244">#244</a>)</li>
 <li><strong>Webdriver selection in <code>.save()</code></strong> — Choose between different webdrivers (e.g., Chrome, Firefox) when saving tables as images. (<a href="https://github.com/posit-dev/great-tables/issues/262">#262</a>)</li>
 </ul>
 </section>
@@ -1207,7 +1207,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-18" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-18">Documentation</h3>
 <ul>
-<li>Added examples for <a href="./reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/245">#245</a>)</li>
+<li>Added examples for <code>fmt_nanoplot()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/245">#245</a>)</li>
 <li>Added docs site and Codecov badges to the README. (<a href="https://github.com/posit-dev/great-tables/issues/254">#254</a>)</li>
 <li>Improved examples in the Examples section. (<a href="https://github.com/posit-dev/great-tables/issues/267">#267</a>)</li>
 <li>Fixed variable names in the Oceania example. (<a href="https://github.com/posit-dev/great-tables/issues/264">#264</a>)</li>
@@ -1247,28 +1247,28 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-19" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-19">Documentation</h3>
 <ul>
-<li>Fixed the <a href="./reference/GT.opt_horizontal_padding.html#great_tables.GT.opt_horizontal_padding" class="gdls-link gdls-code">opt_horizontal_padding()</a> example. (<a href="https://github.com/posit-dev/great-tables/issues/215">#215</a>)</li>
+<li>Fixed the <code>opt_horizontal_padding()</code> example. (<a href="https://github.com/posit-dev/great-tables/issues/215">#215</a>)</li>
 </ul>
 </section>
 </section>
 <section id="v0.3.1" class="level1 changelog-version">
 <h1 class="changelog-version">v0.3.1</h1>
 <p><em>2024-02-27</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.3.1">GitHub</a></p>
-<p>This release adds table export capabilities with <code>.save()</code> and <code>.as_raw_html()</code>, plus two new styling convenience methods. Several <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> edge cases are now handled correctly.</p>
+<p>This release adds table export capabilities with <code>.save()</code> and <code>.as_raw_html()</code>, plus two new styling convenience methods. Several <code>data_color()</code> edge cases are now handled correctly.</p>
 <section id="new-features-21" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-21">New Features</h3>
 <ul>
 <li><strong><code>.save()</code> and <code>.as_raw_html()</code> methods</strong> — Export tables to HTML files or retrieve raw HTML strings for embedding. (<a href="https://github.com/posit-dev/great-tables/issues/208">#208</a>)</li>
-<li><strong><a href="./reference/GT.opt_stylize.html#great_tables.GT.opt_stylize" class="gdls-link gdls-code">opt_stylize()</a> method</strong> — Apply one of several pre-built table themes with a single method call. (<a href="https://github.com/posit-dev/great-tables/issues/198">#198</a>)</li>
-<li><strong><a href="./reference/GT.opt_table_outline.html#great_tables.GT.opt_table_outline" class="gdls-link gdls-code">opt_table_outline()</a> method</strong> — Add or customize the table’s outer border. (<a href="https://github.com/posit-dev/great-tables/issues/209">#209</a>)</li>
+<li><strong><code>opt_stylize()</code> method</strong> — Apply one of several pre-built table themes with a single method call. (<a href="https://github.com/posit-dev/great-tables/issues/198">#198</a>)</li>
+<li><strong><code>opt_table_outline()</code> method</strong> — Add or customize the table’s outer border. (<a href="https://github.com/posit-dev/great-tables/issues/209">#209</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-23" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-23">Bug Fixes</h3>
 <ul>
 <li>Fixed row rendering order to iterate over sorted rows. (<a href="https://github.com/posit-dev/great-tables/issues/202">#202</a>)</li>
-<li><code>np.nan</code> values are now correctly replaced with the <code>na_color=</code> value in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/205">#205</a>)</li>
-<li><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> now handles edge cases with single-value columns and all-missing columns. (<a href="https://github.com/posit-dev/great-tables/issues/213">#213</a>)</li>
+<li><code>np.nan</code> values are now correctly replaced with the <code>na_color=</code> value in <code>data_color()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/205">#205</a>)</li>
+<li><code>data_color()</code> now handles edge cases with single-value columns and all-missing columns. (<a href="https://github.com/posit-dev/great-tables/issues/213">#213</a>)</li>
 </ul>
 </section>
 <section id="documentation-20" class="level3">
@@ -1289,25 +1289,25 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.3.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.3.0</h1>
 <p><em>2024-02-16</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.3.0">GitHub</a></p>
-<p>This release brings extensive table customization with <a href="./reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> for global styling, <a href="./reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> for column sizing, <code>fmt_image()</code> for embedding images, and several convenience methods for common styling patterns. ColorBrewer palettes are now available in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>.</p>
+<p>This release brings extensive table customization with <code>tab_options()</code> for global styling, <code>cols_width()</code> for column sizing, <code>fmt_image()</code> for embedding images, and several convenience methods for common styling patterns. ColorBrewer palettes are now available in <code>data_color()</code>.</p>
 <section id="new-features-22" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-22">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> method</strong> — Configure global table styling options including fonts, colors, padding, and borders. (<a href="https://github.com/posit-dev/great-tables/issues/146">#146</a>)</li>
-<li><strong><a href="./reference/GT.cols_width.html#great_tables.GT.cols_width" class="gdls-link gdls-code">cols_width()</a> method</strong> — Set explicit column widths using absolute or relative values. (<a href="https://github.com/posit-dev/great-tables/issues/143">#143</a>)</li>
+<li><strong><code>tab_options()</code> method</strong> — Configure global table styling options including fonts, colors, padding, and borders. (<a href="https://github.com/posit-dev/great-tables/issues/146">#146</a>)</li>
+<li><strong><code>cols_width()</code> method</strong> — Set explicit column widths using absolute or relative values. (<a href="https://github.com/posit-dev/great-tables/issues/143">#143</a>)</li>
 <li><strong><code>fmt_image()</code> method</strong> — Embed images directly in table cells from file paths or URLs. (<a href="https://github.com/posit-dev/great-tables/issues/163">#163</a>)</li>
-<li><strong><a href="./reference/GT.opt_align_table_header.html#great_tables.GT.opt_align_table_header" class="gdls-link gdls-code">opt_align_table_header()</a> method</strong> — Quickly align the table header to the left, center, or right. (<a href="https://github.com/posit-dev/great-tables/issues/147">#147</a>)</li>
-<li><strong><a href="./reference/GT.opt_all_caps.html#great_tables.GT.opt_all_caps" class="gdls-link gdls-code">opt_all_caps()</a> method</strong> — Apply all-caps styling to column labels, spanner labels, or stub text. (<a href="https://github.com/posit-dev/great-tables/issues/150">#150</a>)</li>
+<li><strong><code>opt_align_table_header()</code> method</strong> — Quickly align the table header to the left, center, or right. (<a href="https://github.com/posit-dev/great-tables/issues/147">#147</a>)</li>
+<li><strong><code>opt_all_caps()</code> method</strong> — Apply all-caps styling to column labels, spanner labels, or stub text. (<a href="https://github.com/posit-dev/great-tables/issues/150">#150</a>)</li>
 <li><strong>Vertical and horizontal padding options</strong> — New <code>opt_*</code> methods for adjusting cell padding. (<a href="https://github.com/posit-dev/great-tables/issues/154">#154</a>)</li>
-<li><strong><a href="./reference/system_fonts.html#great_tables.system_fonts" class="gdls-link gdls-code">system_fonts()</a> helper</strong> — Access curated system font stacks for use in table options. (<a href="https://github.com/posit-dev/great-tables/issues/158">#158</a>)</li>
-<li><strong>ColorBrewer palettes in <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a></strong> — Use any ColorBrewer palette for data-driven coloring. (<a href="https://github.com/posit-dev/great-tables/issues/186">#186</a>)</li>
+<li><strong><code>system_fonts()</code> helper</strong> — Access curated system font stacks for use in table options. (<a href="https://github.com/posit-dev/great-tables/issues/158">#158</a>)</li>
+<li><strong>ColorBrewer palettes in <code>data_color()</code></strong> — Use any ColorBrewer palette for data-driven coloring. (<a href="https://github.com/posit-dev/great-tables/issues/186">#186</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-24" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-24">Bug Fixes</h3>
 <ul>
 <li>Replaced deprecated <code>with_row_count</code> with <code>with_row_index</code> for Polars compatibility. (<a href="https://github.com/posit-dev/great-tables/issues/189">#189</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
-<li>Table font names in <a href="./reference/GT.tab_options.html#great_tables.GT.tab_options" class="gdls-link gdls-code">tab_options()</a> now accept both a string and a list. (<a href="https://github.com/posit-dev/great-tables/issues/155">#155</a>)</li>
+<li>Table font names in <code>tab_options()</code> now accept both a string and a list. (<a href="https://github.com/posit-dev/great-tables/issues/155">#155</a>)</li>
 <li>Fixed <code>FutureWarning</code> for <code>DataFrameGroupBy.grouper</code>. (<a href="https://github.com/posit-dev/great-tables/issues/193">#193</a>, <a href="https://github.com/jrycw"><span class="citation" data-cites="jrycw">@jrycw</span></a>)</li>
 </ul>
 </section>
@@ -1320,7 +1320,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-21" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-21">Documentation</h3>
 <ul>
-<li>Added example using <a href="./reference/data.sza.html#great_tables.data.sza" class="gdls-link gdls-code">sza</a> dataset with <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/136">#136</a>)</li>
+<li>Added example using <code>sza</code> dataset with <code>data_color()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/136">#136</a>)</li>
 <li>Published a Super Bowl blog post. (<a href="https://github.com/posit-dev/great-tables/issues/184">#184</a>, <a href="https://github.com/posit-dev/great-tables/issues/185">#185</a>)</li>
 <li>Added sports examples to the docs. (<a href="https://github.com/posit-dev/great-tables/issues/195">#195</a>)</li>
 <li>Cleaned up examples in the API docs. (<a href="https://github.com/posit-dev/great-tables/issues/191">#191</a>)</li>
@@ -1338,11 +1338,11 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.2.0" class="level1 changelog-version">
 <h1 class="changelog-version">v0.2.0</h1>
 <p><em>2024-01-24</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.2.0">GitHub</a></p>
-<p>This release introduces the <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> method for applying color scales to table data, along with several bug fixes for frame validation and spanner columns.</p>
+<p>This release introduces the <code>data_color()</code> method for applying color scales to table data, along with several bug fixes for frame validation and spanner columns.</p>
 <section id="new-features-23" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-23">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> method</strong> — Apply color scales to columns based on their underlying data values, with support for custom palettes and domains. (<a href="https://github.com/posit-dev/great-tables/issues/109">#109</a>)</li>
+<li><strong><code>data_color()</code> method</strong> — Apply color scales to columns based on their underlying data values, with support for custom palettes and domains. (<a href="https://github.com/posit-dev/great-tables/issues/109">#109</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-25" class="level3">
@@ -1362,7 +1362,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="documentation-22" class="level3">
 <h3 class="anchored" data-anchor-id="documentation-22">Documentation</h3>
 <ul>
-<li>Added a guide for <a href="./reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> and an introductory blog post for the new version. (<a href="https://github.com/posit-dev/great-tables/issues/131">#131</a>)</li>
+<li>Added a guide for <code>data_color()</code> and an introductory blog post for the new version. (<a href="https://github.com/posit-dev/great-tables/issues/131">#131</a>)</li>
 <li>Published a blog post on Polars styling. (<a href="https://github.com/posit-dev/great-tables/issues/113">#113</a>)</li>
 </ul>
 </section>
@@ -1398,20 +1398,20 @@ ul.task-list li input[type="checkbox"] {
 <section id="new-features-25" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-25">New Features</h3>
 <ul>
-<li><strong><code>style.from_column()</code></strong> — Apply styles dynamically based on column values, implemented for <a href="./reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a>. (<a href="https://github.com/posit-dev/great-tables/issues/83">#83</a>)</li>
+<li><strong><code>style.from_column()</code></strong> — Apply styles dynamically based on column values, implemented for <code>loc.body()</code>. (<a href="https://github.com/posit-dev/great-tables/issues/83">#83</a>)</li>
 </ul>
 </section>
 <section id="enhancements-8" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-8">Enhancements</h3>
 <ul>
-<li><a href="./reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> now accepts lists of styles and lists of locations. (<a href="https://github.com/posit-dev/great-tables/issues/87">#87</a>)</li>
+<li><code>tab_style()</code> now accepts lists of styles and lists of locations. (<a href="https://github.com/posit-dev/great-tables/issues/87">#87</a>)</li>
 <li>The compiled CSS ID value is now correctly applied to all rules. (<a href="https://github.com/posit-dev/great-tables/issues/92">#92</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-26" class="level3">
 <h3 class="anchored" data-anchor-id="bug-fixes-26">Bug Fixes</h3>
 <ul>
-<li>Fixed <a href="./reference/GT.cols_hide.html#great_tables.GT.cols_hide" class="gdls-link gdls-code">cols_hide()</a> not working correctly. (<a href="https://github.com/posit-dev/great-tables/issues/86">#86</a>)</li>
+<li>Fixed <code>cols_hide()</code> not working correctly. (<a href="https://github.com/posit-dev/great-tables/issues/86">#86</a>)</li>
 </ul>
 </section>
 <section id="documentation-24" class="level3">
@@ -1426,18 +1426,18 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.1.3" class="level1 changelog-version">
 <h1 class="changelog-version">v0.1.3</h1>
 <p><em>2023-12-12</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.1.3">GitHub</a></p>
-<p>This release introduces the <a href="./reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method for targeted cell styling and includes several fixes to table rendering and source notes.</p>
+<p>This release introduces the <code>tab_style()</code> method for targeted cell styling and includes several fixes to table rendering and source notes.</p>
 <section id="new-features-26" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-26">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a> method</strong> — Apply custom styles to specific cells, columns, or rows using location selectors. (<a href="https://github.com/posit-dev/great-tables/issues/68">#68</a>)</li>
+<li><strong><code>tab_style()</code> method</strong> — Apply custom styles to specific cells, columns, or rows using location selectors. (<a href="https://github.com/posit-dev/great-tables/issues/68">#68</a>)</li>
 </ul>
 </section>
 <section id="enhancements-9" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-9">Enhancements</h3>
 <ul>
-<li><a href="./reference/loc.body.html#great_tables.loc.body" class="gdls-link gdls-code">loc.body()</a> now defaults to all columns and rows when called without arguments. (<a href="https://github.com/posit-dev/great-tables/issues/79">#79</a>)</li>
-<li><a href="./reference/GT.tab_source_note.html#great_tables.GT.tab_source_note" class="gdls-link gdls-code">tab_source_note()</a> now works correctly with <a href="./reference/md.html#great_tables.md" class="gdls-link gdls-code">md()</a> and <a href="./reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> helpers. (<a href="https://github.com/posit-dev/great-tables/issues/77">#77</a>)</li>
+<li><code>loc.body()</code> now defaults to all columns and rows when called without arguments. (<a href="https://github.com/posit-dev/great-tables/issues/79">#79</a>)</li>
+<li><code>tab_source_note()</code> now works correctly with <code>md()</code> and <code>html()</code> helpers. (<a href="https://github.com/posit-dev/great-tables/issues/77">#77</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-27" class="level3">
@@ -1472,7 +1472,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="new-features-27" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-27">New Features</h3>
 <ul>
-<li><strong>Shiny support</strong> — A new <code>great_tables.shiny</code> module provides <a href="./reference/shiny.output_gt.html#great_tables.shiny.output_gt" class="gdls-link gdls-code">output_gt()</a> and <a href="./reference/shiny.render_gt.html#great_tables.shiny.render_gt" class="gdls-link gdls-code">render_gt()</a> for rendering GT tables in Shiny for Python apps. (<a href="https://github.com/posit-dev/great-tables/issues/59">#59</a>)</li>
+<li><strong>Shiny support</strong> — A new <code>great_tables.shiny</code> module provides <code>output_gt()</code> and <code>render_gt()</code> for rendering GT tables in Shiny for Python apps. (<a href="https://github.com/posit-dev/great-tables/issues/59">#59</a>)</li>
 </ul>
 </section>
 <section id="enhancements-10" class="level3">
@@ -1495,7 +1495,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="enhancements-11" class="level3">
 <h3 class="anchored" data-anchor-id="enhancements-11">Enhancements</h3>
 <ul>
-<li>Datasets (except <a href="./reference/data.exibble.html#great_tables.data.exibble" class="gdls-link gdls-code">exibble</a>) are no longer exported from the top-level module; a <a href="./reference/panel.GTIPane.html#great_tables.panel.GTIPane.data" class="gdls-link gdls-code">data</a> submodule is now the access point for all built-in datasets. (<a href="https://github.com/posit-dev/great-tables/issues/57">#57</a>)</li>
+<li>Datasets (except <code>exibble</code>) are no longer exported from the top-level module; a <code>data</code> submodule is now the access point for all built-in datasets. (<a href="https://github.com/posit-dev/great-tables/issues/57">#57</a>)</li>
 </ul>
 </section>
 <section id="bug-fixes-28" class="level3">
@@ -1542,11 +1542,11 @@ ul.task-list li input[type="checkbox"] {
 <section id="v0.0.2" class="level1 changelog-version">
 <h1 class="changelog-version">v0.0.2</h1>
 <p><em>2023-11-10</em> · <a href="https://github.com/posit-dev/great-tables/releases/tag/v0.0.2">GitHub</a></p>
-<p>This release introduces the foundational <a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> object with core table-building capabilities, including value formatting, header content, and annotation methods.</p>
+<p>This release introduces the foundational <code>GT</code> object with core table-building capabilities, including value formatting, header content, and annotation methods.</p>
 <section id="new-features-29" class="level3">
 <h3 class="anchored" data-anchor-id="new-features-29">New Features</h3>
 <ul>
-<li><strong><a href="./reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> class</strong> — A top-level table object providing the primary interface for building and customizing tables.</li>
+<li><strong><code>GT</code> class</strong> — A top-level table object providing the primary interface for building and customizing tables.</li>
 <li><strong><code>fmt_*()</code> methods</strong> — A comprehensive set of formatting methods for transforming cell values in the table body.</li>
 <li><strong>Title and note methods</strong> — Methods for adding titles, subtitles, and table notes to provide context and annotations.</li>
 </ul>

@@ -88,7 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ed8d4b62b26e19f97fa6fc5a564f6a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-4f60996646c007e11417e97557e98955.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -214,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#nanoplots-small-interactive-plots-in-your-table" id="toc-nanoplots-small-interactive-plots-in-your-table" class="nav-link active" data-scroll-target="#nanoplots-small-interactive-plots-in-your-table">Nanoplots, small interactive plots in your table</a></li>
   <li><a href="#adding-reference-lines-and-highlighted-areas" id="toc-adding-reference-lines-and-highlighted-areas" class="nav-link" data-scroll-target="#adding-reference-lines-and-highlighted-areas">Adding reference lines and highlighted areas</a></li>
   <li><a href="#simple-bars" id="toc-simple-bars" class="nav-link" data-scroll-target="#simple-bars">Simple bars</a></li>
-  <li><a href="#customizing-with-nanoplot_options" id="toc-customizing-with-nanoplot_options" class="nav-link" data-scroll-target="#customizing-with-nanoplot_options">Customizing with nanoplot_options()</a></li>
+  <li><a href="#customizing-with-nanoplot_options" id="toc-customizing-with-nanoplot_options" class="nav-link" data-scroll-target="#customizing-with-nanoplot_options">Customizing with <code>nanoplot_options()</code></a></li>
   <li><a href="#wrapping-up" id="toc-wrapping-up" class="nav-link" data-scroll-target="#wrapping-up">Wrapping up</a></li>
   </ul>
 </nav>
@@ -779,7 +779,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Notice that there is some light interactivity available here as well! When hovering over a plotted bar or line the data value will appear.</p>
 </section>
 <section id="customizing-with-nanoplot_options" class="level2">
-<h2 class="anchored" data-anchor-id="customizing-with-nanoplot_options">Customizing with <a href="../../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link gdls-code">nanoplot_options()</a></h2>
+<h2 class="anchored" data-anchor-id="customizing-with-nanoplot_options">Customizing with <code>nanoplot_options()</code></h2>
 <p>We provide a lot of options for customizing your nanoplots. With the <a href="../../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link"><code>nanoplot_options()</code></a> helper function, it’s possible to change the look and feel for a set of nanoplots. The <code>options=</code> argument of <a href="../../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link"><code>fmt_nanoplot()</code></a> is where you’d need to invoke that helper function. Some possibilities for customization include determining which nanoplot elements are present, changing the sizes and colors of different elements, and a whole lot more! Here’s an example where both line- and bar-based nanoplots retain their basic compositional elements, but their appearance is quite different.</p>
 <div id="091cdfe8" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> nanoplot_options</span>

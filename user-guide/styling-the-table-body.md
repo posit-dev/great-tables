@@ -118,7 +118,7 @@ Notice that in the code above, we used values from the `background` column to sp
 
 In the next few sections, we'll first show how this combines nicely with the [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide) method, then we'll demonstrate how to use **Polars** expressions to do everything much more simply.
 
-### Combining Styling with [cols_hide()](../reference/GT.cols_hide.md#great_tables.GT.cols_hide)
+### Combining Styling with `cols_hide()`
 
 One common approach is to specify a style from a column, and then hide that column in the final output. For example, we can add a background column to our [gibraltar](../reference/data.gibraltar.md#great_tables.data.gibraltar) data:
 
@@ -366,7 +366,7 @@ gt_weather.tab_style(
 
 The `mask=` argument applies row/column logic jointly, highlighting only the cells where a column's value equals its own maximum (here, among the numeric columns). This is a powerful way to perform per-column conditional formatting in a single statement.
 
-## Value-Driven Styling with [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body)
+## Value-Driven Styling with `tab_style_body()`
 
 While [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) targets cells by their *position* (specific rows and columns), [tab_style_body()](../reference/GT.tab_style_body.md#great_tables.GT.tab_style_body) targets cells by their *values*. This is useful when you want to style cells that meet a condition without having to figure out which rows and columns contain those values ahead of time.
 

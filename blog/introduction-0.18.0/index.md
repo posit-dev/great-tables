@@ -9,7 +9,7 @@ The development of Great Tables continues! We're excited to announce the release
 
 Let's explore each of these interesting new features!
 
-### Quick spanner creation with [tab_spanner_delim()](../../reference/GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim)
+### Quick spanner creation with `tab_spanner_delim()`
 
 Working with data that has hierarchical column names can be tedious when manually creating spanners. The new [.tab_spanner_delim()](../../reference/GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim) method automates this process by intelligently splitting column names based on a delimiter and creating the appropriate spanner structure.
 
@@ -65,7 +65,7 @@ Notice how the column names have a clear hierarchical structure with underscores
 
 The [.tab_spanner_delim()](../../reference/GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim) method recognizes the underscore delimiter and creates a hierarchical structure: `"population"` and `"density"` become top-level spanners, with the years (`1996`, `2001`, `2021`) as the final column labels. This creates a clean, organized appearance that clearly groups related metrics together. And, this one method can be used instead of a combination of [.cols_label()](../../reference/GT.cols_label.md#great_tables.GT.cols_label) and [.tab_spanner()](../../reference/GT.tab_spanner.md#great_tables.GT.tab_spanner) (which requires a separate invocation per spanner added).
 
-### Beautiful boolean formatting with [fmt_tf()](../../reference/GT.fmt_tf.md#great_tables.GT.fmt_tf)
+### Beautiful boolean formatting with `fmt_tf()`
 
 Boolean data is common in analytical tables, but raw `True`/`False` values can look unprofessional. The new [.fmt_tf()](../../reference/GT.fmt_tf.md#great_tables.GT.fmt_tf) method provides elegant ways to display boolean data using symbols, words, or custom formatting.
 
@@ -120,7 +120,7 @@ You can also use different symbols and colors for a more distinctive look:
 
 The [.fmt_tf()](../../reference/GT.fmt_tf.md#great_tables.GT.fmt_tf) method transforms boolean values into visually appealing symbols that make it easy to quickly scan and compare data across rows and columns.
 
-### Rotating column labels with [cols_label_rotate()](../../reference/GT.cols_label_rotate.md#great_tables.GT.cols_label_rotate)
+### Rotating column labels with `cols_label_rotate()`
 
 When dealing with many columns or long column names, horizontal space becomes precious. The [.cols_label_rotate()](../../reference/GT.cols_label_rotate.md#great_tables.GT.cols_label_rotate) method solves this by rotating column labels vertically, allowing for more compact table layouts.
 

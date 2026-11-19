@@ -44,7 +44,7 @@ gt
 
 The numbers in the cells represent the average horsepower for each combination of `mfr` and `drivetrain` for a specific year.
 
-### Leveraging the `mask=` parameter in [loc.body()](../../reference/loc.body.md#great_tables.loc.body)
+### Leveraging the `mask=` parameter in `loc.body()`
 
 The `mask=` parameter in [loc.body()](../../reference/loc.body.md#great_tables.loc.body) accepts a Polars expression that evaluates to a boolean result for each cell.
 
@@ -90,7 +90,7 @@ The `mask=` parameter acts as a syntactic sugar, streamlining the process and re
 >
 > `mask=` should not be used in combination with the `columns` or `rows` arguments. Attempting to do so will raise a `ValueError`.
 
-### Utilizing the `locations=` parameter in [GT.tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style)
+### Utilizing the `locations=` parameter in `GT.tab_style()`
 
 A more "old-fashioned" approach involves passing a list of [loc.body()](../../reference/loc.body.md#great_tables.loc.body) objects to the `locations=` parameter in [GT.tab_style()](../../reference/GT.tab_style.md#great_tables.GT.tab_style):
 
