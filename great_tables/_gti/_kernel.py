@@ -36,7 +36,7 @@ from .._tbl_data import (
     reorder,
     replace_null_frame,
 )
-from .._utils_render_html import create_body_component_h
+from .._utils_render_html import create_body_component_h, create_body_rows_h
 from ._pattern import pattern_search
 from ._query import (
     JS_WHITESPACE,
@@ -70,11 +70,6 @@ if TYPE_CHECKING:
     from ..gti import GTI
 
 __all__ = ["KernelEngine", "kernel_reasons", "render_table"]
-
-# A row of the body's HTML starts at a line of its own (as `create_body_component_h()` makes it),
-# as each of its cells does
-_ROW_START = re.compile(r"(?m)^  <tr(?=[ >])")
-_CELL_START = re.compile(r'(?m)^    <(?:td|th)\b[^>]*? class="')
 
 # What the search's terms are split at (JavaScript's `\s`)
 _TERM_SPLIT = re.compile(f"[{re.escape(JS_WHITESPACE)}]+")
@@ -416,35 +411,29 @@ class KernelEngine:
         (as the runtime tints them, with `i_inspect()`)."""
         if not rows:
             return ""
-        body = self._body_html(rows)
-        starts = [found.start() for found in _ROW_START.finditer(body)]
-        end = body.rindex("</tbody>")
-        trs = [body[a:b].rstrip("\n") for a, b in zip(starts, [*starts[1:], end])]
+        trs = create_body_rows_h(self.page_data(rows), cell_classes=self._tinted(rows))
         if len(trs) != len(rows):
             raise ValueError(f"The page's body has {len(trs)} rows, not {len(rows)}.")
-        missing = self._missing_on(rows)
-        if any(missing):
-            trs = [self._tint(tr, row, missing) for tr, row in zip(trs, rows)]
         return "\n".join(trs)
 
     def _missing_on(self, rows: list[int]) -> list[set[int]]:
         # Each column's rows with a missing value (of those of a page, at least)
         return self._missing
 
-    def _tint(self, tr: str, row: int, missing: list[set[int]]) -> str:
-        columns = [i for i, rows in enumerate(missing) if row in rows]
-        if not columns:
-            return tr
-        cells = list(_CELL_START.finditer(tr))
-        # (If the row's cells can't be told apart, they're left as they are)
-        if len(cells) != len(missing):
-            return tr
-        parts, last = [], 0
-        for i in columns:
-            at = cells[i].end()
-            parts += [tr[last:at], "gt-i-missing "]
-            last = at
-        return "".join([*parts, tr[last:]])
+    def _tinted(self, rows: list[int]) -> dict[int, dict[str, str]]:
+        # The class of each of the rows' cells with a missing value (as they're made, so that a
+        # cell's own HTML can't be taken for another cell), by the row's place on the page
+        missing = [
+            (column["id"], found)
+            for column, found in zip(self.spec["columns"], self._missing_on(rows))
+            if column["id"] is not None and found
+        ]
+        tinted: dict[int, dict[str, str]] = {}
+        for place, row in enumerate(rows):
+            cells = {column: "gt-i-missing" for column, found in missing if row in found}
+            if cells:
+                tinted[place] = cells
+        return tinted
 
     # -----
     # The table, as the browser starts with it
