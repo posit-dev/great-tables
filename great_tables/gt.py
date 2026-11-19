@@ -540,6 +540,13 @@ class GT(
         # FastHTML, which take what has an `__html__()` as HTML (Django makes it a string first)
         return self.as_raw_html()
 
+    def __ft__(self) -> str:
+        # The table's HTML, for FastHTML, as one of its components: so a route can return the table
+        # on its own (or in a tuple), which it shows as HTML, in a page (rather than as its repr)
+        from .web import _HTML
+
+        return _HTML(self.as_raw_html())
+
     # (Not seen by type checkers, which can still tell when an attribute is misspelled)
     if not TYPE_CHECKING:
 
