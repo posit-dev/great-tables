@@ -187,10 +187,10 @@ each time.
 In a [Panel](https://panel.holoviz.org) app or notebook, `GTIPane`, from `great_tables.panel`
 (installed with `pip install great_tables[panel]`), shows an interactive table (a `GTI` table, or a
 `GT` table with `opt_interactive()`) as a Panel component, whose state is in its parameters:
-`query`, `search` and `sort` (a list, e.g., `["-hp"]`), the data `rows` kept (in the order shown)
-and the rows in its `selection`. Each change the reader makes sets them, so that they can be used
-with `pn.bind()` or watched like any other parameter; and setting `query`, `search`, `sort` or
-`selection` changes the table.
+`query`, `search` and `sort` (a list, e.g., `["-hp"]`, which can be set to a column name, `"-hp"`,
+too), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the
+reader makes sets them, so that they can be used with `pn.bind()` or watched like any other
+parameter; and setting `query`, `search`, `sort` or `selection` changes the table.
 
 ```python
 import panel as pn
