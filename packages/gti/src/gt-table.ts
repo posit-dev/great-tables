@@ -2642,18 +2642,19 @@ export class GtTable extends HTMLElement {
 
   /**
    * Whether the table's container is as wide as what's in it (as a table's cell, a float or an
-   * inline block is), which it can't be stacked in: as the container its width is queried in, the
-   * table would have no width of its own. Measured as that container, by whether a width for
-   * what's in it widens it; `null` while it isn't shown.
+   * inline block is), which it can't be stacked in: as the container its width is queried in (GT's
+   * `<div>`, without a width of its own), the table would have no width of its own. Measured as
+   * that container, by whether a width for what's in it widens it; `null` while it isn't shown.
    */
   private fitsContent(): boolean | null {
-    if (this.getClientRects().length === 0) {
+    const box = this.table?.parentElement ?? this;
+    if (box.getClientRects().length === 0) {
       return null;
     }
-    const width = this.offsetWidth;
-    this.style.setProperty("contain-intrinsic-inline-size", "9999px");
-    const fits = this.offsetWidth > width;
-    this.style.removeProperty("contain-intrinsic-inline-size");
+    const width = box.offsetWidth;
+    box.style.setProperty("contain-intrinsic-inline-size", "9999px");
+    const fits = box.offsetWidth > width;
+    box.style.removeProperty("contain-intrinsic-inline-size");
     return fits;
   }
 
