@@ -67,6 +67,44 @@ _ESM, _CSS = _sources()
 _ANSWERS_KEPT = 16
 
 
+def _escaped(value: Any) -> Any:
+    # (The table's HTML, or the state, without a `</` in its strings, as a notebook has the
+    # parameters in a script, as they are, which the first `</script` would end: src/panel.ts
+    # puts them back, and writes its own reports so)
+    if isinstance(value, str):
+        return value.replace("</", "<\x00/")
+    if isinstance(value, dict):
+        return {name: _escaped(item) for name, item in value.items()}
+    if isinstance(value, list):
+        return [_escaped(item) for item in value]
+    return value
+
+
+def _unescaped(value: Any) -> Any:
+    # (A report's strings, as the browser has them)
+    if isinstance(value, str):
+        return value.replace("<\x00/", "</")
+    if isinstance(value, dict):
+        return {name: _unescaped(item) for name, item in value.items()}
+    if isinstance(value, list):
+        return [_unescaped(item) for item in value]
+    return value
+
+
+class _Sort(param.List):
+    # (A list of names, which can be set to a name, or `None`, as the widget's sort can)
+    __slots__ = ()
+
+    def __set__(self, obj: Any, val: Any) -> None:
+        super().__set__(obj, [val] if isinstance(val, str) else [] if val is None else val)
+
+    def _validate_value(self, value: Any, allow_None: bool) -> None:
+        if not isinstance(value, list):
+            raise ValueError(
+                f"`sort` must be a list of column names, a column name, or `None`, not {value!r}."
+            )
+
+
 class GTIPane(ReactiveESM):
     """
     An interactive table in a Panel app or notebook, whose view and selection are parameters.
@@ -116,12 +154,12 @@ class GTIPane(ReactiveESM):
         doc="The table's filters, as a query in text (as the query box has it), or `''` without any.",
     )
     search = param.String(default="", doc="The table's search (`''` without one).")
-    sort = param.List(
+    sort = _Sort(
         default=[],
-        item_type=str,
         doc=(
             "The table's sort: its columns, most significant first, each with a `-` before it if "
-            "it's sorted in descending order."
+            "it's sorted in descending order. Setting it to a column name, or `None`, sets it to a "
+            "list of it, or of none."
         ),
     )
     selection = param.List(
@@ -183,10 +221,8 @@ class GTIPane(ReactiveESM):
         # (The widget's state, as the browser has it, or will once it's sent)
         self._model: dict[str, Any] = {"_view": view, "_rows": None, "_selection": []}
         super().__init__(
-            # (Without a `</` in it, as a notebook has the parameters in a script, as they are:
-            # src/panel.ts puts them back)
-            _html=html.replace("</", "<\x00/"),
-            _update={**self._model, "n": 0},
+            _html=_escaped(html),
+            _update=_escaped({**self._model, "n": 0}),
             _kernel=engine is not None,
             _nrows=spec["nrows"],
             **params,
@@ -266,7 +302,7 @@ class GTIPane(ReactiveESM):
         return bool(self._models)
 
     def _reported(self, event: param.parameterized.Event) -> None:
-        report = event.new if isinstance(event.new, dict) else {}
+        report = _unescaped(event.new) if isinstance(event.new, dict) else {}
         # (Not one older than the last from its view, which a notebook's Panel can send again)
         sender, n = report.get("from"), report.get("n")
         if isinstance(sender, str) and isinstance(n, int):
@@ -278,7 +314,7 @@ class GTIPane(ReactiveESM):
         # (Which a view made from now on starts with, as when the pane's shown again; but isn't
         # sent to the views there are, which have it, or have another view's report)
         with param.discard_events(self):
-            self._update = {**self._model, "n": self._sent}
+            self._update = _escaped({**self._model, "n": self._sent})
         with self._sync():
             if "_view" in changes and changes["_view"] is not None:
                 self._take_view(changes["_view"])
@@ -292,7 +328,7 @@ class GTIPane(ReactiveESM):
         # Python's own, as Panel can set `_update` from the browser, to an older one)
         self._model.update(changes)
         self._sent += 1
-        self._update = {**self._model, "n": self._sent}
+        self._update = _escaped({**self._model, "n": self._sent})
 
     # -----
     # From Python
