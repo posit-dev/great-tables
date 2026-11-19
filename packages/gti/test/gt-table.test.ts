@@ -10546,6 +10546,62 @@ describe("a table in a Panel app", () => {
     expect(one.sort).toEqual([{ column: "x", descending: true }]);
   });
 
+  it("takes a change only if it's later than the last from where it's from", () => {
+    // (A notebook's Panel can send one again, after a later one)
+    const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    fake.update({ _update: { _rows: [1], n: 2 } });
+    fake.update({ _update: { _rows: [2], n: 1 } });
+    fake.update({ _update: { _rows: [3], n: 2 } });
+    expect(model.get("_rows")).toEqual([1]);
+    fake.update({ _report: { _rows: [4], n: 2, from: "other" } });
+    fake.update({ _report: { _rows: [5], n: 1, from: "other" } });
+    expect(model.get("_rows")).toEqual([4]);
+    // (Each view's reports, and Python's changes, counted on their own)
+    fake.update({ _report: { _rows: [6], n: 1, from: "third" } });
+    expect(model.get("_rows")).toEqual([6]);
+    fake.update({ _update: { _rows: [7], n: 3 } });
+    expect(model.get("_rows")).toEqual([7]);
+  });
+
+  it("asks again what Python hasn't answered, until it's answered", () => {
+    // (A notebook's Panel can lose a message, either way)
+    vi.useFakeTimers();
+    try {
+      const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+      const model = modelOf(fake.model);
+      const ask = { type: "ask", id: "v:1", kind: "page" };
+      model.send(ask);
+      vi.advanceTimersByTime(999);
+      expect(fake.sent).toEqual([ask]);
+      vi.advanceTimersByTime(1);
+      expect(fake.sent).toEqual([ask, ask]);
+      vi.advanceTimersByTime(2000);
+      expect(fake.sent).toHaveLength(3);
+      // (Another view's answer isn't its)
+      fake.fire("msg:custom", { type: "answer", id: "w:1", answer: {} });
+      fake.fire("msg:custom", { type: "answer", id: "v:1", answer: {} });
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(3);
+
+      // (After 1, 2, 4, 8 and 16 seconds, then no more)
+      fake.sent.length = 0;
+      model.send({ ...ask, id: "v:2" });
+      vi.advanceTimersByTime(31000);
+      expect(fake.sent).toHaveLength(6);
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(6);
+
+      // (Nor once the view's gone)
+      model.send({ ...ask, id: "v:3" });
+      model.close();
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(7);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("asks Python for a page with Panel's messages, and shows its answer", async () => {
     const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
     const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
