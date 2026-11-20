@@ -1203,6 +1203,20 @@ def resolve_rows_i(
                 f"{expr!r}), only by an expression (or a function of the data) or their names in "
                 "the stub."
             )
+        # (A list of bools is a mask, not the positions 0 and 1)
+        if any(isinstance(x, bool) for x in expr):
+            if not all(isinstance(x, bool) for x in expr):
+                raise ValueError(
+                    "A list of rows can be of their names and positions, or a mask of `True` and "
+                    f"`False` for every row, but not both (as {expr!r})."
+                )
+            if len(expr) != len(row_names):
+                raise ValueError(
+                    f"A mask of rows needs a `True` or `False` for each of the table's "
+                    f"{len(row_names)} rows, not {len(expr)}."
+                )
+            return [(name, ii) for ii, name in enumerate(row_names) if expr[ii]]
+
         # TODO: manually doing row selection here for now
         target_names = {x for x in expr if isinstance(x, str)}
         target_pos = {
