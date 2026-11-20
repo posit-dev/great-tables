@@ -4,7 +4,7 @@ Set how the table fits a narrow container.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L581-L665)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L599-L683)
 
 ``` python
 GTI.i_responsive(

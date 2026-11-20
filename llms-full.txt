@@ -10710,7 +10710,7 @@ trips = duckdb.read_parquet("trips.parquet")
 GTI(trips, order_by="trip_id").i_cols_filter("payment").i_as_widget()
 ```
 
-from_gt(gt: 'GT') -> 'GTI'
+from_gt(gt: 'GT', preset: 'Preset' = 'report') -> 'GTI'
 
 Make an interactive table from a `GT` table.
 
@@ -10724,6 +10724,12 @@ Parameters
 ----------
 gt
     A `GT` table.
+preset
+    The settings the table starts with: `"report"` (the default) for those above; or
+    `"explorer"` for those of [`GTI(preset="explorer")`](`great_tables.GTI`), set over
+    them by the `i_` methods it's made with (each of which sets all of its feature's
+    settings, so that its `i_display()` sets how the rows look, whatever
+    `opt_interactive()` set, but the page controls and selection are kept).
 
 Returns
 -------
@@ -10749,6 +10755,13 @@ can become interactive in the same way.
 
 ```{python}
 GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
+```
+
+With `preset="explorer"`, it's set up for looking through its data, as a
+`GTI(preset="explorer")` table is.
+
+```{python}
+GTI.from_gt(gt_tbl, preset="explorer")
 ```
 
 opt_interactive(self: 'GTSelf', active: 'bool' = True, use_pagination: 'bool' = True, use_pagination_info: 'bool' = True, use_sorting: 'bool' = True, use_search: 'bool' = False, use_filters: 'bool' = False, use_resizers: 'bool' = False, use_highlight: 'bool' = False, use_compact_mode: 'bool' = False, use_text_wrapping: 'bool' = True, use_page_size_select: 'bool' = False, page_size_default: 'int' = 10, page_size_values: 'list[int] | None' = None, pagination_type: 'str' = 'numbers', height: 'str | float' = 'auto', selection_mode: 'str | None' = None) -> 'GTSelf'

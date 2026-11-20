@@ -4,7 +4,7 @@ Options to define font choices for the entire table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1419-L1625)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1431-L1637)
 
 ``` python
 GT.opt_table_font(

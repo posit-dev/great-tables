@@ -4,7 +4,7 @@ Give columns a priority, for when the table drops columns to fit its container.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1258-L1316)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1276-L1334)
 
 ``` python
 GTI.i_cols_priority(

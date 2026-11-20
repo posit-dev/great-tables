@@ -4,7 +4,7 @@ Make the table's body scroll, within a height.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L536-L579)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L554-L597)
 
 ``` python
 GTI.i_scroll(height)

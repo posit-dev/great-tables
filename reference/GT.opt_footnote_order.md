@@ -4,7 +4,7 @@ Option to modify the ordering of footnotes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L803-L868)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L815-L880)
 
 ``` python
 GT.opt_footnote_order(order="marks_last")

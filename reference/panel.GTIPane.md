@@ -4,7 +4,7 @@ An interactive table in a Panel app or notebook, whose view and selection are pa
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L108-L412)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L128-L450)
 
 ``` python
 panel.GTIPane(
@@ -23,7 +23,7 @@ A [GTI](../reference/GTI.md#great_tables.GTI) table with more rows than the brow
 The table to show: a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive).
 
 `**params: Any`  
-Panel's parameters of a component (e.g., `margin=`, `visible=`).
+Panel's parameters of a component (e.g., `margin=`, `visible=`), and the pane's own `query=`, `search=`, `sort=` and `selection=`, which are set after the table's own view and selection (as if they were set once the pane's made), and checked as they are then.
 
 ## Examples
 
@@ -58,7 +58,7 @@ The table's data, with the rows its view keeps, in the order shown (see `rows`),
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L376-L392)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/panel.py#L414-L430)
 
 ``` python
 data(selected=False)

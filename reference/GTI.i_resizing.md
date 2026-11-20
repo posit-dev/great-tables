@@ -4,7 +4,7 @@ Let readers resize the table's columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L404-L433)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L422-L451)
 
 ``` python
 GTI.i_resizing(enabled=True)
