@@ -1606,7 +1606,11 @@ class GTI(GT):
                 raise TypeError(
                     f"`group_by=` takes a column name (or `None`), not {type(group_by).__name__}."
                 )
-            if group_by not in resolve_cols_c(self, group_by, excl_stub=False):
+            try:
+                found = group_by in resolve_cols_c(self, group_by, excl_stub=False)
+            except ValueError:
+                found = False
+            if not found:
                 raise ValueError(f"`group_by=` names column {group_by!r}, which the table hasn't.")
         return self._set_interactive(
             view_filter=check_query(filter),

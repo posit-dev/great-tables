@@ -919,6 +919,9 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
         # NOTE: If a column is already dictionary-typed, dictionary_encode() returns it unchanged and
         # ignores null_encoding so its nulls would stay null indices and their rows would be dropped
         group_col = _decode_arrow_dictionary(group_col)
+    if _is_arrow_string_view(group_col.type):
+        # (PyArrow encodes a string_view's null as "", which would merge it with an empty string)
+        group_col = group_col.cast(pa.large_string())
 
     # The default null_encoding="mask" drops the rows with a null key; polars groups them under None
     encoded = group_col.dictionary_encode(null_encoding="encode").combine_chunks()
@@ -992,6 +995,8 @@ def _(
         expr = [expr]
 
     if isinstance(expr, list):
+        _check_names_are_columns(data.columns, expr)
+
         # convert str and int entries to selectors ----
         all_selectors = [
             cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
@@ -1051,16 +1056,24 @@ def _validate_selector_list(selectors: list, strict=True):
             raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
 
 
+def _check_names_are_columns(columns: list[str], expr: list) -> None:
+    # (So that every backend raises on a name that isn't a column, as polars would)
+    names = set(columns)
+    missing = [x for x in expr if isinstance(x, str) and x not in names]
+    if missing:
+        raise ValueError(f"The table has no column named {', '.join(map(repr, missing))}.")
+
+
 def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
     col_pos = {k: ii for ii, k in enumerate(columns)}
+    _check_names_are_columns(columns, expr)
 
     # TODO: should prohibit duplicate names in expr?
     res: list[tuple[str, int]] = []
     n_cols = len(columns)
     for col in expr:
         if isinstance(col, str):
-            if col in col_pos:
-                res.append((col, col_pos[col]))
+            res.append((col, col_pos[col]))
         elif isinstance(col, int):
             _pos = col if col >= 0 else n_cols + col
             res.append((columns[col], _pos))
@@ -1685,4 +1698,7 @@ def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
 def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
     import pyarrow as pa
 
+    if _is_arrow_string_view(ser.type):
+        # (PyArrow has no `take` for a string_view)
+        ser = ser.cast(pa.large_string())
     return ser.take(pa.array(indexes, type=pa.int64()))
