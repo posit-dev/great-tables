@@ -612,6 +612,14 @@ def tab_options(
             'Use either "single" or "multiple".'
         )
 
+    # - `ihtml_pagination_type` is "numbers", "jump", "simple" or "full"
+    pagination_type = modified_args.get("ihtml_pagination_type")
+    if pagination_type is not None and pagination_type not in _PAGINATION_TYPES:
+        raise ValueError(
+            f"The chosen option for `ihtml_pagination_type` ({pagination_type!r}) is invalid. "
+            'Use "numbers", "jump", "simple", or "full".'
+        )
+
     # - `ihtml_height` is "auto", a CSS length, or a number of pixels
     height = modified_args.get("ihtml_height")
     if height is not None and not _is_height(height):
@@ -630,6 +638,10 @@ def tab_options(
     new_options = replace(self._options, **new_options_info)
 
     return self._replace(_options=new_options)
+
+
+# (R gt's, and "full", which GTI draws as first/previous/next/last)
+_PAGINATION_TYPES = ("numbers", "jump", "simple", "full")
 
 
 def _is_height(value: object) -> bool:
@@ -1952,7 +1964,7 @@ def opt_interactive(
     if page_size_values is None:
         page_size_values = [10, 25, 50, 100]
 
-    return tab_options(
+    res = tab_options(
         self,
         ihtml_active=active,
         ihtml_use_pagination=use_pagination,
@@ -1971,6 +1983,15 @@ def opt_interactive(
         ihtml_height=height,
         ihtml_selection_mode=selection_mode,
     )
+
+    # (`tab_options()` leaves an option given as `None` as it was, but `selection_mode=None` turns
+    # selection off, as every other option here is set to the value given)
+    if selection_mode is None:
+        options = res._options
+        selection = replace(options.ihtml_selection_mode, value=None)
+        res = res._replace(_options=replace(options, ihtml_selection_mode=selection))
+
+    return res
 
 
 @dataclass

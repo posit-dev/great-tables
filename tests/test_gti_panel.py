@@ -147,6 +147,48 @@ def test_pane_sorts_by_a_column_name_or_none():
     assert pane.sort == [] and pane._update["n"] == 2
 
 
+def test_pane_sorts_by_a_tuple_and_queries_by_a_dict_or_none():
+    # (As the widget's sort and query take them)
+    pane = GTIPane(make_gti())
+    pane.sort = ("fctr", "-num")
+    assert pane.sort == ["fctr", "-num"]
+    assert sent(pane)["_view"]["sort"] == [
+        {"column": "fctr", "descending": False},
+        {"column": "num", "descending": True},
+    ]
+    pane.query = FILTER
+    assert pane.query == 'fctr in ("one", "two")' and sent(pane)["_view"]["filter"] == FILTER
+    pane.query = None
+    assert pane.query == "" and sent(pane)["_view"]["filter"] is None
+    with pytest.raises(ValueError, match="nope"):
+        pane.query = {"and": [{"col": "nope", "op": "in", "value": ["one"]}]}
+    assert pane.query == "" and pane._update["n"] == 3
+
+
+def test_pane_takes_the_view_and_selection_given():
+    pane = GTIPane(make_gti().i_view(sort="char"), query=FILTER, sort="-num", selection=[1, 0])
+    assert state(pane) == ['fctr in ("one", "two")', "", ["-num"], [0, 4, 1, 2], [0, 1]]
+    assert sent(pane)["_view"]["filter"] == FILTER
+    assert sent(pane)["_view"]["sort"] == [{"column": "num", "descending": True}]
+    assert pane._update["_selection"] == [0, 1] and pane._update["n"] == 2
+    pane = GTIPane(make_gti(), search="an", margin=5)
+    assert pane.search == "an" and sent(pane)["_view"]["search"] == "an" and pane.margin == 5
+
+
+@pytest.mark.parametrize(
+    "params, message",
+    [
+        ({"query": "nope in (1)"}, "nope"),
+        ({"sort": "nope"}, "nope"),
+        ({"selection": [99]}, "`selection`"),
+        ({"rows": [0]}, "`rows` can't be given"),
+    ],
+)
+def test_pane_checks_the_view_and_selection_given(params: dict[str, Any], message: str):
+    with pytest.raises((TypeError, ValueError), match=message):
+        GTIPane(make_gti(), **params)
+
+
 def test_pane_has_no_end_of_a_script_in_a_notebook(monkeypatch: pytest.MonkeyPatch):
     # (As a notebook has the parameters in a script, as they are: each `</` in the state's
     # strings, Python's and the browser's, is sent with a NUL after the `<`, as src/panel.ts does)
