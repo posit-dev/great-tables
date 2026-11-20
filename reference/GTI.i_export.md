@@ -4,7 +4,7 @@ Let readers export the table's rows.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1690-L1790)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1694-L1794)
 
 ``` python
 GTI.i_export(

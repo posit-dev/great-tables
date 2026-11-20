@@ -4,7 +4,7 @@ Set where the rows of the table, shown as a widget or in a Shiny app, are search
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1983-L2040)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1987-L2044)
 
 ``` python
 GTI.i_scale(engine="auto")

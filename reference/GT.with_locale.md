@@ -64,7 +64,7 @@ GT(__x_locales.loc[:, columns]).cols_align("right")
 | locale | lang_name | lang_desc | territory_name | territory_desc |
 |----|----|----|----|----|
 | af | af | Afrikaans | ZA | South Africa |
-| af-NA | af | Afrikaans | None | Namibia |
+| af-NA | af | Afrikaans | NA | Namibia |
 | agq | agq | Aghem | CM | Cameroon |
 | ak | ak | Akan | GH | Ghana |
 | am | am | Amharic | ET | Ethiopia |
@@ -219,7 +219,7 @@ GT(__x_locales.loc[:, columns]).cols_align("right")
 | en-MV | en | English | MV | Maldives |
 | en-MW | en | English | MW | Malawi |
 | en-MY | en | English | MY | Malaysia |
-| en-NA | en | English | None | Namibia |
+| en-NA | en | English | NA | Namibia |
 | en-NF | en | English | NF | Norfolk Island |
 | en-NG | en | English | NG | Nigeria |
 | en-NL | en | English | NL | Netherlands |
@@ -471,7 +471,7 @@ GT(__x_locales.loc[:, columns]).cols_align("right")
 | mua | mua | Mundang | CM | Cameroon |
 | my | my | Burmese | MM | Myanmar (Burma) |
 | mzn | mzn | Mazanderani | IR | Iran |
-| naq | naq | Nama | None | Namibia |
+| naq | naq | Nama | NA | Namibia |
 | nb | nb | Norwegian Bokmål | NO | Norway |
 | nb-SJ | nb | Norwegian Bokmål | SJ | Svalbard & Jan Mayen |
 | nd | nd | North Ndebele | ZW | Zimbabwe |
