@@ -91,6 +91,35 @@ def test_resolve_rows_i_ints():
     assert resolve_rows_i(["a", "x", "a", "b"], [0, -1]) == [("a", 0), ("b", 3)]
 
 
+def test_resolve_rows_i_bools_are_a_mask():
+    # (Not the positions 0 and 1)
+    assert resolve_rows_i(["a", "x", "a", "b"], [False, True, True, False]) == [("x", 1), ("a", 2)]
+    assert resolve_rows_i(["a", "x"], [False, False]) == []
+
+
+@pytest.mark.parametrize(
+    "rows, message",
+    [
+        ([True, False], "each of the table's 4 rows, not 2"),
+        ([True, False, True, False, True], "each of the table's 4 rows, not 5"),
+        ([True, 2, False, False], "but not both"),
+        (["x", True, False, False], "but not both"),
+    ],
+)
+def test_resolve_rows_i_bools_raises(rows: list, message: str):
+    with pytest.raises(ValueError, match=message):
+        resolve_rows_i(["a", "x", "a", "b"], rows)
+
+
+def test_tab_style_rows_mask(frame_constructor: DataFrameConstructor):
+    from great_tables import loc, style
+
+    gt = GT(frame_constructor({"x": [1, 2, 3]})).tab_style(
+        style.fill("red"), loc.body(rows=[False, True, True])
+    )
+    assert [info.rownum for info in gt._styles] == [1, 2]
+
+
 def test_resolve_rows_i_polars_expr():
     gt = GT(pl.DataFrame({"x": ["a", "b", "c"]}), rowname_col="x")
     assert resolve_rows_i(gt, pl.col("x").is_in(["a", "b"])) == [("a", 0), ("b", 1)]
