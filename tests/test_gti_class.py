@@ -2131,6 +2131,30 @@ def test_from_gt_needs_a_gt():
         GTI.from_gt(DF)  # type: ignore[arg-type]
 
 
+def test_from_gt_with_the_explorer_preset():
+    gt = GT(FILTER_DF, rowname_col="id")
+    explorer = GTI.from_gt(gt, preset="explorer")
+    assert explorer._interactive == GTI(FILTER_DF, rowname_col="id", preset="explorer")._interactive
+    assert GTI.from_gt(gt, preset="report")._interactive == GTI.from_gt(gt)._interactive
+    # (Set over what `opt_interactive()` set, as its `i_` methods set them)
+    made = GTI.from_gt(gt.opt_interactive(use_highlight=True, selection_mode="multiple"))
+    settings = GTI.from_gt(
+        gt.opt_interactive(use_highlight=True, selection_mode="multiple"), preset="explorer"
+    )._interactive
+    assert settings == made._explorer()._interactive
+    assert settings.selection == "multiple" and settings.bar and settings.compact
+    # (And over a `GTI` table's)
+    gti = GTI(FILTER_DF).i_pagination(page_size=25)
+    assert GTI.from_gt(gti, preset="explorer")._interactive == gti._explorer()._interactive
+    assert GTI.from_gt(gti, preset="explorer")._interactive.page_size == 25
+
+
+@pytest.mark.parametrize("preset", ["explore", None])
+def test_from_gt_preset_must_be_known(preset):
+    with pytest.raises(ValueError, match='`preset=` must be "report" or "explorer"'):
+        GTI.from_gt(GT(DF), preset=preset)
+
+
 # output ----
 
 

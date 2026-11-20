@@ -397,6 +397,14 @@ def test_selection_mode_must_be_single_or_multiple(mode: str):
         GT(DF).tab_options(ihtml_selection_mode=mode)
 
 
+def test_opt_interactive_turns_selection_off():
+    # (As it sets every other option to the value given; `tab_options()` leaves one given as `None`)
+    gt = GT(DF).opt_interactive(selection_mode="multiple")
+    assert spec_of(gt.opt_interactive())["controls"]["selection"] is None
+    assert spec_of(gt.opt_interactive(selection_mode=None))["controls"]["selection"] is None
+    assert spec_of(gt.tab_options(ihtml_selection_mode=None))["controls"]["selection"] == "multiple"
+
+
 def test_spec_pagination_default():
     assert spec_of(GT(DF))["pagination"] == {
         "enabled": True,
@@ -433,9 +441,12 @@ def test_spec_pagination_types(pagination_type: str):
     assert spec_of(gt)["pagination"]["type"] == pagination_type
 
 
-def test_spec_pagination_unknown_type_is_numbers():
-    gt = GT(DF).opt_interactive(pagination_type="pages")
-    assert spec_of(gt)["pagination"]["type"] == "numbers"
+@pytest.mark.parametrize("pagination_type", ["pages", "Numbers", ""])
+def test_pagination_type_must_be_known(pagination_type: str):
+    with pytest.raises(ValueError, match="ihtml_pagination_type"):
+        GT(DF).opt_interactive(pagination_type=pagination_type)
+    with pytest.raises(ValueError, match="ihtml_pagination_type"):
+        GT(DF).tab_options(ihtml_pagination_type=pagination_type)
 
 
 def test_spec_display_default():
