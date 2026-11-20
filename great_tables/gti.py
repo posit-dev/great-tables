@@ -2204,7 +2204,7 @@ class GTI(GT):
             )
 
         fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
-        return page_html(fragment) if make_page else fragment
+        return page_html(fragment, self) if make_page else fragment
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
         """Not available for a GTI table, which is interactive HTML only."""

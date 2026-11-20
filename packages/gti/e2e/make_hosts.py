@@ -96,9 +96,13 @@ def kernel_spec() -> str:
     return json.dumps({"argv": argv, "display_name": "Python 3", "language": "python"})
 
 
-def quarto_doc() -> str:
-    cells = "\n\n".join(f"```{{python}}\n{source}\n```" for source in [SETUP, *TABLES])
-    return f"---\ntitle: Hosts\njupyter: python3\n---\n\n{cells}\n"
+def quarto_doc(sources: list[str] | None = None, header: str = "") -> str:
+    cells = "\n\n".join(f"```{{python}}\n{source}\n```" for source in sources or [SETUP, *TABLES])
+    return f"---\ntitle: Hosts\njupyter: python3\n{header}---\n\n{cells}\n"
+
+
+# (A document with a light and a dark theme, which the reader switches between)
+QUARTO_THEMES = "format:\n  html:\n    theme:\n      light: flatly\n      dark: darkly\n"
 
 
 # (The first two re-rendered as the input changes: as `render_gt()` and as `ui.HTML()`)
@@ -645,6 +649,35 @@ def marimo_kernel_app(lazy: bool = False) -> str:
     return MARIMO_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
 
 
+# (A static table as a cell's output, in an app whose display settings, in its script header, give
+# marimo's theme)
+MARIMO_THEME_APP = f"""\
+# /// script
+# [tool.marimo.display]
+# theme = "<theme>"
+# ///
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    {SETUP.replace(chr(10), chr(10) + "    ")}
+    return GT, small
+
+
+@app.cell
+def _(GT, small):
+    {TABLES[2]}
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
 import marimo
@@ -824,6 +857,8 @@ def main() -> None:
         "lazy_widget.ipynb": notebook([SETUP, LAZY_WIDGET]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
+        "theme.ipynb": notebook([SETUP, TABLES[2]]),
+        "theme.qmd": quarto_doc([SETUP, TABLES[2]], QUARTO_THEMES),
         "shiny_app.py": SHINY_APP,
         "shiny_state_app.py": SHINY_STATE_APP,
         "shiny_kernel_app.py": shiny_kernel_app(),
@@ -844,6 +879,8 @@ def main() -> None:
         "marimo_state_app.py": MARIMO_STATE_APP,
         "marimo_kernel_app.py": marimo_kernel_app(),
         "marimo_lazy_app.py": marimo_kernel_app(lazy=True),
+        "marimo_dark_theme_app.py": MARIMO_THEME_APP.replace("<theme>", "dark"),
+        "marimo_light_theme_app.py": MARIMO_THEME_APP.replace("<theme>", "light"),
         "flask_app.py": FLASK_APP,
         "fasthtml_app.py": FASTHTML_APP,
         "vscode.html": vscode_page(),

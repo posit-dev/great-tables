@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from ._locations import Loc
     from ._styles import CellStyle
     from ._text import BaseText
+    from ._theme import Theme
 
 T = TypeVar("T")
 
@@ -129,6 +130,8 @@ class GTData:
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _data_colors: list = field(default_factory=list)  # list[DataColorInfo]
     _has_built: bool = False
+    _theme: Theme | None = None
+    _theme_mode: str = "auto"
 
     def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
@@ -155,7 +158,7 @@ class GTData:
         stub, boxhead = _prep_gt(data, rowname_col, groupname_col, auto_align)
 
         if id is not None:
-            options = Options(table_id=OptionsInfo(True, "table", "value", id))
+            options = Options()._set_option_value("table_id", id)
         else:
             options = Options()
 
@@ -1339,6 +1342,7 @@ class OptionsInfo:
     category: str
     type: str
     value: Any
+    is_set: bool = False
 
     def _validate_value(self, value: Any, option_name: str) -> Any:
         """Validate and coerce an option value based on its type.
@@ -1400,6 +1404,19 @@ class OptionsInfo:
             return value
         else:
             return value
+
+
+@dataclass(frozen=True)
+class _ThemeOptionsInfo(OptionsInfo):
+    """An option value that `resolve_options()` derived from a theme, rather than one the user set."""
+
+
+def is_user_set(info: OptionsInfo, default: OptionsInfo) -> bool:
+    """
+    Whether the user set an option: it is marked as set, or it has a value other than its default
+    that a theme didn't give it (as when code outside Great Tables replaced the value).
+    """
+    return info.is_set or (not isinstance(info, _ThemeOptionsInfo) and info.value != default.value)
 
 
 @dataclass(frozen=True)
@@ -1641,6 +1658,6 @@ class Options:
     def _set_option_value(self, option: str, value: Any):
         old_info = getattr(self, option)
         validated_value = old_info._validate_value(value, option_name=option)
-        new_info = replace(old_info, value=validated_value)
+        new_info = replace(old_info, value=validated_value, is_set=True)
 
         return replace(self, **{option: new_info})

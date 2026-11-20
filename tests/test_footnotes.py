@@ -1203,7 +1203,7 @@ def test_source_note_styles_kept_in_both_modes(multiline: bool, location):
 
     source_note_cells = re.findall(r'<td class="gt_sourcenote"[^>]*>', gt_table._render_as_html())
     assert len(source_note_cells) == (2 if multiline else 1)
-    assert all('style="color: red;"' in cell for cell in source_note_cells)
+    assert all('style="color: red; ' in cell for cell in source_note_cells)
 
 
 def test_footnote_and_source_note_integration():

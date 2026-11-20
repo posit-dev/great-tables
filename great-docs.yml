@@ -244,6 +244,8 @@ reference:
         - from_column
         - google_font
         - system_fonts
+        - Theme
+        - Theme.from_brand
         - define_units
         - nanoplot_options
 
@@ -253,6 +255,7 @@ reference:
         having to use `tab_options()` directly.
       contents:
         - GT.opt_stylize
+        - GT.opt_theme
         - GT.opt_footnote_marks
         - GT.opt_footnote_spec
         - GT.opt_footnote_order

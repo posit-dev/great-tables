@@ -208,7 +208,9 @@ def test_loc_column_labels():
     el = create_columns_component_h(new_gt._build_data("html"))
 
     assert el.name == "tr"
-    assert el.children[0].attrs["style"] == "background-color: yellow;"
+    assert el.children[0].attrs["style"] == (
+        "color: var(--_gt-text-dark); background-color: yellow;"
+    )
     assert "style" not in el.children[1].attrs
 
 

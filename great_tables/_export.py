@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Literal, TypeAlias
 
 from ._helpers import random_id
 from ._scss import compile_scss
+from ._theme import pin_mode
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
 
@@ -272,13 +273,14 @@ def as_raw_html(
             )
 
         fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
-        return page_html(fragment) if make_page else fragment
+        return page_html(fragment, self) if make_page else fragment
 
     built_table = self._build_data(context="html")
 
     table_html = built_table._render_as_html(
         make_page=make_page,
         all_important=all_important,
+        variables=not inline_css,
     )
 
     if inline_css:
@@ -295,7 +297,9 @@ def as_raw_html(
             id = random_id() if table_id is None else table_id
 
             # Compile the SCSS as CSS
-            table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
+            table_css = compile_scss(
+                self, id=id, compress=False, all_important=all_important, variables=False
+            )
 
             return inline_fragment(html=table_html, css=table_css)
 
@@ -528,7 +532,7 @@ def save(  # pragma: no cover
 
     # Get the HTML content from the displayed output
     # Prepend utf-8 charset so the Chrome webdriver renders unicode correctly
-    html_content = "<meta charset='utf-8'>" + as_raw_html(self)
+    html_content = "<meta charset='utf-8'>" + as_raw_html(pin_mode(self))
 
     wdriver = _get_web_driver(web_driver)
 
@@ -858,7 +862,7 @@ def gtsave(
     import nokap
 
     # Get the HTML content of the table
-    html_content = as_raw_html(self)
+    html_content = as_raw_html(pin_mode(self))
 
     # Use nokap.from_html() to render the table to an image or PDF
     nokap.from_html(
