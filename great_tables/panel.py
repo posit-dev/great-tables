@@ -91,12 +91,32 @@ def _unescaped(value: Any) -> Any:
     return value
 
 
-class _Sort(param.List):
-    # (A list of names, which can be set to a name, or `None`, as the widget's sort can)
+class _Query(param.String):
+    # (A query in text, which can be set to `None`, or to a query as `i_view()`'s `filter=` takes
+    # it, as the widget's query can)
     __slots__ = ()
 
     def __set__(self, obj: Any, val: Any) -> None:
-        super().__set__(obj, [val] if isinstance(val, str) else [] if val is None else val)
+        if val is None:
+            val = ""
+        elif isinstance(val, dict):
+            val = format_query(check_query_value(None, val, "`query`"))
+        super().__set__(obj, val)
+
+
+class _Sort(param.List):
+    # (A list of names, which can be set to a name, a tuple of them, or `None`, as the widget's
+    # sort can)
+    __slots__ = ()
+
+    def __set__(self, obj: Any, val: Any) -> None:
+        if isinstance(val, str):
+            val = [val]
+        elif val is None:
+            val = []
+        elif isinstance(val, tuple):
+            val = list(val)
+        super().__set__(obj, val)
 
     def _validate_value(self, value: Any, allow_None: bool) -> None:
         if not isinstance(value, list):
@@ -125,7 +145,9 @@ class GTIPane(ReactiveESM):
     table
         The table to show: a `GTI` table, or a `GT` table with `opt_interactive()`.
     **params
-        Panel's parameters of a component (e.g., `margin=`, `visible=`).
+        Panel's parameters of a component (e.g., `margin=`, `visible=`), and the pane's own
+        `query=`, `search=`, `sort=` and `selection=`, which are set after the table's own view
+        and selection (as if they were set once the pane's made), and checked as they are then.
 
     Examples
     --------
@@ -149,17 +171,21 @@ class GTIPane(ReactiveESM):
     ```
     """
 
-    query = param.String(
+    query = _Query(
         default="",
-        doc="The table's filters, as a query in text (as the query box has it), or `''` without any.",
+        doc=(
+            "The table's filters, as a query in text (as the query box has it), or `''` without "
+            "any. Setting it to a query as `i_view()`'s `filter=` takes it, or `None`, sets it to "
+            "the query in text, or `''`."
+        ),
     )
     search = param.String(default="", doc="The table's search (`''` without one).")
     sort = _Sort(
         default=[],
         doc=(
             "The table's sort: its columns, most significant first, each with a `-` before it if "
-            "it's sorted in descending order. Setting it to a column name, or `None`, sets it to a "
-            "list of it, or of none."
+            "it's sorted in descending order. Setting it to a column name, a tuple of them, or "
+            "`None`, sets it to a list of it, of them, or of none."
         ),
     )
     selection = param.List(
@@ -217,6 +243,14 @@ class GTIPane(ReactiveESM):
         self._sent = 0
         self._reports: dict[str, int] = {}
         self._answers: OrderedDict[str, dict[str, Any]] = OrderedDict()
+        if "rows" in params:
+            raise TypeError(
+                "`rows` can't be given: they're the rows the table's view keeps (set it with "
+                "`query=`, `search=` and `sort=`, or the table's `i_view()`)."
+            )
+        # (The state given, set once the author's is, as if it were set after)
+        state = {name: params.pop(name) for name in ("query", "search", "sort") if name in params}
+        selection = params.pop("selection", None)
         view = author_view(spec)
         # (The widget's state, as the browser has it, or will once it's sent)
         self._model: dict[str, Any] = {"_view": view, "_rows": None, "_selection": []}
@@ -233,6 +267,10 @@ class GTIPane(ReactiveESM):
         self.param.watch(self._view_changed, ["query", "search", "sort"])
         self.param.watch(self._selection_changed, ["selection"])
         self.param.watch(self._reported, ["_report"])
+        if state:
+            self.param.update(state)
+        if selection is not None:
+            self.selection = selection
 
     @contextmanager
     def _sync(self) -> Iterator[None]:
