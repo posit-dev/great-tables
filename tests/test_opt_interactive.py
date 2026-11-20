@@ -117,14 +117,17 @@ class TestAsRawHtml:
 
     def test_make_page(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html(make_page=True)
-        assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>')
+        assert html.startswith(
+            '<!DOCTYPE html>\n<html lang="en" style="color-scheme: light dark">\n<head>\n'
+            '<meta charset="utf-8"/>'
+        )
         assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
         assert "<body>\n<gt-table>\n" in html
         assert html.endswith("</body>\n</html>\n")
 
     def test_make_page_as_gti_does(self):
         gt = GT(pl.DataFrame({"x": [1]}), id="t").opt_interactive()
-        assert gt.as_raw_html(make_page=True) == page_html(gt.as_raw_html())
+        assert gt.as_raw_html(make_page=True) == page_html(gt.as_raw_html(), gt)
 
     def test_all_important(self):
         gt = GT(pl.DataFrame({"x": [1]}), id="t").opt_interactive()

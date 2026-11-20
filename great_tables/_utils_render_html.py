@@ -21,8 +21,10 @@ from ._gt_data import (
 )
 from ._html import HTML, Tag, TagList, css
 from ._spanners import spanners_print_matrix
+from ._styles import CellStyleFill, CellStyleText, _FillWithoutContrastText
 from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text
+from ._theme import CSS_COLOR_KEYWORDS, foreground_option
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 if TYPE_CHECKING:
@@ -111,10 +113,73 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     return isinstance(loc, cls)
 
 
+# A hex color whose alpha channel is not fully opaque
+TRANSLUCENT_HEX = re.compile(
+    r"#(?:[0-9a-f]{3}[0-9a-e]|[0-9a-f]{6}(?:[0-9a-f][0-9a-e]|[0-9a-e][0-9a-f]))", re.IGNORECASE
+)
+
+
+def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None:
+    """
+    The declaration that makes a cell's literal colors work in dark mode, and where it goes: after
+    the style entry at the index given, or before all of them (`None`). `None` if there is none.
+
+    A fill with no text color gets the table's text color for its brightness, unless `data_color()`
+    made it with `autocolor_text=False`; it goes first, so that any color the user wrote wins. A
+    text color with no fill is blended toward the inherited text color in dark mode only
+    (`light-dark()` picks by the table's `color-scheme`), right after that color. Colors that
+    aren't plain strings, or that can't be parsed, add nothing.
+    """
+    fills = [el for el in style_entries if isinstance(el, CellStyleFill)]
+    texts = [i for i, el in enumerate(style_entries) if isinstance(el, CellStyleText) and el.color]
+
+    if fills and not texts:
+        # (The last fill is the one drawn)
+        fill = fills[-1]
+        if isinstance(fill, _FillWithoutContrastText):
+            return None
+
+        # (Only an opaque color has a brightness: a keyword or a translucent color shows what is
+        # behind or around it)
+        color = fill.color
+        try:
+            usable = (
+                isinstance(color, str)
+                and color.strip().lower() not in CSS_COLOR_KEYWORDS
+                and not TRANSLUCENT_HEX.fullmatch(color.strip())
+            )
+            option = foreground_option(color) if usable else None
+        except ValueError:
+            option = None
+
+        if option == "table_font_color":
+            return None, "color: var(--_gt-text-dark);"
+        if option == "table_font_color_light":
+            return None, "color: var(--_gt-text-light);"
+
+    elif texts and not fills and isinstance(style_entries[texts[-1]].color, str):
+        color = style_entries[texts[-1]].color
+        blend = f"color: light-dark({color}, color-mix(in srgb, {color} 35%, currentcolor));"
+        return texts[-1], blend
+
+    return None
+
+
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
     style_entries = list(chain.from_iterable(x.styles for x in styles))
     rendered_styles = [el._to_html_style() for el in style_entries]
+
+    dark_aware = _dark_aware_color(style_entries)
+    if dark_aware is not None:
+        after, declaration = dark_aware
+        if after is None:
+            rendered_styles.insert(0, declaration)
+        else:
+            # (A text style writes its color first)
+            authored = f"color: {style_entries[after].color};"
+            rest = rendered_styles[after].removeprefix(authored)
+            rendered_styles[after] = f"{authored} {declaration}{rest}"
 
     # TODO dedupe rendered styles in sequence
 

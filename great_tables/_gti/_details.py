@@ -11,6 +11,7 @@ import math
 from typing import TYPE_CHECKING, Any
 
 from .._gt_data import ColInfoTypeEnum
+from .._scss import theme_declarations
 from .._tbl_data import _get_column_values, get_column_names
 from .._text import BaseText, _process_text
 from ._settings import settings_of
@@ -35,11 +36,19 @@ def render_details(data: GTData) -> dict[int, str]:
         rows = [dict(zip(names, cells)) for cells in zip(*columns)] if names else []
         made = enumerate(content(values) for values in rows)
 
+    # (Nested tables must not inherit the variables from this table, as custom properties
+    # cross the shadow root: `initial` makes them invalid, so use fallbacks)
+    light, dark = theme_declarations(data)
+    variables = sorted({name for name in (*light, *(dark or {})) if name.startswith("--gt-")})
+    reset = "".join(f" {name}: initial;" for name in variables)
+
     details: dict[int, str] = {}
     for row, value in made:
         html = _details_html(value, row, content)
         if html is not None:
-            details[row] = html
+            details[row] = (
+                f'<div style="display: contents;{reset}">{html}</div>' if variables else html
+            )
     return details
 
 

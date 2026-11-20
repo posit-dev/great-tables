@@ -500,9 +500,16 @@ def test_row_start_must_be_0_or_1(value):
 
 def test_i_display_compact_halves_row_padding():
     def row_padding(gt: GT) -> str:
-        rule = re.search(r"#t \.gt_row {[^}]*?padding-top: ([^;]+);", gt.as_raw_html())
+        html = gt.as_raw_html()
+        rule = re.search(r"#t \.gt_row {[^}]*?padding-top: ([^;]+);", html)
         assert rule is not None
-        return rule.group(1)
+        # The rule reads `var(--gt-data-row-padding, <default>)`: the declaration of it, if any
+        declared = re.search(r"--gt-data-row-padding: ([^;]+);", html)
+        return (
+            declared.group(1)
+            if declared
+            else re.fullmatch(r"var\([^,]+, ([^)]+)\)", rule.group(1))[1]
+        )
 
     assert row_padding(GTI(DF, id="t")) == "8px"
     assert row_padding(GTI(DF, id="t").i_display(compact=True)) == "4px"
@@ -1835,6 +1842,20 @@ def test_i_row_details_keeps_room_for_the_bar():
     assert gt_table_tag(gti.i_row_details(lambda row: None)) == "<gt-table>"
 
 
+def test_i_row_details_do_not_inherit_the_tables_variables():
+    inner = GT(pd.DataFrame({"a": [1]}), id="inner")
+    styled = GTI(DF).opt_table_font(font="monospace", add=False).cols_hide(columns="y")
+    found = templates_of(styled.i_row_details(lambda row: inner))
+    assert all(
+        html.startswith('<div style="display: contents;') and "--gt-font-family: initial" in html
+        for html in found.values()
+    )
+    # (Public variables only: not the table's private ones)
+    assert "--_gt-" not in found[0].split(">", 1)[0]
+    plain = templates_of(GTI(DF).i_row_details(lambda row: inner))
+    assert all("display: contents" not in html for html in plain.values())
+
+
 def test_i_row_details_templates_follow_the_table():
     out = render_gti_html(GTI(DF, id="t").i_row_details(lambda row: "x"), runtime="none")
     # (In the element, after the table and before the spec)
@@ -2167,7 +2188,9 @@ def test_as_raw_html_is_interactive():
 
 def test_as_raw_html_make_page():
     html = GTI(DF).as_raw_html(make_page=True)
-    assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n')
+    assert html.startswith(
+        '<!DOCTYPE html>\n<html lang="en" style="color-scheme: light dark">\n<head>\n'
+    )
     assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
     assert "<body>\n<gt-table data-gti-bar data-gti-stack>\n" in html
     assert html.endswith("</body>\n</html>\n")

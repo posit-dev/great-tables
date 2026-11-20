@@ -182,3 +182,5 @@ The `opt_*()` methods give you quick access to common styling patterns without n
 the specific `~~GT.tab_options()` argument names. For full control, you can always drop down to
 `~~GT.tab_options()` directly, but these convenience methods cover the most frequent customization
 needs in just a single method call.
+
+For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).
