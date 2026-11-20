@@ -248,21 +248,24 @@ class GTI(GT):
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
         object.__setattr__(self, "_interactive", Settings(data_kind=kind))
         if preset == "explorer":
-            explorer = (
-                self.i_cols_filter()
-                .i_cols_profile()
-                .i_cols_controls(hideable=True, reorderable=True)
-                .i_display(compact=True, wrap=False, monospace=True)
-                .i_export("csv")
-                .i_inspect()
-            )
-            object.__setattr__(self, "_interactive", explorer._interactive)
+            object.__setattr__(self, "_interactive", self._explorer()._interactive)
 
     _interactive: Settings
     _lazy: Lazy | None
 
+    def _explorer(self) -> Self:
+        # (The table with the explorer preset's settings, over those it has)
+        return (
+            self.i_cols_filter()
+            .i_cols_profile()
+            .i_cols_controls(hideable=True, reorderable=True)
+            .i_display(compact=True, wrap=False, monospace=True)
+            .i_export("csv")
+            .i_inspect()
+        )
+
     @classmethod
-    def from_gt(cls, gt: GT) -> GTI:
+    def from_gt(cls, gt: GT, preset: Preset = "report") -> GTI:
         """
         Make an interactive table from a `GT` table.
 
@@ -276,6 +279,12 @@ class GTI(GT):
         ----------
         gt
             A `GT` table.
+        preset
+            The settings the table starts with: `"report"` (the default) for those above; or
+            `"explorer"` for those of [`GTI(preset="explorer")`](`great_tables.GTI`), set over
+            them by the `i_` methods it's made with (each of which sets all of its feature's
+            settings, so that its `i_display()` sets how the rows look, whatever
+            `opt_interactive()` set, but the page controls and selection are kept).
 
         Returns
         -------
@@ -302,9 +311,18 @@ class GTI(GT):
         ```{python}
         GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
         ```
+
+        With `preset="explorer"`, it's set up for looking through its data, as a
+        `GTI(preset="explorer")` table is.
+
+        ```{python}
+        GTI.from_gt(gt_tbl, preset="explorer")
+        ```
         """
+        if preset not in PRESETS:
+            raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
         if isinstance(gt, GTI):
-            return gt
+            return gt._explorer() if preset == "explorer" else gt
         if not isinstance(gt, GT):
             raise TypeError(f"`GTI.from_gt()` needs a `GT` table, not {type(gt).__name__!r}.")
 
@@ -323,7 +341,7 @@ class GTI(GT):
         new = cls.__new__(cls)
         new.__dict__.update(gt.__dict__)
         object.__setattr__(new, "_interactive", settings)
-        return new
+        return new._explorer() if preset == "explorer" else new
 
     def _set_interactive(self, **changes: Any) -> Self:
         return self._replace(_interactive=replace(self._interactive, **changes))
