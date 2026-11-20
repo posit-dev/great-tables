@@ -179,7 +179,7 @@ class Settings:
         height = options.ihtml_height.value
         # (`tab_options()` takes only these)
         selection = options.ihtml_selection_mode.value
-        # (`opt_interactive()` doesn't check the type, so an unknown one falls back to "numbers")
+        # (`tab_options()` takes only these, but options set otherwise fall back to "numbers")
         pagination_type = options.ihtml_pagination_type.value
         return cls(
             sorting=bool(options.ihtml_use_sorting.value),
