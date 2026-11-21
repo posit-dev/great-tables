@@ -14,13 +14,15 @@ dynamic: true
 
 # Logo
 logo:
-  light: assets/GT_logo.svg
-  dark: assets/GT_logo.svg
+  light: assets/GT_logo.light.svg
+  dark: assets/GT_logo.dark.svg
 
 # Homepage
 homepage: index
 hero:
-  logo: assets/GT_logo.svg
+  logo:
+    light: assets/GT_logo.light.svg
+    dark: assets/GT_logo.dark.svg
   logo_height: 200px
   name: false
   tagline: "Absolutely Delightful Table-making in Python"
