@@ -291,6 +291,7 @@ class ColInfo:
     column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
+    column_label_rotate: tuple[str, str, int] | None = None
     # Position of the column within the stub (0 = outermost level); only set for columns given in
     # `rowname_col`, and kept when the column is hidden so that it can be restored as a stub column
     stub_level: int | None = None
@@ -501,6 +502,17 @@ class Boxhead(_Sequence[ColInfo]):
         set_cols = set(columns)
         out_cols: list[ColInfo] = [
             replace(x, column_align=align) if x.var in set_cols else x for x in self._d
+        ]
+
+        return self.__class__(out_cols)
+
+    def _set_column_label_rotate(
+        self, columns: list[str], dir: str, align: str, padding: int
+    ) -> Self:
+        set_cols = set(columns)
+        out_cols: list[ColInfo] = [
+            replace(x, column_label_rotate=(dir, align, padding)) if x.var in set_cols else x
+            for x in self._d
         ]
 
         return self.__class__(out_cols)

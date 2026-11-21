@@ -618,10 +618,23 @@ def cols_label_rotate(
     if not align:
         align = "left" if dir == "sideways-lr" else "right"
 
-    res = self.tab_style(
-        style=CellStyleCss(
-            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
-        ),
+    column_names = self._boxhead._get_columns()
+    if isinstance(columns, str):
+        columns = [columns]
+    if isinstance(columns, list):
+        _assert_list_is_subset(
+            [col for col in columns if isinstance(col, str)], set_list=column_names
+        )
+    elif columns is None:
+        columns = column_names
+
+    sel_cols = resolve_cols_c(data=self, expr=columns, excl_stub=False)
+
+    boxhead = self._boxhead._set_column_label_rotate(
+        sel_cols, dir=dir, align=align, padding=padding
+    )
+    res = self._replace(_boxhead=boxhead).tab_style(
+        style=CellStyleCss(f"text-align: {align}; padding: {padding}px 0px;"),
         locations=LocColumnLabels(columns=columns),
     )
     return res

@@ -5,10 +5,12 @@ import polars as pl
 import pyarrow as pa
 import pyarrow.compute as pc
 import pytest
-from great_tables import GT
+
+from great_tables import GT, html, loc, md, style
 from great_tables._boxhead import _align_to_char
-from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
+from great_tables._utils_render_html import create_columns_component_h
+from great_tables.gt import _get_column_labels
 from tests.utils import DataFrameConstructor, assert_rendered_columns
 
 
@@ -23,7 +25,7 @@ def test_cols_label():
 
 def test_cols_label_mix_cases_kwargs():
     df = pd.DataFrame({"x": [1.234, 2.345], "y": [3.456, 4.567], "z": [5.678, 6.789]})
-    gt = GT(df).cols_label({"x": "ex"}, **{"y": "why"}, z="Zee")
+    gt = GT(df).cols_label({"x": "ex"}, y="why", z="Zee")
 
     x = _get_column_labels(gt=gt, context="html")
     y = ["ex", "why", "Zee"]
@@ -49,7 +51,7 @@ def test_cols_label_rotate(snapshot: str):
 def test_cols_label_rotate_align_fails():
     with pytest.raises(ValueError) as exc_info:
         df = pd.DataFrame({"x": [], "y": []})
-        GT(df).cols_label_rotate(align="invalid")  # noqa
+        GT(df).cols_label_rotate(align="invalid")
 
     assert "Align must be one of" in exc_info.value.args[0]
 
@@ -57,7 +59,7 @@ def test_cols_label_rotate_align_fails():
 def test_cols_label_rotate_dir_fails():
     with pytest.raises(ValueError) as exc_info:
         df = pd.DataFrame({"x": [], "y": []})
-        GT(df).cols_label_rotate(dir="invalid")  # noqa
+        GT(df).cols_label_rotate(dir="invalid")
 
     assert "Dir must be one of" in exc_info.value.args[0]
 
@@ -69,6 +71,38 @@ def test_cols_label_rotate_align_default():
 
     assert "text-align: right;" in gt1._styles[0].styles[0].rule
     assert "text-align: left;" in gt2._styles[0].styles[0].rule
+
+
+@pytest.mark.parametrize("dir", ["sideways-lr", "sideways-rl", "vertical-lr"])
+def test_cols_label_rotate_renders_label_span(dir):
+    df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
+    gt = (
+        GT(df, id="test")
+        .cols_label(x="Plain", y=html("<strong>HTML</strong>"), z=md("*Markdown*"))
+        .cols_label_rotate(columns=["x", "y", "z"], dir=dir, align="center", padding=12)
+        .tab_style(
+            style=style.text(weight="bold"),
+            locations=loc.column_labels(columns=["x", "y"]),
+        )
+    )
+
+    rendered = str(create_columns_component_h(gt._build_data("html")))
+
+    for colname in ("x", "y", "z"):
+        assert f'scope="col" id="test-{colname}"' in rendered
+
+    assert "text-align: center;" in rendered
+    assert "padding: 12px 0px;" in rendered
+    assert "font-weight: bold;" in rendered
+    assert (
+        f'<span style="writing-mode: {dir}; vertical-align: middle; height: max-content;">'
+        in rendered
+    )
+    assert rendered.count('<span style="writing-mode:') == 3
+    assert re.search(r"<th[^>]*writing-mode", rendered) is None
+
+    assert "<strong>HTML</strong>" in rendered
+    assert "<em>Markdown</em>" in rendered
 
 
 def test_final_columns_stub_move_to_beginning():
