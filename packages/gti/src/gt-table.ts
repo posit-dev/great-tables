@@ -737,6 +737,33 @@ function backdropColor(el: Element): string {
   return "Canvas";
 }
 
+// What fills what's behind a table, to be done again as the page's colours change: as a theme's
+// toggle changes a class or attribute of `<html>` or `<body>`, as the system's light or dark
+// scheme changes, or as a background behind a table finishes a transition
+const refills = new Set<(behind?: EventTarget | null) => void>();
+let watchingColors = false;
+
+function watchColors(doc: Document, refill: (behind?: EventTarget | null) => void): void {
+  refills.add(refill);
+  if (watchingColors) {
+    return;
+  }
+  watchingColors = true;
+  const all = (behind?: EventTarget | null) => refills.forEach((each) => each(behind));
+  const observer = new MutationObserver(() => all());
+  for (const node of [doc.documentElement, doc.body]) {
+    if (node !== null) {
+      observer.observe(node, { attributeFilter: ["class", "style", "data-theme", "data-bs-theme"] });
+    }
+  }
+  doc.addEventListener("transitionend", (event) => {
+    if (event.propertyName === "background-color") {
+      all(event.target);
+    }
+  });
+  doc.defaultView?.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => all());
+}
+
 // An element of a class, with attributes
 function element<K extends keyof HTMLElementTagNameMap>(
   doc: Document,
@@ -1023,6 +1050,16 @@ export class GtTable extends HTMLElement {
   private view = { start: 0, end: 0, total: 0 };
   private pager: Pager | null = null;
   private bar: Bar | null = null;
+  /**
+   * Fill the sticky bar with what's behind the table again (as the page's colours change, or the
+   * background of `behind`, if it's behind the table).
+   */
+  private refill = (behind?: EventTarget | null): void => {
+    const root = this.bar?.root;
+    if (root?.hasAttribute("data-gti-stick") && (behind == null || (behind instanceof Node && behind.contains(this)))) {
+      root.style.backgroundColor = backdropColor(this);
+    }
+  };
   /** The element's handler for `/`, which opens the bar's search. */
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
   /** The element's handler for the keys that page. */
@@ -1623,10 +1660,12 @@ export class GtTable extends HTMLElement {
   }
 
   connectedCallback(): void {
+    watchColors(this.ownerDocument, this.refill);
     if (this.table !== null) {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
       if (this.contains(this.table)) {
         this.observeLayout();
+        this.refill();
         if (this.spec?.display.parts === true) {
           this.showParts(true);
         }
@@ -1650,6 +1689,7 @@ export class GtTable extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    refills.delete(this.refill);
     this.leaveLink();
     this.showParts(false);
     this.closePanel(false);
