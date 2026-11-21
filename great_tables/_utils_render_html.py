@@ -614,9 +614,9 @@ def create_columns_component_h(data: GTData) -> str:
 
         spanner_ids_level_1 = spanner_ids[level_1_index]
         spanner_ids_level_1_index = list(spanner_ids_level_1.values())
-        # Parallel list of spanner IDs for the first level (used for filtering)
+        # Group adjacent columns by spanner ID since display labels can repeat.
         spanner_id_level_1_index = list(spanner_id_matrix[level_1_index].values())
-        spanners_rle = seq_groups(seq=spanner_ids_level_1_index)
+        spanners_rle = seq_groups(seq=spanner_id_level_1_index)
 
         # `colspans` matches `spanners` in length; each element is the number of columns that the
         # <th> at that position should span; if 0, then skip the <th> at that position
@@ -766,10 +766,7 @@ def create_columns_component_h(data: GTData) -> str:
 
         for spanners_row, spanner_id_row in zip(spanner_ids[:-2], spanner_id_matrix[:-2]):
             spanners_row = {k: "" if v is None else v for k, v in spanners_row.items()}
-            spanner_id_row = {k: "" if v is None else v for k, v in spanner_id_row.items()}
-
-            spanner_ids_index = spanners_row.values()
-            spanners_rle = seq_groups(seq=spanner_ids_index)
+            spanners_rle = seq_groups((span_id,) for span_id in spanner_id_row.values())
             group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
             colspans = list(chain.from_iterable(group_spans))
             level_i_spanners = []
