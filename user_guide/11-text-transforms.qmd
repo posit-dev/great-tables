@@ -11,6 +11,11 @@ giving you a post-processing layer for tasks like replacing abbreviations, apply
 labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
 data values.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="great tables" cell-trick="flip" intro='[["mood", "thinking"], ["wait", 600], ["mood", "happy"], ["write", "GREAT TABLES", 110], ["mood", "grin"], ["say", "Same cells, new text!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
 Text transforms work on the *already-rendered text* after formatting. This means you can use
 `~~GT.fmt_number()` to get consistent decimal places, and then use `~~GT.text_transform()` to wrap

@@ -10,6 +10,11 @@ cell, a standalone HTML file, a LaTeX document, or an image file for inclusion i
 presentation. **Great Tables** provides several export methods to cover these use cases, each with
 options to control the output format.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cell-trick="slots" intro='[["arms", "open"], ["write", ["HTML", "PNG", "PDF", "LaTeX", "SVG", "Word", "Excel", "PPT", "RTF", "Typst"], 160], ["mood", "grin"], ["say", "Build once, export many ways!"], ["mood", "happy"], ["arms", "rest"]]'></gt-tabblen>
+```
+
 The general principle is: build your table once, export it many ways. The same `GT` object can be
 displayed interactively, saved as HTML, rendered as LaTeX, or captured as an image. This means you
 don't need to maintain separate table-building code for different output formats. Your single chain
