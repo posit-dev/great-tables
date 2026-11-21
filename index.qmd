@@ -12,6 +12,7 @@ readers to sort, filter and search in the browser.
 ```{=html}
 <link rel="stylesheet" href="assets/homepage.css">
 <script src="assets/homepage.js" defer></script>
+<script src="assets/backdrop.js" defer></script>
 ```
 
 ::: {.gth-cta}
@@ -41,12 +42,12 @@ import polars as pl
 from great_tables import GT, GTI, data, loc, md, nanoplot_options, style
 
 regions = {
-    "IN": "Asia", "CN": "Asia", "ID": "Asia", "PK": "Asia", "BD": "Asia", "JP": "Asia",
-    "US": "Americas", "BR": "Americas", "MX": "Americas",
-    "NG": "Africa", "ET": "Africa", "RU": "Europe",
+    "IN": "Asia", "CN": "Asia", "ID": "Asia", "PK": "Asia", "BD": "Asia",
+    "US": "Americas", "BR": "Americas",
+    "NG": "Africa",
 }
 
-# The twelve most populous countries of 2022, with their populations in 1960 and 2022, and
+# The eight most populous countries of 2022, with their populations in 1960 and 2022, and
 # (in millions) every five years between
 countries = (
     data.pl.countrypops
@@ -72,7 +73,7 @@ countries = (
 :::: {.gth-step .gth-step-raw}
 [Data]{.gth-step-name}
 
-It starts with a DataFrame: here, the twelve most populous countries, from `data.countrypops`.
+It starts with a DataFrame: here, the eight most populous countries, from `data.countrypops`.
 `GT()` takes Polars, Pandas and PyArrow tables as they are.
 
 ```{python}
