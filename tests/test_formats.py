@@ -13,7 +13,7 @@ import pytest
 import sys
 from babel.dates import format_datetime
 from great_tables import GT, _locale, vals
-from great_tables._data_color.base import _html_color
+from great_tables._data_color.utils import _html_color
 from great_tables._formats import (
     FmtImage,
     _apply_value_pattern,
