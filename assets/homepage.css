@@ -10,6 +10,35 @@
   --gth-radius: 12px;
 }
 
+/* The hero's animated backdrop (assets/backdrop.js): across the page, from under the navbar to
+   below the hero (fading out there), behind the page's content */
+
+.gd-homepage .gd-hero > #gth-backdrop {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+.gd-homepage .gd-hero > #gth-backdrop.gth-on {
+  opacity: 1;
+}
+
+/* (In dark mode, the page's background is <html>'s alone, so that the backdrop shows over it) */
+body.quarto-dark.gd-homepage,
+body.quarto-dark.gd-homepage :is(#quarto-content, main.content, #quarto-document-content) {
+  background-color: transparent;
+}
+
+@media print {
+  .gd-homepage .gd-hero > #gth-backdrop {
+    display: none;
+  }
+}
+
 /* The lead and the calls to action */
 
 .gd-homepage #quarto-document-content > p:first-of-type {
@@ -603,7 +632,8 @@ html.quarto-dark .gth-card:hover {
   .gth-stepper.gth-ready .gth-panel,
   .gth-stepper.gth-ready .gth-panel.gth-active,
   .gth-card,
-  .gth-btn {
+  .gth-btn,
+  .gd-homepage .gd-hero > #gth-backdrop {
     transition: none;
   }
 
