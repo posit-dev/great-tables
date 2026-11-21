@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched,">
+<meta name="description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.">
 
 <title>GTI.i_scale() | Great Tables</title>
 <script type="application/ld+json">[{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "Great Tables", "description": "Easily generate information-rich, publication-quality tables from Python.", "codeRepository": "https://github.com/posit-dev/great-tables", "license": "https://opensource.org/licenses/MIT", "url": "https://posit-dev.github.io/great-tables", "documentation": "https://posit-dev.github.io/great-tables", "programmingLanguage": {"@type": "ComputerLanguage", "name": "Python"}}, {"@context": "https://schema.org", "@type": "WebPage", "name": "GTI.i_scale - Great Tables", "isPartOf": {"@type": "WebSite", "name": "Great Tables"}, "url": "https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html"}]</script>
@@ -141,10 +141,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <meta property="og:title" content="GTI.i_scale() | Great Tables">
-<meta property="og:description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched,">
+<meta property="og:description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.">
 <meta property="og:site_name" content="Great Tables">
 <meta name="twitter:title" content="GTI.i_scale() | Great Tables">
-<meta name="twitter:description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched,">
+<meta name="twitter:description" content="Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -1569,7 +1569,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 <div class="doc-subject">
-<p>Set where the rows of the table, shown as a widget or in a Shiny app, are searched,</p>
+<p>Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.</p>
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
@@ -1579,7 +1579,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb1"><pre class="sourceCode pythonsignature"><code class="sourceCode pythonsignature"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">GTI</span><span class="op">.</span><span class="fu">i_scale</span>(<span class="va">engine</span><span class="op">=</span><span class="st">"auto"</span>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>filtered and sorted.</p>
 <p>A table shown in the browser has all of its rows there, which does all of this: quick for a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a widget (with <a href="../reference/GTI.i_as_widget.html#great_tables.GTI.i_as_widget" class="gdls-link"><code>i_as_widget()</code></a>), or in a Shiny app (with <a href="../reference/shiny.render_gt.html#great_tables.shiny.render_gt" class="gdls-link"><code>render_gt()</code></a>), a table can keep its rows in Python instead (in the notebook’s kernel, or on the app’s server), which searches, filters and sorts them (with <a href="https://narwhals-dev.github.io/narwhals/">Narwhals</a>, on the data’s own library), and sends the browser the page it shows, one at a time: so the table loads as quickly with a million rows as with a few.</p>
 <p>In the kernel, a table always has pages (as <a href="../reference/GTI.i_pagination.html#great_tables.GTI.i_pagination" class="gdls-link"><code>i_pagination()</code></a> sets them up), and its readers can’t group its rows by a column, see its columns’ profiles, see rows’ details, or export the rows themselves (they can copy the code that filters and sorts the data as the view does, if the table has the <code>"code"</code> format); nor do its <a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a> colors change with the rows kept, or does it filter linked tables (see <a href="../reference/GTI.i_link.html#great_tables.GTI.i_link" class="gdls-link"><code>i_link()</code></a>). A table with row groups, summary rows, or a stub of more than one column is shown in the browser, as anywhere else, and so is a table that isn’t shown as a widget or in a Shiny app.</p>
 <p>A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its rows in the frame, and has only the page shown collected (see <a href="../reference/GTI.html#great_tables.GTI" class="gdls-link"><code>GTI()</code></a>).</p>

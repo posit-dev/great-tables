@@ -1,6 +1,6 @@
 # streamlit.GTIState
 
-An interactive table's state in a Streamlit app, as [`st_gti()`](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti)
+An interactive table's state in a Streamlit app, as [`st_gti()`](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti) gives it.
 
 Usage
 
@@ -13,8 +13,6 @@ streamlit.GTIState(
     selection,
 )
 ```
-
-gives it.
 
 ## Attributes
 

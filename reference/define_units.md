@@ -1,6 +1,6 @@
 # define_units()
 
-With [define_units()](../reference/define_units.md#great_tables.define_units) you can work with a specially-crafted units notation string and emit the
+With [define_units()](../reference/define_units.md#great_tables.define_units) you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method in **Great Tables**.
 
 Usage
 
@@ -9,8 +9,6 @@ Usage
 ``` python
 define_units(units_notation)
 ```
-
-units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method in **Great Tables**.
 
 ## Parameters
 

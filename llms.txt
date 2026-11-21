@@ -148,7 +148,7 @@
 - [from_column](https://posit-dev.github.io/great-tables/reference/from_column.html): Specify that a style value should be fetched from a column in the data
 - [google_font](https://posit-dev.github.io/great-tables/reference/google_font.html): Specify a font from the *Google Fonts* service
 - [system_fonts](https://posit-dev.github.io/great-tables/reference/system_fonts.html): Get a themed font stack that works well across systems
-- [define_units](https://posit-dev.github.io/great-tables/reference/define_units.html): With `define_units()` you can work with a specially-crafted units notation string and emit the
+- [define_units](https://posit-dev.github.io/great-tables/reference/define_units.html): With `define_units()` you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the `fmt_units()` method in **Great Tables**
 - [nanoplot_options](https://posit-dev.github.io/great-tables/reference/nanoplot_options.html): Helper for setting the options for a nanoplot
 
 #### Table options
@@ -189,16 +189,16 @@
 - [GTI.i_scroll](https://posit-dev.github.io/great-tables/reference/GTI.i_scroll.html): Make the table's body scroll, within a height
 - [GTI.i_responsive](https://posit-dev.github.io/great-tables/reference/GTI.i_responsive.html): Set how the table fits a narrow container
 - [GTI.i_view](https://posit-dev.github.io/great-tables/reference/GTI.i_view.html): Show the table filtered and sorted, as readers first see it
-- [GTI.i_view_state](https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html): Keep the reader's view of the table, for when the page is opened again, and let them undo
+- [GTI.i_view_state](https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html): Keep the reader's view of the table, for when the page is opened again, and let them undo their changes to it
 - [GTI.i_export](https://posit-dev.github.io/great-tables/reference/GTI.i_export.html): Let readers export the table's rows
-- [GTI.i_inspect](https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html): Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+- [GTI.i_inspect](https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html): Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where its values are missing
 
 #### Interactive columns and exploration
 > The `i_cols_*()` methods set up the table's columns for readers: their filters, their controls, which are pinned and which give way on a narrow screen, and small plots of their values under their labels. Rows can have details that readers open, and tables can be linked, so that the rows selected in one filter another.
 
 
 - [GTI.i_cols_filter](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_filter.html): Let readers filter the table by its columns
-- [GTI.i_cols_controls](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html): Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+- [GTI.i_cols_controls](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html): Choose which columns readers can sort by, search, resize, hide, move, and group the rows by, which are only for querying, and whose colors follow the rows kept
 - [GTI.i_cols_pin](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_pin.html): Pin columns to a side of the table, so they stay in view as it scrolls sideways
 - [GTI.i_cols_priority](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_priority.html): Give columns a priority, for when the table drops columns to fit its container
 - [GTI.i_cols_profile](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_profile.html): Show how the columns' values are spread, in a small plot under their labels
@@ -210,13 +210,13 @@
 
 
 - [GTI.i_as_widget](https://posit-dev.github.io/great-tables/reference/GTI.i_as_widget.html): Show the table as a widget, whose view and selection can be read and set from Python
-- [GTI.i_scale](https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html): Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+- [GTI.i_scale](https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html): Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted
 - [shiny.render_gt](https://posit-dev.github.io/great-tables/reference/shiny.render_gt.html): Render a great_tables table
 - [shiny.output_gt](https://posit-dev.github.io/great-tables/reference/shiny.output_gt.html): Output UI for a great_tables table
 - [shiny.update_gti](https://posit-dev.github.io/great-tables/reference/shiny.update_gti.html): Change an interactive table's view or selection, from a Shiny app's server
 - [streamlit.st_gti](https://posit-dev.github.io/great-tables/reference/streamlit.st_gti.html): Show an interactive table in a Streamlit app, and get its state
 - [streamlit.update_gti](https://posit-dev.github.io/great-tables/reference/streamlit.update_gti.html): Change an interactive table's view or selection, from a Streamlit app
-- [streamlit.GTIState](https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html): An interactive table's state in a Streamlit app, as [`st_gti()`](`great_tables.streamlit.st_gti`)
+- [streamlit.GTIState](https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html): An interactive table's state in a Streamlit app, as [`st_gti()`](`great_tables.streamlit.st_gti`) gives it
 - [panel.GTIPane](https://posit-dev.github.io/great-tables/reference/panel.GTIPane.html): An interactive table in a Panel app or notebook, whose view and selection are parameters
 - [solara.GTITable](https://posit-dev.github.io/great-tables/reference/solara.GTITable.html): An interactive table in a Solara app, whose view and selection are the app's to read and set
 - [web.runtime_tags](https://posit-dev.github.io/great-tables/reference/web.runtime_tags.html): The tags that give a page the runtime its interactive tables need

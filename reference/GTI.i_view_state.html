@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo">
+<meta name="description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo their changes to it.">
 
 <title>GTI.i_view_state() | Great Tables</title>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script type="application/ld+json">[{"@context": "https://schema.org", "@type": "SoftwareSourceCode", "name": "Great Tables", "description": "Easily generate information-rich, publication-quality tables from Python.", "codeRepository": "https://github.com/posit-dev/great-tables", "license": "https://opensource.org/licenses/MIT", "url": "https://posit-dev.github.io/great-tables", "documentation": "https://posit-dev.github.io/great-tables", "programmingLanguage": {"@type": "ComputerLanguage", "name": "Python"}}, {"@context": "https://schema.org", "@type": "WebPage", "name": "GTI.i_view_state - Great Tables", "isPartOf": {"@type": "WebSite", "name": "Great Tables"}, "url": "https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html"}]</script>
@@ -144,10 +144,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <meta property="og:title" content="GTI.i_view_state() | Great Tables">
-<meta property="og:description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo">
+<meta property="og:description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo their changes to it.">
 <meta property="og:site_name" content="Great Tables">
 <meta name="twitter:title" content="GTI.i_view_state() | Great Tables">
-<meta name="twitter:description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo">
+<meta name="twitter:description" content="Keep the reader’s view of the table, for when the page is opened again, and let them undo their changes to it.">
 <meta name="twitter:card" content="summary">
 </head>
 
@@ -1572,7 +1572,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 <div class="doc-subject">
-<p>Keep the reader’s view of the table, for when the page is opened again, and let them undo</p>
+<p>Keep the reader’s view of the table, for when the page is opened again, and let them undo their changes to it.</p>
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
@@ -1586,7 +1586,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 </div>
 <div class="doc-text">
-<p>their changes to it.</p>
 <p>The view is the table’s filters, sort, search, page, page size, hidden columns, and the column its rows are grouped by, and the height of a body that scrolls (see <a href="../reference/GTI.i_scroll.html#great_tables.GTI.i_scroll" class="gdls-link"><code>i_scroll()</code></a>) as the reader drags it (not the rows selected, or the columns’ widths). As the reader changes it, it can be kept in the page’s URL (<code>url=</code>), so that reloading the page, or sharing its link, opens the table as it was; and in the browser’s storage (<code>storage=</code>), so that the reader finds it as they left it when they come back to the page. The table’s info panel then has a button that goes back to the view the table is first shown with (see <a href="../reference/GTI.i_view.html#great_tables.GTI.i_view" class="gdls-link"><code>i_view()</code></a>), which is also what’s kept as no view at all.</p>
 <p>In the URL, the view is in the query string, with each part of it named after the table’s ID (e.g., <code>?towny.filter=population_2021+%3E%3D+10000&amp;towny.sort=-population_2021</code>, the filter written as <a href="../reference/GTI.i_view.html#great_tables.GTI.i_view" class="gdls-link gdls-code">i_view()</a> takes it as text), so that tables with different IDs keep their own views, and the page’s other parameters are left alone. A link that has the view of a table opens it with that view, rather than the one in the browser’s storage. A part of the view the table can’t have (say, a filter on a column that has none, after the table is changed) is left out, with a warning in the browser’s console, and the rest kept.</p>
 <p>With <code>undo=</code> (the default), the control bar has buttons that undo and redo the reader’s changes to the view, as do Ctrl+Z and Ctrl+Y (⌘Z and ⇧⌘Z on a Mac) in the table. Typing a search, or changing one filter, a little at a time is one change; going to another page isn’t one, but is undone with the change after it. Resetting the view is a change too, so it can be undone. The changes are kept while the page is open, not with the view.</p>
@@ -1625,7 +1624,7 @@ The GTI object is returned.
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>Here’s a table of Ontario’s municipalities whose filters, sort, search and page are kept in the page’s URL as they’re changed, so that a link to the page shows what the reader sees; the undo and redo buttons in the control bar step back and forth through those changes.</p>
-<div id="f6a3f40d" class="cell" data-execution_count="1">
+<div id="09f44eb0" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GTI</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables.data <span class="im">import</span> towny</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>

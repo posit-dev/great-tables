@@ -1,6 +1,6 @@
 # GTI.i_scale()
 
-Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.
 
 Usage
 
@@ -9,8 +9,6 @@ Usage
 ``` python
 GTI.i_scale(engine="auto")
 ```
-
-filtered and sorted.
 
 A table shown in the browser has all of its rows there, which does all of this: quick for a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a widget (with [`i_as_widget()`](../reference/GTI.i_as_widget.md#great_tables.GTI.i_as_widget)), or in a Shiny app (with [`render_gt()`](../reference/shiny.render_gt.md#great_tables.shiny.render_gt)), a table can keep its rows in Python instead (in the notebook's kernel, or on the app's server), which searches, filters and sorts them (with [Narwhals](https://narwhals-dev.github.io/narwhals/), on the data's own library), and sends the browser the page it shows, one at a time: so the table loads as quickly with a million rows as with a few.
 

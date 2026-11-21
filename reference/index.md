@@ -341,7 +341,7 @@ Specify a font from the *Google Fonts* service.
 Get a themed font stack that works well across systems.
 
 [define_units()](define_units.md#great_tables.define_units)  
-With [define_units()](../reference/define_units.md#great_tables.define_units) you can work with a specially-crafted units notation string and emit the
+With [define_units()](../reference/define_units.md#great_tables.define_units) you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method in **Great Tables**.
 
 [nanoplot_options()](nanoplot_options.md#great_tables.nanoplot_options)  
 Helper for setting the options for a nanoplot.
@@ -431,13 +431,13 @@ Set how the table fits a narrow container.
 Show the table filtered and sorted, as readers first see it.
 
 [GTI.i_view_state()](GTI.i_view_state.md#great_tables.GTI.i_view_state)  
-Keep the reader's view of the table, for when the page is opened again, and let them undo
+Keep the reader's view of the table, for when the page is opened again, and let them undo their changes to it.
 
 [GTI.i_export()](GTI.i_export.md#great_tables.GTI.i_export)  
 Let readers export the table's rows.
 
 [GTI.i_inspect()](GTI.i_inspect.md#great_tables.GTI.i_inspect)  
-Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where its values are missing.
 
 ## Interactive columns and exploration
 
@@ -447,7 +447,7 @@ The `i_cols_*()` methods set up the table's columns for readers: their filters, 
 Let readers filter the table by its columns.
 
 [GTI.i_cols_controls()](GTI.i_cols_controls.md#great_tables.GTI.i_cols_controls)  
-Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+Choose which columns readers can sort by, search, resize, hide, move, and group the rows by, which are only for querying, and whose colors follow the rows kept.
 
 [GTI.i_cols_pin()](GTI.i_cols_pin.md#great_tables.GTI.i_cols_pin)  
 Pin columns to a side of the table, so they stay in view as it scrolls sideways.
@@ -472,7 +472,7 @@ An interactive table's view (its search, filters and sort) and selection can be 
 Show the table as a widget, whose view and selection can be read and set from Python.
 
 [GTI.i_scale()](GTI.i_scale.md#great_tables.GTI.i_scale)  
-Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.
 
 [shiny.render_gt()](shiny.render_gt.md#great_tables.shiny.render_gt)  
 Render a great_tables table.
@@ -490,7 +490,7 @@ Show an interactive table in a Streamlit app, and get its state.
 Change an interactive table's view or selection, from a Streamlit app.
 
 [streamlit.GTIState](streamlit.GTIState.md#great_tables.streamlit.GTIState)  
-An interactive table's state in a Streamlit app, as [`st_gti()`](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti)
+An interactive table's state in a Streamlit app, as [`st_gti()`](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti) gives it.
 
 [panel.GTIPane](panel.GTIPane.md#great_tables.panel.GTIPane)  
 An interactive table in a Panel app or notebook, whose view and selection are parameters.

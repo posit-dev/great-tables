@@ -50,11 +50,11 @@ pn.Column(table, pn.bind(selected, table.param.selection)).servable()
 
 | Name | Description |
 |----|----|
-| [data()](#great_tables.panel.GTIPane.data) | The table's data, with the rows its view keeps, in the order shown (see `rows`), or with |
+| [data()](#great_tables.panel.GTIPane.data) | The table's data, with the rows its view keeps, in the order shown (see `rows`), or with `selected=True`, the rows selected (in data order): a DataFrame of the data's library, with all of its columns. |
 
 ### data()
 
-The table's data, with the rows its view keeps, in the order shown (see `rows`), or with
+The table's data, with the rows its view keeps, in the order shown (see `rows`), or with `selected=True`, the rows selected (in data order): a DataFrame of the data's library, with all of its columns.
 
 Usage
 
@@ -63,5 +63,3 @@ Usage
 ``` python
 data(selected=False)
 ```
-
-`selected=True`, the rows selected (in data order): a DataFrame of the data's library, with all of its columns.

@@ -1,6 +1,6 @@
 # GTI.i_view_state()
 
-Keep the reader's view of the table, for when the page is opened again, and let them undo
+Keep the reader's view of the table, for when the page is opened again, and let them undo their changes to it.
 
 Usage
 
@@ -13,8 +13,6 @@ GTI.i_view_state(
     undo=True,
 )
 ```
-
-their changes to it.
 
 The view is the table's filters, sort, search, page, page size, hidden columns, and the column its rows are grouped by, and the height of a body that scrolls (see [`i_scroll()`](../reference/GTI.i_scroll.md#great_tables.GTI.i_scroll)) as the reader drags it (not the rows selected, or the columns' widths). As the reader changes it, it can be kept in the page's URL (`url=`), so that reloading the page, or sharing its link, opens the table as it was; and in the browser's storage (`storage=`), so that the reader finds it as they left it when they come back to the page. The table's info panel then has a button that goes back to the view the table is first shown with (see [`i_view()`](../reference/GTI.i_view.md#great_tables.GTI.i_view)), which is also what's kept as no view at all.
 

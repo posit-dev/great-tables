@@ -202,7 +202,7 @@ An assortment of helper functions is available in the Great Tables package. The 
 - `from_column`: Specify that a style value should be fetched from a column in the data
 - `google_font`: Specify a font from the *Google Fonts* service
 - `system_fonts`: Get a themed font stack that works well across systems
-- `define_units`: With `define_units()` you can work with a specially-crafted units notation string and emit the
+- `define_units`: With `define_units()` you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the `fmt_units()` method in **Great Tables**
 - `nanoplot_options`: Helper for setting the options for a nanoplot
 
 ### Table options

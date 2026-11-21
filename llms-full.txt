@@ -11350,12 +11350,7 @@ list of font names that make up the font stack. This is exactly the type of inpu
 
 define_units(units_notation: str) -> UnitDefinitionList
 
-With `define_units()` you can work with a specially-crafted units notation string and emit the
-
-::: {.doc-text}
-units as HTML (with the `.to_html()` method). This function is useful as a standalone utility
-and it powers the `fmt_units()` method in **Great Tables**.
-:::
+With `define_units()` you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the `fmt_units()` method in **Great Tables**.
 
 ## Parameters {.doc-parameters}
 
@@ -13604,10 +13599,9 @@ button in the control bar:
 
 i_view_state(self, url: bool = True, storage: bool = False, undo: bool = True) -> Self
 
-Keep the reader's view of the table, for when the page is opened again, and let them undo
+Keep the reader's view of the table, for when the page is opened again, and let them undo their changes to it.
 
 ::: {.doc-text}
-their changes to it.
 
 The view is the table's filters, sort, search, page, page size, hidden columns, and the
 column its rows are grouped by, and the height of a body that scrolls (see [`i_scroll()`](`great_tables.GTI.i_scroll`)) as the
@@ -13755,10 +13749,9 @@ from great_tables.data import towny
 
 i_inspect(self, *, row_numbers: bool = True, dtypes: bool = True, dimensions: bool = True, missing: bool = True, row_start: int | None = None) -> Self
 
-Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where its values are missing.
 
 ::: {.doc-text}
-its values are missing.
 
 Row numbers are in a narrow column before the others (with the rows' checkboxes, with
 [`i_selection()`](`great_tables.GTI.i_selection`)), pinned with the stub as the table
@@ -13948,10 +13941,9 @@ nuclides_mini = nuclides[["nuclide", "z", "n", "is_stable"]].head(20).assign(
 
 i_cols_controls(self, columns: SelectExpr = None, *, sortable: bool | None = None, searchable: bool | None = None, resizable: bool | None = None, hideable: bool | None = None, reorderable: bool | None = None, groupable: bool | None = None, display: bool | None = None, data_color: DataColorMode | None = None) -> Self
 
-Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+Choose which columns readers can sort by, search, resize, hide, move, and group the rows by, which are only for querying, and whose colors follow the rows kept.
 
 ::: {.doc-text}
-which are only for querying, and whose colors follow the rows kept.
 
 Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
 search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -14669,10 +14661,9 @@ widget.sort = "-hp"
 
 i_scale(self, engine: Engine = 'auto') -> Self
 
-Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.
 
 ::: {.doc-text}
-filtered and sorted.
 
 A table shown in the browser has all of its rows there, which does all of this: quick for
 a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a
@@ -14980,11 +14971,7 @@ st.write(f"{len(state.rows or [])} rows, filtered by {state.query!r}")
 
 GTIState(view: dict[str, Any], rows: list[int] | None, selection: list[int])
 
-An interactive table's state in a Streamlit app, as [`st_gti()`](`great_tables.streamlit.st_gti`)
-
-::: {.doc-text}
-gives it.
-:::
+An interactive table's state in a Streamlit app, as [`st_gti()`](`great_tables.streamlit.st_gti`) gives it.
 
 ## Attributes {.doc-attributes}
 
@@ -15074,12 +15061,7 @@ pn.Column(table, pn.bind(selected, table.param.selection)).servable()
 
 data(self, selected: bool = False) -> DataFrameLike
 
-The table's data, with the rows its view keeps, in the order shown (see `rows`), or with
-
-::: {.doc-text}
-`selected=True`, the rows selected (in data order): a DataFrame of the data's library,
-with all of its columns.
-:::
+The table's data, with the rows its view keeps, in the order shown (see `rows`), or with `selected=True`, the rows selected (in data order): a DataFrame of the data's library, with all of its columns.
 
 GTITable(table: GT, query: _Value[str] = None, search: _Value[str] = None, sort: _Value[list[str]] = None, selection: _Value[list[int]] = None, on_query: Callable[[str], None] | None = None, on_search: Callable[[str], None] | None = None, on_sort: Callable[[list[str]], None] | None = None, on_selection: Callable[[list[int]], None] | None = None, on_rows: Callable[[list[int]], None] | None = None) -> solara.Element
 

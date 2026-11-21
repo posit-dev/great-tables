@@ -1,6 +1,6 @@
 # GTI.i_cols_controls()
 
-Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+Choose which columns readers can sort by, search, resize, hide, move, and group the rows by, which are only for querying, and whose colors follow the rows kept.
 
 Usage
 
@@ -20,8 +20,6 @@ GTI.i_cols_controls(
     data_color=None,
 )
 ```
-
-which are only for querying, and whose colors follow the rows kept.
 
 Where the table lets readers sort it ([`i_sorting()`](../reference/GTI.i_sorting.md#great_tables.GTI.i_sorting)), search it ([`i_search()`](../reference/GTI.i_search.md#great_tables.GTI.i_search)), and resize its columns ([`i_resizing()`](../reference/GTI.i_resizing.md#great_tables.GTI.i_resizing)), they can do so with every column, by default. This leaves some columns out: an unsortable column's label has no sort button (though the column can still be filtered, and [`i_view()`](../reference/GTI.i_view.md#great_tables.GTI.i_view) can still sort by it), the search doesn't look in (or highlight) an unsearchable column's cells (though its own filter does), and an unresizable column's label has no handle.
 
