@@ -52,7 +52,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-4036da0f1623778840d8f280f1b3029a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-1aa5e9f6d206be91d862d26944677737.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -97,7 +97,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../theme-init.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js"></script>
 <meta name="gd-scale-to-fit" data-selectors="[&quot;.gt_table:not(gt-table .gt_table)&quot;]">
-<meta name="gd-logo-tooltip" content="<code>v1.1.0</code><br>Released 2026-10-15">
+<meta name="gd-logo-tooltip" content="<code>v1.2.0</code><br>Released 2026-11-20">
 <style>:root{--gd-nav-prefix-api:"API";--gd-nav-prefix-cli:"CLI";--gd-nav-prefix-mcp:"MCP";}</style>
 <link rel="canonical" href="https://posit-dev.github.io/great-tables/reference/data.reactions.html">
 <meta property="og:url" content="https://posit-dev.github.io/great-tables/reference/data.reactions.html">
@@ -153,7 +153,7 @@ ul.task-list li input[type="checkbox"] {
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="https://github.com/posit-dev/great-tables"> 
-<span class="menu-text"><span id="repository-widget" data-provider="github" data-label="GitHub" data-url="https://github.com/posit-dev/great-tables" data-issues-url="https://github.com/posit-dev/great-tables/issues" data-requests-url="https://github.com/posit-dev/great-tables/pulls" data-releases-url="https://github.com/posit-dev/great-tables/releases" data-fork-url="https://github.com/posit-dev/great-tables/fork" data-public-api="https://api.github.com/repos/posit-dev/great-tables" data-stars="2922" data-forks="155"></span></span></a>
+<span class="menu-text"><span id="repository-widget" data-provider="github" data-label="GitHub" data-url="https://github.com/posit-dev/great-tables" data-issues-url="https://github.com/posit-dev/great-tables/issues" data-requests-url="https://github.com/posit-dev/great-tables/pulls" data-releases-url="https://github.com/posit-dev/great-tables/releases" data-fork-url="https://github.com/posit-dev/great-tables/fork" data-public-api="https://api.github.com/repos/posit-dev/great-tables" data-stars="2924" data-forks="155"></span></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -1496,8 +1496,15 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#details" id="toc-details" class="nav-link active" data-scroll-target="#details">Details</a></li>
+  <li><a href="#preview" id="toc-preview" class="nav-link" data-scroll-target="#preview">Preview</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content" tabindex="-1">
@@ -1531,7 +1538,8 @@ ul.task-list li input[type="checkbox"] {
 <p>The <a href="../reference/data.reactions.html#great_tables.data.reactions" class="gdls-link gdls-code">reactions</a> dataset contains kinetic data for second-order (two body) gas-phase chemical reactions for 1,683 organic compounds. The reaction-rate values and parameters within this dataset are useful for studies of the atmospheric environment. Organic pollutants, which are present in trace amounts in the atmosphere, have been extensively studied by research groups since their persistence in the atmosphere requires specific attention. Many researchers have reported kinetic data on specific gas-phase reactions and these mainly involve oxidation reactions with OH, nitrate radicals, ozone, and chlorine atoms.</p>
 <p>This compilation of rate constant (<em>k</em>) data as contains the values for rate constants at 298 K (in units of <code>cm^3 molecules^-1 s^-1</code>) as well as parameters that allow for the calculation of rate constants at different temperatures (the temperature dependence parameters: <code>A</code>, <code>B</code>, and <code>n</code>). Uncertainty values/factors and temperature limits are also provided here where information is available.</p>
 </div>
-<div class="doc-text">
+<section id="details" class="level2 doc-details">
+<h2 class="doc-details anchored" data-anchor-id="details">Details</h2>
 <p>This is a dataset with 1,683 rows and 39 columns.</p>
 <ul>
 <li><code>compd_name</code>: The name of the primary compound undergoing reaction with OH, nitrate radicals, ozone, or chlorine atoms.</li>
@@ -1562,8 +1570,9 @@ ul.task-list li input[type="checkbox"] {
 <li><code>Cl_a</code>, <code>Cl_b</code>, <code>Cl_n</code>: Extended temperature dependence parameters for bimolecular Cl reactions, to be used in the Arrhenius expression: <code>k(T)=A exp(-B/T) (T/300)^n</code>. In that, <code>A</code> is expressed as cm^3 molecules^-1 s^-1, <code>B</code> is in units of K, and <code>n</code> is dimensionless. Any missing values indicate that data is not available.</li>
 <li><code>Cl_t_low</code>, <code>Cl_t_high</code>: The low and high temperature boundaries (in units of K) for which the <code>Cl_a</code>, <code>Cl_b</code>, and <code>Cl_n</code> parameters are valid.</li>
 </ul>
-</div>
-<div class="doc-text">
+</section>
+<section id="preview" class="level2 doc-preview">
+<h2 class="doc-preview anchored" data-anchor-id="preview">Preview</h2>
 <pre><code>Rows: 1683
 Columns: 39
 $ cmpd_name     &lt;str&gt; 'methane', 'formaldehyde', 'methanol'
@@ -1607,9 +1616,9 @@ $ Cl_B          &lt;f64&gt; 1240.0, 34.0, 0.0
 $ Cl_n          &lt;f64&gt; None, None, None
 $ Cl_t_low      &lt;f64&gt; 200.0, 200.0, 225.0
 $ Cl_t_high     &lt;f64&gt; 300.0, 500.0, 950.0</code></pre>
-</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

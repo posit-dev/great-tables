@@ -6,6 +6,8 @@ Feature films in competition at the Cannes Film Festival.
 
 Each entry in the [films](../reference/data.films.md#great_tables.data.films) is a feature film that appeared in the official selection during a festival year (starting in 1946 and active to the present day). The `year` column refers to the year of the festival and this figure doesn't always coincide with the release year of the film. The film's title reflects the most common title of the film in English, where the `original_title` column provides the title of the film in its spoken language (transliterated to Roman script where necessary).
 
+## Details
+
 This is a dataset with 1,851 rows and 8 columns.
 
 - `year`: The year of the festival in which the film was in competition.
@@ -16,7 +18,7 @@ This is a dataset with 1,851 rows and 8 columns.
 - `run_time`: The run time of the film in hours and minutes. This is given as a string in the format `<x>h <y>m`.
 - `imdb_url`: The URL of the film's information page in the Internet Movie Database (IMDB).
 
-&nbsp;
+## Preview
 
     Rows: 1851
     Columns: 8

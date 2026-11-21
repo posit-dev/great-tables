@@ -6,6 +6,8 @@ A table of personal information for people all over the world.
 
 The [peeps](../reference/data.peeps.md#great_tables.data.peeps) dataset contains records for one hundred people residing in ten different countries. Each person in the table has address information along with their email address and phone number. There are also personal characteristics like date of birth, height, and weight. This data has been synthesized, and so the names within the table have not been taken or based on individuals in real life. The street addresses were generated from actual street names within real geographic localities, however, the street numbers were assigned randomly from a constrained number set. While these records do not relate to real people, efforts were made to make the data as realistic as possible.
 
+## Details
+
 This is a dataset with 100 rows and 14 columns.
 
 - `name_given`, `name_family`: The given and family name of individual.
@@ -20,7 +22,7 @@ This is a dataset with 100 rows and 14 columns.
 - `dob`: The individual's date of birth (DOB) in the ISO 8601 form of `YYYY-MM-DD`.
 - `height_cm`, `weight_kg`: The height and weight of the individual in centimeters (cm) and kilograms (kg), respectively.
 
-&nbsp;
+## Preview
 
     Rows: 100
     Columns: 14

@@ -16,62 +16,62 @@
 > A table can contain a few useful components for conveying additional information. These include a header (with a titles and subtitle), a footer (with source notes), and additional areas for labels (row group labels, column spanner labels, the stubhead label). We can perform styling on targeted table locations with the [`tab_style()`](`great_tables.GT.tab_style`) method.
 
 
-- [GT.tab_header](https://posit-dev.github.io/great-tables/reference/GT.tab_header.html)
-- [GT.tab_spanner](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner.html)
-- [GT.tab_spanner_delim](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_delim.html)
-- [GT.tab_stub](https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html)
-- [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html)
-- [GT.tab_stub_indent](https://posit-dev.github.io/great-tables/reference/GT.tab_stub_indent.html)
+- [GT.tab_header](https://posit-dev.github.io/great-tables/reference/GT.tab_header.html): Add a table header
+- [GT.tab_spanner](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner.html): Insert a spanner above a selection of column headings
+- [GT.tab_spanner_delim](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_delim.html): Insert spanners by splitting column names with a delimiter
+- [GT.tab_stub](https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html): Add a table stub, to emphasize row and group information
+- [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html): Add label text to the stubhead
+- [GT.tab_stub_indent](https://posit-dev.github.io/great-tables/reference/GT.tab_stub_indent.html): Control indentation of row labels in the stub
 - [GT.row_group_order](https://posit-dev.github.io/great-tables/reference/GT.row_group_order.html)
-- [GT.tab_footnote](https://posit-dev.github.io/great-tables/reference/GT.tab_footnote.html)
-- [GT.tab_source_note](https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html)
-- [GT.rm_header](https://posit-dev.github.io/great-tables/reference/GT.rm_header.html)
-- [GT.rm_stubhead](https://posit-dev.github.io/great-tables/reference/GT.rm_stubhead.html)
-- [GT.rm_spanners](https://posit-dev.github.io/great-tables/reference/GT.rm_spanners.html)
-- [GT.rm_footnotes](https://posit-dev.github.io/great-tables/reference/GT.rm_footnotes.html)
-- [GT.rm_source_notes](https://posit-dev.github.io/great-tables/reference/GT.rm_source_notes.html)
-- [GT.tab_style](https://posit-dev.github.io/great-tables/reference/GT.tab_style.html)
-- [GT.tab_style_body](https://posit-dev.github.io/great-tables/reference/GT.tab_style_body.html)
-- [GT.tab_options](https://posit-dev.github.io/great-tables/reference/GT.tab_options.html)
+- [GT.tab_footnote](https://posit-dev.github.io/great-tables/reference/GT.tab_footnote.html): Add a table footnote
+- [GT.tab_source_note](https://posit-dev.github.io/great-tables/reference/GT.tab_source_note.html): Add a source note citation
+- [GT.rm_header](https://posit-dev.github.io/great-tables/reference/GT.rm_header.html): Remove the table header
+- [GT.rm_stubhead](https://posit-dev.github.io/great-tables/reference/GT.rm_stubhead.html): Remove the stubhead label
+- [GT.rm_spanners](https://posit-dev.github.io/great-tables/reference/GT.rm_spanners.html): Remove column spanners
+- [GT.rm_footnotes](https://posit-dev.github.io/great-tables/reference/GT.rm_footnotes.html): Remove table footnotes
+- [GT.rm_source_notes](https://posit-dev.github.io/great-tables/reference/GT.rm_source_notes.html): Remove table source notes
+- [GT.tab_style](https://posit-dev.github.io/great-tables/reference/GT.tab_style.html): Add custom style to one or more cells
+- [GT.tab_style_body](https://posit-dev.github.io/great-tables/reference/GT.tab_style_body.html): Apply styles to body cells based on their data values
+- [GT.tab_options](https://posit-dev.github.io/great-tables/reference/GT.tab_options.html): Modify the table output options
 
 #### Formatting column data
 > Columns of data can be formatted with the `fmt_*()` methods. We can specify the rows of these columns quite precisely with the `rows` argument. We get to apply these methods exactly once to each data cell (last call wins). Need to do custom formatting? Use the [`fmt()`](`great_tables.GT.fmt`) method and define your own formatter. The `sub_*()` methods allow you to perform substitution operations and `data_color()` provides a lot of power for colorizing body cells based on their data values. The `col_numeric()`, `col_bin()`, and `col_factor()` helpers create color-mapping functions for use with its `fn=` argument.
 
 
-- [GT.fmt_number](https://posit-dev.github.io/great-tables/reference/GT.fmt_number.html)
-- [GT.fmt_integer](https://posit-dev.github.io/great-tables/reference/GT.fmt_integer.html)
-- [GT.fmt_scientific](https://posit-dev.github.io/great-tables/reference/GT.fmt_scientific.html)
-- [GT.fmt_engineering](https://posit-dev.github.io/great-tables/reference/GT.fmt_engineering.html)
-- [GT.fmt_number_si](https://posit-dev.github.io/great-tables/reference/GT.fmt_number_si.html)
-- [GT.fmt_percent](https://posit-dev.github.io/great-tables/reference/GT.fmt_percent.html)
-- [GT.fmt_partsper](https://posit-dev.github.io/great-tables/reference/GT.fmt_partsper.html)
-- [GT.fmt_currency](https://posit-dev.github.io/great-tables/reference/GT.fmt_currency.html)
-- [GT.fmt_roman](https://posit-dev.github.io/great-tables/reference/GT.fmt_roman.html)
-- [GT.fmt_fraction](https://posit-dev.github.io/great-tables/reference/GT.fmt_fraction.html)
-- [GT.fmt_chem](https://posit-dev.github.io/great-tables/reference/GT.fmt_chem.html)
-- [GT.fmt_index](https://posit-dev.github.io/great-tables/reference/GT.fmt_index.html)
-- [GT.fmt_url](https://posit-dev.github.io/great-tables/reference/GT.fmt_url.html)
-- [GT.fmt_email](https://posit-dev.github.io/great-tables/reference/GT.fmt_email.html)
-- [GT.fmt_bytes](https://posit-dev.github.io/great-tables/reference/GT.fmt_bytes.html)
-- [GT.fmt_date](https://posit-dev.github.io/great-tables/reference/GT.fmt_date.html)
-- [GT.fmt_time](https://posit-dev.github.io/great-tables/reference/GT.fmt_time.html)
-- [GT.fmt_datetime](https://posit-dev.github.io/great-tables/reference/GT.fmt_datetime.html)
-- [GT.fmt_duration](https://posit-dev.github.io/great-tables/reference/GT.fmt_duration.html)
-- [GT.fmt_tf](https://posit-dev.github.io/great-tables/reference/GT.fmt_tf.html)
-- [GT.fmt_markdown](https://posit-dev.github.io/great-tables/reference/GT.fmt_markdown.html)
-- [GT.fmt_units](https://posit-dev.github.io/great-tables/reference/GT.fmt_units.html)
-- [GT.fmt_image](https://posit-dev.github.io/great-tables/reference/GT.fmt_image.html)
-- [GT.fmt_flag](https://posit-dev.github.io/great-tables/reference/GT.fmt_flag.html)
-- [GT.fmt_icon](https://posit-dev.github.io/great-tables/reference/GT.fmt_icon.html)
-- [GT.fmt_nanoplot](https://posit-dev.github.io/great-tables/reference/GT.fmt_nanoplot.html)
-- [GT.fmt_passthrough](https://posit-dev.github.io/great-tables/reference/GT.fmt_passthrough.html)
-- [GT.fmt](https://posit-dev.github.io/great-tables/reference/GT.fmt.html)
-- [GT.sub_missing](https://posit-dev.github.io/great-tables/reference/GT.sub_missing.html)
-- [GT.sub_zero](https://posit-dev.github.io/great-tables/reference/GT.sub_zero.html)
-- [GT.sub_small_vals](https://posit-dev.github.io/great-tables/reference/GT.sub_small_vals.html)
-- [GT.sub_large_vals](https://posit-dev.github.io/great-tables/reference/GT.sub_large_vals.html)
-- [GT.sub_values](https://posit-dev.github.io/great-tables/reference/GT.sub_values.html)
-- [GT.data_color](https://posit-dev.github.io/great-tables/reference/GT.data_color.html)
+- [GT.fmt_number](https://posit-dev.github.io/great-tables/reference/GT.fmt_number.html): Format numeric values
+- [GT.fmt_integer](https://posit-dev.github.io/great-tables/reference/GT.fmt_integer.html): Format values as integers
+- [GT.fmt_scientific](https://posit-dev.github.io/great-tables/reference/GT.fmt_scientific.html): Format values to scientific notation
+- [GT.fmt_engineering](https://posit-dev.github.io/great-tables/reference/GT.fmt_engineering.html): Format values to engineering notation
+- [GT.fmt_number_si](https://posit-dev.github.io/great-tables/reference/GT.fmt_number_si.html): Format values with SI (metric) prefixes
+- [GT.fmt_percent](https://posit-dev.github.io/great-tables/reference/GT.fmt_percent.html): Format values as a percentage
+- [GT.fmt_partsper](https://posit-dev.github.io/great-tables/reference/GT.fmt_partsper.html): Format values as parts-per quantities
+- [GT.fmt_currency](https://posit-dev.github.io/great-tables/reference/GT.fmt_currency.html): Format values as currencies
+- [GT.fmt_roman](https://posit-dev.github.io/great-tables/reference/GT.fmt_roman.html): Format values as Roman numerals
+- [GT.fmt_fraction](https://posit-dev.github.io/great-tables/reference/GT.fmt_fraction.html): Format values as mixed fractions
+- [GT.fmt_chem](https://posit-dev.github.io/great-tables/reference/GT.fmt_chem.html): Format chemical formulas
+- [GT.fmt_index](https://posit-dev.github.io/great-tables/reference/GT.fmt_index.html): Format values as index characters
+- [GT.fmt_url](https://posit-dev.github.io/great-tables/reference/GT.fmt_url.html): Format values as URL links
+- [GT.fmt_email](https://posit-dev.github.io/great-tables/reference/GT.fmt_email.html): Format values as email links
+- [GT.fmt_bytes](https://posit-dev.github.io/great-tables/reference/GT.fmt_bytes.html): Format values as bytes
+- [GT.fmt_date](https://posit-dev.github.io/great-tables/reference/GT.fmt_date.html): Format values as dates
+- [GT.fmt_time](https://posit-dev.github.io/great-tables/reference/GT.fmt_time.html): Format values as times
+- [GT.fmt_datetime](https://posit-dev.github.io/great-tables/reference/GT.fmt_datetime.html): Format values as datetimes
+- [GT.fmt_duration](https://posit-dev.github.io/great-tables/reference/GT.fmt_duration.html): Format numeric or duration values as styled time duration strings
+- [GT.fmt_tf](https://posit-dev.github.io/great-tables/reference/GT.fmt_tf.html): Format True and False values
+- [GT.fmt_markdown](https://posit-dev.github.io/great-tables/reference/GT.fmt_markdown.html): Format Markdown text
+- [GT.fmt_units](https://posit-dev.github.io/great-tables/reference/GT.fmt_units.html): Format measurement units
+- [GT.fmt_image](https://posit-dev.github.io/great-tables/reference/GT.fmt_image.html): Format image paths to generate images in cells
+- [GT.fmt_flag](https://posit-dev.github.io/great-tables/reference/GT.fmt_flag.html): Generate flag icons for countries from their country codes
+- [GT.fmt_icon](https://posit-dev.github.io/great-tables/reference/GT.fmt_icon.html): Use icons within a table's body cells
+- [GT.fmt_nanoplot](https://posit-dev.github.io/great-tables/reference/GT.fmt_nanoplot.html): Format data for nanoplot visualizations
+- [GT.fmt_passthrough](https://posit-dev.github.io/great-tables/reference/GT.fmt_passthrough.html): Format values by passing them through, optionally escaping and decorating
+- [GT.fmt](https://posit-dev.github.io/great-tables/reference/GT.fmt.html): Set a column format with a formatter function
+- [GT.sub_missing](https://posit-dev.github.io/great-tables/reference/GT.sub_missing.html): Substitute missing values in the table body
+- [GT.sub_zero](https://posit-dev.github.io/great-tables/reference/GT.sub_zero.html): Substitute zero values in the table body
+- [GT.sub_small_vals](https://posit-dev.github.io/great-tables/reference/GT.sub_small_vals.html): Substitute small values in the table body
+- [GT.sub_large_vals](https://posit-dev.github.io/great-tables/reference/GT.sub_large_vals.html): Substitute large values in the table body
+- [GT.sub_values](https://posit-dev.github.io/great-tables/reference/GT.sub_values.html): Substitute targeted values in the table body
+- [GT.data_color](https://posit-dev.github.io/great-tables/reference/GT.data_color.html): Perform data cell colorization
 - [col_numeric](https://posit-dev.github.io/great-tables/reference/col_numeric.html): Create a color-mapping function for continuous numeric values
 - [col_bin](https://posit-dev.github.io/great-tables/reference/col_bin.html): Create a color-mapping function for numeric values cut into bins
 - [col_factor](https://posit-dev.github.io/great-tables/reference/col_factor.html): Create a color-mapping function for categorical values
@@ -80,69 +80,69 @@
 > The text_*() method take cell data that are solidified into strings and allow for flexible transformations of those string values. Whereas the `fmt_*()` and `sub_*()` methods are phases 1 and 2 of cell data metamorphoses, the text transformation functions are the final phase, acting on strings generated by formatting and substitution functions with no reference to the source values.
 
 
-- [GT.text_replace](https://posit-dev.github.io/great-tables/reference/GT.text_replace.html)
-- [GT.text_case_when](https://posit-dev.github.io/great-tables/reference/GT.text_case_when.html)
-- [GT.text_case_match](https://posit-dev.github.io/great-tables/reference/GT.text_case_match.html)
-- [GT.text_transform](https://posit-dev.github.io/great-tables/reference/GT.text_transform.html)
+- [GT.text_replace](https://posit-dev.github.io/great-tables/reference/GT.text_replace.html): Perform targeted text replacement with a regex pattern
+- [GT.text_case_when](https://posit-dev.github.io/great-tables/reference/GT.text_case_when.html): Perform text replacements using a case-when approach
+- [GT.text_case_match](https://posit-dev.github.io/great-tables/reference/GT.text_case_match.html): Perform text replacements with a switch-like approach
+- [GT.text_transform](https://posit-dev.github.io/great-tables/reference/GT.text_transform.html): Apply a custom text transformation to cells at specified locations
 
 #### Modifying columns
 > The `cols_*()` methods allow for modifications that act on entire columns. This includes alignment of the data in columns ([`cols_align()`](`great_tables.GT.cols_align`)), hiding columns from view ([`cols_hide()`](`great_tables.GT.cols_hide`)), re-labeling the column labels ([`cols_label()`](`great_tables.GT.cols_label`)), and moving columns around (with the `cols_move*()` methods).
 
 
-- [GT.cols_align](https://posit-dev.github.io/great-tables/reference/GT.cols_align.html)
-- [GT.cols_align_decimal](https://posit-dev.github.io/great-tables/reference/GT.cols_align_decimal.html)
-- [GT.cols_width](https://posit-dev.github.io/great-tables/reference/GT.cols_width.html)
-- [GT.cols_label](https://posit-dev.github.io/great-tables/reference/GT.cols_label.html)
-- [GT.cols_label_with](https://posit-dev.github.io/great-tables/reference/GT.cols_label_with.html)
-- [GT.cols_label_rotate](https://posit-dev.github.io/great-tables/reference/GT.cols_label_rotate.html)
-- [GT.cols_move](https://posit-dev.github.io/great-tables/reference/GT.cols_move.html)
-- [GT.cols_move_to_start](https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_start.html)
-- [GT.cols_move_to_end](https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_end.html)
-- [GT.cols_reorder](https://posit-dev.github.io/great-tables/reference/GT.cols_reorder.html)
-- [GT.cols_hide](https://posit-dev.github.io/great-tables/reference/GT.cols_hide.html)
-- [GT.cols_unhide](https://posit-dev.github.io/great-tables/reference/GT.cols_unhide.html)
-- [GT.cols_merge](https://posit-dev.github.io/great-tables/reference/GT.cols_merge.html)
-- [GT.cols_merge_uncert](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_uncert.html)
-- [GT.cols_merge_range](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_range.html)
-- [GT.cols_merge_n_pct](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_n_pct.html)
+- [GT.cols_align](https://posit-dev.github.io/great-tables/reference/GT.cols_align.html): Set the alignment of one or more columns
+- [GT.cols_align_decimal](https://posit-dev.github.io/great-tables/reference/GT.cols_align_decimal.html): Align all numeric values in a column along the decimal mark
+- [GT.cols_width](https://posit-dev.github.io/great-tables/reference/GT.cols_width.html): Set the widths of columns
+- [GT.cols_label](https://posit-dev.github.io/great-tables/reference/GT.cols_label.html): Relabel one or more columns
+- [GT.cols_label_with](https://posit-dev.github.io/great-tables/reference/GT.cols_label_with.html): Relabel one or more columns using a function
+- [GT.cols_label_rotate](https://posit-dev.github.io/great-tables/reference/GT.cols_label_rotate.html): Rotate the column label for one or more columns
+- [GT.cols_move](https://posit-dev.github.io/great-tables/reference/GT.cols_move.html): Move one or more columns
+- [GT.cols_move_to_start](https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_start.html): Move one or more columns to the start
+- [GT.cols_move_to_end](https://posit-dev.github.io/great-tables/reference/GT.cols_move_to_end.html): Move one or more columns to the end
+- [GT.cols_reorder](https://posit-dev.github.io/great-tables/reference/GT.cols_reorder.html): Reorder all columns in a specified order
+- [GT.cols_hide](https://posit-dev.github.io/great-tables/reference/GT.cols_hide.html): Hide one or more columns
+- [GT.cols_unhide](https://posit-dev.github.io/great-tables/reference/GT.cols_unhide.html): Unhide one or more columns
+- [GT.cols_merge](https://posit-dev.github.io/great-tables/reference/GT.cols_merge.html): Merge data from two or more columns into a single column
+- [GT.cols_merge_uncert](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_uncert.html): Merge columns to a value-with-uncertainty column
+- [GT.cols_merge_range](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_range.html): Merge two columns to a value range column
+- [GT.cols_merge_n_pct](https://posit-dev.github.io/great-tables/reference/GT.cols_merge_n_pct.html): Merge two columns to combine counts and percentages
 
 #### Adding rows
 > The [`summary_rows()`](`great_tables.GT.summary_rows`) function adds rows to summarize data within each row group, while [`grand_summary_rows()`](`great_tables.GT.grand_summary_rows`) summarizes across the entire table.
 
 
-- [GT.summary_rows](https://posit-dev.github.io/great-tables/reference/GT.summary_rows.html)
-- [GT.grand_summary_rows](https://posit-dev.github.io/great-tables/reference/GT.grand_summary_rows.html)
+- [GT.summary_rows](https://posit-dev.github.io/great-tables/reference/GT.summary_rows.html): Add group-wise summary rows to the table
+- [GT.grand_summary_rows](https://posit-dev.github.io/great-tables/reference/GT.grand_summary_rows.html): Add grand summary rows to the table
 
 #### Location Targeting and Styling Classes
 > Location targeting is a powerful feature of Great Tables. It allows for the precise selection of table locations for styling (using the `tab_style()` method). The styling classes allow for the specification of the styling properties to be applied to the targeted locations.
 
 
-- [loc.header](https://posit-dev.github.io/great-tables/reference/loc.header.html)
-- [loc.title](https://posit-dev.github.io/great-tables/reference/loc.title.html)
-- [loc.subtitle](https://posit-dev.github.io/great-tables/reference/loc.subtitle.html)
-- [loc.stubhead](https://posit-dev.github.io/great-tables/reference/loc.stubhead.html)
-- [loc.column_header](https://posit-dev.github.io/great-tables/reference/loc.column_header.html)
-- [loc.spanner_labels](https://posit-dev.github.io/great-tables/reference/loc.spanner_labels.html)
-- [loc.column_labels](https://posit-dev.github.io/great-tables/reference/loc.column_labels.html)
-- [loc.grand_summary_stub](https://posit-dev.github.io/great-tables/reference/loc.grand_summary_stub.html)
-- [loc.stub](https://posit-dev.github.io/great-tables/reference/loc.stub.html)
-- [loc.row_groups](https://posit-dev.github.io/great-tables/reference/loc.row_groups.html)
-- [loc.grand_summary](https://posit-dev.github.io/great-tables/reference/loc.grand_summary.html)
-- [loc.body](https://posit-dev.github.io/great-tables/reference/loc.body.html)
-- [loc.footer](https://posit-dev.github.io/great-tables/reference/loc.footer.html)
-- [loc.source_notes](https://posit-dev.github.io/great-tables/reference/loc.source_notes.html)
-- [loc.footnotes](https://posit-dev.github.io/great-tables/reference/loc.footnotes.html)
-- [style.fill](https://posit-dev.github.io/great-tables/reference/style.fill.html)
-- [style.text](https://posit-dev.github.io/great-tables/reference/style.text.html)
-- [style.borders](https://posit-dev.github.io/great-tables/reference/style.borders.html)
-- [style.css](https://posit-dev.github.io/great-tables/reference/style.css.html)
+- [loc.header](https://posit-dev.github.io/great-tables/reference/loc.header.html): Target the table header (title and subtitle)
+- [loc.title](https://posit-dev.github.io/great-tables/reference/loc.title.html): Target the table title
+- [loc.subtitle](https://posit-dev.github.io/great-tables/reference/loc.subtitle.html): Target the table subtitle
+- [loc.stubhead](https://posit-dev.github.io/great-tables/reference/loc.stubhead.html): Target the stubhead
+- [loc.column_header](https://posit-dev.github.io/great-tables/reference/loc.column_header.html): Target column spanners and column labels
+- [loc.spanner_labels](https://posit-dev.github.io/great-tables/reference/loc.spanner_labels.html): Target spanner labels
+- [loc.column_labels](https://posit-dev.github.io/great-tables/reference/loc.column_labels.html): Target column labels
+- [loc.grand_summary_stub](https://posit-dev.github.io/great-tables/reference/loc.grand_summary_stub.html): Target the grand summary stub
+- [loc.stub](https://posit-dev.github.io/great-tables/reference/loc.stub.html): Target the table stub
+- [loc.row_groups](https://posit-dev.github.io/great-tables/reference/loc.row_groups.html): Target row groups
+- [loc.grand_summary](https://posit-dev.github.io/great-tables/reference/loc.grand_summary.html): Target the data cells in grand summary rows
+- [loc.body](https://posit-dev.github.io/great-tables/reference/loc.body.html): Target data cells in the table body
+- [loc.footer](https://posit-dev.github.io/great-tables/reference/loc.footer.html): Target the entire table footer
+- [loc.source_notes](https://posit-dev.github.io/great-tables/reference/loc.source_notes.html): Target the source notes
+- [loc.footnotes](https://posit-dev.github.io/great-tables/reference/loc.footnotes.html): Target the footnotes section of the footer
+- [style.fill](https://posit-dev.github.io/great-tables/reference/style.fill.html): A style specification for the background fill of targeted cells
+- [style.text](https://posit-dev.github.io/great-tables/reference/style.text.html): A style specification for cell text
+- [style.borders](https://posit-dev.github.io/great-tables/reference/style.borders.html): A style specification for cell borders
+- [style.css](https://posit-dev.github.io/great-tables/reference/style.css.html): A style specification for custom CSS rules
 
 #### Helper Functions
 > An assortment of helper functions is available in the Great Tables package. The `md()` and `html()` helper functions can be used during label creation with the `tab_header()`, `tab_spanner()`, `tab_stubhead()`, and `tab_source_note()` methods.
 
 
-- [GT.with_id](https://posit-dev.github.io/great-tables/reference/GT.with_id.html)
-- [GT.with_locale](https://posit-dev.github.io/great-tables/reference/GT.with_locale.html)
+- [GT.with_id](https://posit-dev.github.io/great-tables/reference/GT.with_id.html): Set the id for this table
+- [GT.with_locale](https://posit-dev.github.io/great-tables/reference/GT.with_locale.html): Set a column to be the default locale
 - [md](https://posit-dev.github.io/great-tables/reference/md.html): Interpret input text as Markdown-formatted text
 - [html](https://posit-dev.github.io/great-tables/reference/html.html): Interpret input text as HTML-formatted text
 - [from_column](https://posit-dev.github.io/great-tables/reference/from_column.html): Specify that a style value should be fetched from a column in the data
@@ -155,133 +155,133 @@
 > With the `opt_*()` functions, we have an easy way to set commonly-used table options without having to use `tab_options()` directly.
 
 
-- [GT.opt_stylize](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html)
-- [GT.opt_footnote_marks](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_marks.html)
-- [GT.opt_footnote_spec](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html)
-- [GT.opt_footnote_order](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_order.html)
-- [GT.opt_row_striping](https://posit-dev.github.io/great-tables/reference/GT.opt_row_striping.html)
-- [GT.opt_align_table_header](https://posit-dev.github.io/great-tables/reference/GT.opt_align_table_header.html)
-- [GT.opt_vertical_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_vertical_padding.html)
-- [GT.opt_horizontal_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_horizontal_padding.html)
-- [GT.opt_all_caps](https://posit-dev.github.io/great-tables/reference/GT.opt_all_caps.html)
-- [GT.opt_table_outline](https://posit-dev.github.io/great-tables/reference/GT.opt_table_outline.html)
-- [GT.opt_table_font](https://posit-dev.github.io/great-tables/reference/GT.opt_table_font.html)
-- [GT.opt_css](https://posit-dev.github.io/great-tables/reference/GT.opt_css.html)
+- [GT.opt_stylize](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html): Stylize your table with a colorful look
+- [GT.opt_footnote_marks](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_marks.html): Option to modify the set of footnote marks
+- [GT.opt_footnote_spec](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html): Option to modify the formatting of footnote marks
+- [GT.opt_footnote_order](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_order.html): Option to modify the ordering of footnotes
+- [GT.opt_row_striping](https://posit-dev.github.io/great-tables/reference/GT.opt_row_striping.html): Option to add or remove row striping
+- [GT.opt_align_table_header](https://posit-dev.github.io/great-tables/reference/GT.opt_align_table_header.html): Option to align the table header
+- [GT.opt_vertical_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_vertical_padding.html): Option to scale the vertical padding of the table
+- [GT.opt_horizontal_padding](https://posit-dev.github.io/great-tables/reference/GT.opt_horizontal_padding.html): Option to scale the horizontal padding of the table
+- [GT.opt_all_caps](https://posit-dev.github.io/great-tables/reference/GT.opt_all_caps.html): Option to use all caps in select table locations
+- [GT.opt_table_outline](https://posit-dev.github.io/great-tables/reference/GT.opt_table_outline.html): Option to wrap an outline around the entire table
+- [GT.opt_table_font](https://posit-dev.github.io/great-tables/reference/GT.opt_table_font.html): Options to define font choices for the entire table
+- [GT.opt_css](https://posit-dev.github.io/great-tables/reference/GT.opt_css.html): Option to add custom CSS for the table
 
 #### Interactive tables
 > An interactive table is one readers can sort, search, filter and page through in the browser. [`opt_interactive()`](`great_tables.GT.opt_interactive`) makes a `GT` table browsable, with the options R gt has for that. A `GTI` table is a `GT` table (all of the methods above can be used to make it) that is an interface readers work with, set up with the `i_*()` methods that only `GTI` tables have. `GTI` is experimental.
 
 
 - [GTI](https://posit-dev.github.io/great-tables/reference/GTI.html): Create an interactive **Great Tables** object
-- [GTI.from_gt](https://posit-dev.github.io/great-tables/reference/GTI.from_gt.html)
-- [GT.opt_interactive](https://posit-dev.github.io/great-tables/reference/GT.opt_interactive.html)
+- [GTI.from_gt](https://posit-dev.github.io/great-tables/reference/GTI.from_gt.html): Make an interactive table from a `GT` table
+- [GT.opt_interactive](https://posit-dev.github.io/great-tables/reference/GT.opt_interactive.html): Option to enable an interactive table
 
 #### Interactive table controls
 > These `GTI` methods set what readers can do with the table and how it's laid out: sorting, searching, resizing, paging and selecting, how its rows look and scroll, how it fits a narrow screen, the view it starts with and keeps, exporting it, and showing what's in the data.
 
 
-- [GTI.i_sorting](https://posit-dev.github.io/great-tables/reference/GTI.i_sorting.html)
-- [GTI.i_search](https://posit-dev.github.io/great-tables/reference/GTI.i_search.html)
-- [GTI.i_resizing](https://posit-dev.github.io/great-tables/reference/GTI.i_resizing.html)
-- [GTI.i_pagination](https://posit-dev.github.io/great-tables/reference/GTI.i_pagination.html)
-- [GTI.i_selection](https://posit-dev.github.io/great-tables/reference/GTI.i_selection.html)
-- [GTI.i_display](https://posit-dev.github.io/great-tables/reference/GTI.i_display.html)
-- [GTI.i_scroll](https://posit-dev.github.io/great-tables/reference/GTI.i_scroll.html)
-- [GTI.i_responsive](https://posit-dev.github.io/great-tables/reference/GTI.i_responsive.html)
-- [GTI.i_view](https://posit-dev.github.io/great-tables/reference/GTI.i_view.html)
-- [GTI.i_view_state](https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html)
-- [GTI.i_export](https://posit-dev.github.io/great-tables/reference/GTI.i_export.html)
-- [GTI.i_inspect](https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html)
+- [GTI.i_sorting](https://posit-dev.github.io/great-tables/reference/GTI.i_sorting.html): Let readers sort the table by its columns
+- [GTI.i_search](https://posit-dev.github.io/great-tables/reference/GTI.i_search.html): Let readers search the table
+- [GTI.i_resizing](https://posit-dev.github.io/great-tables/reference/GTI.i_resizing.html): Let readers resize the table's columns
+- [GTI.i_pagination](https://posit-dev.github.io/great-tables/reference/GTI.i_pagination.html): Split the table's rows into pages
+- [GTI.i_selection](https://posit-dev.github.io/great-tables/reference/GTI.i_selection.html): Let readers select the table's rows
+- [GTI.i_display](https://posit-dev.github.io/great-tables/reference/GTI.i_display.html): Set how the table's rows look, and whether its parts are named
+- [GTI.i_scroll](https://posit-dev.github.io/great-tables/reference/GTI.i_scroll.html): Make the table's body scroll, within a height
+- [GTI.i_responsive](https://posit-dev.github.io/great-tables/reference/GTI.i_responsive.html): Set how the table fits a narrow container
+- [GTI.i_view](https://posit-dev.github.io/great-tables/reference/GTI.i_view.html): Show the table filtered and sorted, as readers first see it
+- [GTI.i_view_state](https://posit-dev.github.io/great-tables/reference/GTI.i_view_state.html): Keep the reader's view of the table, for when the page is opened again, and let them undo
+- [GTI.i_export](https://posit-dev.github.io/great-tables/reference/GTI.i_export.html): Let readers export the table's rows
+- [GTI.i_inspect](https://posit-dev.github.io/great-tables/reference/GTI.i_inspect.html): Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
 
 #### Interactive columns and exploration
 > The `i_cols_*()` methods set up the table's columns for readers: their filters, their controls, which are pinned and which give way on a narrow screen, and small plots of their values under their labels. Rows can have details that readers open, and tables can be linked, so that the rows selected in one filter another.
 
 
-- [GTI.i_cols_filter](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_filter.html)
-- [GTI.i_cols_controls](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html)
-- [GTI.i_cols_pin](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_pin.html)
-- [GTI.i_cols_priority](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_priority.html)
-- [GTI.i_cols_profile](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_profile.html)
-- [GTI.i_row_details](https://posit-dev.github.io/great-tables/reference/GTI.i_row_details.html)
-- [GTI.i_link](https://posit-dev.github.io/great-tables/reference/GTI.i_link.html)
+- [GTI.i_cols_filter](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_filter.html): Let readers filter the table by its columns
+- [GTI.i_cols_controls](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_controls.html): Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+- [GTI.i_cols_pin](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_pin.html): Pin columns to a side of the table, so they stay in view as it scrolls sideways
+- [GTI.i_cols_priority](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_priority.html): Give columns a priority, for when the table drops columns to fit its container
+- [GTI.i_cols_profile](https://posit-dev.github.io/great-tables/reference/GTI.i_cols_profile.html): Show how the columns' values are spread, in a small plot under their labels
+- [GTI.i_row_details](https://posit-dev.github.io/great-tables/reference/GTI.i_row_details.html): Let readers show more about each row, under it
+- [GTI.i_link](https://posit-dev.github.io/great-tables/reference/GTI.i_link.html): Link the table to others on the page, so that the rows selected in one filter the others
 
 #### Interactive tables in Python and apps
 > An interactive table's view (its search, filters and sort) and selection can be read and set from Python: in a notebook, with the table as a widget, and in Shiny, Streamlit, Panel and Solara apps. A table with many rows can keep them in Python and send the browser a page at a time. Pages an app makes itself (with Flask, Django or FastHTML) can show the tables, with their runtime once.
 
 
-- [GTI.i_as_widget](https://posit-dev.github.io/great-tables/reference/GTI.i_as_widget.html)
-- [GTI.i_scale](https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html)
-- [shiny.render_gt](https://posit-dev.github.io/great-tables/reference/shiny.render_gt.html)
-- [shiny.output_gt](https://posit-dev.github.io/great-tables/reference/shiny.output_gt.html)
-- [shiny.update_gti](https://posit-dev.github.io/great-tables/reference/shiny.update_gti.html)
-- [streamlit.st_gti](https://posit-dev.github.io/great-tables/reference/streamlit.st_gti.html)
-- [streamlit.update_gti](https://posit-dev.github.io/great-tables/reference/streamlit.update_gti.html)
-- [streamlit.GTIState](https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html)
-- [panel.GTIPane](https://posit-dev.github.io/great-tables/reference/panel.GTIPane.html)
-- [solara.GTITable](https://posit-dev.github.io/great-tables/reference/solara.GTITable.html)
-- [web.runtime_tags](https://posit-dev.github.io/great-tables/reference/web.runtime_tags.html)
-- [web.write_runtime](https://posit-dev.github.io/great-tables/reference/web.write_runtime.html)
+- [GTI.i_as_widget](https://posit-dev.github.io/great-tables/reference/GTI.i_as_widget.html): Show the table as a widget, whose view and selection can be read and set from Python
+- [GTI.i_scale](https://posit-dev.github.io/great-tables/reference/GTI.i_scale.html): Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+- [shiny.render_gt](https://posit-dev.github.io/great-tables/reference/shiny.render_gt.html): Render a great_tables table
+- [shiny.output_gt](https://posit-dev.github.io/great-tables/reference/shiny.output_gt.html): Output UI for a great_tables table
+- [shiny.update_gti](https://posit-dev.github.io/great-tables/reference/shiny.update_gti.html): Change an interactive table's view or selection, from a Shiny app's server
+- [streamlit.st_gti](https://posit-dev.github.io/great-tables/reference/streamlit.st_gti.html): Show an interactive table in a Streamlit app, and get its state
+- [streamlit.update_gti](https://posit-dev.github.io/great-tables/reference/streamlit.update_gti.html): Change an interactive table's view or selection, from a Streamlit app
+- [streamlit.GTIState](https://posit-dev.github.io/great-tables/reference/streamlit.GTIState.html): An interactive table's state in a Streamlit app, as [`st_gti()`](`great_tables.streamlit.st_gti`)
+- [panel.GTIPane](https://posit-dev.github.io/great-tables/reference/panel.GTIPane.html): An interactive table in a Panel app or notebook, whose view and selection are parameters
+- [solara.GTITable](https://posit-dev.github.io/great-tables/reference/solara.GTITable.html): An interactive table in a Solara app, whose view and selection are the app's to read and set
+- [web.runtime_tags](https://posit-dev.github.io/great-tables/reference/web.runtime_tags.html): The tags that give a page the runtime its interactive tables need
+- [web.write_runtime](https://posit-dev.github.io/great-tables/reference/web.write_runtime.html): Write the runtime's files, for an app to serve
 
 #### Export
 > There may come a day when you need to export a table to some specific format. A great method for that is `gtsave()`, which allows us to save the table as a standalone image file or PDF. You can also get the table code as an HTML fragment with the `*_raw_html()` methods.
 
 
-- [GT.gtsave](https://posit-dev.github.io/great-tables/reference/GT.gtsave.html)
-- [GT.show](https://posit-dev.github.io/great-tables/reference/GT.show.html)
-- [GT.as_raw_html](https://posit-dev.github.io/great-tables/reference/GT.as_raw_html.html)
-- [GT.write_raw_html](https://posit-dev.github.io/great-tables/reference/GT.write_raw_html.html)
-- [GT.as_latex](https://posit-dev.github.io/great-tables/reference/GT.as_latex.html)
+- [GT.gtsave](https://posit-dev.github.io/great-tables/reference/GT.gtsave.html): Save a GT table to a file (PNG, JPEG, WebP, PDF, SVG, Word, Excel, PowerPoint, RTF, or Typst)
+- [GT.show](https://posit-dev.github.io/great-tables/reference/GT.show.html): Display the table in a notebook or a web browser
+- [GT.as_raw_html](https://posit-dev.github.io/great-tables/reference/GT.as_raw_html.html): Get the HTML content of a GT object
+- [GT.write_raw_html](https://posit-dev.github.io/great-tables/reference/GT.write_raw_html.html): Write the table to an HTML file
+- [GT.as_latex](https://posit-dev.github.io/great-tables/reference/GT.as_latex.html): Output a GT object as LaTeX
 
 #### Pipeline
 > Sometimes, you might want to programmatically manipulate the table while still benefiting from the chained API that **Great Tables** offers. `pipe()` is designed to tackle this issue.
 
 
-- [GT.pipe](https://posit-dev.github.io/great-tables/reference/GT.pipe.html)
+- [GT.pipe](https://posit-dev.github.io/great-tables/reference/GT.pipe.html): Provide a structured way to chain a function for a GT object
 
 #### Value Formatting Functions
 > If you have single values (or lists of them) in need of formatting, we have a set of `val_fmt_*()` functions that have been adapted from the corresponding `fmt_*()` methods.
 
 
-- [vals.fmt_number](https://posit-dev.github.io/great-tables/reference/vals.fmt_number.html)
-- [vals.fmt_integer](https://posit-dev.github.io/great-tables/reference/vals.fmt_integer.html)
-- [vals.fmt_scientific](https://posit-dev.github.io/great-tables/reference/vals.fmt_scientific.html)
-- [vals.fmt_engineering](https://posit-dev.github.io/great-tables/reference/vals.fmt_engineering.html)
-- [vals.fmt_number_si](https://posit-dev.github.io/great-tables/reference/vals.fmt_number_si.html)
-- [vals.fmt_percent](https://posit-dev.github.io/great-tables/reference/vals.fmt_percent.html)
-- [vals.fmt_partsper](https://posit-dev.github.io/great-tables/reference/vals.fmt_partsper.html)
-- [vals.fmt_currency](https://posit-dev.github.io/great-tables/reference/vals.fmt_currency.html)
-- [vals.fmt_roman](https://posit-dev.github.io/great-tables/reference/vals.fmt_roman.html)
-- [vals.fmt_fraction](https://posit-dev.github.io/great-tables/reference/vals.fmt_fraction.html)
-- [vals.fmt_chem](https://posit-dev.github.io/great-tables/reference/vals.fmt_chem.html)
-- [vals.fmt_index](https://posit-dev.github.io/great-tables/reference/vals.fmt_index.html)
-- [vals.fmt_url](https://posit-dev.github.io/great-tables/reference/vals.fmt_url.html)
-- [vals.fmt_email](https://posit-dev.github.io/great-tables/reference/vals.fmt_email.html)
-- [vals.fmt_bytes](https://posit-dev.github.io/great-tables/reference/vals.fmt_bytes.html)
-- [vals.fmt_duration](https://posit-dev.github.io/great-tables/reference/vals.fmt_duration.html)
-- [vals.fmt_date](https://posit-dev.github.io/great-tables/reference/vals.fmt_date.html)
-- [vals.fmt_time](https://posit-dev.github.io/great-tables/reference/vals.fmt_time.html)
-- [vals.fmt_datetime](https://posit-dev.github.io/great-tables/reference/vals.fmt_datetime.html)
-- [vals.fmt_markdown](https://posit-dev.github.io/great-tables/reference/vals.fmt_markdown.html)
-- [vals.fmt_image](https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html)
+- [vals.fmt_number](https://posit-dev.github.io/great-tables/reference/vals.fmt_number.html): Format numeric values
+- [vals.fmt_integer](https://posit-dev.github.io/great-tables/reference/vals.fmt_integer.html): Format values as integers
+- [vals.fmt_scientific](https://posit-dev.github.io/great-tables/reference/vals.fmt_scientific.html): Format values to scientific notation
+- [vals.fmt_engineering](https://posit-dev.github.io/great-tables/reference/vals.fmt_engineering.html): Format values to engineering notation
+- [vals.fmt_number_si](https://posit-dev.github.io/great-tables/reference/vals.fmt_number_si.html): Format values with SI (metric) prefixes
+- [vals.fmt_percent](https://posit-dev.github.io/great-tables/reference/vals.fmt_percent.html): Format values as a percentage
+- [vals.fmt_partsper](https://posit-dev.github.io/great-tables/reference/vals.fmt_partsper.html): Format values as parts-per quantities
+- [vals.fmt_currency](https://posit-dev.github.io/great-tables/reference/vals.fmt_currency.html): Format values as currencies
+- [vals.fmt_roman](https://posit-dev.github.io/great-tables/reference/vals.fmt_roman.html): Format values as Roman numerals
+- [vals.fmt_fraction](https://posit-dev.github.io/great-tables/reference/vals.fmt_fraction.html): Format values as mixed fractions
+- [vals.fmt_chem](https://posit-dev.github.io/great-tables/reference/vals.fmt_chem.html): Format chemical formulas
+- [vals.fmt_index](https://posit-dev.github.io/great-tables/reference/vals.fmt_index.html): Format values as index characters
+- [vals.fmt_url](https://posit-dev.github.io/great-tables/reference/vals.fmt_url.html): Format values as URL links
+- [vals.fmt_email](https://posit-dev.github.io/great-tables/reference/vals.fmt_email.html): Format values as email links
+- [vals.fmt_bytes](https://posit-dev.github.io/great-tables/reference/vals.fmt_bytes.html): Format values as bytes
+- [vals.fmt_duration](https://posit-dev.github.io/great-tables/reference/vals.fmt_duration.html): Format values as time duration strings
+- [vals.fmt_date](https://posit-dev.github.io/great-tables/reference/vals.fmt_date.html): Format values as dates
+- [vals.fmt_time](https://posit-dev.github.io/great-tables/reference/vals.fmt_time.html): Format values as times
+- [vals.fmt_datetime](https://posit-dev.github.io/great-tables/reference/vals.fmt_datetime.html): Format values as datetimes
+- [vals.fmt_markdown](https://posit-dev.github.io/great-tables/reference/vals.fmt_markdown.html): Format Markdown text
+- [vals.fmt_image](https://posit-dev.github.io/great-tables/reference/vals.fmt_image.html): Format image paths to generate images in cells
 
 #### Built-in Datasets
 > The Great Tables package is equipped with 16 datasets that come in all shapes and sizes. Many examples throughout the help docs use these datasets to quickly demonstrate the features of the package. The `load_dataset()` function provides a convenient way to load any dataset as either a Pandas or Polars DataFrame.
 
 
 - [load_dataset](https://posit-dev.github.io/great-tables/reference/load_dataset.html): Load a dataset from the library as a specified table type
-- [data.countrypops](https://posit-dev.github.io/great-tables/reference/data.countrypops.html)
-- [data.sza](https://posit-dev.github.io/great-tables/reference/data.sza.html)
-- [data.gtcars](https://posit-dev.github.io/great-tables/reference/data.gtcars.html)
-- [data.sp500](https://posit-dev.github.io/great-tables/reference/data.sp500.html)
-- [data.pizzaplace](https://posit-dev.github.io/great-tables/reference/data.pizzaplace.html)
-- [data.exibble](https://posit-dev.github.io/great-tables/reference/data.exibble.html)
-- [data.towny](https://posit-dev.github.io/great-tables/reference/data.towny.html)
-- [data.peeps](https://posit-dev.github.io/great-tables/reference/data.peeps.html)
-- [data.films](https://posit-dev.github.io/great-tables/reference/data.films.html)
-- [data.metro](https://posit-dev.github.io/great-tables/reference/data.metro.html)
-- [data.gibraltar](https://posit-dev.github.io/great-tables/reference/data.gibraltar.html)
-- [data.constants](https://posit-dev.github.io/great-tables/reference/data.constants.html)
-- [data.illness](https://posit-dev.github.io/great-tables/reference/data.illness.html)
-- [data.reactions](https://posit-dev.github.io/great-tables/reference/data.reactions.html)
-- [data.photolysis](https://posit-dev.github.io/great-tables/reference/data.photolysis.html)
-- [data.nuclides](https://posit-dev.github.io/great-tables/reference/data.nuclides.html)
+- [data.countrypops](https://posit-dev.github.io/great-tables/reference/data.countrypops.html): Yearly populations of countries from 1960 to 2022
+- [data.sza](https://posit-dev.github.io/great-tables/reference/data.sza.html): Twice hourly solar zenith angles by month & latitude
+- [data.gtcars](https://posit-dev.github.io/great-tables/reference/data.gtcars.html): Deluxe automobiles from the 2014-2017 period
+- [data.sp500](https://posit-dev.github.io/great-tables/reference/data.sp500.html): Daily S&P 500 Index data from 1950 to 2015
+- [data.pizzaplace](https://posit-dev.github.io/great-tables/reference/data.pizzaplace.html): A year of pizza sales from a pizza place
+- [data.exibble](https://posit-dev.github.io/great-tables/reference/data.exibble.html): A toy example table for testing with great_tables: exibble
+- [data.towny](https://posit-dev.github.io/great-tables/reference/data.towny.html): Populations of all municipalities in Ontario from 1996 to 2021
+- [data.peeps](https://posit-dev.github.io/great-tables/reference/data.peeps.html): A table of personal information for people all over the world
+- [data.films](https://posit-dev.github.io/great-tables/reference/data.films.html): Feature films in competition at the Cannes Film Festival
+- [data.metro](https://posit-dev.github.io/great-tables/reference/data.metro.html): The stations of the Paris Metro
+- [data.gibraltar](https://posit-dev.github.io/great-tables/reference/data.gibraltar.html): Weather conditions in Gibraltar, May 2023
+- [data.constants](https://posit-dev.github.io/great-tables/reference/data.constants.html): The fundamental physical constants
+- [data.illness](https://posit-dev.github.io/great-tables/reference/data.illness.html): Lab tests for one suffering from an illness
+- [data.reactions](https://posit-dev.github.io/great-tables/reference/data.reactions.html): Reaction rates for gas-phase atmospheric reactions of organic compounds
+- [data.photolysis](https://posit-dev.github.io/great-tables/reference/data.photolysis.html): Data on photolysis rates for gas-phase organic compounds
+- [data.nuclides](https://posit-dev.github.io/great-tables/reference/data.nuclides.html): Nuclide data

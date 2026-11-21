@@ -8,6 +8,8 @@ The [reactions](../reference/data.reactions.md#great_tables.data.reactions) data
 
 This compilation of rate constant (*k*) data as contains the values for rate constants at 298 K (in units of `cm^3 molecules^-1 s^-1`) as well as parameters that allow for the calculation of rate constants at different temperatures (the temperature dependence parameters: `A`, `B`, and `n`). Uncertainty values/factors and temperature limits are also provided here where information is available.
 
+## Details
+
 This is a dataset with 1,683 rows and 39 columns.
 
 - `compd_name`: The name of the primary compound undergoing reaction with OH, nitrate radicals, ozone, or chlorine atoms.
@@ -38,7 +40,7 @@ This is a dataset with 1,683 rows and 39 columns.
 - `Cl_a`, `Cl_b`, `Cl_n`: Extended temperature dependence parameters for bimolecular Cl reactions, to be used in the Arrhenius expression: `k(T)=A exp(-B/T) (T/300)^n`. In that, `A` is expressed as cm^3 molecules^-1 s^-1, `B` is in units of K, and `n` is dimensionless. Any missing values indicate that data is not available.
 - `Cl_t_low`, `Cl_t_high`: The low and high temperature boundaries (in units of K) for which the `Cl_a`, `Cl_b`, and `Cl_n` parameters are valid.
 
-&nbsp;
+## Preview
 
     Rows: 1683
     Columns: 39

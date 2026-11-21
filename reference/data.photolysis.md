@@ -8,6 +8,8 @@ The [photolysis](../reference/data.photolysis.md#great_tables.data.photolysis) d
 
 In order to realistically predict the composition of the atmosphere and how it evolves over time, we need accurate estimates of photolysis rates. The data provided here in [photolysis](../reference/data.photolysis.md#great_tables.data.photolysis) allows for computations of photolysis rates (*J*, having units of `s^-1`) as a function of the solar zenith angle (SZA). Having such values is essential when deploying atmospheric chemistry models.
 
+## Details
+
 This is a dataset with 34 rows and 10 columns.
 
 - `compd_name`: The name of the primary compound undergoing photolysis.
@@ -18,7 +20,7 @@ This is a dataset with 34 rows and 10 columns.
 - `quantum_yield`: In the context of photolysis reactions, this is the efficiency of a given photolytic reaction. In other words, it's the number of product molecules formed over the number of photons absorbed.
 - `wavelength_nm`, `sigma_298_cm2`: The `wavelength_nm` and `sigma_298_cm2` columns provide photoabsorption data for the compound undergoing photolysis. The values in `wavelength_nm` provide the wavelength of light in nanometer units; the `sigma_298_cm2` values are paired with the `wavelength_nm` values and they are in units of `cm^2 molecule^-1`.
 
-&nbsp;
+## Preview
 
     Rows: 34
     Columns: 10

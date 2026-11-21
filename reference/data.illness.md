@@ -45,6 +45,8 @@ The various tests are identified in the `test` column. The following listing pro
 - `"CD3+CD4+"`: CD4+T lymphocytes.
 - `"CD3+CD8+"`: CD8+T lymphocytes.
 
+## Details
+
 This is a dataset with 39 rows and 11 columns.
 
 - `test`: The name of the test.
@@ -52,7 +54,7 @@ This is a dataset with 39 rows and 11 columns.
 - `day_3`, `day_4`, `day_5`, `day_6`, `day_7`, `day_8`, `day_9`: Measurement values associated with each test administered from days 3 to 9. A missing value indicates that the test could not be performed that day.
 - `norm_l`, `norm_u`: Lower and upper bounds for the normal range associated with the test.
 
-&nbsp;
+## Preview
 
     Rows: 39
     Columns: 11

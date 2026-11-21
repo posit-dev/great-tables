@@ -6,6 +6,8 @@ Daily S&P 500 Index data from 1950 to 2015.
 
 This dataset provides daily price indicators for the S&P 500 index from the beginning of 1950 to the end of 2015. The index includes 500 leading companies and captures about 80 percent coverage of available market capitalization.
 
+## Details
+
 This is a dataset with 16,607 rows and 7 columns.
 
 - `date`: The date expressed as `Date` values.
@@ -13,7 +15,7 @@ This is a dataset with 16,607 rows and 7 columns.
 - `volume`: The number of trades for the given `date`.
 - `adj_close`: The close price adjusted for both dividends and splits.
 
-&nbsp;
+## Preview
 
     Rows: 16607
     Columns: 7

@@ -8,6 +8,8 @@ A dataset containing census population data from six census years (1996 to 2021)
 
 In the towny dataset we include information specific to each municipality such as location (in the latitude and longitude columns), their website URLs, their classifications, and land area sizes according to 2021 boundaries. Additionally, there are computed columns containing population density values for each census year and population change values from adjacent census years.
 
+## Details
+
 This is a dataset with 414 rows and 25 columns.
 
 - `name`: The name of the municipality.
@@ -21,7 +23,7 @@ This is a dataset with 414 rows and 25 columns.
 - `density_1996`, `density_2001`, `density_2006`, `density_2011`, `density_2016`, `density_2021`: Population density values, calculated as persons per square kilometer, for each municipality from the 1996 to 2021 census years.
 - `pop_change_1996_2001_pct`, `pop_change_2001_2006_pct`, `pop_change_2006_2011_pct`, `pop_change_2011_2016_pct`, `pop_change_2016_2021_pct`: Population changes between adjacent pairs of census years, from 1996 to 2021.
 
-&nbsp;
+## Preview
 
     Rows: 414
     Columns: 25

@@ -6,6 +6,8 @@ A toy example table for testing with great_tables: exibble.
 
 This table contains data of a few different classes, which makes it well-suited for quick experimentation with the functions in this package. It contains only eight rows with numeric and string columns. The last 4 rows contain missing values in the majority of this table's columns (1 missing value per column). The date, time, and datetime columns are string-based dates/times in the familiar ISO 8601 format. The row and group columns provide for unique rownames and two groups (grp_a and grp_b) for experimenting with the `rowname_col` and `groupname_col` arguments.
 
+## Details
+
 This is a dataset with 8 rows and 9 columns.
 
 - `num`: A numeric column ordered with increasingly larger values.
@@ -16,7 +18,7 @@ This is a dataset with 8 rows and 9 columns.
 - `row`: A string-based column in the format `row_X` which can be useful for testing with row labels in a table stub.
 - `group`: A string-based column with four `"grp_a"` values and four `"grp_b"` values which can be useful for testing tables that contain row groups.
 
-&nbsp;
+## Preview
 
     Rows: 8
     Columns: 9

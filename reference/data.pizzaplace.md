@@ -52,6 +52,8 @@ Each pizza in the dataset is identified by a short `name`. The following listing
 - `"spinach_fet"`: The Spinach and Feta Pizza (Spinach, Mushrooms, Red Onions, Feta Cheese, Garlic)
 - `"ital_veggie"`: The Italian Vegetables Pizza (Eggplant, Artichokes, Tomatoes, Zucchini, Red Peppers, Garlic, Pesto Sauce)
 
+## Details
+
 This is a dataset with 49,574 rows and 7 columns.
 
 - `id`: The ID for the order, which consists of one or more pizzas at a given `date` and `time`.
@@ -62,7 +64,7 @@ This is a dataset with 49,574 rows and 7 columns.
 - `type`: The category or type of pizza, which can either be `"classic"`, `"chicken"`, `"supreme"`, or `"veggie"`.
 - `price`: The price of the pizza and the amount that it sold for (in USD).
 
-&nbsp;
+## Preview
 
     Rows: 49574
     Columns: 7

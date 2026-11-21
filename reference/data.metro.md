@@ -10,6 +10,8 @@ The system has 16 lines (numbered from 1 to 14, with two additional lines: 3bis 
 
 The Metro is operated by the RATP, which also operates other transit systems in the region, including buses, trams, and the RER. The RER is an important component of the region's transit infrastructure, and several RER stations have connectivity with the Metro. This integration allows passengers to transfer between those two systems seamlessly. The Metro also has connections to the Transilien rail network, tramway stations, several major train stations (e.g., Gare du Nord, Gare de l'Est, etc.), and many bus lines.
 
+## Details
+
 This is a dataset with 314 rows and 11 columns.
 
 - `name`: The name of the station.
@@ -23,7 +25,7 @@ This is a dataset with 314 rows and 11 columns.
 - `location`: The arrondissement of Paris or municipality in which the station resides. For some stations located at borders, the grouping of locations will be presented as a comma-separated series.
 - `passengers`: The total number of Metro station entries during 2021. Some of the newest stations in the Metro system do not have this data, thus they show as missing values.
 
-&nbsp;
+## Preview
 
     Rows: 314
     Columns: 11

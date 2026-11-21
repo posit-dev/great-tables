@@ -17,14 +17,14 @@ Richard Iannone. Maintainer.
   title = {great-tables: Make awesome display tables using Python.},
   author = {Richard Iannone},
   year = {2026},
-  note = {Python package version 1.0.0},
+  note = {Python package version 1.2.0},
   url = {https://posit-dev.github.io/great-tables/},
 }
 ```
 
 ### APA
 
-Iannone, R. (2026). *great-tables: Make awesome display tables using Python.* (Version 1.0.0) \[Computer software\]. https://posit-dev.github.io/great-tables/
+Iannone, R. (2026). *great-tables: Make awesome display tables using Python.* (Version 1.2.0) \[Computer software\]. https://posit-dev.github.io/great-tables/
 
 ### RIS
 
@@ -33,7 +33,7 @@ TY  - COMP
 TI  - great-tables: Make awesome display tables using Python.
 AU  - Iannone, Richard
 PY  - 2026
-VL  - 1.0.0
+VL  - 1.2.0
 UR  - https://posit-dev.github.io/great-tables/
 AB  - Build display tables from tabular data with an easy-to-use set of methods. With its progressive approach, we can construct display tables with a cohesive set of table parts. Table values can be formatted using any of the included formatting functions. Cell styles can be precisely added through a location targeting system. The way in which Great Tables handles things for you means that you don't often have to worry about the fine details.
 ER  - 

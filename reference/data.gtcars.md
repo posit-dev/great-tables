@@ -8,6 +8,8 @@ Expensive and fast cars. Each row describes a car of a certain make, model, year
 
 All of the [gtcars](../reference/data.gtcars.md#great_tables.data.gtcars) have something else in common (aside from the high asking prices): they are all grand tourer vehicles. These are proper GT cars that blend pure driving thrills with a level of comfort that is more expected from a fine limousine (e.g., a Rolls-Royce Phantom EWB). You'll find that, with these cars, comfort is emphasized over all-out performance. Nevertheless, the driving experience should also mean motoring at speed, doing so in style and safety.
 
+## Details
+
 This is a dataset with 47 rows and 15 columns.
 
 - `mfr`: The name of the car manufacturer.
@@ -23,7 +25,7 @@ This is a dataset with 47 rows and 15 columns.
 - `ctry_origin`: The country name for where the vehicle manufacturer is headquartered.
 - `msrp`: Manufacturer's suggested retail price in U.S. dollars (USD).
 
-&nbsp;
+## Preview
 
     Rows: 47
     Columns: 15

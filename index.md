@@ -1,7 +1,5 @@
 ![Logo](assets/GT_logo.svg)
 
-Great Tables
-
 Absolutely Delightful Table-making in Python
 
 Great Tables is all about making it simple to produce nice-looking display tables in Python. Display tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those tables you'd find in a web page, a journal article, or in a magazine.
