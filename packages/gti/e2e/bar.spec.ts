@@ -764,6 +764,26 @@ test("sticks to the bottom of the view for a table of every row", async ({ page 
   expect(errors).toEqual([]);
 });
 
+test("fills its sticky bar again as the page's colours change", async ({ page }) => {
+  const errors = await ready(page, "bar-sticky.html");
+  await expect(bar(page)).toHaveAttribute("data-gti-stick", "");
+  const fill = () => bar(page).evaluate((node) => getComputedStyle(node).backgroundColor);
+  await page.addStyleTag({
+    content:
+      "@media (prefers-color-scheme: dark) { html { background-color: rgb(34, 34, 34); } }\n" +
+      "body { transition: background-color 0.15s; }\nbody.dark { background-color: rgb(17, 17, 17); }",
+  });
+  // With the system's scheme
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect.poll(fill).toBe("rgb(34, 34, 34)");
+  // With a theme's toggle (a class on <body>), whose background fades in
+  await page.locator("body").evaluate((body) => body.classList.add("dark"));
+  await expect.poll(fill).toBe("rgb(17, 17, 17)");
+  await page.locator("body").evaluate((body) => body.classList.remove("dark"));
+  await expect.poll(fill).toBe("rgb(34, 34, 34)");
+  expect(errors).toEqual([]);
+});
+
 test("keeps its room before hydration, so that what's below doesn't move", async ({ page }) => {
   const errors = await open(page, "bar-late.html");
   const gap = () =>
