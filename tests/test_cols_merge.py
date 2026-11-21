@@ -497,6 +497,17 @@ class TestColsMergeUncert:
         assert "10.0 ~ 0.5" in html
         assert "20.0 ~ 1.0" in html
 
+    def test_custom_sep_latex(self):
+        """Test that special characters in a custom separator are escaped in LaTeX output."""
+        from great_tables.gt import _get_column_of_values
+
+        df = pl.DataFrame({"val": [10.0, 20.0], "uncert": [0.5, 1.0]})
+
+        gt = GT(df).cols_merge_uncert(col_val="val", col_uncert="uncert", sep=" & ")
+
+        assert _get_column_of_values(gt, "val", "latex") == ["10.0 \\& 0.5", "20.0 \\& 1.0"]
+        assert _get_column_of_values(gt, "val", "html") == ["10.0 & 0.5", "20.0 & 1.0"]
+
     def test_autohide_true(self):
         """Test that col_uncert is hidden by default."""
         df = pd.DataFrame({"val": [10.0], "uncert": [0.5]})
@@ -736,6 +747,17 @@ class TestColsMergeRange:
 
         assert "10 to 15" in html
         assert "20 to 25" in html
+
+    def test_custom_sep_latex(self):
+        """Test that special characters in a custom separator are escaped in LaTeX output."""
+        from great_tables.gt import _get_column_of_values
+
+        df = pl.DataFrame({"low": [10, 20], "high": [15, 25]})
+
+        gt = GT(df).cols_merge_range(col_begin="low", col_end="high", sep=" & ")
+
+        assert _get_column_of_values(gt, "low", "latex") == ["10 \\& 15", "20 \\& 25"]
+        assert _get_column_of_values(gt, "low", "html") == ["10 & 15", "20 & 25"]
 
     def test_sep_en_dash(self):
         """Test that '--' is converted to en dash."""
