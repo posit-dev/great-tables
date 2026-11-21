@@ -10,6 +10,16 @@ format:
 toc: false
 ---
 
+::: {style="display: flow-root"}
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="point rest" cell-trick="heatmap" intro='[["mood", "wink"], ["say", "Pick a table, any table!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
+Here are tables made with **Great Tables**, from small ones to elaborate ones, with the code that
+makes each of them under **Show the Code**. Borrow whatever you like for tables of your own.
+:::
+
 :::::: {.column-page}
 ::::: {.grid}
 
