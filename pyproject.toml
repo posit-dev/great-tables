@@ -136,7 +136,9 @@ dev-no-pandas = [
 
 [project.urls]
 homepage = "https://github.com/posit-dev/great-tables"
+repository = "https://github.com/posit-dev/great-tables"
 documentation = "https://posit-dev.github.io/great-tables/"
+bug_tracker = "https://github.com/posit-dev/great-tables/issues"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
