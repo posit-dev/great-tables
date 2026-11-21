@@ -22,6 +22,7 @@ homepage: index
 hero:
   logo: assets/GT_logo.svg
   logo_height: 200px
+  name: false
   tagline: "Absolutely Delightful Table-making in Python"
 
 # Scale-to-fit for Great Tables output (but not interactive tables, which scroll sideways in place,
