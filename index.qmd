@@ -136,9 +136,10 @@ percentage, and draw each list of populations as a small plot.
         md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
     .fmt_flag(columns="country_code_2")
-    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, decimals=1)
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
     .fmt_percent(columns="change", decimals=0, force_sign=True)
     .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
 )
 ```
 ::::
@@ -169,9 +170,10 @@ header to the left.
         md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
     .fmt_flag(columns="country_code_2")
-    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, decimals=1)
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
     .fmt_percent(columns="change", decimals=0, force_sign=True)
     .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
     .data_color(columns="change", palette=["#FFF0FA", "#F900C3"])
     .tab_style(
         style=style.text(weight="bold"),
@@ -212,9 +214,10 @@ style kept. Try sorting by a column, or filtering by the change.
         md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
     .fmt_flag(columns="country_code_2")
-    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, decimals=1)
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
     .fmt_percent(columns="change", decimals=0, force_sign=True)
     .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
     .data_color(columns="change", palette=["#FFF0FA", "#F900C3"])
     .tab_style(
         style=style.text(weight="bold"),
