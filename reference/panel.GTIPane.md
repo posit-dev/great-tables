@@ -50,7 +50,7 @@ pn.Column(table, pn.bind(selected, table.param.selection)).servable()
 
 | Name | Description |
 |----|----|
-| [data()](#data) | The table's data, with the rows its view keeps, in the order shown (see `rows`), or with |
+| [data()](#great_tables.panel.GTIPane.data) | The table's data, with the rows its view keeps, in the order shown (see `rows`), or with |
 
 ### data()
 

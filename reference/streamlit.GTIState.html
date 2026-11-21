@@ -122,6 +122,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script defer="" src="../gd-lightbox-compare.js"></script>
 <link rel="stylesheet" href="../gd-lightbox-annotate.css">
 <script defer="" src="../gd-lightbox-annotate.js"></script>
+<meta name="gd-logo-dark" content="GT_logo.dark.svg">
 <link rel="icon" type="image/x-icon" href="https://posit-dev.github.io/great-tables/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/svg+xml" href="https://posit-dev.github.io/great-tables/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="https://posit-dev.github.io/great-tables/favicon-32x32.png">
@@ -155,8 +156,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo light-content">
-    <img src="../GT_logo.svg" alt="Great Tables" class="navbar-logo dark-content">
+    <img src="../GT_logo.light.svg" alt="Great Tables" class="navbar-logo light-content">
+    <img src="../GT_logo.light.svg" alt="Great Tables" class="navbar-logo dark-content">
     </a>
   </div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -1568,6 +1569,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div id="great_tables.streamlit.GTIState">
+
+</div>
 <div class="doc-subject">
 <p>An interactive table’s state in a Streamlit app, as <a href="../reference/streamlit.st_gti.html#great_tables.streamlit.st_gti" class="gdls-link"><code>st_gti()</code></a></p>
 </div>
@@ -1615,19 +1619,22 @@ The data rows selected, in data order.
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="#query" class="doc-attribute doc-label doc-label-property">query</a></td>
+<td><a href="#great_tables.streamlit.GTIState.query" class="doc-attribute doc-label doc-label-property">query</a></td>
 <td>The table’s filters, as a query in text (<code>""</code> without any).</td>
 </tr>
 <tr class="even">
-<td><a href="#search" class="doc-attribute doc-label doc-label-property">search</a></td>
+<td><a href="#great_tables.streamlit.GTIState.search" class="doc-attribute doc-label doc-label-property">search</a></td>
 <td>The table’s search (<code>""</code> without one).</td>
 </tr>
 <tr class="odd">
-<td><a href="#sort" class="doc-attribute doc-label doc-label-property">sort</a></td>
+<td><a href="#great_tables.streamlit.GTIState.sort" class="doc-attribute doc-label doc-label-property">sort</a></td>
 <td>The table’s sort: its columns, each with a <code>-</code> before it if it’s in descending order.</td>
 </tr>
 </tbody>
 </table>
+<div id="great_tables.streamlit.GTIState.query">
+
+</div>
 <section id="query" class="level3">
 <h3 class="anchored" data-anchor-id="query"><span class="doc-object-name doc-attribute doc-label doc-label-property">query</span></h3>
 <div class="doc-subject">
@@ -1635,6 +1642,9 @@ The data rows selected, in data order.
 </div>
 <div class="doc-signature doc-attribute">
 <p><code><span class="doc-parameter-name">query</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span></code></p>
+</div>
+<div id="great_tables.streamlit.GTIState.search">
+
 </div>
 </section>
 <section id="search" class="level3">
@@ -1644,6 +1654,9 @@ The data rows selected, in data order.
 </div>
 <div class="doc-signature doc-attribute">
 <p><code><span class="doc-parameter-name">search</span><span class="doc-parameter-annotation-sep">:</span> <span class="doc-parameter-annotation">str</span></code></p>
+</div>
+<div id="great_tables.streamlit.GTIState.sort">
+
 </div>
 </section>
 <section id="sort" class="level3">

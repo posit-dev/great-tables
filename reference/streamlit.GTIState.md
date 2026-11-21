@@ -31,9 +31,9 @@ The data rows selected, in data order.
 
 | Name | Description |
 |----|----|
-| [query](#query) | The table's filters, as a query in text (`""` without any). |
-| [search](#search) | The table's search (`""` without one). |
-| [sort](#sort) | The table's sort: its columns, each with a `-` before it if it's in descending order. |
+| [query](#great_tables.streamlit.GTIState.query) | The table's filters, as a query in text (`""` without any). |
+| [search](#great_tables.streamlit.GTIState.search) | The table's search (`""` without one). |
+| [sort](#great_tables.streamlit.GTIState.sort) | The table's sort: its columns, each with a `-` before it if it's in descending order. |
 
 ### query
 
