@@ -1,0 +1,636 @@
+/* The homepage's showcase (with assets/homepage.js) */
+
+.gd-homepage {
+  --gth-accent: #f900c3;
+  --gth-accent-soft: rgba(249, 0, 195, 0.08);
+  --gth-accent-line: rgba(249, 0, 195, 0.35);
+  --gth-surface: var(--gd-bg-secondary, #f7f7f9);
+  --gth-border: var(--gd-border-color, #e3e3e8);
+  --gth-muted: var(--gd-text-muted, #6c6c78);
+  --gth-radius: 12px;
+}
+
+/* The lead and the calls to action */
+
+.gd-homepage #quarto-document-content > p:first-of-type {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.gth-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.4rem 0 2.6rem;
+}
+
+.gth-cta > p {
+  display: contents;
+}
+
+.gth-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1.05rem;
+  border: 1px solid var(--gth-border);
+  border-radius: 999px;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+}
+
+.gth-btn:hover {
+  border-color: var(--gth-accent);
+  color: inherit;
+  transform: translateY(-1px);
+}
+
+.gth-btn-primary {
+  background: var(--gth-accent);
+  border-color: var(--gth-accent);
+  color: #fff;
+}
+
+.gth-btn-primary:hover {
+  background: #d600a8;
+  border-color: #d600a8;
+  color: #fff;
+}
+
+.gth-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px dashed var(--gth-border);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.gth-install code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.gth-install:hover,
+.gth-install.gth-copied {
+  border-color: var(--gth-accent);
+}
+
+.gth-install .bi,
+.gth-prompt {
+  color: var(--gth-muted);
+}
+
+.gth-copied .bi {
+  color: var(--gth-accent);
+}
+
+/* The section headings */
+
+.gd-homepage h2.gth-heading {
+  margin-top: 3.2rem;
+  border-bottom: none;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.gd-homepage h2.gth-heading::after {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 3px;
+  margin-top: 0.45rem;
+  border-radius: 3px;
+  background: var(--gth-accent);
+}
+
+.gth-more {
+  display: inline-block;
+  margin-right: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* The fold with how `countries` is made */
+
+.gth-prep {
+  margin-bottom: 0.9rem;
+}
+
+/* The stepper */
+
+.gth-stepper {
+  margin: 1.2rem 0 1rem;
+}
+
+.gth-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.3rem;
+  border: 1px solid var(--gth-border);
+  border-radius: 999px;
+  background: var(--gth-surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.gth-tab {
+  position: relative;
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: max-content;
+  padding: 0.45rem 0.8rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gth-muted);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.gth-tab:hover {
+  color: var(--gd-text-primary, #222);
+}
+
+.gth-tab:focus-visible {
+  outline: 2px solid var(--gth-accent);
+  outline-offset: 1px;
+}
+
+.gth-tab-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.gth-tab.gth-done .gth-tab-num {
+  border-color: var(--gth-accent-line);
+  color: var(--gth-accent);
+}
+
+.gth-tab[aria-selected="true"] {
+  background: var(--gd-bg-primary, #fff);
+  color: var(--gd-text-primary, #222);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.gth-tab[aria-selected="true"] .gth-tab-num {
+  border-color: var(--gth-accent);
+  background: var(--gth-accent);
+  color: #fff;
+}
+
+.gth-tab-progress {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gth-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+}
+
+.gth-playing .gth-tab[aria-selected="true"] .gth-tab-progress {
+  opacity: 0.7;
+  animation: gth-progress var(--gth-dwell, 5s) linear forwards;
+}
+
+@keyframes gth-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The panels are stacked in one place, so that each (and an interactive table in one) is laid out
+   all along; the stepper is as tall as the one shown. The others are see-through (and inert), not
+   hidden, since the tables' SVGs (the flags' masks, the plots' fills) can refer to definitions in
+   an earlier table, which a hidden table's would leave out */
+
+.gth-panels {
+  position: relative;
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+
+.gth-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.gth-stepper.gth-ready .gth-panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.gth-stepper.gth-ready .gth-panel.gth-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  z-index: 1;
+}
+
+.gth-panel > p {
+  margin-bottom: 0.8rem;
+  color: var(--gth-muted);
+}
+
+.gth-panel .cell {
+  border: 1px solid var(--gth-border);
+  border-radius: var(--gth-radius);
+  overflow: hidden;
+  background: var(--gd-bg-primary, #fff);
+}
+
+.gth-panel .cell-output-display {
+  padding: 1rem 1rem 0.6rem;
+  overflow-x: auto;
+}
+
+.gth-panel .cell-code {
+  position: relative;
+  margin: 0;
+  border-top: 1px solid var(--gth-border);
+  border-radius: 0;
+}
+
+.gth-panel .cell-code pre {
+  max-height: 15.5rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  overflow-y: auto;
+}
+
+.gth-panel .cell-code pre code {
+  display: block;
+  min-width: max-content;
+}
+
+.gth-panel .cell-code pre code > span {
+  display: block;
+  margin-left: -0.6rem;
+  padding-left: 0.6rem;
+  border-left: 3px solid transparent;
+}
+
+.gth-panel .cell-code pre code > span.gth-new {
+  border-left-color: var(--gth-accent);
+  background: var(--gth-accent-soft);
+}
+
+.gth-panel .cell-code pre code > span.gth-folded {
+  display: none;
+}
+
+.gth-panel .cell-code pre code > span.gth-fold-mark {
+  height: 1.5em;
+  overflow: hidden;
+  color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.gth-panel .cell-code pre code > span.gth-fold-mark * {
+  color: transparent !important;
+}
+
+.gth-panel .cell-code pre code > span.gth-fold-mark::before {
+  content: "⋯ " attr(data-fold);
+  display: block;
+  color: var(--gth-muted);
+  font-style: italic;
+}
+
+.gth-panel .cell-code pre code > span.gth-fold-mark:hover::before,
+.gth-panel .cell-code pre code > span.gth-fold-mark:focus-visible::before {
+  color: var(--gth-accent);
+}
+
+.gth-panel .cell-code pre code > span.gth-fold-mark:focus-visible {
+  outline: 2px solid var(--gth-accent);
+  outline-offset: -2px;
+}
+
+.gth-new-count {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.9rem;
+  z-index: 2;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--gth-accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* The data as it is, which is tall, in a box of its own */
+
+.gth-step-raw .cell-output-display {
+  max-height: 26rem;
+  overflow: auto;
+}
+
+/* The formats */
+
+.gth-gallery {
+  margin: 1rem 0 0.8rem;
+}
+
+.gth-gallery .cell-output-display {
+  margin-top: 0.6rem;
+}
+
+/* The tour of an interactive table */
+
+.gth-tour {
+  margin: 1.2rem 0 1.4rem;
+  padding: 1rem 1rem 0.4rem;
+  border: 1px solid var(--gth-border);
+  border-radius: var(--gth-radius);
+  background: var(--gth-surface);
+}
+
+.gth-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+}
+
+.gth-chips::before {
+  content: "Try a view:";
+  align-self: center;
+  margin-right: 0.2rem;
+  color: var(--gth-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.gth-chip {
+  padding: 0.32rem 0.8rem;
+  border: 1px solid var(--gth-border);
+  border-radius: 999px;
+  background: var(--gd-bg-primary, #fff);
+  color: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.gth-chip:hover {
+  border-color: var(--gth-accent);
+}
+
+.gth-chip:focus-visible {
+  outline: 2px solid var(--gth-accent);
+  outline-offset: 1px;
+}
+
+.gth-chip[aria-pressed="true"] {
+  border-color: var(--gth-accent);
+  background: var(--gth-accent);
+  color: #fff;
+}
+
+.gth-chip-reset {
+  color: var(--gth-muted);
+}
+
+.gth-tour .cell {
+  margin-bottom: 0.4rem;
+}
+
+.gth-tour .cell-output-display {
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: var(--gd-bg-primary, #fff);
+}
+
+.gth-livecode {
+  margin: 0.4rem 0 0.8rem;
+  border: 1px solid var(--gth-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--gd-code-bg, #f6f8fa);
+}
+
+.gth-livecode[hidden] {
+  display: none;
+}
+
+.gth-livecode.gth-flash {
+  animation: gth-flash 0.9s ease;
+}
+
+@keyframes gth-flash {
+  from {
+    box-shadow: 0 0 0 3px var(--gth-accent-line);
+  }
+  to {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+
+.gth-livecode-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+  border-bottom: 1px solid var(--gth-border);
+  font-size: 0.82rem;
+}
+
+.gth-livecode-title {
+  flex: 1;
+  color: var(--gth-muted);
+  font-weight: 600;
+}
+
+.gth-livecode-langs {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--gth-border);
+  border-radius: 999px;
+}
+
+.gth-livecode-langs button,
+.gth-livecode-copy {
+  padding: 0.12rem 0.6rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--gth-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.gth-livecode-langs button[aria-pressed="true"] {
+  background: var(--gth-accent);
+  color: #fff;
+}
+
+.gth-livecode-copy:hover {
+  color: var(--gth-accent);
+}
+
+.gth-livecode-code {
+  max-height: 14rem;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: none;
+  background: transparent;
+  font-size: 0.82rem;
+  overflow: auto;
+}
+
+.gth-livecode-code code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  white-space: pre;
+}
+
+/* The features */
+
+.gth-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0 1rem;
+}
+
+.gth-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem 1.15rem 0.9rem;
+  border: 1px solid var(--gth-border);
+  border-radius: var(--gth-radius);
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.gth-card:hover {
+  border-color: var(--gth-accent-line);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.gth-card > p {
+  margin-bottom: 0.6rem;
+  font-size: 0.93rem;
+}
+
+.gth-card > p:last-child {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+.gth-card > p:last-child a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.gd-homepage .gth-card h4 {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.gth-card-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 10px;
+  background: var(--gth-accent-soft);
+  color: var(--gth-accent);
+  font-size: 1.15rem;
+}
+
+/* Dark mode */
+
+body.quarto-dark.gd-homepage,
+html.quarto-dark .gd-homepage {
+  --gth-accent-soft: rgba(249, 0, 195, 0.16);
+  --gth-accent-line: rgba(249, 0, 195, 0.5);
+  --gth-surface: var(--gd-bg-secondary, #1d1f24);
+  --gth-border: var(--gd-border-color, #33363d);
+}
+
+body.quarto-dark .gth-tab[aria-selected="true"],
+html.quarto-dark .gth-tab[aria-selected="true"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+body.quarto-dark .gth-card:hover,
+html.quarto-dark .gth-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gth-panels,
+  .gth-stepper.gth-ready .gth-panel,
+  .gth-stepper.gth-ready .gth-panel.gth-active,
+  .gth-card,
+  .gth-btn {
+    transition: none;
+  }
+
+  .gth-livecode.gth-flash,
+  .gth-playing .gth-tab[aria-selected="true"] .gth-tab-progress {
+    animation: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .gth-tab {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .gth-tab-name {
+    display: none;
+  }
+
+  .gth-tab[aria-selected="true"] .gth-tab-name {
+    display: inline;
+  }
+
+  .gth-panel .cell-output-display {
+    padding: 0.6rem 0.5rem 0.4rem;
+  }
+
+  .gth-new-count {
+    display: none;
+  }
+}
