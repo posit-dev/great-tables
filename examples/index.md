@@ -1,5 +1,7 @@
 # Examples
 
+Here are tables made with **Great Tables**, from small ones to elaborate ones, with the code that makes each of them under **Show the Code**. Borrow whatever you like for tables of your own.
+
 ``` python
 import polars as pl
 from great_tables import GT, md, html

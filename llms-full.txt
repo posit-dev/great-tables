@@ -18916,6 +18916,11 @@ straight from the web:
 
 ![A collage of display tables taken from web pages, articles, and magazines.](../assets/tables_from_the_web.png)
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cell-trick="ripple" intro='[["wave", 2], ["say", "Hi! I’m Tabblen."], ["mood", "grin"], ["say", "Let’s make some tables!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Display tables exist because raw DataFrames are working artifacts, not communication tools. When you
 share findings with colleagues, stakeholders, or readers, the formatting of your table directly
 affects how well your message lands. Good structure and styling reduce cognitive load, draw
@@ -21262,6 +21267,11 @@ formatting has been applied. The `text_*()` methods operate on the already-rende
 giving you a post-processing layer for tasks like replacing abbreviations, applying conditional
 labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
 data values.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="great tables" cell-trick="flip" intro='[["mood", "thinking"], ["wait", 600], ["mood", "happy"], ["write", "GREAT TABLES", 110], ["mood", "grin"], ["say", "Same cells, new text!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
 Text transforms work on the *already-rendered text* after formatting. This means you can use
@@ -23946,6 +23956,11 @@ cell, a standalone HTML file, a LaTeX document, or an image file for inclusion i
 presentation. **Great Tables** provides several export methods to cover these use cases, each with
 options to control the output format.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cell-trick="slots" intro='[["arms", "open"], ["write", ["HTML", "PNG", "PDF", "LaTeX", "SVG", "Word", "Excel", "PPT", "RTF", "Typst"], 160], ["mood", "grin"], ["say", "Build once, export many ways!"], ["mood", "happy"], ["arms", "rest"]]'></gt-tabblen>
+```
+
 The general principle is: build your table once, export it many ways. The same `GT` object can be
 displayed interactively, saved as HTML, rendered as LaTeX, or captured as an image. This means you
 don't need to maintain separate table-building code for different output formats. Your single chain
@@ -26163,5 +26178,12 @@ does. To see the table from there, open it in your browser:
 from great_tables.this import table
 
 table().show()
+```
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<div style="margin-top: 2rem; text-align: center">
+  <gt-tabblen mood="zen" arms="open" bubble="top" cell-trick="zen" intro='[["wait", 800], ["say", "Simple is better than complex.", 3500]]'></gt-tabblen>
+</div>
 ```
 
