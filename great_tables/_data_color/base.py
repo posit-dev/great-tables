@@ -21,7 +21,14 @@ from great_tables.style import fill, text
 
 from .constants import ALL_PALETTES, DEFAULT_PALETTE
 from .palettes import GradientPalette
-from .utils import RGBColor, _float_to_hex, _hex_to_rgb, _html_color, rgb_to_hex
+from .utils import (
+    RGBColor,
+    _add_alpha,  # noqa: F401 (re-exported)
+    _float_to_hex,
+    _hex_to_rgb,
+    _html_color,
+    rgb_to_hex,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
