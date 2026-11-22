@@ -12,6 +12,11 @@ markup into its HTML output for you, following the patterns in the W3C's
 [Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). This page describes what's covered,
 what isn't, and what you can do to make your tables easier for everyone to read.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="open rest" cells="|GDP|pop|area/Japan|4.2|124M|378k/France|3.1|68M|551k" cell-trick="read" intro='[["say", "I’ll read you any cell!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 ## Row and Column Headers
 
 Every header in a **Great Tables** table is a header cell (`<th>`) with a `scope` that says what it
