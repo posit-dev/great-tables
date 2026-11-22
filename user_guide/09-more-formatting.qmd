@@ -12,6 +12,11 @@ percentages, fractions, byte sizes, date-times, durations, scientific units, che
 icons, flags, images, boolean values, Markdown, and more. Each formatter transforms raw cell data
 into presentation-ready content.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="0.25|1.75|1.5e6|7500/True|False|H2O|m s^-2/6e23|4.99|3|1500" cell-trick="formats" intro='[["say", "Percents, bytes, chemistry and more!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 When choosing a formatter, start with the semantic meaning of your data. If a column represents a
 file size, reach for `~~GT.fmt_bytes()` rather than `~~GT.fmt_number()` with manual suffix logic. If
 a column holds time durations, use `~~GT.fmt_duration()` instead of formatting seconds by hand.
