@@ -10,6 +10,11 @@ adjacent to the data they summarize. **Great Tables** supports two types: group-
 appear next to each row group, and grand summaries that aggregate across the entire table. Both
 types let you define multiple aggregation functions at once and control where the summary appears.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="45|230|180|65/120|95|60|85" cell-trick="totals" intro='[["say", "Let’s add it all up!"], ["cellTrick", 2, 1]]'></gt-tabblen>
+```
+
 Embedding aggregations directly in the table keeps the reader's eye on the data. When a total or
 average lives in a separate paragraph or a footnote, the reader has to scan back and forth between
 the table and the surrounding text to compare a group's summary to its individual rows. Summary rows
