@@ -10,6 +10,11 @@ single, combined value. For example, a measurement and its uncertainty, a low an
 a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
 combines the content of two or more columns into one, giving you a more compact and readable table.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="12.4|0.32|10.5|14.2/8.92|0.15|7.8|10.1/15.0|0.48|13.2|16.8" cell-trick="merge" intro='[["say", "Two columns? Make them one!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Merging works best when two columns are conceptually a single value: a measurement and its
 uncertainty, a low and high bound forming a range, or a count paired with its percentage. In these
 cases, presenting the values separately forces the reader to mentally combine them anyway. If,
