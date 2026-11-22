@@ -11,6 +11,11 @@ header, footnotes, or spanners (perhaps from a shared helper function or a templ
 to strip a component out rather than rebuild the table from scratch. Every `rm_*()` method returns
 the `GT` object, so these calls chain like any other.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="neutral" cells="model|hp|trq|msrp/GT|647|550|447k/488|661|561|245k" cell-trick="remove" intro='[["say", "Too much? Take some out!"], ["mood", "wink"], ["wait", 600], ["mood", "neutral"]]'></gt-tabblen>
+```
+
 A common workflow where removal shines is when you start with a template or shared helper function
 that builds a fully-decorated table and then strip away the parts that aren't relevant for a
 particular audience or context. For example, a detailed report might include footnotes and source
