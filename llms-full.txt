@@ -19136,6 +19136,11 @@ the API documentation. These datasets cover a range of subject areas and sizes, 
 any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
 work.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="num|char|fctr|time/0.11|apricot|one|13:35/2.22|banana|two|14:40" cell-trick="scroll" intro='[["look", 0, 0.6], ["wait", 700], ["mood", "grin"], ["say", "Sixteen datasets, ready to go!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 These built-in datasets exist so you can experiment with Great Tables features without needing to
 bring your own data. They make it easy to follow along with examples, test table-building code, and
 explore different formatting options. They also demonstrate the range of data types and structures
@@ -19257,6 +19262,11 @@ Three structural components frame the data in your table: the **Table Header** i
 title and optional subtitle, the **Table Footer** anchors it with source notes or other supplementary
 information, and the **Stub** provides a left-hand column of row identifiers. All three are added
 using the `tab_*()` family of methods.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="point rest" cells='[[{"text": "CN", "color": "#f900c3"}, "1.26", "1.34", "1.41"], [{"text": "IN", "color": "#f900c3"}, "1.06", "1.24", "1.42"], [{"text": "US", "color": "#f900c3"}, "0.28", "0.31", "0.33"]]' cell-trick="frame" intro='[["say", "Header, stub, footer: I’ve got all three!"], ["mood", "grin"], ["hop", 1], ["mood", "wink"]]'></gt-tabblen>
+```
 
 A well-structured frame transforms a bare data grid into something self-explanatory. Without these
 components, your reader has to look outside the table for context: what is this data? Where did it
@@ -19438,6 +19448,11 @@ column names are often abbreviated, inconsistently cased, or full of underscores
 Presentation-ready column labels are one of the highest-impact improvements you can make to a table,
 and they require very little effort.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up rest" cells="date|time|temp|wind/May 1|00:20|18.9|6.7/May 1|00:50|18.9|7.2" cell-trick="spanner" intro='[["mood", "thinking"], ["wait", 800], ["mood", "happy"], ["say", "A good label goes a long way."]]'></gt-tabblen>
+```
+
 Beyond simple labels, **Great Tables** lets you group related columns together under spanner labels,
 reorder columns for clarity, and customize label text with rich formatting. This page walks through
 each of these capabilities.
@@ -19589,6 +19604,11 @@ Tables often contain related data spread across multiple columns that would be b
 single, combined value. For example, a measurement and its uncertainty, a low and high bound forming
 a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
 combines the content of two or more columns into one, giving you a more compact and readable table.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="12.4|0.32|10.5|14.2/8.92|0.15|7.8|10.1/15.0|0.48|13.2|16.8" cell-trick="merge" intro='[["say", "Two columns? Make them one!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Merging works best when two columns are conceptually a single value: a measurement and its
 uncertainty, a low and high bound forming a range, or a count paired with its percentage. In these
@@ -19772,6 +19792,11 @@ Footnotes provide a way to annotate specific cells, columns, or other table part
 context without cluttering the main display. **Great Tables** manages footnotes as a system: marks
 are automatically sequenced, placed consistently, and matched to their explanatory text in the table
 footer.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" cells="temp|hum|wind|hPa/18.9|68%|6.7|1015/18.9|73%|7.2|1015" cell-trick="footnote" intro='[["look", 0, 1], ["tap", 2], ["say", "Psst… the details are down here."], ["mood", "wink"]]'></gt-tabblen>
+```
 
 Footnotes are best suited for cell-specific or column-specific context that would clutter the main
 display if placed inline. For information that applies to the entire table, a source note in the
@@ -19981,6 +20006,11 @@ Summary rows provide aggregated values (such as totals, means, or counts) direct
 adjacent to the data they summarize. **Great Tables** supports two types: group-level summaries that
 appear next to each row group, and grand summaries that aggregate across the entire table. Both
 types let you define multiple aggregation functions at once and control where the summary appears.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="45|230|180|65/120|95|60|85" cell-trick="totals" intro='[["say", "Let’s add it all up!"], ["cellTrick", 2, 1]]'></gt-tabblen>
+```
 
 Embedding aggregations directly in the table keeps the reader's eye on the data. When a total or
 average lives in a separate paragraph or a footnote, the reader has to scan back and forth between
@@ -20222,6 +20252,11 @@ header, footnotes, or spanners (perhaps from a shared helper function or a templ
 to strip a component out rather than rebuild the table from scratch. Every `rm_*()` method returns
 the `GT` object, so these calls chain like any other.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="neutral" cells="model|hp|trq|msrp/GT|647|550|447k/488|661|561|245k" cell-trick="remove" intro='[["say", "Too much? Take some out!"], ["mood", "wink"], ["wait", 600], ["mood", "neutral"]]'></gt-tabblen>
+```
+
 A common workflow where removal shines is when you start with a template or shared helper function
 that builds a fully-decorated table and then strip away the parts that aren't relevant for a
 particular audience or context. For example, a detailed report might include footnotes and source
@@ -20334,6 +20369,11 @@ consistent decimal places, dates should appear in a readable format, and currenc
 appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles all of this,
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="point rest" cells="0.1111|2.222|33.33|444.4/5550|65100|777000|8880000/1325.81|13.255|0.4400|17.95" cell-trick="format" intro='[["mood", "thinking"], ["wait", 900], ["say", "These numbers need some formatting!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
 when large numbers lack digit separators, readers slow down as they try to parse each value.
@@ -20558,6 +20598,11 @@ Tables** has a much larger formatting toolkit. This page covers additional forma
 percentages, fractions, byte sizes, date-times, durations, scientific units, chemical formulas,
 icons, flags, images, boolean values, Markdown, and more. Each formatter transforms raw cell data
 into presentation-ready content.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="0.25|1.75|1.5e6|7500/True|False|H2O|m s^-2/6e23|4.99|3|1500" cell-trick="formats" intro='[["say", "Percents, bytes, chemistry and more!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 When choosing a formatter, start with the semantic meaning of your data. If a column represents a
 file size, reach for `~~GT.fmt_bytes()` rather than `~~GT.fmt_number()` with manual suffix logic. If
@@ -21063,6 +21108,11 @@ misleading when displayed directly in a table. The `sub_*()` family of methods l
 these problematic values with more meaningful text, improving readability without altering your
 underlying data.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" cells="B|0|0.0|0.0/C|42|0.542|1e13/E|3|None|None" cell-trick="substitute" intro='[["say", "Hmm, some of these look a little awkward…"]]'></gt-tabblen>
+```
+
 It is worth noting that substitution is about communication, not data cleaning. The underlying
 DataFrame is unchanged---what changes is how problematic values are *presented* to the reader. A
 `None` displayed as "N/A" or an em dash is immediately understood as intentionally missing, whereas
@@ -21554,6 +21604,11 @@ spot. **Great Tables** provides a flexible system for applying fills, borders, a
 cells in the table body. This page covers the fundamentals of cell-level styling, from targeting
 specific cells to using column values and expressions to drive dynamic styles.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up rest" cells='[["time", "temp", "hum", "cond"], ["00:20", "18.9", "68%", "Fair"], ["00:50", "18.9", {"text": "73%", "fill": "#f900c3", "color": "#fff"}, "Fair"]]' cell-trick="style" intro='[["say", "Just enough style to catch the eye."], ["mood", "wink"], ["wait", 600], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Targeted styling is most effective when used sparingly to draw attention to specific values
 (outliers, thresholds, or key comparisons). Overusing color and borders can make a table harder to
 read rather than easier. A good rule of thumb: if everything is highlighted, nothing is. Start with
@@ -22018,6 +22073,11 @@ parts of the table, like the header, specific spanner labels, the footer, and mo
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any
 region of your table.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open" cells="row|num|char|fctr/row_1|0.11|apricot|one/row_2|2.22|banana|two" cell-trick="paint" intro='[["say", "Header to footer, it can all be styled!"], ["mood", "grin"], ["wait", 400], ["mood", "wink"]]'></gt-tabblen>
+```
+
 Whole-table styling is valuable when you want to establish visual hierarchy or brand consistency
 across the table. For example, giving the header a distinct background separates it from the data,
 while styling the stub helps readers distinguish identifiers from values. This kind of structural
@@ -22220,6 +22280,11 @@ with color gradients. This technique is great for identifying patterns, trends, 
 missing data when there's lots of data. Tables can have this sort of treatment as well! Typically,
 formatted numeric values are shown along with some color treatment coinciding with the underlying
 data values.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="love" arms="open" cells="12|45|78|30/56|91|23|67/34|83|15|60" cell-trick="colorize" intro='[["say", "Let’s color these by value!"], ["cellTrick", 1, 1]]'></gt-tabblen>
+```
 
 Data coloring works best when you want readers to spot patterns across many values at once (e.g.,
 trends over time, outliers, relative magnitude, etc.). For tables with just a few rows, explicit
@@ -22714,6 +22779,11 @@ colors, fonts, borders, and spacing for entire table parts in a single call. Thi
 structure of option names, demonstrates how to style different parts, and shows how to build a
 complete table theme.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="rest up" cells="mfr|model|hp|msrp/Ford|GT|647|447k/Audi|R8|610|169k" cell-trick="options" intro='[["say", "So many options to set!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 A useful way to think about the relationship between `~~GT.tab_options()` and `~~GT.tab_style()`:
 use `tab_options()` when you want to set broad defaults for entire table parts (e.g., "all column
 labels should have this background color"). Use `tab_style()` when you need to target specific
@@ -22963,6 +23033,11 @@ convenience methods that bundle these options into simple, one-line calls. This 
 how to use premade themes and the various convenience methods available for quick table
 customization.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="point rest" cells='[[{"text": "open", "fill": "#0076BA", "color": "#fff"}, {"text": "high", "fill": "#0076BA", "color": "#fff"}, {"text": "low", "fill": "#0076BA", "color": "#fff"}, {"text": "close", "fill": "#0076BA", "color": "#fff"}], ["2077", "2077", "2062", "2063"], [{"text": "2061", "fill": "#0076BA2e"}, {"text": "2063", "fill": "#0076BA2e"}, {"text": "2044", "fill": "#0076BA2e"}, {"text": "2044", "fill": "#0076BA2e"}]]' cell-trick="stylize" intro='[["say", "Six premade themes, one line each!"], ["mood", "wink"], ["wait", 500], ["mood", "grin"]]'></gt-tabblen>
+```
+
 Premade themes are ideal for getting a polished look quickly, especially during exploratory work or
 when building dashboards where visual consistency matters more than pixel-perfect custom styling.
 For publication or brand-specific tables, you may want to start with a premade theme and then
@@ -23151,6 +23226,11 @@ nanoplots include the following:
 - choice of line, bar, and box plot charting
 - you can annotate plots with a reference line and/or area
 - plenty of easy-to-use options for composing your plots
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up up" cells="12|18|9|24/30|22|35|28/5|14|11|20" cell-trick="nanoplot" intro='[["say", "Tiny plots, right in the cells!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Nanoplots shine when you want to show trends or distributions alongside other tabular data, so the
 reader can correlate a visual pattern with the row's other values at a glance. They are not a
@@ -23499,6 +23579,11 @@ than limiting you to a simple list of column names, the package supports a flexi
 that includes positional indexing, pattern-matching functions, and Polars selectors. This page
 demonstrates each of these approaches.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="up rest" cells="date|temp|time|wind/May 1|18.9|00:20|6.7/May 1|17.8|00:50|7.2" cell-trick="columns" intro='[["say", "Which columns should I pick?"]]'></gt-tabblen>
+```
+
 As your table-building code grows, hardcoding column names becomes fragile. If a column is renamed
 or added upstream, your table code breaks silently or raises an error. Pattern-based selection
 (whether through functions or Polars selectors) makes your code more resilient to upstream changes
@@ -23596,6 +23681,11 @@ Just as you can target specific columns, **Great Tables** also provides flexible
 rows. The `rows=` argument appears in formatting methods, location specifiers, and styling calls,
 allowing you to apply operations to a precise subset of your data. This page covers each of the
 available selection mechanisms.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open rest" cells="CAN|Canada|38.9M|2023/FRA|France|68.2M|2023/JPN|Japan|125M|2023" cell-trick="rows" intro='[["say", "Any rows you like, I’ll pick them!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Row selection matters because many table operations (formatting, styling, footnotes) need to target
 specific rows. Without it, you would need to pre-filter your DataFrame or apply formatting to an
@@ -23718,6 +23808,11 @@ The `loc` module is what connects your styling intentions to specific parts of t
 location specifier identifies a region of the table (such as the header, body, stub, or footer) and
 many of them also support targeting specific columns or rows within that region. This page provides
 a comprehensive overview of all available location specifiers and how to use them effectively.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="point rest" cells="|temp|hum|wind/GIB|18.9|68%|6.7/MAD|24.1|41%|3.2" cell-trick="locations" intro='[["say", "Which part should we style?"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Understanding the `loc` module is valuable because it provides a single, consistent vocabulary for
 addressing any part of the table. Rather than learning separate APIs for styling the header vs. the
@@ -24254,6 +24349,11 @@ no shortage of tools, styles, formats and themes, you can produce a very wide ra
 you haven't yet, head over to the [examples gallery](/examples/index.qmd) for a flavor of the
 variety that is possible.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="open up" cells="team|rating|wins|pts/Ace|4|12|88/Bolt|2|7|61" cell-trick="extend" intro='[["say", "Add-ons make me even greater!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 But what happens when there's something you want to add to your table, and it's not directly
 supported by **Great Tables**? Let's say you have a very specific use case for your great table, so
 it's not necessarily broad enough to contribute to the package. Or maybe it *is* generalizable, but
@@ -24464,6 +24564,11 @@ markup into its HTML output for you, following the patterns in the W3C's
 [Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). This page describes what's covered,
 what isn't, and what you can do to make your tables easier for everyone to read.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="open rest" cells="|GDP|pop|area/Japan|4.2|124M|378k/France|3.1|68M|551k" cell-trick="read" intro='[["say", "I’ll read you any cell!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 ## Row and Column Headers
 
 Every header in a **Great Tables** table is a header cell (`<th>`) with a `scope` that says what it
@@ -24618,6 +24723,11 @@ Nothing else is needed to view it (no server, internet connection, or other libr
 can be read before the script runs, or if it never does. It's interactive wherever its HTML is
 shown: in Jupyter notebooks, Quarto documents, and HTML files written with
 `~~GT.write_raw_html()`.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="rest up" cells="fruit|qty|price|kcal/fig|12|3.50|74/kiwi|40|0.80|61" cell-trick="sort" intro='[["say", "Sort me, search me!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Interactive tables are ideal for exploratory contexts where the reader needs to find specific values
 in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and
@@ -24908,6 +25018,11 @@ A `GTI` table is the table GT made, with a few parts added around it. Here they 
 table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
 ![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open" cells="Make|Model|HP|MSRP/Ferrari|F12|731|$320k/Ford|GT|647|$447k" cell-trick="export" intro='[["say", "Filter me, sort me, export me!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 From the top:
 
@@ -25671,6 +25786,11 @@ selection, and can set them. A page an app makes itself (with Flask, Django or F
 the table as it works in the browser, with its runtime included once, however many tables the page
 has.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="point rest" cells="mfr|model|hp|mpg_c/BMW|i8|357|28/Ford|GT|647|11" cell-trick="select" intro='[["say", "Python can see what you pick!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 ## Using the table from Python
 
 In a notebook, `~~GTI.i_as_widget()` shows the table as a widget (with
@@ -25984,6 +26104,11 @@ makes, its rows are in the browser.
 
 Terms used throughout the **Great Tables** documentation, listed alphabetically. Where a term
 has a direct counterpart in the API, the relevant class, method, or module is noted.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="rest" cells="A–F|G–L|M–S|T–Z/Body|Header|Stub|Title/Footer|Locale|Style|" cell-trick="define" intro='[["say", "All the table words, A to Z!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Body
 : The main data area of the table, consisting of rows and columns of cells that hold the

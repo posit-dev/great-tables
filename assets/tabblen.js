@@ -21,7 +21,9 @@
 //   float    left or right, to float him beside a page's text
 //   intro    steps for play(), as JSON, to do when he's first seen ('[["wave", 2], ["say", "Hi!"]]')
 //   cell-trick  what a double click on a cell does: ripple (the default), shuffle, flip, slots,
-//            heatmap or zen (see cellTrick())
+//            heatmap, zen, scroll, frame, spanner, merge, footnote, totals, remove, format,
+//            formats, substitute, style, paint, colorize, options, stylize, nanoplot, columns, rows,
+//            locations, extend, read, sort, export, select or define (see cellTrick())
 //
 // A click (or tap) on him does a trick. A double click does something for the part that's
 // clicked: his feet click their heels in a hop, his eyes bug out, his mouth giggles, his forehead
@@ -65,6 +67,47 @@
 //                                 slots    the text spins like a slot machine's, then stops
 //                                 heatmap  a heatmap that's hottest at the cell, for a moment
 //                                 zen      a calm glow goes around the cells, from the cell
+//                                 scroll   the lower rows scroll through the rows of `exibble`
+//                                 frame    his header (his head), stub and footer (his feet)
+//                                          light up in turn
+//                                 spanner  the top row's text moves down, under two spanners
+//                                 merge    each row's cells merge in pairs, as "a ± b" and "c–d"
+//                                 footnote footnote marks go on the cell and two others, and the
+//                                          footer lights up
+//                                 totals   the bottom row counts up to the totals of the numbers
+//                                          above it
+//                                 remove   the text and the lines between the cells go, for a
+//                                          moment
+//                                 format   the numbers flip over to formatted ones
+//                                 formats  each cell spins through formats and stops at one
+//                                 substitute  missing, zero, tiny and huge values flip over to
+//                                          substitutes
+//                                 style    the cell's row, the cell and its column get styles
+//                                 paint    his header, column labels, stub, body and footer get
+//                                          a fill each
+//                                 colorize the numbers color their cells, in two palettes
+//                                 options  a font, fills, striping and a border go over his
+//                                          parts in turn
+//                                 stylize  his column labels and striping go through the colors
+//                                          of opt_stylize()
+//                                 nanoplot each row's numbers make a line plot, then a bar plot
+//                                 columns  columns light up, picked by name, by a first letter,
+//                                          as numeric ones and as all of them
+//                                 rows     rows light up, picked by the cell's, by the others
+//                                          and as all of them
+//                                 locations  a target moves over his parts in turn, as the
+//                                          loc.*() specifiers pick them, and ends on the cell
+//                                 extend   columns of numbers turn into gt-extras add-ons: star
+//                                          ratings, bars and purple-to-green fills
+//                                 read     cells are read out as a screen reader would, with
+//                                          their headers
+//                                 sort     the rows sort by the cell's column, up and down, and
+//                                          then a search leaves the rows with the cell's text
+//                                 export   the rows turn into lines of CSV and drop into his feet
+//                                 select   the cell's row is selected, and Python reads the
+//                                          selection, sets another and clears it
+//                                 define   the cells flip over to the names of his parts, and
+//                                          the cell's part is defined
 (() => {
   "use strict";
 
@@ -138,7 +181,78 @@
 
   // The cells around the edge of his body, clockwise from the top left (for the zen cell trick)
   const RING = [[0, 0], [0, 1], [0, 2], [0, 3], [1, 3], [2, 3], [2, 2], [2, 1], [2, 0], [1, 0]];
-  const CELL_TRICKS = ["ripple", "shuffle", "flip", "slots", "heatmap", "zen"];
+  const CELL_TRICKS = [
+    "ripple", "shuffle", "flip", "slots", "heatmap", "zen", "scroll", "frame", "spanner", "merge", "footnote",
+    "totals", "remove", "format", "formats", "substitute", "style", "paint", "colorize", "options", "stylize",
+    "nanoplot", "columns", "rows", "locations", "extend", "read", "sort", "export", "select", "define",
+  ];
+
+  // The rows of the `exibble` dataset (some of its columns, shortened), for the scroll cell trick
+  const EXIBBLE = [
+    ["0.11", "apricot", "one", "13:35"],
+    ["2.22", "banana", "two", "14:40"],
+    ["33.3", "coconut", "three", "15:45"],
+    ["444", "durian", "four", "16:50"],
+    ["5550", "", "five", "17:55"],
+    ["", "fig", "six", ""],
+    ["777k", "grapefruit", "seven", "19:10"],
+    ["8.9M", "honeydew", "eight", "20:20"],
+  ];
+
+  // A tint of the accent, for lighting up his parts (it works on light and dark pages alike)
+  const TINT = "rgba(249, 0, 195, 0.2)";
+
+  // Values and how a fmt_*() method shows them (a fmt_percent(), fmt_fraction(), fmt_bytes(),
+  // fmt_duration(), fmt_tf() twice, fmt_chem(), fmt_units(), fmt_scientific(), fmt_currency(),
+  // fmt_roman() and fmt_number() with compact numbers), for the formats cell trick
+  const FORMATS = [
+    ["0.25", "25%"], ["1.75", "1¾"], ["1.5e6", "1.5 MB"], ["7500", "2h 5m"],
+    ["True", "✓"], ["False", "✗"], ["H2O", "H₂O"], ["m s^-2", "m s⁻²"],
+    ["6e23", "6×10²³"], ["4.99", "$4.99"], ["3", "III"], ["1500", "1.5K"],
+  ];
+
+  // Light colors of ColorBrewer's Paired scheme (as on the Styling the Whole Table page), a little
+  // see-through, for the paint cell trick
+  const PAIRED = ["#a6cee3", "#b2df8a", "#fb9a99", "#fdbf6f", "#cab2d6"].map((hex) => `${hex}cc`);
+
+  // Two of ColorBrewer's palettes (with five of their colors), for the colorize cell trick
+  const BREWER = [
+    ["PuRd", ["#f7f4f9", "#d4b9da", "#df65b0", "#ce1256", "#67001f"]],
+    ["YlGnBu", ["#ffffd9", "#c7e9b4", "#41b6c4", "#225ea8", "#081d58"]],
+  ];
+
+  // The colors of opt_stylize() (of its column labels), for the stylize cell trick, ending with
+  // the blue that's its default
+  const STYLIZE = [
+    ["cyan", "#01837B"], ["pink", "#CB2A7B"], ["green", "#038901"], ["red", "#E4220C"], ["gray", "#5F5F5F"],
+    ["blue", "#0076BA"],
+  ];
+
+  // The teal of the options cell trick's theme
+  const TEAL = "#01837B";
+
+  // ColorBrewer's PRGn palette (with three of its colors), as gt-extras' gt_hulk_col_numeric()
+  // uses, for the extend cell trick
+  const PRGN = ["#762a83", "#f7f7f7", "#1b7837"];
+
+  // His parts, with what the glossary says of them, for the define cell trick
+  const TERMS = {
+    stubhead: "Stubhead: the label over the stub",
+    label: "Column labels: a name for each column",
+    stub: "Stub: the labels of the rows",
+    cell: "Cell: one value in the body",
+  };
+
+  const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 2 });
+
+  // The runs of numbers that follow on from each other in a sorted list: [[first, last], ...]
+  const runs = (items) =>
+    items.reduce((out, n) => {
+      const last = out[out.length - 1];
+      if (last && n === last[1] + 1) last[1] = n;
+      else out.push([n, n]);
+      return out;
+    }, []);
 
   // A second click within this long (and this near, in pixels) makes a double click
   const DOUBLE_MS = 320;
@@ -206,6 +320,10 @@
     .spark { stroke: var(--tabblen-accent); stroke-width: 2.6; stroke-linecap: round; opacity: 0; transform-box: fill-box; transform-origin: center; }
     .ink { fill: none; stroke: var(--tabblen-ink); stroke-width: 2.6; }
     .grid { stroke-width: 1.6; }
+    .grid line { transition: opacity 0.2s ease; }
+    .summary-line { opacity: 0; }
+    .border { fill: none; stroke: var(--tabblen-accent); stroke-width: 3.4; }
+    .foot { transition: fill 0.35s ease; }
     .arm { stroke-linecap: butt; }
     .mouth { fill: var(--tabblen-ink); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.4; }
     .mouth.hollow { fill: none; }
@@ -224,7 +342,13 @@
     .heart { fill: var(--tabblen-accent); stroke: none; }
     .ring { stroke-width: 2.1; }
     .cell-fill { transition: fill 0.35s ease; }
-    .cell-text { fill: var(--tabblen-cell); font-size: 24px; font-weight: 600; text-anchor: middle; dominant-baseline: central; transform-box: fill-box; transform-origin: center; }
+    .cell-text { fill: var(--tabblen-cell); font-size: 24px; font-weight: 600; text-anchor: middle; dominant-baseline: central; transform-box: fill-box; transform-origin: center; transition: fill 0.35s ease; }
+    .mark { fill: var(--tabblen-accent); font-size: 15px; font-weight: 700; }
+    .plot { fill: none; stroke: var(--tabblen-accent); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+    .dot { fill: var(--tabblen-bubble); stroke: var(--tabblen-accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; }
+    .bar { fill: var(--tabblen-accent); transform-box: fill-box; transform-origin: bottom; }
+    .star { fill: none; stroke: var(--tabblen-cell); stroke-width: 1.2; stroke-linejoin: round; transform-box: fill-box; transform-origin: center; }
+    .star.on { fill: var(--tabblen-accent); stroke: var(--tabblen-accent); }
     .bubble {
       position: absolute;
       z-index: 2;
@@ -304,7 +428,7 @@
       transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @media (prefers-reduced-motion: reduce) {
-      .pupil, .eye > *, .cell-fill, .bubble, .name span, svg:hover ~ .name span { transition: none; }
+      .pupil, .eye > *, .cell-fill, .cell-text, .grid line, .foot, .bubble, .name span, svg:hover ~ .name span { transition: none; }
     }
   `;
 
@@ -349,6 +473,12 @@
     const f = x - i;
     const c = rgb[i].map((v, j) => Math.round(v + (rgb[i + 1][j] - v) * f));
     return `rgb(${c[0]},${c[1]},${c[2]})`;
+  }
+
+  // Text that's easy to read on a color (an rgb() one, as from paletteAt()), as data_color() picks
+  function textOn(color) {
+    const [r, g, b] = color.match(/\d+/g).map(Number);
+    return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#2b2b33" : "#fff";
   }
 
   class Tabblen extends HTMLElement {
@@ -414,9 +544,11 @@
       body.style.transformBox = "view-box";
       body.style.transformOrigin = `160px ${BOTTOM}px`;
 
-      // The cells (their fills, then their text), under the lines
+      // The cells (their fills, then their text), under the lines, with a fill for the header
+      // too (for lighting it up)
       this._cells = [];
       const cellLayer = el("g", {}, body);
+      this._headFill = el("rect", { class: "cell-fill", x: 0, y: 0, width: W, height: HEAD, fill: "transparent" }, cellLayer);
       for (let r = 0; r < 3; r++) {
         const row = [];
         for (let c = 0; c < 4; c++) {
@@ -428,13 +560,23 @@
         }
         this._cells.push(row);
       }
+      // (Text over cells that are merged)
+      this._mergeLayer = el("g", {}, cellLayer);
 
       const lines = el("g", { class: "ink" }, body);
       el("rect", { x: 0, y: 0, width: W, height: BOTTOM }, lines);
       el("line", { x1: 0, y1: HEAD, x2: W, y2: HEAD }, lines);
       const grid = el("g", { class: "grid" }, lines);
-      for (let c = 1; c < 4; c++) el("line", { x1: c * COL, y1: HEAD, x2: c * COL, y2: BOTTOM }, grid);
-      for (let r = 1; r < 3; r++) el("line", { x1: 0, y1: HEAD + r * ROW, x2: W, y2: HEAD + r * ROW }, grid);
+      // (The lines between columns go a row at a time, so that cells in a row can be merged,
+      // with the line between them taken away)
+      this._vlines = [0, 1, 2].map((r) =>
+        [1, 2, 3].map((c) => el("line", { x1: c * COL, y1: HEAD + r * ROW, x2: c * COL, y2: HEAD + (r + 1) * ROW }, grid)),
+      );
+      this._hlines = [1, 2].map((r) => el("line", { x1: 0, y1: HEAD + r * ROW, x2: W, y2: HEAD + r * ROW }, grid));
+      // (A summary row's double line, over the bottom row)
+      this._summaryLine = el("line", { class: "summary-line", x1: 0, y1: HEAD + 2 * ROW + 3.5, x2: W, y2: HEAD + 2 * ROW + 3.5 }, grid);
+      // (Over the lines: borders put on cells)
+      this._borders = el("g", {}, body);
 
       // The arms
       this._armEls = [0, 1].map(() => el("path", { class: "ink arm" }, body));
@@ -538,6 +680,8 @@
 
     connectedCallback() {
       this._theme();
+      // (Text that's fitted into the cells is fitted again in the page's fonts, once they're in)
+      document.fonts?.ready.then(() => this._cells.flat().forEach((cell) => this._fit(cell.text, COL - 10)));
       this._themeWatch = new MutationObserver(() => this._theme());
       for (const node of [document.documentElement, document.body]) {
         this._themeWatch.observe(node, { attributes: true, attributeFilter: ["class"] });
@@ -969,33 +1113,115 @@
       this._cells.forEach((row, r) => row.forEach((c, k) => c.fill.setAttribute("fill", fills[r][k])));
     }
 
-    // Change a cell's text alone (keeping its fill and color), squeezing text that's too long for
-    // the cell, and popping it in
+    // Change a cell's text alone (keeping its fill and color), fitting it into the cell, and
+    // popping it in
     _setText(r, c, text, pop = true) {
       const cell = this._cells[r][c];
       if (cell.text.textContent === text) return;
       cell.text.textContent = text;
-      cell.text.removeAttribute("textLength");
-      cell.text.removeAttribute("lengthAdjust");
-      if (text && cell.text.getComputedTextLength && cell.text.getComputedTextLength() > COL - 10) {
-        cell.text.setAttribute("textLength", COL - 10);
-        cell.text.setAttribute("lengthAdjust", "spacingAndGlyphs");
+      this._fit(cell.text, COL - 10);
+      if (pop && text) this._pop(cell.text);
+    }
+
+    _pop(node) {
+      return this._animate(node, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "scale(1)" }], { duration: 260, easing: "ease-out" });
+    }
+
+    // Fit text into so much room: in a smaller font if it's too long, and squeezed if that's not
+    // enough
+    _fit(node, room) {
+      node.style.fontSize = "";
+      node.removeAttribute("textLength");
+      node.removeAttribute("lengthAdjust");
+      if (!node.textContent || !node.getComputedTextLength) return;
+      const width = node.getComputedTextLength();
+      if (width <= room) return;
+      const size = parseFloat(getComputedStyle(node).fontSize) || 24;
+      node.style.fontSize = `${Math.max(15, Math.floor((2 * size * room) / width) / 2)}px`;
+      if (node.getComputedTextLength() > room) {
+        node.setAttribute("textLength", room);
+        node.setAttribute("lengthAdjust", "spacingAndGlyphs");
       }
-      if (pop && text) {
-        this._animate(cell.text, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "scale(1)" }], { duration: 260, easing: "ease-out" });
+    }
+
+    // Merge the cells of a row from one column to another, with text over them (and their own
+    // text hidden), and take the merges away
+    _merge(r, c0, c1, text, color = "") {
+      for (let c = c0; c <= c1; c++) {
+        this._cells[r][c].text.style.opacity = "0";
+        if (c > c0) this._vlines[r][c - 1].style.opacity = "0";
       }
+      const node = el("text", { class: "cell-text", x: ((c0 + c1 + 1) * COL) / 2, y: HEAD + r * ROW + ROW / 2 + 0.5 }, this._mergeLayer);
+      node.textContent = text;
+      node.style.fill = color;
+      this._fit(node, (c1 - c0 + 1) * COL - 12);
+      this._animate(node, [{ opacity: 0, transform: "scaleX(0.3)" }, { opacity: 1, transform: "scaleX(1)" }], { duration: 280, easing: "ease-out" });
+      return node;
+    }
+
+    _unmerge() {
+      this._mergeLayer.replaceChildren();
+      this._vlines.flat().forEach((line) => (line.style.opacity = ""));
+      this._cells.flat().forEach((cell) => (cell.text.style.opacity = ""));
+    }
+
+    // Fill his feet (his footer), or empty them with ""
+    _fillFeet(fill) {
+      this._feet.forEach((foot) => (foot.style.fill = fill));
+    }
+
+    // Flip the cells over to new text (the ones it changes), from a cell out
+    _flipTo(texts, row, col, step = 90) {
+      return Promise.all(
+        this._cells.flat().map(async (cell, i) => {
+          const [r, c] = [(i / 4) | 0, i % 4];
+          if (texts[i] === cell.text.textContent) return;
+          await sleep(still() ? 0 : (Math.abs(r - row) + Math.abs(c - col)) * step);
+          await this._animate(cell.text, [{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], { duration: 110, easing: "ease-in" });
+          this._setText(r, c, texts[i], false);
+          await this._animate(cell.text, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 130, easing: "ease-out" });
+        }),
+      );
     }
 
     async cellTrick(row = 0, col = 0, name = this.getAttribute("cell-trick")) {
       const texts = this._cells.flat().map((c) => c.text.textContent);
-      // (The tricks with the cells' text need some, so with none there's a ripple)
-      const wordy = ["shuffle", "flip", "slots"];
-      let trick = CELL_TRICKS.includes(name) ? name : "ripple";
-      if (wordy.includes(trick) && texts.every((t) => t === "")) trick = "ripple";
-      const mood = this._moodName || "happy";
-      const fills = this._fills();
       const at = (i) => [(i / 4) | 0, i % 4];
       const away = (r, c) => Math.abs(r - row) + Math.abs(c - col);
+      const number = (text) => (text !== "" && isFinite(Number(text.replace(/,/g, ""))) ? Number(text.replace(/,/g, "")) : null);
+      // (How fmt_number() would show the text, if it's a number, and how a sub_*() method would
+      // show it, if it's missing, zero, too small or too large)
+      const formatted = (t) => {
+        const v = number(t);
+        if (v === null) return t;
+        return Math.abs(v) >= 1000 ? compact.format(v) : v.toFixed(2);
+      };
+      const substituted = (t) => {
+        if (["None", "NaN", "NA", "null"].includes(t)) return "—";
+        const v = number(t);
+        if (v === null) return t;
+        if (v === 0) return "nil";
+        if (Math.abs(v) < 0.01) return "<0.01";
+        return Math.abs(v) >= 1e12 ? "≥1e+12" : t;
+      };
+      // (The tricks with the cells' text need some, and others need numbers, or values to
+      // substitute, so without them there's a ripple)
+      const wordy = ["shuffle", "flip", "slots", "merge", "remove", "read", "sort", "export"];
+      let trick = CELL_TRICKS.includes(name) ? name : "ripple";
+      if (wordy.includes(trick) && texts.every((t) => t === "")) trick = "ripple";
+      if (trick === "totals" && texts.slice(0, 8).every((t) => number(t) === null)) trick = "ripple";
+      if (trick === "format" && texts.every((t) => formatted(t) === t)) trick = "ripple";
+      if (trick === "substitute" && texts.every((t) => substituted(t) === t)) trick = "ripple";
+      if (trick === "colorize" && texts.every((t) => number(t) === null)) trick = "ripple";
+      // (A nanoplot needs a row with two numbers or more)
+      const series = [0, 1, 2].map((r) => texts.slice(r * 4, r * 4 + 4).map(number));
+      const plotted = series.map((values) => values.filter((v) => v !== null).length > 1);
+      if (trick === "nanoplot" && !plotted.some(Boolean)) trick = "ripple";
+      // (The extend trick needs a column of numbers, beside the stub)
+      const numbered = [1, 2, 3].filter((c) => [1, 2].every((r) => number(texts[r * 4 + c]) !== null));
+      if (trick === "extend" && !numbered.length) trick = "ripple";
+      const mood = this._moodName || "happy";
+      const fills = this._fills();
 
       if (trick === "ripple") {
         this.mood("grin");
@@ -1024,17 +1250,7 @@
       } else if (trick === "flip") {
         // (Upper case to lower and back, as with text_transform())
         this.mood("happy");
-        const flips = this._cells.flat().map(async (cell, i) => {
-          const [r, c] = at(i);
-          const text = texts[i];
-          const flipped = text === text.toUpperCase() ? text.toLowerCase() : text.toUpperCase();
-          if (flipped === text) return;
-          await sleep(still() ? 0 : away(r, c) * 90);
-          await this._animate(cell.text, [{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], { duration: 110, easing: "ease-in" });
-          this._setText(r, c, flipped, false);
-          await this._animate(cell.text, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 130, easing: "ease-out" });
-        });
-        await Promise.all(flips);
+        await this._flipTo(texts.map((t) => (t === t.toUpperCase() ? t.toLowerCase() : t.toUpperCase())), row, col);
         await this.mood("grin");
         await sleep(still() ? 700 : 450);
       } else if (trick === "slots") {
@@ -1088,6 +1304,728 @@
         await sleep(still() ? 900 : 700);
         for (const [r, c] of [[1, 1], [1, 2]]) this._cells[r][c].fill.setAttribute("fill", fills[r][c]);
         await sleep(still() ? 0 : 450);
+      } else if (trick === "scroll") {
+        // (The rows under the top one scroll up through exibble's, slowing down to its last two,
+        // and then the cells are put back)
+        this.mood("happy");
+        this.look(0, 0.5);
+        const pace = still() ? [0] : [140, 140, 160, 190, 240, 320];
+        for (const [n, ms] of pace.entries()) {
+          const first = still() ? EXIBBLE.length - 2 : n + 1;
+          for (let r = 1; r < 3; r++) {
+            EXIBBLE[first + r - 1].forEach((t, c) => {
+              this._setText(r, c, t, false);
+              this._animate(this._cells[r][c].text, [{ transform: "translateY(12px)", opacity: 0.4 }, { transform: "translateY(0)", opacity: 1 }], { duration: ms, easing: "ease-out" });
+            });
+          }
+          await sleep(ms);
+        }
+        await this.mood("grin");
+        this._quip("That’s all of exibble!", 1600);
+        await sleep(1500);
+        texts.forEach((t, i) => this._setText(...at(i), t));
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "frame") {
+        // (His head is his header, his left column is his stub and his feet are his footer, and
+        // they light up in turn, with him looking at each)
+        this.mood("happy");
+        this._holdEyes = true;
+        const parts = [
+          ["Header!", [0, -1], (on) => this._headFill.setAttribute("fill", on ? TINT : "transparent")],
+          ["Stub!", [-1, 0.3], (on) => this._cells.forEach((cells, r) => cells[0].fill.setAttribute("fill", on ? TINT : fills[r][0]))],
+          ["Footer!", [0, 1], (on) => this._fillFeet(on ? TINT : "")],
+        ];
+        for (const [word, xy, light] of parts) {
+          light(true);
+          this.look(...xy);
+          this._quip(word, 700);
+          await sleep(still() ? 900 : 750);
+          light(false);
+        }
+        this._holdEyes = false;
+        await this.mood("grin");
+        await this.hop(1);
+        await sleep(still() ? 600 : 250);
+      } else if (trick === "spanner") {
+        // (The text moves down a row, out of the way of two spanners, which go over the columns
+        // on the side of the cell first)
+        this.mood("surprised");
+        for (let r = 2; r > 0; r--) {
+          for (let c = 0; c < 4; c++) {
+            this._setText(r, c, texts[(r - 1) * 4 + c], false);
+            this._animate(this._cells[r][c].text, [{ transform: `translateY(${-ROW}px)` }, { transform: "translateY(0)" }], { duration: 300, easing: "ease-out" });
+          }
+        }
+        for (let c = 0; c < 4; c++) this._setText(0, c, "", false);
+        await sleep(still() ? 0 : 320);
+        const spanners = [[0, 1, "Time"], [2, 3, "Measurement"]];
+        if (col >= 2) spanners.reverse();
+        for (const [c0, c1, label] of spanners) {
+          this._merge(0, c0, c1, label, "var(--tabblen-accent)");
+          await sleep(still() ? 0 : 240);
+        }
+        await this.mood("grin");
+        this._quip("Spanners!", 1500);
+        await sleep(1500);
+        this._unmerge();
+        texts.forEach((t, i) => this._setText(...at(i), t));
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "merge") {
+        // (In each row, from the cell's out, the first two cells come together as a value with
+        // its uncertainty, and the last two as a range)
+        this.mood("happy");
+        const joins = [" ± ", "–"];
+        await Promise.all(
+          [0, 1, 2].map(async (r) => {
+            await sleep(still() ? 0 : Math.abs(r - row) * 160);
+            for (const c0 of [0, 2]) {
+              [c0, c0 + 1].forEach((c, k) => {
+                const text = this._cells[r][c].text;
+                text.style.opacity = "0";
+                this._animate(text, [{ opacity: 1, transform: "translateX(0)" }, { opacity: 0, transform: `translateX(${(k ? -COL : COL) / 2}px)` }], { duration: 220, easing: "ease-in" });
+              });
+            }
+            await sleep(still() ? 0 : 220);
+            for (const [k, c0] of [0, 2].entries()) {
+              const [a, b] = [texts[r * 4 + c0], texts[r * 4 + c0 + 1]];
+              this._merge(r, c0, c0 + 1, a && b ? a + joins[k] + b : a || b);
+            }
+          }),
+        );
+        await this.mood("grin");
+        this._quip("Two columns, one value!", 1600);
+        await sleep(1600);
+        this._unmerge();
+        this._cells.flat().forEach((cell) => cell.text.textContent && this._pop(cell.text));
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "footnote") {
+        // (Marks go on the cell and two others, numbered in reading order, and then his footer
+        // lights up, with him looking down at it)
+        this.mood("happy");
+        const others = shuffled([...texts.keys()].filter((i) => i !== row * 4 + col && texts[i] !== ""));
+        const marked = [row * 4 + col, ...others.slice(0, 2)].sort((a, b) => a - b);
+        const marks = [];
+        for (const [n, i] of marked.entries()) {
+          const text = this._cells[(i / 4) | 0][i % 4].text;
+          const mark = el("tspan", { class: "mark", dy: -8 }, text);
+          mark.textContent = String(n + 1);
+          marks.push(mark);
+          this._pop(text);
+          await sleep(still() ? 0 : 280);
+        }
+        this._holdEyes = true;
+        this.look(0, 1);
+        this._fillFeet(TINT);
+        this._quip("See the footer!", 1500);
+        await sleep(1500);
+        this._fillFeet("");
+        marks.forEach((mark) => mark.remove());
+        this._holdEyes = false;
+        await this.mood("grin");
+        await sleep(still() ? 600 : 300);
+      } else if (trick === "totals") {
+        // (A grand summary row: under a double line, the bottom row counts up to the totals of
+        // the numbers above it)
+        const sums = [0, 1, 2, 3].map((c) => {
+          const values = [texts[c], texts[4 + c]].map(number).filter((v) => v !== null);
+          return values.length ? values.reduce((a, b) => a + b, 0) : null;
+        });
+        const places = (c) => Math.max(0, ...[texts[c], texts[4 + c]].map((t) => (t.split(".")[1] || "").length));
+        const shown = (c, k) => (sums[c] === null ? "" : (sums[c] * k).toFixed(places(c)));
+        this.mood("surprised");
+        this._summaryLine.style.opacity = "1";
+        this._cells[2].forEach((cell) => cell.fill.setAttribute("fill", TINT));
+        const frames = still() ? 1 : 16;
+        for (let f = 1; f <= frames; f++) {
+          for (let c = 0; c < 4; c++) this._setText(2, c, shown(c, ease(f / frames)), f === frames);
+          await sleep(still() ? 0 : 40);
+        }
+        await this.mood("grin");
+        this._quip(sums[col] === null ? "Totals!" : `Total: ${shown(col, 1)}`, 1600);
+        await sleep(1600);
+        this._summaryLine.style.opacity = "";
+        this._cells[2].forEach((cell, c) => {
+          cell.fill.setAttribute("fill", fills[2][c]);
+          this._setText(2, c, texts[8 + c]);
+        });
+        await sleep(still() ? 0 : 350);
+      } else if (trick === "remove") {
+        // (As with the rm_*() methods: the text goes, from the cell out, then the lines between
+        // the cells, and then it all comes back)
+        this.mood("surprised");
+        const cells = this._cells.flat();
+        await Promise.all(
+          cells.map(async (cell, i) => {
+            if (!texts[i]) return;
+            await sleep(still() ? 0 : away(...at(i)) * 90);
+            cell.text.style.opacity = "0";
+            await this._animate(cell.text, [{ opacity: 1, transform: "scale(1)" }, { opacity: 0, transform: "scale(0.2)" }], { duration: 220, easing: "ease-in" });
+          }),
+        );
+        const grid = [...this._vlines.flat(), ...this._hlines];
+        grid.forEach((line) => (line.style.opacity = "0"));
+        this._quip("All gone!", 1100);
+        await sleep(1200);
+        await this.mood("grin");
+        this._quip("Just kidding!", 1400);
+        grid.forEach((line) => (line.style.opacity = ""));
+        await Promise.all(
+          cells.map(async (cell, i) => {
+            await sleep(still() ? 0 : away(...at(i)) * 70);
+            cell.text.style.opacity = "";
+            if (texts[i]) this._pop(cell.text);
+          }),
+        );
+        await sleep(still() ? 900 : 700);
+      } else if (trick === "format") {
+        // (The numbers flip over to how fmt_number() would show them, and back)
+        this.mood("happy");
+        await this._flipTo(texts.map(formatted), row, col);
+        await this.mood("grin");
+        this._quip("Much better!", 1500);
+        await sleep(1700);
+        await this._flipTo(texts, row, col, 50);
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "formats") {
+        // (Each cell spins through the formats, from the cell out, and stops at its own)
+        this.mood("surprised");
+        await Promise.all(
+          this._cells.flat().map(async (cell, i) => {
+            const [r, c] = at(i);
+            await sleep(still() ? 0 : away(r, c) * 70);
+            for (let n = 0; n < (still() ? 0 : 5); n++) {
+              this._setText(r, c, pick(FORMATS)[1], false);
+              this._animate(cell.text, [{ transform: "translateY(-9px)", opacity: 0.5 }, { transform: "translateY(0)", opacity: 1 }], { duration: 75, easing: "ease-out" });
+              await sleep(75);
+            }
+            this._setText(r, c, FORMATS[i][1]);
+          }),
+        );
+        await this.mood("grin");
+        this._quip("A format for everything!", 1700);
+        await sleep(1800);
+        await this._flipTo(texts, row, col, 50);
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "substitute") {
+        // (The values that look awkward light up and shake, then flip over to what the sub_*()
+        // methods put in their place, and back)
+        this.mood("surprised");
+        const awkward = this._cells.flat().filter((_, i) => substituted(texts[i]) !== texts[i]);
+        awkward.forEach((cell) => {
+          cell.fill.setAttribute("fill", TINT);
+          this._animate(cell.text, [0, -10, 10, -8, 6, 0].map((deg) => ({ transform: `rotate(${deg}deg)` })), { duration: 500 });
+        });
+        await sleep(650);
+        await this._flipTo(texts.map(substituted), row, col);
+        this._setFills(fills);
+        await this.mood("grin");
+        this._quip("Much clearer!", 1500);
+        await sleep(1700);
+        await this._flipTo(texts, row, col, 50);
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "style") {
+        // (As with tab_style(): the cell's row gets a fill and italic text, the cell its own fill
+        // and white text, and its column a border)
+        this.mood("happy");
+        const cell = this._cells[row][col];
+        const color = cell.text.style.fill;
+        this._cells[row].forEach((c) => {
+          c.fill.setAttribute("fill", TINT);
+          c.text.style.fontStyle = "italic";
+        });
+        await sleep(still() ? 0 : 400);
+        cell.fill.setAttribute("fill", "var(--tabblen-accent)");
+        cell.text.style.fill = "#fff";
+        this._pop(cell.text);
+        await sleep(still() ? 0 : 400);
+        const border = el("rect", { class: "border", x: col * COL + 1.7, y: HEAD + 1.7, width: COL - 3.4, height: 3 * ROW - 3.4 }, this._borders);
+        this._animate(border, [{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+        await this.mood("grin");
+        this._quip("Styled!", 1500);
+        await sleep(1700);
+        border.remove();
+        this._setFills(fills);
+        cell.text.style.fill = color;
+        this._cells[row].forEach((c) => (c.text.style.fontStyle = ""));
+        await sleep(still() ? 0 : 350);
+      } else if (trick === "paint") {
+        // (His parts get a fill each, as with tab_style() at each loc: his header, his column
+        // labels (the top row), his stub (the left column), his body and his footer (his feet))
+        this.mood("surprised");
+        const paint = [
+          () => this._headFill.setAttribute("fill", PAIRED[0]),
+          () => this._cells[0].forEach((c) => c.fill.setAttribute("fill", PAIRED[1])),
+          () => [1, 2].forEach((r) => this._cells[r][0].fill.setAttribute("fill", PAIRED[2])),
+          () => [1, 2].forEach((r) => [1, 2, 3].forEach((c) => this._cells[r][c].fill.setAttribute("fill", PAIRED[3]))),
+          () => this._fillFeet(PAIRED[4]),
+        ];
+        for (const step of paint) {
+          step();
+          await sleep(still() ? 0 : 260);
+        }
+        await this.mood("grin");
+        this._quip("Every part, styled!", 1600);
+        await this.hop(1);
+        await sleep(1400);
+        this._headFill.setAttribute("fill", "transparent");
+        this._setFills(fills);
+        this._fillFeet("");
+        await sleep(still() ? 0 : 350);
+      } else if (trick === "colorize") {
+        // (As with data_color(): the numbers fill their cells, from the cell out, with their text
+        // in a color that's easy to read on the fill, in one palette and then another)
+        this.mood("love");
+        const cells = this._cells.flat();
+        const colors = cells.map((cell) => cell.text.style.fill);
+        const values = texts.map(number);
+        const known = values.filter((v) => v !== null);
+        const [lo, hi] = [Math.min(...known), Math.max(...known)];
+        for (const [name, palette] of BREWER) {
+          await Promise.all(
+            cells.map(async (cell, i) => {
+              if (values[i] === null) return;
+              await sleep(still() ? 0 : away(...at(i)) * 80);
+              const fill = paletteAt(palette, hi > lo ? (values[i] - lo) / (hi - lo) : 0.5);
+              cell.fill.setAttribute("fill", fill);
+              cell.text.style.fill = textOn(fill);
+            }),
+          );
+          this._quip(`palette="${name}"`, 1200);
+          await sleep(still() ? 1300 : 1400);
+        }
+        await this.mood("grin");
+        this._setFills(fills);
+        cells.forEach((cell, i) => (cell.text.style.fill = colors[i]));
+        await sleep(still() ? 0 : 400);
+      } else if (trick === "options") {
+        // (As with tab_options(), broad changes go over whole parts in turn: a font for the whole
+        // table, fills for his header and column labels, striping for his body and a border
+        // around it all)
+        this.mood("happy");
+        const cells = this._cells.flat();
+        const colors = cells.map((cell) => cell.text.style.fill);
+        const border = el("rect", { class: "border", x: 1.7, y: 1.7, width: W - 3.4, height: BOTTOM - 3.4 });
+        border.style.stroke = TEAL;
+        const steps = [
+          ["New font!", () => cells.forEach((cell) => {
+            cell.text.style.fontFamily = "Georgia, serif";
+            this._fit(cell.text, COL - 10);
+            if (cell.text.textContent) this._pop(cell.text);
+          })],
+          ["Header fill!", () => this._headFill.setAttribute("fill", `${TEAL}40`)],
+          ["Column labels!", () => this._cells[0].forEach((cell) => {
+            cell.fill.setAttribute("fill", TEAL);
+            cell.text.style.fill = "#fff";
+          })],
+          ["Striping!", () => this._cells[2].forEach((cell) => cell.fill.setAttribute("fill", `${TEAL}2e`))],
+          ["A border!", () => this._borders.appendChild(border)],
+        ];
+        for (const [word, step] of steps) {
+          step();
+          this._quip(word, 600);
+          await sleep(still() ? 800 : 700);
+        }
+        await this.mood("grin");
+        this._quip("One method, every option!", 1600);
+        await this.hop(1);
+        await sleep(1500);
+        border.remove();
+        this._headFill.setAttribute("fill", "transparent");
+        this._setFills(fills);
+        cells.forEach((cell, i) => {
+          cell.text.style.fill = colors[i];
+          cell.text.style.fontFamily = "";
+          this._fit(cell.text, COL - 10);
+        });
+        await sleep(still() ? 0 : 400);
+      } else if (trick === "stylize") {
+        // (As with opt_stylize(), in each of its colors: the column labels (the top row) in the
+        // color, with white text, and the body striped with a tint of it, ending in the blue)
+        this.mood("surprised");
+        const colors = this._cells.flat().map((cell) => cell.text.style.fill);
+        for (const [name, hex] of STYLIZE) {
+          this._cells[0].forEach((cell) => {
+            cell.fill.setAttribute("fill", hex);
+            cell.text.style.fill = "#fff";
+          });
+          this._cells[2].forEach((cell) => cell.fill.setAttribute("fill", `${hex}2e`));
+          this._quip(`color="${name}"`, 600);
+          await sleep(still() ? 700 : 650);
+        }
+        await this.mood("grin");
+        this._quip("Pick a color, any color!", 1500);
+        await sleep(1600);
+        this._setFills(fills);
+        this._cells.flat().forEach((cell, i) => (cell.text.style.fill = colors[i]));
+        await sleep(still() ? 0 : 400);
+      } else if (trick === "nanoplot") {
+        // (As with fmt_nanoplot(): the rows with numbers make a line plot each, from the cell's
+        // row out, with each row scaled on its own; then the plots turn into bar plots)
+        this.mood("surprised");
+        const x = (c) => c * COL + COL / 2;
+        const plots = series.map((values, r) => {
+          if (!plotted[r]) return null;
+          const known = values.filter((v) => v !== null);
+          const [top, bottom] = [HEAD + r * ROW + 7, HEAD + (r + 1) * ROW - 6];
+          const [lo, hi] = [Math.min(...known), Math.max(...known)];
+          const y = (v) => (hi > lo ? bottom - ((v - lo) / (hi - lo)) * (bottom - top) : (top + bottom) / 2);
+          // (The bars go from zero, or the lowest value under it, with more of the row's height)
+          const base = Math.min(0, lo);
+          const floor = bottom + 3;
+          const height = (v) => Math.max(2, ((v - base) / (hi - base || 1)) * (floor - top + 3));
+          const points = values.map((v, c) => (v === null ? null : [x(c), y(v)])).filter(Boolean);
+          return { r, values, bottom, floor, height, points };
+        });
+        const hideRow = (r) => {
+          for (let c = 0; c < 4; c++) {
+            const text = this._cells[r][c].text;
+            text.style.opacity = "0";
+            this._animate(text, [{ opacity: 1 }, { opacity: 0 }], { duration: 180 });
+            if (c > 0) this._vlines[r][c - 1].style.opacity = "0";
+          }
+        };
+        await Promise.all(
+          plots.filter(Boolean).map(async ({ r, bottom, points }) => {
+            await sleep(still() ? 0 : Math.abs(r - row) * 220);
+            hideRow(r);
+            await sleep(still() ? 0 : 180);
+            const xy = points.map((p) => p.join(",")).join(" ");
+            const first = points[0][0];
+            const last = points[points.length - 1][0];
+            const area = el("polygon", { points: `${first},${bottom} ${xy} ${last},${bottom}`, fill: TINT }, this._mergeLayer);
+            const line = el("polyline", { class: "plot", points: xy }, this._mergeLayer);
+            const length = line.getTotalLength ? line.getTotalLength() : 300;
+            this._animate(area, [{ opacity: 0 }, { opacity: 1 }], { duration: 450 });
+            await this._animate(line, [{ strokeDasharray: length, strokeDashoffset: length }, { strokeDasharray: length, strokeDashoffset: 0 }], { duration: 420, easing: "ease-out" });
+            for (const [cx, cy] of points) this._pop(el("circle", { class: "dot", cx, cy, r: 3.4 }, this._mergeLayer));
+          }),
+        );
+        await this.mood("grin");
+        this._quip("Nanoplots!", 1300);
+        await sleep(1500);
+        this._mergeLayer.replaceChildren();
+        this.mood("surprised");
+        await Promise.all(
+          plots.filter(Boolean).map(async ({ r, values, floor, height }) => {
+            await sleep(still() ? 0 : Math.abs(r - row) * 150);
+            for (const [c, v] of values.entries()) {
+              if (v === null) continue;
+              const bar = el("rect", { class: "bar", x: x(c) - 7, y: floor - height(v), width: 14, height: height(v) }, this._mergeLayer);
+              this._animate(bar, [{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }], { duration: 300, easing: "ease-out" });
+              await sleep(still() ? 0 : 60);
+            }
+          }),
+        );
+        await this.mood("grin");
+        this._quip('plot_type="bar"', 1300);
+        await sleep(1500);
+        this._unmerge();
+        this._cells.flat().forEach((cell) => cell.text.textContent && this._pop(cell.text));
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "columns" || trick === "rows") {
+        // (Columns or rows are picked in turn, as with columns= and rows=, and light up with a
+        // border around them, with him looking at them: columns by the cell's column's name, by
+        // its first letter (with a Polars selector), as numeric ones and then all of them, and
+        // rows by the cell's, by the others and then all of them)
+        this.mood("happy");
+        this._holdEyes = true;
+        let picks;
+        if (trick === "columns") {
+          const name = texts[col];
+          const numeric = [0, 1, 2, 3].filter((c) => [1, 2].every((r) => number(texts[r * 4 + c]) !== null));
+          picks = [
+            [name ? `columns="${name}"` : `columns=${col}`, [col]],
+            ...(name ? [[`cs.starts_with("${name[0]}")`, [0, 1, 2, 3].filter((c) => texts[c].startsWith(name[0]))]] : []),
+            ...(numeric.length ? [["cs.numeric()", numeric]] : []),
+            ["cs.all()", [0, 1, 2, 3]],
+          ];
+        } else {
+          const others = [0, 1, 2].filter((r) => r !== row);
+          picks = [
+            [`rows=${row}`, [row]],
+            [`rows=[${others.join(", ")}]`, others],
+            ["rows=None", [0, 1, 2]],
+          ];
+        }
+        for (const [quip, picked] of picks) {
+          this._setFills(fills);
+          this._borders.replaceChildren();
+          for (const [a, b] of runs(picked)) {
+            const span = b - a + 1;
+            if (trick === "columns") {
+              this._cells.forEach((cells) => cells.slice(a, b + 1).forEach((cell) => cell.fill.setAttribute("fill", TINT)));
+              el("rect", { class: "border", x: a * COL + 1.7, y: HEAD + 1.7, width: span * COL - 3.4, height: 3 * ROW - 3.4 }, this._borders);
+            } else {
+              this._cells.slice(a, b + 1).flat().forEach((cell) => cell.fill.setAttribute("fill", TINT));
+              el("rect", { class: "border", x: 1.7, y: HEAD + a * ROW + 1.7, width: W - 3.4, height: span * ROW - 3.4 }, this._borders);
+            }
+          }
+          const mid = picked.reduce((sum, n) => sum + n, 0) / picked.length;
+          if (trick === "columns") this.look((mid - 1.5) / 1.5, 0.6);
+          else this.look(0, 0.3 + mid * 0.35);
+          this._quip(quip, 900);
+          await sleep(still() ? 1100 : 1000);
+        }
+        this._setFills(fills);
+        this._borders.replaceChildren();
+        this._holdEyes = false;
+        await this.mood("grin");
+        await this.hop(1);
+        await sleep(still() ? 600 : 250);
+      } else if (trick === "locations") {
+        // (A target moves over his parts as the loc.*() specifiers pick them, with each part
+        // lighting up and him looking at it, and it ends on the cell, picked by its own location)
+        this.mood("happy");
+        this._holdEyes = true;
+        const tint = (cells) => (on) => cells.forEach(([r, c]) => this._cells[r][c].fill.setAttribute("fill", on ? TINT : fills[r][c]));
+        const label = texts[col] ? `"${texts[col]}"` : col;
+        const here = [col * COL, HEAD + row * ROW, COL, ROW];
+        const quip =
+          row === 0
+            ? (col === 0 ? "loc.stubhead()" : `loc.column_labels(columns=${label})`)
+            : (col === 0 ? `loc.stub(rows=${row - 1})` : `loc.body(columns=${label}, rows=${row - 1})`);
+        const parts = [
+          ["loc.header()", [0, 0, W, HEAD], [0, -1], (on) => this._headFill.setAttribute("fill", on ? TINT : "transparent")],
+          ["loc.column_labels()", [0, HEAD, W, ROW], [0, 0.3], tint([0, 1, 2, 3].map((c) => [0, c]))],
+          ["loc.stub()", [0, HEAD + ROW, COL, 2 * ROW], [-1, 0.5], tint([[1, 0], [2, 0]])],
+          ["loc.body()", [COL, HEAD + ROW, 3 * COL, 2 * ROW], [0.3, 0.7], tint([1, 2].flatMap((r) => [1, 2, 3].map((c) => [r, c])))],
+          ["loc.footer()", [-9, BOTTOM + 1, W + 18, FEET - BOTTOM - 1], [0, 1], (on) => this._fillFeet(on ? TINT : "")],
+          [quip, here, [(col - 1.5) / 1.5, 0.3 + row * 0.35], tint([[row, col]])],
+        ];
+        const box = parts[0][1].slice();
+        const target = el("rect", { class: "border", rx: 4 }, this._borders);
+        const draw = () => {
+          const [x, y, w, h] = box;
+          [["x", x + 1.7], ["y", y + 1.7], ["width", w - 3.4], ["height", h - 3.4]].forEach(([key, v]) => target.setAttribute(key, v));
+        };
+        draw();
+        this._animate(target, [{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+        for (const [words, to, xy, light] of parts) {
+          await this._tween("target", box, to, 380, draw);
+          light(true);
+          this.look(...xy);
+          this._quip(words, 800);
+          await sleep(still() ? 1000 : 850);
+          light(false);
+        }
+        target.remove();
+        this._holdEyes = false;
+        await this.mood("grin");
+        await this.hop(1);
+        await sleep(still() ? 600 : 250);
+      } else if (trick === "extend") {
+        // (As with gt-extras' add-ons, the columns of numbers beside the stub change in turn: into
+        // star ratings (gt_fa_rating()), bars (gt_plt_bar()) and fills from purple to green
+        // (gt_hulk_col_numeric()))
+        this.mood("grin");
+        const cells = this._cells.flat();
+        const colors = cells.map((cell) => cell.text.style.fill);
+        const addons = [
+          ["gt_fa_rating()", (c, values, max) => values.forEach((v, k) => {
+            this._cells[k + 1][c].text.style.opacity = "0";
+            const stars = clamp(Math.round(max > 5 ? (v / max) * 5 : v), 0, 5);
+            const y = HEAD + (k + 1.5) * ROW;
+            for (let s = 0; s < 5; s++) {
+              const x = c * COL + 12 + s * 14;
+              const points = Array.from({ length: 10 }, (_, p) => {
+                const [radius, angle] = [p % 2 ? 2.9 : 6.8, (p * Math.PI) / 5 - Math.PI / 2];
+                return `${(x + radius * Math.cos(angle)).toFixed(1)},${(y + 0.6 + radius * Math.sin(angle)).toFixed(1)}`;
+              });
+              const star = el("polygon", { class: s < stars ? "star on" : "star", points: points.join(" ") }, this._mergeLayer);
+              this._animate(star, [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 240, delay: s * 60, easing: "ease-out", fill: "backwards" });
+            }
+          })],
+          ["gt_plt_bar()", (c, values, max) => values.forEach((v, k) => {
+            this._cells[k + 1][c].text.style.opacity = "0";
+            const width = Math.max(3, ((COL - 16) * Math.max(0, v)) / (max > 0 ? max : 1));
+            const bar = el("rect", { class: "bar", x: c * COL + 8, y: HEAD + (k + 1.5) * ROW - 6, width, height: 12 }, this._mergeLayer);
+            bar.style.transformOrigin = "left";
+            this._animate(bar, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 320, easing: "ease-out" });
+          })],
+          ["gt_hulk_col_numeric()", (c, values) => {
+            const [lo, hi] = [Math.min(...values), Math.max(...values)];
+            values.forEach((v, k) => {
+              const cell = this._cells[k + 1][c];
+              const fill = paletteAt(PRGN, hi > lo ? (v - lo) / (hi - lo) : 0.5);
+              cell.fill.setAttribute("fill", fill);
+              cell.text.style.fill = textOn(fill);
+            });
+          }],
+        ];
+        for (const [k, c] of numbered.entries()) {
+          const [words, addon] = addons[k % addons.length];
+          const values = [1, 2].map((r) => number(texts[r * 4 + c]));
+          addon(c, values, Math.max(...values));
+          this._quip(words, 900);
+          await sleep(still() ? 1100 : 1000);
+        }
+        this._quip("Add-ons, built on Great Tables!", 1600);
+        await this.hop(1);
+        await sleep(1500);
+        this._unmerge();
+        this._setFills(fills);
+        cells.forEach((cell, i) => {
+          cell.text.style.fill = colors[i];
+          this._setText(...at(i), texts[i]);
+        });
+        await sleep(still() ? 0 : 400);
+      } else if (trick === "read") {
+        // (As a screen reader does, with the headers that Great Tables marks up: three cells from
+        // the cell on are read out with their row's label and their column's, which light up, and
+        // with a ring around the cell being read)
+        this.mood("happy");
+        this._holdEyes = true;
+        const data = [5, 6, 7, 9, 10, 11];
+        const start = data.indexOf(Math.max(1, row) * 4 + Math.max(1, col));
+        const ring = el("rect", { class: "border", rx: 3 }, this._borders);
+        for (let k = 0; k < 3; k++) {
+          const i = data[(start + k) % data.length];
+          const [r, c] = at(i);
+          this._setFills(fills);
+          [[0, c], [r, 0]].forEach(([hr, hc]) => this._cells[hr][hc].fill.setAttribute("fill", TINT));
+          [["x", c * COL + 1.7], ["y", HEAD + r * ROW + 1.7], ["width", COL - 3.4], ["height", ROW - 3.4]].forEach(([key, v]) => ring.setAttribute(key, v));
+          this.look((c - 1.5) / 1.5, 0.3 + r * 0.35);
+          this._quip([texts[r * 4], texts[c], texts[i]].filter(Boolean).join(", ") || "Blank", 1100);
+          await sleep(still() ? 1300 : 1250);
+        }
+        ring.remove();
+        this._setFills(fills);
+        this._holdEyes = false;
+        await this.mood("grin");
+        this._quip("Every cell, with its headers!", 1500);
+        await sleep(1600);
+      } else if (trick === "sort") {
+        // (As with opt_interactive(): the rows under the column labels sort by the cell's column,
+        // up and then down, with an arrow by its label, and then a search for the cell's text
+        // dims the rows without it)
+        this.mood("happy");
+        const rows = [1, 2].map((r) => texts.slice(r * 4, r * 4 + 4));
+        const key = (cells) => number(cells[col]) ?? cells[col];
+        const up = rows.slice().sort((a, b) => {
+          const [x, y] = [key(a), key(b)];
+          return typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y));
+        });
+        const down = up.slice().reverse();
+        // (Rows that move slide from where they were)
+        const show = (order, from) =>
+          order.forEach((cells, k) => {
+            const was = from.indexOf(cells);
+            cells.forEach((t, c) => {
+              this._setText(k + 1, c, t, false);
+              if (was !== k) {
+                this._animate(this._cells[k + 1][c].text, [{ transform: `translateY(${(was - k) * ROW}px)` }, { transform: "translateY(0)" }], { duration: 380 });
+              }
+            });
+          });
+        const label = this._cells[0][col].text;
+        const arrow = el("tspan", { class: "mark", dx: 2 }, label);
+        for (const [order, from, mark, words] of [[up, rows, "▲", "Sorted!"], [down, up, "▼", "And the other way!"]]) {
+          arrow.textContent = mark;
+          this._fit(label, COL - 10);
+          show(order, from);
+          this._quip(words, 900);
+          await sleep(still() ? 1100 : 1000);
+        }
+        arrow.remove();
+        this._fit(label, COL - 10);
+        const term = texts[Math.max(1, row) * 4 + col];
+        if (term) {
+          down.forEach((cells, k) => {
+            if (!cells.some((t) => t.includes(term))) this._cells[k + 1].forEach((cell) => (cell.text.style.opacity = "0.25"));
+          });
+          this._quip(`Search: “${term}”`, 1200);
+          await sleep(1400);
+          this._cells.flat().forEach((cell) => (cell.text.style.opacity = ""));
+        }
+        show(rows, down);
+        await this.mood("grin");
+        await sleep(still() ? 600 : 500);
+      } else if (trick === "export") {
+        // (As with a GTI table's i_export("csv"): each row turns into a line of CSV, from the top,
+        // and the lines drop into his feet, which light up)
+        this.mood("happy");
+        const lines = [];
+        for (let r = 0; r < 3; r++) {
+          const cells = texts.slice(r * 4, r * 4 + 4);
+          if (cells.every((t) => t === "")) continue;
+          lines.push(this._merge(r, 0, 3, cells.join(",")));
+          await sleep(still() ? 0 : 200);
+        }
+        this._quip('i_export("csv")', 1000);
+        await sleep(1100);
+        this._holdEyes = true;
+        this.look(0, 1);
+        for (const line of lines.reverse()) {
+          const y = parseFloat(line.getAttribute("y"));
+          await this._animate(line, [{ opacity: 1, transform: "translateY(0) scale(1)" }, { opacity: 0, transform: `translateY(${FEET - 20 - y}px) scale(0.3)` }], { duration: 300, easing: "ease-in" });
+          line.style.opacity = "0";
+        }
+        this._fillFeet(TINT);
+        this._holdEyes = false;
+        await this.mood("grin");
+        this._quip("CSV, downloaded!", 1500);
+        await this.hop(1);
+        await sleep(1400);
+        this._fillFeet("");
+        this._unmerge();
+        this._cells.flat().forEach((cell) => cell.text.textContent && this._pop(cell.text));
+        await sleep(still() ? 0 : 300);
+      } else if (trick === "select") {
+        // (As with a GTI table's selection, which Python can read and set: the cell's row is
+        // selected (lit, with a bar at its side), and Python, which he looks over to, reads it,
+        // then selects the other row and then none)
+        this.mood("happy");
+        const mine = Math.max(0, row - 1);
+        const select = (picked) => {
+          this._setFills(fills);
+          this._borders.replaceChildren();
+          for (const i of picked) {
+            this._cells[i + 1].forEach((cell) => cell.fill.setAttribute("fill", TINT));
+            const bar = el("rect", { x: 0, y: HEAD + (i + 1) * ROW, width: 6, height: ROW, fill: "var(--tabblen-accent)" }, this._borders);
+            this._animate(bar, [{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+          }
+        };
+        const steps = [
+          ["Selected!", [mine]],
+          [`widget.selection == [${mine}]`, [mine]],
+          [`widget.selection = [${1 - mine}]`, [1 - mine]],
+          ["widget.selection = []", []],
+        ];
+        for (const [n, [words, picked]] of steps.entries()) {
+          select(picked);
+          if (n === 1) {
+            this._holdEyes = true;
+            this.look(-1, 0);
+          }
+          this._quip(words, 900);
+          await sleep(still() ? 1100 : 1000);
+        }
+        this._setFills(fills);
+        this._borders.replaceChildren();
+        this._holdEyes = false;
+        await this.mood("grin");
+        await this.hop(1);
+        await sleep(still() ? 600 : 250);
+      } else if (trick === "define") {
+        // (The cells flip over to the names of his parts, from the cell out, and the cell's part
+        // lights up and is defined, as in the glossary, and then his header is too)
+        this.mood("happy");
+        const part = (r, c) => (r === 0 ? (c === 0 ? "stubhead" : "label") : c === 0 ? "stub" : "cell");
+        await this._flipTo(texts.map((_, i) => part(...at(i))), row, col);
+        this._cells.flat().forEach((cell, i) => part(...at(i)) === part(row, col) && cell.fill.setAttribute("fill", TINT));
+        this._quip(TERMS[part(row, col)], 1700);
+        await sleep(1900);
+        this._setFills(fills);
+        await this.mood("grin");
+        this._holdEyes = true;
+        this.look(0, -1);
+        this._headFill.setAttribute("fill", TINT);
+        this._quip("Header: that’s my face!", 1400);
+        await sleep(1500);
+        this._headFill.setAttribute("fill", "transparent");
+        this._holdEyes = false;
+        await this._flipTo(texts, row, col, 50);
+        await sleep(still() ? 0 : 300);
       }
       await this.mood(mood);
     }
