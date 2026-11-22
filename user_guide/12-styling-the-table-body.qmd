@@ -10,6 +10,11 @@ spot. **Great Tables** provides a flexible system for applying fills, borders, a
 cells in the table body. This page covers the fundamentals of cell-level styling, from targeting
 specific cells to using column values and expressions to drive dynamic styles.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up rest" cells='[["time", "temp", "hum", "cond"], ["00:20", "18.9", "68%", "Fair"], ["00:50", "18.9", {"text": "73%", "fill": "#f900c3", "color": "#fff"}, "Fair"]]' cell-trick="style" intro='[["say", "Just enough style to catch the eye."], ["mood", "wink"], ["wait", 600], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Targeted styling is most effective when used sparingly to draw attention to specific values
 (outliers, thresholds, or key comparisons). Overusing color and borders can make a table harder to
 read rather than easier. A good rule of thumb: if everything is highlighted, nothing is. Start with
