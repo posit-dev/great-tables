@@ -5,7 +5,13 @@ import pandas as pd
 import pytest
 
 from great_tables import GT, Theme, loc, style
-from great_tables._scss import compile_scss, css_var, theme_declarations, var_blocks
+from great_tables._scss import (
+    compile_scss,
+    css_var,
+    substitute_vars,
+    theme_declarations,
+    var_blocks,
+)
 
 
 @pytest.fixture
@@ -25,11 +31,33 @@ def resolve_vars(text: str, env: dict[str, str]) -> str:
     return CALC.sub(lambda m: f"{int(m[1]) + (int(m[3]) if m[2] == '+' else -int(m[3]))}px", text)
 
 
+DECLARATION = re.compile(r"^ *(--[\w-]+): (.*);$", flags=re.MULTILINE)
+
+# (What only the CSS of a table that switches has)
+SWITCHING = "@supports (color: light-dark(#000, #fff))"
+
+
+def pick_scheme(text: str, dark: bool) -> str:
+    """Replace each `light-dark(L, D)` with L, or with D if `dark`."""
+    while (start := text.find("light-dark(")) != -1:
+        depth, end, comma = 1, start + len("light-dark("), None
+        while depth:
+            depth += {"(": 1, ")": -1}.get(text[end], 0)
+            if text[end] == "," and depth == 1 and comma is None:
+                comma = end
+            end += 1
+        chosen = text[comma + 1 : end - 1] if dark else text[start + len("light-dark(") : comma]
+        text = text[:start] + chosen.strip() + text[end:]
+    return text
+
+
 def resolved_css(data: GT, dark: bool = False) -> str:
-    light, dark_decls = theme_declarations(data)
-    css = compile_scss(data, id="abc", compress=False, variables=True)
-    css = css.replace(var_blocks("#abc", light, dark_decls), "")
-    return resolve_vars(css, {**light, **dark_decls} if dark else light)
+    """The table's rules with the custom properties that its CSS declares (in the order it does)
+    filled in, for the light or dark scheme."""
+    blocks = var_blocks("#abc", *theme_declarations(data))
+    css = compile_scss(data, id="abc", compress=False, variables=True).replace(blocks, "")
+    env = {name: pick_scheme(value, dark) for name, value in DECLARATION.findall(blocks)}
+    return resolve_vars(css, env)
 
 
 CONFIGS = {
@@ -59,7 +87,9 @@ CONFIGS = {
             table_body_hlines_color="#ABCDEF",
             table_font_color="#111111",
             dark=Theme(
-                foreground="#FAFAFA", table_body_hlines_color="#222222", data_row_padding="9px"
+                foreground="#FAFAFA",
+                table_body_hlines_color="#222222",
+                table_body_vlines_color="#333333",
             ),
         )
     ),
@@ -79,6 +109,14 @@ PINNED = ("explicit", "stylize", "keywords")
 
 def test_css_var():
     assert css_var("data_row_padding") == "--gt-data-row-padding"
+
+
+def test_substitute_vars():
+    values = {"--gt-a": "#111111", "--gt-b": "initial"}
+    assert substitute_vars("var(--gt-a, #000000)", values) == "#111111"
+    assert substitute_vars("var(--gt-b, #222222) var(--gt-c)", values) == "#222222 var(--gt-c)"
+    nested = "var(--gt-c, var(--gt-b, var(--gt-a, #000000)))"
+    assert substitute_vars(nested, values) == "var(--gt-c, #111111)"
 
 
 @pytest.mark.parametrize("config", CONFIGS)
@@ -133,7 +171,7 @@ def test_theme_additional_css_is_applied(gt: GT, variables: bool):
 
 
 @pytest.mark.parametrize("config", CONFIGS)
-def test_dark_block_resolves_to_literal_dark_css(gt: GT, config: str):
+def test_dark_scheme_resolves_to_literal_dark_css(gt: GT, config: str):
     data = CONFIGS[config](gt)
     forced = data.opt_theme(mode="dark")
     if config in PINNED:
@@ -155,14 +193,14 @@ def test_dark_block_resolves_to_literal_dark_css(gt: GT, config: str):
 def test_table_with_own_backgrounds_stays_light_in_auto_mode(gt: GT, pin):
     data = pin(gt)
     css = compile_scss(data, id="abc", variables=True)
-    assert "prefers-color-scheme" not in css and "vscode-dark" not in css
+    assert SWITCHING not in css and "@scope" not in css
     assert theme_declarations(data)[1] is None
     assert '<html lang="en">' in data.as_raw_html(make_page=True)
 
 
 def test_backgrounds_from_a_theme_do_not_pin_auto_mode(gt: GT):
     data = gt.opt_theme(Theme(heading_background_color="#FF0000"))
-    assert "prefers-color-scheme" in compile_scss(data, id="abc", variables=True)
+    assert SWITCHING in compile_scss(data, id="abc", variables=True)
     assert '<html lang="en" style="color-scheme: light dark">' in data.as_raw_html(make_page=True)
 
 
@@ -171,21 +209,32 @@ def test_forced_dark_still_applies_to_a_table_with_own_backgrounds(gt: GT):
     assert "var(--gt-color-background, #1E1E1E)" in compile_scss(data, id="abc", variables=True)
 
 
-def test_auto_mode_selectors(gt: GT):
+def test_auto_mode_takes_its_scheme_from_the_page(gt: GT):
     css = compile_scss(gt, id="abc", compress=False, variables=True)
-    assert 'body[data-jp-theme-light="false"] #abc' in css
-    assert "body.vscode-dark #abc" in css
-    assert 'body.dark-theme[data-theme="dark"] #abc' in css
-    assert "@media (prefers-color-scheme: dark)" in css
-    assert '#abc:not(body[data-jp-theme-light="true"] *, body.vscode-light *' in css
-    assert 'body.light-theme[data-theme="light"] *' in css
+    first = css[css.index("#abc {") : css.index("}", css.index("#abc {"))]
+    assert "color-scheme" not in first and "prefers-color-scheme" not in css
+    assert "--_gt-stripe: light-dark(var(--gt-color-stripe, #F4F4F4), " in css
+    assert (
+        '@scope (body[data-jp-theme-light="false"], body.vscode-dark, '
+        "body.vscode-high-contrast:not(.vscode-high-contrast-light), body.quarto-dark, "
+        '[data-bs-theme="dark"], body.dark-theme[data-theme="dark"]) {\n'
+        "  #abc {\n    color-scheme: dark;\n  }\n}"
+    ) in css
+    assert (
+        '@scope (body[data-jp-theme-light="true"], body.vscode-light, '
+        "body.vscode-high-contrast-light, body.quarto-light, "
+        '[data-bs-theme="light"], body.light-theme[data-theme="light"]) {\n'
+        "  #abc {\n    color-scheme: light;\n  }\n}"
+    ) in css
+    # (For browsers without `@scope`)
+    assert '@layer {\n  body[data-jp-theme-light="false"] #abc,\n' in css
 
 
 @pytest.mark.parametrize("mode, background", [("light", "#FFFFFF"), ("dark", "#1E1E1E")])
 def test_fixed_modes_emit_no_switching(gt: GT, mode: str, background: str):
     css = compile_scss(gt.opt_theme(mode=mode), id="abc", compress=False, variables=True)
-    assert "prefers-color-scheme" not in css
-    assert "vscode-dark" not in css
+    assert SWITCHING not in css and "@scope" not in css
+    assert f"#abc {{\n  color-scheme: {mode};" in css
     assert f"var(--gt-color-background, {background})" in css
 
 
@@ -206,20 +255,21 @@ def test_explicit_option_is_not_overridden_in_dark(gt: GT):
 
 def test_table_without_id_uses_class_scope(gt: GT):
     css = compile_scss(gt, id=None, compress=False, variables=True)
-    assert "body.vscode-dark .gt_table" in css
-    assert ".gt_table:not(body" in css
+    assert '@scope (body[data-jp-theme-light="false"]' in css
+    assert "  .gt_table {\n    color-scheme: dark;" in css
+    assert ".gt_table {\n    --_gt-background: light-dark(" in css
 
 
 def test_html_output_uses_variables_and_follows_preference(gt: GT):
     html = gt.as_raw_html()
     assert "var(--_gt-background)" in html
-    assert "prefers-color-scheme" in html
+    assert SWITCHING in html
 
 
 def test_inline_css_is_literal(gt: GT):
     pytest.importorskip("css_inline")
     html = gt.as_raw_html(inline_css=True)
-    assert "var(" not in html and "prefers-color-scheme" not in html
+    assert "var(" not in html and "light-dark(" not in html
     dark = gt.opt_theme(mode="dark").as_raw_html(inline_css=True)
     assert "#1e1e1e" in dark.lower() and "var(" not in dark
 
@@ -256,7 +306,7 @@ def test_quarto_non_html_render_is_literal(
     monkeypatch.setenv("QUARTO_EXECUTE_INFO", str(info))
     html = gt.as_raw_html()
     assert ("var(--_gt-background)" in html) is uses_variables
-    assert ("prefers-color-scheme" in html) is uses_variables
+    assert (SWITCHING in html) is uses_variables
     assert ("color-scheme:" in gt.as_raw_html(make_page=True).split("<head>")[0]) is uses_variables
 
 
@@ -264,7 +314,7 @@ def test_quarto_without_execute_info_is_literal(gt: GT, monkeypatch):
     monkeypatch.setenv("QUARTO_BIN_PATH", "/usr/bin/quarto")
     monkeypatch.delenv("QUARTO_EXECUTE_INFO", raising=False)
     html = gt.as_raw_html()
-    assert "var(--_gt-background)" not in html and "prefers-color-scheme" not in html
+    assert "var(--_gt-background)" not in html and SWITCHING not in html
 
 
 @pytest.mark.parametrize("content", [None, "not json", '{"format": {}}', "[1]"])
@@ -531,7 +581,8 @@ def test_authored_light_dark_is_kept_in_literal_output(gt: GT):
 
 
 def test_text_color_on_filled_cell_is_left_alone(gt: GT):
-    assert "light-dark(" not in filled(gt, style.fill(color="lightcyan"), style.text(color="navy"))
+    html = filled(gt, style.fill(color="lightcyan"), style.text(color="navy"))
+    assert "light-dark(" not in html.split("</style>")[1]
 
 
 @pytest.mark.parametrize("mode", ["light", "dark"])
@@ -545,7 +596,7 @@ def test_literal_output_keeps_authored_text_color(gt: GT, mode: str):
 @pytest.mark.parametrize("mode", ["light", "dark"])
 def test_color_scheme_is_declared(gt: GT, mode: str):
     light, dark = theme_declarations(gt)
-    assert light["color-scheme"] == "light" and dark["color-scheme"] == "dark"
+    assert "color-scheme" not in light and "color-scheme" not in dark
     fixed, _ = theme_declarations(gt.opt_theme(mode=mode))
     assert fixed["color-scheme"] == mode
 
