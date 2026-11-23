@@ -450,7 +450,6 @@
           }
   
   #parity {
-    color-scheme: light;
     --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #FFFFFF));
     --_gt-border: var(--gt-color-border, #D3D3D3);
     --_gt-border-strong: var(--gt-color-border-strong, #A8A8A8);
@@ -470,52 +469,56 @@
     --_gt-font-color-row-striping: var(--_gt-text-dark);
   }
   
-  body[data-jp-theme-light="false"] #parity,
-  body.vscode-dark #parity,
-  body.vscode-high-contrast:not(.vscode-high-contrast-light) #parity,
-  body.quarto-dark #parity,
-  [data-bs-theme="dark"] #parity,
-  body.dark-theme[data-theme="dark"] #parity {
-    color-scheme: dark;
-    --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #1E1E1E));
-    --_gt-border: var(--gt-color-border, #4A4A4A);
-    --_gt-border-strong: var(--gt-color-border-strong, #6E6E6E);
-    --_gt-stripe: var(--gt-color-stripe, #2A2A2A);
-    --_gt-text-dark: var(--gt-table-font-color, #333333);
-    --_gt-text-light: var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0));
-    --_gt-font-color-table: var(--_gt-text-light);
-    --_gt-font-color-heading: var(--_gt-text-light);
-    --_gt-font-color-column-labels: var(--_gt-text-light);
-    --_gt-font-color-row-group: var(--_gt-text-light);
-    --_gt-font-color-stub: var(--_gt-text-light);
-    --_gt-font-color-stub-row-group: var(--_gt-text-light);
-    --_gt-font-color-summary-row: var(--_gt-text-light);
-    --_gt-font-color-grand-summary-row: var(--_gt-text-light);
-    --_gt-font-color-footnotes: var(--_gt-text-light);
-    --_gt-font-color-source-notes: var(--_gt-text-light);
-    --_gt-font-color-row-striping: var(--_gt-text-light);
+  @supports (color: light-dark(#000, #fff)) {
+    #parity {
+      --_gt-background: light-dark(var(--gt-table-background-color, var(--gt-color-background, #FFFFFF)), var(--gt-table-background-color, var(--gt-color-background, #1E1E1E)));
+      --_gt-border: light-dark(var(--gt-color-border, #D3D3D3), var(--gt-color-border, #4A4A4A));
+      --_gt-border-strong: light-dark(var(--gt-color-border-strong, #A8A8A8), var(--gt-color-border-strong, #6E6E6E));
+      --_gt-stripe: light-dark(var(--gt-color-stripe, #F4F4F4), var(--gt-color-stripe, #2A2A2A));
+      --_gt-text-dark: light-dark(var(--gt-table-font-color, var(--gt-color-foreground, #333333)), var(--gt-table-font-color, #333333));
+      --_gt-text-light: light-dark(var(--gt-table-font-color-light, #FFFFFF), var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0)));
+      --_gt-font-color-table: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-heading: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-column-labels: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-row-group: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-stub: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-stub-row-group: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-summary-row: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-grand-summary-row: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-footnotes: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-source-notes: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+      --_gt-font-color-row-striping: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    }
   }
   
-  @media (prefers-color-scheme: dark) {
-    #parity:not(body[data-jp-theme-light="true"] *, body.vscode-light *, body.vscode-high-contrast-light *, body.quarto-light *, [data-bs-theme="light"] *, body.light-theme[data-theme="light"] *) {
+  @layer {
+    body[data-jp-theme-light="false"] #parity,
+    body.vscode-dark #parity,
+    body.vscode-high-contrast:not(.vscode-high-contrast-light) #parity,
+    body.quarto-dark #parity,
+    [data-bs-theme="dark"] #parity,
+    body.dark-theme[data-theme="dark"] #parity {
       color-scheme: dark;
-      --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #1E1E1E));
-      --_gt-border: var(--gt-color-border, #4A4A4A);
-      --_gt-border-strong: var(--gt-color-border-strong, #6E6E6E);
-      --_gt-stripe: var(--gt-color-stripe, #2A2A2A);
-      --_gt-text-dark: var(--gt-table-font-color, #333333);
-      --_gt-text-light: var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0));
-      --_gt-font-color-table: var(--_gt-text-light);
-      --_gt-font-color-heading: var(--_gt-text-light);
-      --_gt-font-color-column-labels: var(--_gt-text-light);
-      --_gt-font-color-row-group: var(--_gt-text-light);
-      --_gt-font-color-stub: var(--_gt-text-light);
-      --_gt-font-color-stub-row-group: var(--_gt-text-light);
-      --_gt-font-color-summary-row: var(--_gt-text-light);
-      --_gt-font-color-grand-summary-row: var(--_gt-text-light);
-      --_gt-font-color-footnotes: var(--_gt-text-light);
-      --_gt-font-color-source-notes: var(--_gt-text-light);
-      --_gt-font-color-row-striping: var(--_gt-text-light);
+    }
+    body[data-jp-theme-light="true"] #parity,
+    body.vscode-light #parity,
+    body.vscode-high-contrast-light #parity,
+    body.quarto-light #parity,
+    [data-bs-theme="light"] #parity,
+    body.light-theme[data-theme="light"] #parity {
+      color-scheme: light;
+    }
+  }
+  
+  @scope (body[data-jp-theme-light="false"], body.vscode-dark, body.vscode-high-contrast:not(.vscode-high-contrast-light), body.quarto-dark, [data-bs-theme="dark"], body.dark-theme[data-theme="dark"]) {
+    #parity {
+      color-scheme: dark;
+    }
+  }
+  
+  @scope (body[data-jp-theme-light="true"], body.vscode-light, body.vscode-high-contrast-light, body.quarto-light, [data-bs-theme="light"], body.light-theme[data-theme="light"]) {
+    #parity {
+      color-scheme: light;
     }
   }
   
