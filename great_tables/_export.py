@@ -168,9 +168,11 @@ def as_raw_html(
     Parameters
     ----------
     inline_css
-        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
-        This is essential for email clients, which often strip out `<style>` blocks but preserve
-        inline styles. It doesn't apply to an interactive table (one made with
+        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes, with
+        literal values for the table's mode (`"auto"` gives the light table). Use it for email and
+        for older renderers: the default `<style>` block is written with CSS custom properties,
+        which email clients such as Gmail and Outlook and old engines such as wkhtmltopdf don't
+        support, so they draw the table unstyled. It doesn't apply to an interactive table (one made with
         [`opt_interactive()`](`great_tables.GT.opt_interactive`)), which needs its `<style>` block
         and its script: it's ignored, with a warning (for a table in an email, use
         `opt_interactive(active=False)`).
