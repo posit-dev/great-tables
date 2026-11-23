@@ -601,3 +601,5 @@ gt_ex.opt_table_font(stack="humanist")
 The `font=` argument takes one or more font names (or a Google Font via [google_font()](../reference/google_font.md#great_tables.google_font)), and `stack=` takes the name of one of fifteen themed font stacks, like `"humanist"` or `"monospace-code"`, that have been tested to work across a wide range of systems.
 
 The `opt_*()` methods give you quick access to common styling patterns without needing to remember the specific [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) argument names. For full control, you can always drop down to [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) directly, but these convenience methods cover the most frequent customization needs in just a single method call.
+
+For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](themes-and-dark-mode.md).

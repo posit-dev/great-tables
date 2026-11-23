@@ -4,7 +4,7 @@ Option to align the table header.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L933-L983)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L950-L1000)
 
 ``` python
 GT.opt_align_table_header(align="center")

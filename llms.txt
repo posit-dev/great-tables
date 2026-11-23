@@ -148,6 +148,8 @@
 - [from_column](https://posit-dev.github.io/great-tables/reference/from_column.html): Specify that a style value should be fetched from a column in the data
 - [google_font](https://posit-dev.github.io/great-tables/reference/google_font.html): Specify a font from the *Google Fonts* service
 - [system_fonts](https://posit-dev.github.io/great-tables/reference/system_fonts.html): Get a themed font stack that works well across systems
+- [Theme](https://posit-dev.github.io/great-tables/reference/Theme.html): A set of design tokens and table options that style a table
+- [Theme.from_brand](https://posit-dev.github.io/great-tables/reference/Theme.from_brand.html): Build a `Theme` from a brand.yml file
 - [define_units](https://posit-dev.github.io/great-tables/reference/define_units.html): With `define_units()` you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the `fmt_units()` method in **Great Tables**
 - [nanoplot_options](https://posit-dev.github.io/great-tables/reference/nanoplot_options.html): Helper for setting the options for a nanoplot
 
@@ -156,6 +158,7 @@
 
 
 - [GT.opt_stylize](https://posit-dev.github.io/great-tables/reference/GT.opt_stylize.html): Stylize your table with a colorful look
+- [GT.opt_theme](https://posit-dev.github.io/great-tables/reference/GT.opt_theme.html): Apply a theme to the table and choose its color mode
 - [GT.opt_footnote_marks](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_marks.html): Option to modify the set of footnote marks
 - [GT.opt_footnote_spec](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_spec.html): Option to modify the formatting of footnote marks
 - [GT.opt_footnote_order](https://posit-dev.github.io/great-tables/reference/GT.opt_footnote_order.html): Option to modify the ordering of footnotes

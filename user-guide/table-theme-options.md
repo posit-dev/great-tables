@@ -337,3 +337,5 @@ This requires setting a decent number of options, but it makes a big difference 
 With [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options), you can define the visual identity of your tables at a broad level. The structured naming convention makes it straightforward to find and set the options you need, and by combining multiple options together, you can build reusable themes that give all your tables a consistent, polished appearance.
 
 When the option you need doesn't exist, [opt_css()](../reference/GT.opt_css.md#great_tables.GT.opt_css) lets you add your own CSS rules to the table. Give the table an ID with [with_id()](../reference/GT.with_id.md#great_tables.GT.with_id) (or `GT(id=...)`) so that the rules can be scoped to it without affecting other tables on the page.
+
+To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](themes-and-dark-mode.md).

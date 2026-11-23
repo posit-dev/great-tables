@@ -4,7 +4,7 @@ Option to scale the vertical padding of the table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L986-L1080)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1003-L1097)
 
 ``` python
 GT.opt_vertical_padding(scale=1.0)

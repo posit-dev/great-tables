@@ -4,7 +4,7 @@ Perform data cell colorization.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L53-L555)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_data_color/base.py#L54-L556)
 
 ``` python
 GT.data_color(

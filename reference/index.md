@@ -340,6 +340,12 @@ Specify a font from the *Google Fonts* service.
 [system_fonts()](system_fonts.md#great_tables.system_fonts)  
 Get a themed font stack that works well across systems.
 
+[Theme](Theme.md#great_tables.Theme)  
+A set of design tokens and table options that style a table.
+
+[Theme.from_brand()](Theme.from_brand.md#great_tables.Theme.from_brand)  
+Build a [Theme](../reference/Theme.md#great_tables.Theme) from a brand.yml file.
+
 [define_units()](define_units.md#great_tables.define_units)  
 With [define_units()](../reference/define_units.md#great_tables.define_units) you can work with a specially-crafted units notation string and emit the units as HTML (with the `.to_html()` method). This function is useful as a standalone utility and it powers the [fmt_units()](../reference/GT.fmt_units.md#great_tables.GT.fmt_units) method in **Great Tables**.
 
@@ -352,6 +358,9 @@ With the `opt_*()` functions, we have an easy way to set commonly-used table opt
 
 [GT.opt_stylize()](GT.opt_stylize.md#great_tables.GT.opt_stylize)  
 Stylize your table with a colorful look.
+
+[GT.opt_theme()](GT.opt_theme.md#great_tables.GT.opt_theme)  
+Apply a theme to the table and choose its color mode.
 
 [GT.opt_footnote_marks()](GT.opt_footnote_marks.md#great_tables.GT.opt_footnote_marks)  
 Option to modify the set of footnote marks.

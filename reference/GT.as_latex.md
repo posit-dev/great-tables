@@ -4,7 +4,7 @@ Output a GT object as LaTeX
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L305-L414)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L309-L418)
 
 ``` python
 GT.as_latex(

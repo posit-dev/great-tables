@@ -4,7 +4,7 @@ Stylize your table with a colorful look.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1640-L1760)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_options.py#L1657-L1777)
 
 ``` python
 GT.opt_stylize(
