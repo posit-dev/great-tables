@@ -28,10 +28,14 @@ By default a table is in `"auto"` mode. It is light, and it turns dark when the 
 dark. It reads that from two places:
 
 * The page's own theme, when the page is one of these hosts: JupyterLab and Notebook 7, VS Code
-  notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. A host that
-  says it is light keeps the table light, whatever the operating system prefers.
-* The reader's operating system or browser preference (`prefers-color-scheme`), when the page does
-  not say.
+  notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. When themes
+  are nested, the nearest one wins, so a `data-bs-theme="light"` section of a dark page keeps its
+  table light.
+* The page's color scheme, the CSS `color-scheme` property. A page declares `dark` to be dark, or
+  `light dark` to follow the reader's system setting. The pages that Great Tables makes (with
+  `~~GT.show()` or `as_raw_html(make_page=True)`) declare `light dark`.
+
+A page that says neither stays light, so a default table is never dark on a light page.
 
 You do not need to do anything for this. The table below is a default table, so it changes with the
 page it is shown in.
@@ -54,8 +58,8 @@ gt_small.opt_theme(mode="dark")
 gt_small.opt_theme(mode="light")
 ```
 
-Use `mode="light"` when your table sits on a page with no dark theme of its own. Such a page shown to
-a reader whose system prefers dark would otherwise get a dark table on a light page.
+Use `mode="dark"` for a table on a page that is always dark but doesn't say so, and `mode="light"`
+for a table that should stay light on a dark page.
 
 A table with a background color set through `~~GT.tab_options()` or `~~GT.opt_stylize()` stays light
 in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so
@@ -102,9 +106,9 @@ options (`data_row_padding`, `column_labels_padding`, and so on) in the theme in
 ### Colors for dark mode
 
 `dark=` takes a second `Theme` with the values to use in dark mode. It can hold the five color tokens
-(`background`, `foreground`, `border`, `border_strong`, `stripe`) and options that are written to the
-table's stylesheet, such as `table_body_hlines_color`. Anything else raises an error, because it
-cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
+(`background`, `foreground`, `border`, `border_strong`, `stripe`) and color options that are written
+to the table's stylesheet, such as `table_body_hlines_color`. Anything else (a padding or a font, for
+example) raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
 
 ```{python}
 navy = Theme(
@@ -304,12 +308,12 @@ environment variable to be set, so pass a path when you can.
 * **Quarto renders use literal styles unless the format is HTML.** HTML shown in a Quarto render is
   written the same way as email HTML when the format is not HTML, and for any format when Quarto
   does not report it (older Quarto versions).
-* **Iframes and shadow roots follow the system preference only.** The page's theme cannot be seen from
-  inside them, so a table there goes by `prefers-color-scheme`.
-* **A page with no dark theme of its own can show a dark table.** If a reader's system prefers dark and
-  the page is not one of the recognized hosts in light mode, the default table is dark on a light page.
-  Pin it with `mode="light"`.
-* **Other pages follow the system setting.** A standalone page from `~~GT.show()`, Colab, and
-  Databricks give no theme signal. Sites built with Sphinx or MkDocs may have a dark theme of their
-  own, but the table does not read it. On all of these the table follows the reader's system
-  setting.
+* **Iframes and shadow roots do not see the host's theme.** A table in a shadow root follows the
+  color scheme it inherits from the page, and a table in an iframe follows the color scheme of the
+  iframe's own page (light, if that page does not declare one).
+* **Other dark pages get a light table.** Colab and Databricks give no theme signal. Sites built with
+  Sphinx or MkDocs may have a dark theme of their own, but the table follows it only if the theme
+  sets `color-scheme`. Add `color-scheme: dark` to the page's dark CSS, or use `mode="dark"` if the
+  page is always dark.
+* **Older browsers show the light table.** Switching needs CSS `light-dark()` (in browsers since
+  2024); in a browser without it, an `"auto"` table is always light.

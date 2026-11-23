@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 // GT's themed tables, as the CSS variables draw them against the same tables as literal CSS (which
 // is what GT drew before themes): the two must be pixel for pixel the same, and a table must go
-// dark under the reader's preference, or the host's, as designed. No pictures are kept, as fonts
+// dark with the page's color scheme, or the host's theme, as designed. No pictures are kept, as fonts
 // are drawn differently from one platform to the next: each test draws its reference itself.
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), ".fixtures", "theme");
@@ -18,6 +18,10 @@ const CELLS = "cells";
 
 type Scheme = "light" | "dark";
 type Host = { body?: string; html?: string };
+type PageParts = Host & { head?: string; around?: [string, string] };
+
+// (A page that follows the reader's preference, as the pages GT makes do)
+const FOLLOWS = { head: "<style>:root { color-scheme: light dark }</style>" };
 
 const DARK: Host[] = [
   { body: 'data-jp-theme-light="false"' },
@@ -38,15 +42,11 @@ const LIGHT: Host[] = [
 
 const fragment = (name: string) => readFileSync(join(fixtures, `${name}.html`), "utf-8");
 
-const pageHtml = ({ body = "", html = "", head = "" }: Host & { head?: string }, content: string) =>
-  `<!doctype html><html ${html}><head><meta charset="utf-8">${head}</head><body ${body}>${content}</body></html>`;
+const pageHtml = ({ body = "", html = "", head = "", around = ["", ""] }: PageParts, content: string) =>
+  `<!doctype html><html ${html}><head><meta charset="utf-8">${head}</head><body ${body}>${around[0]}${content}${around[1]}</body></html>`;
 
-/** A table fragment (`<table>.<variant>`) in a page with the given `<html>` and `<body>` attributes and `<head>`, as a picture. */
-async function shot(
-  page: Page,
-  name: string,
-  { scheme, ...parts }: Host & { scheme: Scheme; head?: string },
-): Promise<Buffer> {
+/** A table fragment (`<table>.<variant>`) in a page with the given `<html>` and `<body>` attributes and `<head>` (and elements around it), as a picture. */
+async function shot(page: Page, name: string, { scheme, ...parts }: PageParts & { scheme: Scheme }): Promise<Buffer> {
   await page.emulateMedia({ colorScheme: scheme });
   await page.setContent(pageHtml(parts, fragment(name)));
   return page.locator(".gt_table").screenshot();
@@ -97,10 +97,29 @@ test("variables render as today's CSS", async ({ page }, testInfo) => {
   }
 });
 
-test("dark preference", async ({ page }, testInfo) => {
+test("a page that follows the preference takes the table with it", async ({ page }, testInfo) => {
   for (const table of SWITCHING) {
+    for (const scheme of ["light", "dark"] as const) {
+      const auto = await shot(page, `${table}.auto`, { scheme, ...FOLLOWS });
+      const literal = await shot(page, `${table}.${scheme}-literal`, { scheme, ...FOLLOWS });
+      await expectSame(auto, literal, testInfo, `${table} ${scheme}`);
+    }
+  }
+});
+
+test("a page with no color scheme keeps the table light under a dark preference", async ({ page }, testInfo) => {
+  for (const table of [...SWITCHING, CELLS]) {
     const auto = await shot(page, `${table}.auto`, { scheme: "dark" });
-    const literal = await shot(page, `${table}.dark-literal`, { scheme: "dark" });
+    const literal = await shot(page, `${table}.light-literal`, { scheme: "dark" });
+    await expectSame(auto, literal, testInfo, table);
+  }
+});
+
+test("a dark page takes the table with it under a light preference", async ({ page }, testInfo) => {
+  const dark = { head: "<style>:root { color-scheme: dark }</style>" };
+  for (const table of SWITCHING) {
+    const auto = await shot(page, `${table}.auto`, { scheme: "light", ...dark });
+    const literal = await shot(page, `${table}.dark-literal`, { scheme: "light", ...dark });
     await expectSame(auto, literal, testInfo, table);
   }
 });
@@ -117,19 +136,40 @@ test("a dark host wins over a light preference", async ({ page }, testInfo) => {
 
 test("a light host wins over a dark preference", async ({ page }, testInfo) => {
   for (const table of [...SWITCHING, CELLS]) {
-    const literal = await shot(page, `${table}.light-literal`, { scheme: "dark" });
+    const literal = await shot(page, `${table}.light-literal`, { scheme: "dark", ...FOLLOWS });
     for (const host of LIGHT) {
-      const auto = await shot(page, `${table}.auto`, { scheme: "dark", ...host });
+      const auto = await shot(page, `${table}.auto`, { scheme: "dark", ...FOLLOWS, ...host });
+      await expectSame(auto, literal, testInfo, `${table} ${JSON.stringify(host)}`);
+    }
+  }
+});
+
+test("the nearest host's theme wins", async ({ page }, testInfo) => {
+  const nested: [PageParts, Scheme][] = [
+    [{ html: 'data-bs-theme="dark"', around: ['<div data-bs-theme="light">', "</div>"] }, "light"],
+    [{ html: 'data-bs-theme="light"', around: ['<div data-bs-theme="dark">', "</div>"] }, "dark"],
+    [{ body: 'class="quarto-dark"', around: ['<div data-bs-theme="light">', "</div>"] }, "light"],
+    [{ body: 'class="quarto-light"', around: ['<div data-bs-theme="dark">', "</div>"] }, "dark"],
+  ];
+  for (const table of SWITCHING) {
+    for (const [host, scheme] of nested) {
+      const auto = await shot(page, `${table}.auto`, { scheme: "light", ...host });
+      const literal = await shot(page, `${table}.${scheme}-literal`, { scheme: "light", ...host });
       await expectSame(auto, literal, testInfo, `${table} ${JSON.stringify(host)}`);
     }
   }
 });
 
 test("a table with its own background colors stays light", async ({ page }, testInfo) => {
-  const literal = await shot(page, "stylized.light-literal", { scheme: "dark" });
-  await expectSame(await shot(page, "stylized.auto", { scheme: "dark" }), literal, testInfo, "preference");
+  const literal = await shot(page, "stylized.light-literal", { scheme: "dark", ...FOLLOWS });
   await expectSame(
-    await shot(page, "stylized.auto", { scheme: "dark", ...DARK[0]! }),
+    await shot(page, "stylized.auto", { scheme: "dark", ...FOLLOWS }),
+    literal,
+    testInfo,
+    "preference",
+  );
+  await expectSame(
+    await shot(page, "stylized.auto", { scheme: "dark", ...FOLLOWS, ...DARK[0]! }),
     literal,
     testInfo,
     "dark host",
@@ -147,14 +187,18 @@ test("fixed modes ignore host and preference", async ({ page }, testInfo) => {
   }
 });
 
-test("a shadow root follows the preference only", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "dark" });
-  await page.setContent(pageHtml(LIGHT[0]!, '<div id="host"></div>'));
-  await page.evaluate((html) => {
-    document.getElementById("host")!.attachShadow({ mode: "open" }).innerHTML = html;
-  }, fragment("plain.auto"));
-  const background = await page.locator(".gt_table").evaluate((el) => getComputedStyle(el).backgroundColor);
-  expect(background).toBe("rgb(30, 30, 30)");
+test("a shadow root follows the page's color scheme only", async ({ page }) => {
+  const background = async (parts: PageParts, scheme: Scheme) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.setContent(pageHtml(parts, '<div id="host"></div>'));
+    await page.evaluate((html) => {
+      document.getElementById("host")!.attachShadow({ mode: "open" }).innerHTML = html;
+    }, fragment("plain.auto"));
+    return page.locator(".gt_table").evaluate((el) => getComputedStyle(el).backgroundColor);
+  };
+  expect(await background(FOLLOWS, "dark")).toBe("rgb(30, 30, 30)");
+  // (The host's theme isn't seen from inside it)
+  expect(await background(DARK[0]!, "dark")).toBe("rgb(255, 255, 255)");
 });
 
 const PAGE_VARIABLES = "<style>:root { --gt-data-row-padding: 2px; --gt-color-border: #ff0000 }</style>";
@@ -175,7 +219,7 @@ test("Python-set values beat page CSS", async ({ page }) => {
 test("text is readable", async ({ page }) => {
   for (const table of [...TABLES, CELLS]) {
     for (const scheme of ["light", "dark"] as const) {
-      await shot(page, `${table}.auto`, { scheme });
+      await shot(page, `${table}.auto`, { scheme, ...FOLLOWS });
       expect(await lowContrast(page), `${table} ${scheme}`).toEqual([]);
     }
   }
@@ -188,6 +232,7 @@ test("gallery", async ({ page }, testInfo) => {
       // (A table with its own background colors stays light in "auto" mode: its dark picture is the forced one)
       const picture = await shot(page, `${table}.${table === "stylized" && scheme === "dark" ? "dark" : "auto"}`, {
         scheme,
+        ...FOLLOWS,
       });
       const path = testInfo.outputPath(`${table}-${scheme}.png`);
       writeFileSync(path, picture);

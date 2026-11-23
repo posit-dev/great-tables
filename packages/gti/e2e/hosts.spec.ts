@@ -1086,8 +1086,8 @@ test("VS Code: outputs shown as its notebooks show them, in a sandboxed frame", 
 });
 
 // The static table's background in each host, with the host's own light or dark theme and the
-// reader's preference: the table follows the host's theme, and the preference only where the host
-// has none (these are the hosts' real <body>, which the selectors in great_tables/_scss.py match).
+// reader's preference: the table follows the host's theme, whatever the preference (these are the
+// hosts' real <body>, which the selectors in great_tables/_scss.py match).
 const LIGHT_BACKGROUND = "rgb(255, 255, 255)";
 const DARK_BACKGROUND = "rgb(30, 30, 30)";
 
