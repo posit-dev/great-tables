@@ -185,6 +185,16 @@ def _var_params() -> dict[str, str]:
     return params
 
 
+@cache
+def rule_params() -> dict[str, str]:
+    """The template values of the options that the rules read directly, by custom property."""
+    return {
+        css_var(name): param
+        for name, param in _var_params().items()
+        if param.startswith(f"var({css_var(name)},")
+    }
+
+
 def _normalized(color: str) -> str:
     return _html_color(colors=[color])[0]
 
@@ -322,7 +332,8 @@ def theme_declarations(
     data: GTData, light_options: Options | None = None
 ) -> tuple[dict[str, str], dict[str, str] | None]:
     """
-    The custom properties for a table's light mode and, if it has one, its dark mode.
+    The custom properties for a table's light mode and, if it has one, its dark mode (then without
+    a `color-scheme`, which the table takes from the page).
 
     `light_options` are the table's options resolved for light mode, if they are already at hand.
     """
@@ -341,28 +352,92 @@ def theme_declarations(
         return {"color-scheme": "dark", **dark_private, **light_public, **dark_public}, None
 
     light_private = private_declarations(data, "light", light_options)
-    light = {"color-scheme": "light", **light_private, **light_public}
     if not switches:
-        return light, None
+        return {"color-scheme": "light", **light_private, **light_public}, None
 
-    return light, {"color-scheme": "dark", **dark_private, **dark_public}
+    # (A table with both modes takes its color scheme from the page)
+    return {**light_private, **light_public}, {**dark_private, **dark_public}
+
+
+VAR_START = re.compile(r"var\(\s*(--[\w-]+)\s*(,)?")
+
+
+def substitute_vars(value: str, values: dict[str, str]) -> str:
+    """`value` with each `var()` of a custom property in `values` replaced by its value there (by the
+    `var()`'s fallback when that value is `initial`)."""
+    out: list[str] = []
+    start = 0
+
+    while (m := VAR_START.search(value, start)) is not None:
+        out.append(value[start : m.start()])
+        depth, end = 1, m.end()
+        while depth:
+            depth += {"(": 1, ")": -1}.get(value[end], 0)
+            end += 1
+        name = m.group(1)
+        fallback = substitute_vars(value[m.end() : end - 1].strip(), values) if m.group(2) else None
+
+        if name in values and values[name] != "initial":
+            out.append(values[name])
+        elif name in values and fallback is not None:
+            out.append(fallback)
+        else:
+            out.append(f"var({name}, {fallback})" if fallback is not None else f"var({name})")
+        start = end
+
+    out.append(value[start:])
+    return "".join(out)
 
 
 def var_blocks(scope: str, light: dict[str, str], dark: dict[str, str] | None) -> str:
-    """The rules that declare a table's custom properties on its scope."""
+    """
+    The rules that declare a table's custom properties on its scope.
+
+    A table with both modes follows the color scheme it inherits from the page (`light` unless the
+    page declares one), through `light-dark()` values, and the nearest recognized host sets the
+    scheme.
+    """
 
     def block(selector: str, declarations: dict[str, str], indent: str = "") -> str:
         lines = "".join(f"{indent}  {name}: {value};\n" for name, value in declarations.items())
         return f"{indent}{selector} {{\n{lines}{indent}}}\n"
 
-    blocks = [block(scope, light)]
+    if dark is None:
+        return block(scope, light) + "\n"
 
-    if dark is not None:
-        hosts = ",\n".join(f"{host} {scope}" for host in DARK_HOSTS)
-        not_light = ", ".join(f"{host} *" for host in LIGHT_HOSTS)
-        blocks.append(block(hosts, dark))
-        media = block(f"{scope}:not({not_light})", dark, indent="  ")
-        blocks.append(f"@media (prefers-color-scheme: dark) {{\n{media}}}\n")
+    # (The dark values of the public properties are written into the private ones that read them,
+    # which leaves the public ones as they are in light mode, for the page's CSS to set)
+    dark_public = {name: value for name, value in dark.items() if name.startswith("--gt-")}
+    switching = {}
+    for name, value in dark.items():
+        if name.startswith("--_gt-"):
+            value = substitute_vars(value, dark_public)
+            if value != light[name]:
+                switching[name] = f"light-dark({light[name]}, {value})"
+
+    # (Options that the rules read directly switch themselves, from what the rules would use in
+    # light mode)
+    for name, param in rule_params().items():
+        if name in dark_public:
+            light_value = light.get(name, substitute_vars(param, {name: "initial"}))
+            switching[name] = f"light-dark({light_value}, {dark_public[name]})"
+
+    blocks = [
+        block(scope, light),
+        f"@supports (color: light-dark(#000, #fff)) {{\n{block(scope, switching, '  ')}}}\n",
+    ]
+
+    # (A host's theme sets the scheme within it: in nested ones, the nearest wins. Browsers without
+    # `@scope` use the rules in the layer, which lose to the `@scope` ones elsewhere)
+    hosts = ((DARK_HOSTS, "dark"), (LIGHT_HOSTS, "light"))
+    fallback = "".join(
+        block(",\n  ".join(f"{host} {scope}" for host in names), {"color-scheme": scheme}, "  ")
+        for names, scheme in hosts
+    )
+    blocks.append(f"@layer {{\n{fallback}}}\n")
+    for names, scheme in hosts:
+        rule = block(scope, {"color-scheme": scheme}, "  ")
+        blocks.append(f"@scope ({', '.join(names)}) {{\n{rule}}}\n")
 
     return "\n".join(blocks) + "\n"
 
