@@ -1,4 +1,5 @@
 import re
+import sys
 
 import pandas as pd
 import pytest
@@ -282,6 +283,88 @@ def test_quarto_format_without_execute_info_is_not_html(monkeypatch):
 
     monkeypatch.delenv("QUARTO_EXECUTE_INFO", raising=False)
     assert quarto_format_is_html() is False
+
+
+class FakeComm:
+    closed = False
+
+    def close(self):
+        self.closed = True
+
+
+def kernel_setup_msg(base_format: str) -> dict:
+    options = {"format": {"identifier": {"base-format": base_format}}}
+    return {"content": {"target_name": "quarto_kernel_setup", "data": {"options": options}}}
+
+
+@pytest.mark.parametrize(
+    "base_format, uses_variables",
+    [("html", True), ("dashboard", True), ("typst", False), ("docx", False)],
+)
+@pytest.mark.parametrize("info_format", [None, "html", "typst"])
+def test_quarto_kernel_setup_format_wins_over_execute_info(
+    gt: GT, monkeypatch, tmp_path, base_format, uses_variables, info_format
+):
+    # A kernel Quarto keeps running between renders: QUARTO_EXECUTE_INFO is the first render's,
+    # whose file is gone (None) or is another format's
+    import json
+
+    from great_tables import quarto
+
+    info = tmp_path / "info.json"
+    if info_format is not None:
+        info.write_text(json.dumps({"format": {"identifier": {"base-format": info_format}}}))
+    monkeypatch.setenv("QUARTO_BIN_PATH", "/usr/bin/quarto")
+    monkeypatch.setenv("QUARTO_EXECUTE_INFO", str(info))
+    monkeypatch.setattr(quarto, "_kernel_format", None)
+    comm = FakeComm()
+    quarto._on_kernel_setup(comm, kernel_setup_msg(base_format))
+    assert comm.closed
+    assert quarto.quarto_format_is_html() is uses_variables
+    assert ("var(--_gt-background)" in gt.as_raw_html()) is uses_variables
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [{}, {"content": {"data": {}}}, {"content": {"data": {"options": None}}}, kernel_setup_msg(1)],
+)
+def test_quarto_kernel_setup_without_format_is_not_html(monkeypatch, tmp_path, msg):
+    import json
+
+    from great_tables import quarto
+
+    info = tmp_path / "info.json"
+    info.write_text(json.dumps({"format": {"identifier": {"base-format": "html"}}}))
+    monkeypatch.setenv("QUARTO_EXECUTE_INFO", str(info))
+    monkeypatch.setattr(quarto, "_kernel_format", None)
+    quarto._on_kernel_setup(FakeComm(), msg)
+    assert quarto.quarto_format_is_html() is False
+
+
+def test_quarto_kernel_setup_is_watched_in_an_ipython_kernel(monkeypatch):
+    IPython = pytest.importorskip("IPython")
+    from great_tables import quarto
+
+    targets = {}
+
+    class Shell:
+        class kernel:
+            class comm_manager:
+                @staticmethod
+                def register_target(name, callback):
+                    targets[name] = callback
+
+    monkeypatch.setattr(IPython, "get_ipython", lambda: Shell())
+    quarto._watch_kernel_setup()
+    assert targets == {"quarto_kernel_setup": quarto._on_kernel_setup}
+
+    # (And nothing happens outside a kernel: outside IPython, in a terminal's, or without IPython)
+    for shell in [None, object()]:
+        monkeypatch.setattr(IPython, "get_ipython", lambda shell=shell: shell)
+        quarto._watch_kernel_setup()
+    monkeypatch.setitem(sys.modules, "IPython", None)
+    quarto._watch_kernel_setup()
+    assert list(targets) == ["quarto_kernel_setup"]
 
 
 @pytest.mark.parametrize("base_format, meta", [("html", True), ("typst", False)])
