@@ -98,6 +98,18 @@ def test_md_html():
     assert Md("<b>raw</b>").to_html() == "<b>raw</b>"
 
 
+def test_md_html_table():
+    # a Markdown table becomes an HTML table
+    res = Md("| A | B |\n|---|---|\n| 1 | 2 |").to_html()
+
+    assert res.startswith("<table>")
+    assert "<th>A</th>" in res
+    assert "<td>1</td>" in res
+
+    # text with pipes that isn't a table is left alone
+    assert Md("a | b").to_html() == "a | b"
+
+
 def test_html_to_latex_strips_tags():
     # Tags are stripped, remaining text is LaTeX-escaped
     assert Html("<b>bold</b>").to_latex() == "bold"

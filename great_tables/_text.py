@@ -70,7 +70,7 @@ def _md_html(x: str) -> str:
     else:
         processed_text = x
 
-    str_result = markdown_to_html(processed_text, unsafe=True)
+    str_result = markdown_to_html(processed_text, unsafe=True, extensions=["table"])
     if str_result is None:  # pragma: no cover
         return processed_text
     return re.sub(r"^<p>|</p>\n$", "", str_result)
