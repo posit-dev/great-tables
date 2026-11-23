@@ -108,6 +108,7 @@ brand = [
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
+    "sqlglot!=30.34.0",  # writes Ibis's `IS NOT NULL` as `IS (NOT NULL)`, which DuckDB can't parse
     "pandas",
     "plotnine",
     "numpy>=1.22.4",
