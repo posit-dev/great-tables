@@ -229,7 +229,8 @@ test.describe("pinned columns", () => {
     expect(light.backed).toBeGreaterThan(1);
     expect(light.filled).toBeGreaterThan(10);
     expect(light.stale).toEqual([]);
-    // With the system's scheme
+    // With the system's scheme, on a page that follows it
+    await page.addStyleTag({ content: ":root { color-scheme: light dark }" });
     await page.emulateMedia({ colorScheme: "dark" });
     await expect.poll(async () => (await fills(page)).background).not.toBe(light.background);
     await expect.poll(async () => (await fills(page)).stale).toEqual([]);

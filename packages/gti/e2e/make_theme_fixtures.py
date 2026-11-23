@@ -50,7 +50,11 @@ def tables() -> dict[str, GT]:
         "plain": base("plain"),
         "stylized": base("stylized").opt_stylize(style=6, color="blue"),
         "themed": base("themed").opt_theme(
-            Theme(border="#CC3333", data_row_padding="2px", dark=Theme(background="#101418"))
+            Theme(
+                border="#CC3333",
+                data_row_padding="2px",
+                dark=Theme(background="#101418", table_body_hlines_color="#3A4A5A"),
+            )
         ),
         "padded": base("padded").tab_options(data_row_padding="6px"),
         # (A dark background with no foreground: the text is chosen for contrast with it)
