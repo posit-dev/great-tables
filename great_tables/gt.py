@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from typing_extensions import Self
@@ -116,6 +117,7 @@ from ._tab_create_modify import (
 )
 from ._tab_stub_indent import tab_stub_indent
 from ._tbl_data import _get_cell, _set_cell, _set_cells, n_rows
+from ._theme import color_scheme_style_attr, opt_theme, render_mode, resolve_options, uses_variables
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
     _get_table_aria_attrs,
@@ -448,6 +450,7 @@ class GT(
     sub_values = sub_values
 
     opt_stylize = opt_stylize
+    opt_theme = opt_theme
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
     opt_css = opt_css
@@ -612,7 +615,12 @@ class GT(
 
         # ...
 
-        return built._replace(_body=final_body, _stub=final_stub, _boxhead=final_boxhead)
+        return built._replace(
+            _body=final_body,
+            _stub=final_stub,
+            _boxhead=final_boxhead,
+            _options=resolve_options(built, "light"),
+        )
 
     def render(
         self,
@@ -631,9 +639,13 @@ class GT(
         self,
         make_page: bool = False,
         all_important: bool = False,
+        variables: bool = True,
     ) -> str:
         # TODO: better to put these checks in a pre render hook?
         _render_check(self)
+
+        # Non-HTML Quarto formats (like Typst or Word) can't use CSS variables or media queries
+        variables = uses_variables(variables)
 
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
@@ -672,6 +684,9 @@ class GT(
 </table>
 """
 
+        if not variables:
+            html_table = _resolve_cell_colors(self, html_table)
+
         # Obtain the `table_id` value from the Options (might be set, might be None)
         table_id = self._options.table_id.value
 
@@ -680,7 +695,7 @@ class GT(
         # Compile the SCSS as CSS
         from ._scss import compile_scss
 
-        css = compile_scss(data=self, id=id, all_important=all_important)
+        css = compile_scss(data=self, id=id, all_important=all_important, variables=variables)
 
         # Obtain options set for overflow and container dimensions
 
@@ -700,9 +715,12 @@ class GT(
 """
 
         if make_page:
+            # Declare which color schemes the page supports, so that its own chrome follows suit
+            color_scheme = color_scheme_style_attr(self, variables)
+
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en"{color_scheme}>
 <head>
 <meta charset="utf-8"/>
 </head>
@@ -712,6 +730,21 @@ class GT(
 </html>
 """
         return finalized_table
+
+
+def _resolve_cell_colors(data: GT, html_table: str) -> str:
+    """Replace the cell colors that depend on the mode with literal ones: the authored colors stay."""
+    options = resolve_options(data, render_mode(data))
+
+    html_table = html_table.replace("var(--_gt-text-dark)", options.table_font_color.value)
+    html_table = html_table.replace("var(--_gt-text-light)", options.table_font_color_light.value)
+
+    # (Only the declaration `_dark_aware_color()` writes: one the user wrote stays)
+    return re.sub(
+        r" color: light-dark\(([^;]+?), color-mix\(in srgb, \1 35%, currentcolor\)\);",
+        "",
+        html_table,
+    )
 
 
 # =============================================================================
