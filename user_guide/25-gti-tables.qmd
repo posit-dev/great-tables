@@ -11,6 +11,18 @@ When readers need more than `~~GT.opt_interactive()` gives them (see
 with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
 ```{python}
+#| include: false
+# (On this page, the tables scroll sideways in a narrow container, as if made with
+# `i_responsive("scroll")`, rather than being stacked as cards on a phone: the cards are shown
+# once, under "Narrow containers", where they're explained)
+import functools
+
+import great_tables.gti
+
+great_tables.gti.Settings = functools.partial(great_tables.gti.Settings, responsive="scroll")
+```
+
+```{python}
 import polars as pl
 from great_tables import GTI, data
 
