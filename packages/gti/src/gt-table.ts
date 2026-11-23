@@ -1051,13 +1051,23 @@ export class GtTable extends HTMLElement {
   private pager: Pager | null = null;
   private bar: Bar | null = null;
   /**
-   * Fill the sticky bar with what's behind the table again (as the page's colours change, or the
-   * background of `behind`, if it's behind the table).
+   * Fill the sticky bar, the sticky header and rows, and the pinned cells with what's behind them
+   * again (as the page's colours change, or the background of `behind`, if it's behind the table).
    */
   private refill = (behind?: EventTarget | null): void => {
+    if (behind != null && !(behind instanceof Node && behind.contains(this))) {
+      return;
+    }
     const root = this.bar?.root;
-    if (root?.hasAttribute("data-gti-stick") && (behind == null || (behind instanceof Node && behind.contains(this)))) {
+    if (root?.hasAttribute("data-gti-stick")) {
       root.style.backgroundColor = backdropColor(this);
+    }
+    // (The header first, which is behind its pinned cells)
+    if (this.scrollsDown) {
+      this.fillRows([...this.stuckTop, ...this.stuckBottom]);
+    }
+    for (const cell of this.table?.querySelectorAll<HTMLTableCellElement>(":scope > * > tr > .gt-i-pinned") ?? []) {
+      this.fill(cell);
     }
   };
   /** The element's handler for `/`, which opens the bar's search. */
@@ -2802,11 +2812,6 @@ export class GtTable extends HTMLElement {
     this.frameScroller(table);
 
     // Rows scroll under the sticky ones, which need a background to hide them
-    const backdrop = backdropColor(table);
-    const thead = table.tHead;
-    if (thead !== null && isTransparent(getComputedStyle(thead).backgroundColor)) {
-      thead.style.backgroundColor = backdrop;
-    }
     this.fillRows([...this.stuckTop, ...this.stuckBottom]);
 
     this.addShade("top");
@@ -2855,14 +2860,15 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Sticky rows' cells without a background are filled with what's behind the table
+  // The sticky header, and sticky rows' cells, without a background are filled with what's behind
+  // the table (and marked, to be filled again as the page's colours change)
   private fillRows(trs: HTMLTableRowElement[]): void {
-    const backdrop = backdropColor(this.table as HTMLTableElement);
-    for (const tr of trs) {
-      for (const cell of Array.from(tr.cells)) {
-        if (isTransparent(getComputedStyle(cell).backgroundColor)) {
-          cell.style.backgroundColor = backdrop;
-        }
+    const table = this.table as HTMLTableElement;
+    const backdrop = backdropColor(table);
+    for (const el of [table.tHead, ...trs.flatMap((tr) => Array.from(tr.cells))]) {
+      if (el !== null && (el.classList.contains("gt-i-backed") || isTransparent(getComputedStyle(el).backgroundColor))) {
+        el.style.backgroundColor = backdrop;
+        el.classList.add("gt-i-backed");
       }
     }
   }
