@@ -35,6 +35,7 @@ def test_theme_validates_option_values():
         lambda: Theme(accent="#ff0000"),  # not a color-mode token
         lambda: Theme(font="Inter"),
         lambda: Theme(row_striping_include_table_body=True),  # not a stylesheet option
+        lambda: Theme(data_row_padding="9px"),  # not a color
     ],
 )
 def test_theme_dark_rejects_what_cannot_vary_by_mode(dark):
@@ -42,7 +43,7 @@ def test_theme_dark_rejects_what_cannot_vary_by_mode(dark):
         Theme(dark=dark())
 
 
-def test_theme_dark_accepts_color_tokens_and_stylesheet_options():
+def test_theme_dark_accepts_color_tokens_and_stylesheet_color_options():
     theme = Theme(dark=Theme(background="#101418", table_body_hlines_color="#222222"))
     assert theme.dark.tokens == {"background": "#101418"}
     assert theme.dark.options == {"table_body_hlines_color": "#222222"}
@@ -301,7 +302,7 @@ def test_option_changed_without_is_set_counts_as_set(gt: GT):
     )
     assert values(changed, "light", "table_background_color") == ("#FF0000",)
     assert values(changed, "dark", "table_background_color") == ("#FF0000",)
-    assert "prefers-color-scheme" not in compile_scss(changed, id="abc", variables=True)
+    assert "light-dark(" not in compile_scss(changed, id="abc", variables=True)
 
 
 def test_built_table_resolves_from_its_theme(gt: GT):
