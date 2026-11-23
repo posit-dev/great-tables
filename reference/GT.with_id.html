@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
     <a class="nav-link" href="https://github.com/posit-dev/great-tables"> 
-<span class="menu-text"><span id="repository-widget" data-provider="github" data-label="GitHub" data-url="https://github.com/posit-dev/great-tables" data-issues-url="https://github.com/posit-dev/great-tables/issues" data-requests-url="https://github.com/posit-dev/great-tables/pulls" data-releases-url="https://github.com/posit-dev/great-tables/releases" data-fork-url="https://github.com/posit-dev/great-tables/fork" data-public-api="https://api.github.com/repos/posit-dev/great-tables" data-stars="2925" data-forks="157"></span></span></a>
+<span class="menu-text"><span id="repository-widget" data-provider="github" data-label="GitHub" data-url="https://github.com/posit-dev/great-tables" data-issues-url="https://github.com/posit-dev/great-tables/issues" data-requests-url="https://github.com/posit-dev/great-tables/pulls" data-releases-url="https://github.com/posit-dev/great-tables/releases" data-fork-url="https://github.com/posit-dev/great-tables/fork" data-public-api="https://api.github.com/repos/posit-dev/great-tables" data-stars="2925" data-forks="158"></span></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -1627,7 +1627,7 @@ The GT object is returned. This is the same object that the method is called on 
 <section id="examples" class="level2 doc-examples">
 <h2 class="doc-examples anchored" data-anchor-id="examples">Examples</h2>
 <p>The use of <a href="../reference/GT.with_id.html#great_tables.GT.with_id" class="gdls-link gdls-code">with_id</a> is straightforward—simply pass a string to <code>id=</code> to set the table ID:</p>
-<div id="fb6cbe41" class="cell" data-execution_count="1">
+<div id="ff36692a" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> great_tables <span class="im">import</span> GT, exibble</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>GT(exibble).with_id(<span class="st">"your-table-id"</span>)</span></code></pre></div>
@@ -1641,7 +1641,6 @@ The GT object is returned. This is the same object that the method is called on 
         }
 
 #your-table-id {
-  color-scheme: light;
   --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #FFFFFF));
   --_gt-border: var(--gt-color-border, #D3D3D3);
   --_gt-border-strong: var(--gt-color-border-strong, #A8A8A8);
@@ -1661,52 +1660,56 @@ The GT object is returned. This is the same object that the method is called on 
   --_gt-font-color-row-striping: var(--_gt-text-dark);
 }
 
-body[data-jp-theme-light="false"] #your-table-id,
-body.vscode-dark #your-table-id,
-body.vscode-high-contrast:not(.vscode-high-contrast-light) #your-table-id,
-body.quarto-dark #your-table-id,
-[data-bs-theme="dark"] #your-table-id,
-body.dark-theme[data-theme="dark"] #your-table-id {
-  color-scheme: dark;
-  --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #1E1E1E));
-  --_gt-border: var(--gt-color-border, #4A4A4A);
-  --_gt-border-strong: var(--gt-color-border-strong, #6E6E6E);
-  --_gt-stripe: var(--gt-color-stripe, #2A2A2A);
-  --_gt-text-dark: var(--gt-table-font-color, #333333);
-  --_gt-text-light: var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0));
-  --_gt-font-color-table: var(--_gt-text-light);
-  --_gt-font-color-heading: var(--_gt-text-light);
-  --_gt-font-color-column-labels: var(--_gt-text-light);
-  --_gt-font-color-row-group: var(--_gt-text-light);
-  --_gt-font-color-stub: var(--_gt-text-light);
-  --_gt-font-color-stub-row-group: var(--_gt-text-light);
-  --_gt-font-color-summary-row: var(--_gt-text-light);
-  --_gt-font-color-grand-summary-row: var(--_gt-text-light);
-  --_gt-font-color-footnotes: var(--_gt-text-light);
-  --_gt-font-color-source-notes: var(--_gt-text-light);
-  --_gt-font-color-row-striping: var(--_gt-text-light);
+@supports (color: light-dark(#000, #fff)) {
+  #your-table-id {
+    --_gt-background: light-dark(var(--gt-table-background-color, var(--gt-color-background, #FFFFFF)), var(--gt-table-background-color, var(--gt-color-background, #1E1E1E)));
+    --_gt-border: light-dark(var(--gt-color-border, #D3D3D3), var(--gt-color-border, #4A4A4A));
+    --_gt-border-strong: light-dark(var(--gt-color-border-strong, #A8A8A8), var(--gt-color-border-strong, #6E6E6E));
+    --_gt-stripe: light-dark(var(--gt-color-stripe, #F4F4F4), var(--gt-color-stripe, #2A2A2A));
+    --_gt-text-dark: light-dark(var(--gt-table-font-color, var(--gt-color-foreground, #333333)), var(--gt-table-font-color, #333333));
+    --_gt-text-light: light-dark(var(--gt-table-font-color-light, #FFFFFF), var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0)));
+    --_gt-font-color-table: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-heading: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-column-labels: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-row-group: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-stub: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-stub-row-group: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-summary-row: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-grand-summary-row: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-footnotes: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-source-notes: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+    --_gt-font-color-row-striping: light-dark(var(--_gt-text-dark), var(--_gt-text-light));
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  #your-table-id:not(body[data-jp-theme-light="true"] *, body.vscode-light *, body.vscode-high-contrast-light *, body.quarto-light *, [data-bs-theme="light"] *, body.light-theme[data-theme="light"] *) {
+@layer {
+  body[data-jp-theme-light="false"] #your-table-id,
+  body.vscode-dark #your-table-id,
+  body.vscode-high-contrast:not(.vscode-high-contrast-light) #your-table-id,
+  body.quarto-dark #your-table-id,
+  [data-bs-theme="dark"] #your-table-id,
+  body.dark-theme[data-theme="dark"] #your-table-id {
     color-scheme: dark;
-    --_gt-background: var(--gt-table-background-color, var(--gt-color-background, #1E1E1E));
-    --_gt-border: var(--gt-color-border, #4A4A4A);
-    --_gt-border-strong: var(--gt-color-border-strong, #6E6E6E);
-    --_gt-stripe: var(--gt-color-stripe, #2A2A2A);
-    --_gt-text-dark: var(--gt-table-font-color, #333333);
-    --_gt-text-light: var(--gt-table-font-color-light, var(--gt-color-foreground, #E0E0E0));
-    --_gt-font-color-table: var(--_gt-text-light);
-    --_gt-font-color-heading: var(--_gt-text-light);
-    --_gt-font-color-column-labels: var(--_gt-text-light);
-    --_gt-font-color-row-group: var(--_gt-text-light);
-    --_gt-font-color-stub: var(--_gt-text-light);
-    --_gt-font-color-stub-row-group: var(--_gt-text-light);
-    --_gt-font-color-summary-row: var(--_gt-text-light);
-    --_gt-font-color-grand-summary-row: var(--_gt-text-light);
-    --_gt-font-color-footnotes: var(--_gt-text-light);
-    --_gt-font-color-source-notes: var(--_gt-text-light);
-    --_gt-font-color-row-striping: var(--_gt-text-light);
+  }
+  body[data-jp-theme-light="true"] #your-table-id,
+  body.vscode-light #your-table-id,
+  body.vscode-high-contrast-light #your-table-id,
+  body.quarto-light #your-table-id,
+  [data-bs-theme="light"] #your-table-id,
+  body.light-theme[data-theme="light"] #your-table-id {
+    color-scheme: light;
+  }
+}
+
+@scope (body[data-jp-theme-light="false"], body.vscode-dark, body.vscode-high-contrast:not(.vscode-high-contrast-light), body.quarto-dark, [data-bs-theme="dark"], body.dark-theme[data-theme="dark"]) {
+  #your-table-id {
+    color-scheme: dark;
+  }
+}
+
+@scope (body[data-jp-theme-light="true"], body.vscode-light, body.vscode-high-contrast-light, body.quarto-light, [data-bs-theme="light"], body.light-theme[data-theme="light"]) {
+  #your-table-id {
+    color-scheme: light;
   }
 }
 

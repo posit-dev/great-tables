@@ -16,8 +16,10 @@ gt_small = GT(small, rowname_col="row").tab_header("A small table")
 
 By default a table is in `"auto"` mode. It is light, and it turns dark when the page around it is dark. It reads that from two places:
 
-- The page's own theme, when the page is one of these hosts: JupyterLab and Notebook 7, VS Code notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. A host that says it is light keeps the table light, whatever the operating system prefers.
-- The reader's operating system or browser preference (`prefers-color-scheme`), when the page does not say.
+- The page's own theme, when the page is one of these hosts: JupyterLab and Notebook 7, VS Code notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. When themes are nested, the nearest one wins, so a `data-bs-theme="light"` section of a dark page keeps its table light.
+- The page's color scheme, the CSS `color-scheme` property. A page declares `dark` to be dark, or `light dark` to follow the reader's system setting. The pages that Great Tables makes (with [show()](../reference/GT.show.md#great_tables.GT.show) or `as_raw_html(make_page=True)`) declare `light dark`.
+
+A page that says neither stays light, so a default table is never dark on a light page.
 
 You do not need to do anything for this. The table below is a default table, so it changes with the page it is shown in.
 
@@ -75,7 +77,7 @@ gt_small.opt_theme(mode="light")
 | row_7         | 777000.0  | grapefruit | None     |
 | row_8         | 8880000.0 | honeydew   | 0.44     |
 
-Use `mode="light"` when your table sits on a page with no dark theme of its own. Such a page shown to a reader whose system prefers dark would otherwise get a dark table on a light page.
+Use `mode="dark"` for a table on a page that is always dark but doesn't say so, and `mode="light"` for a table that should stay light on a dark page.
 
 A table with a background color set through [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) or [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize) stays light in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so switching would give pale stripes on a dark table. `mode="dark"` still forces dark. A background set in a [Theme](../reference/Theme.md#great_tables.Theme) does not pin the table, because a theme can carry its own dark colors.
 
@@ -125,7 +127,7 @@ There are no tokens for spacing, since the default padding differs by table part
 
 ### Colors for dark mode
 
-`dark=` takes a second [Theme](../reference/Theme.md#great_tables.Theme) with the values to use in dark mode. It can hold the five color tokens (`background`, `foreground`, `border`, `border_strong`, `stripe`) and options that are written to the table's stylesheet, such as `table_body_hlines_color`. Anything else raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
+`dark=` takes a second [Theme](../reference/Theme.md#great_tables.Theme) with the values to use in dark mode. It can hold the five color tokens (`background`, `foreground`, `border`, `border_strong`, `stripe`) and color options that are written to the table's stylesheet, such as `table_body_hlines_color`. Anything else (a padding or a font, for example) raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
 
 ``` python
 navy = Theme(
@@ -295,6 +297,6 @@ Each argument can also be a `brand_yml.Brand` object. With no argument, [Theme.f
 - **[as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) needs CSS custom properties.** Its output only renders as intended where the renderer supports them. `as_raw_html(inline_css=True)` writes literal styles instead, for one mode.
 - **Some output has one mode.** Email HTML (`inline_css=True`), images, LaTeX, Word, and Typst output cannot follow a preference. In email HTML, `"auto"` gives the light table and `"dark"` the dark one. Output made through gridwell (`as_gridwell()`, and [gtsave()](../reference/GT.gtsave.md#great_tables.GT.gtsave) to formats such as SVG or Word) and LaTeX ignores the mode and is light, even with `mode="dark"`; the theme values those outputs can express, such as border colors, still apply.
 - **Quarto renders use literal styles unless the format is HTML.** HTML shown in a Quarto render is written the same way as email HTML when the format is not HTML, and for any format when Quarto does not report it (older Quarto versions).
-- **Iframes and shadow roots follow the system preference only.** The page's theme cannot be seen from inside them, so a table there goes by `prefers-color-scheme`.
-- **A page with no dark theme of its own can show a dark table.** If a reader's system prefers dark and the page is not one of the recognized hosts in light mode, the default table is dark on a light page. Pin it with `mode="light"`.
-- **Other pages follow the system setting.** A standalone page from [show()](../reference/GT.show.md#great_tables.GT.show), Colab, and Databricks give no theme signal. Sites built with Sphinx or MkDocs may have a dark theme of their own, but the table does not read it. On all of these the table follows the reader's system setting.
+- **Iframes and shadow roots do not see the host's theme.** A table in a shadow root follows the color scheme it inherits from the page, and a table in an iframe follows the color scheme of the iframe's own page (light, if that page does not declare one).
+- **Other dark pages get a light table.** Colab and Databricks give no theme signal. Sites built with Sphinx or MkDocs may have a dark theme of their own, but the table follows it only if the theme sets `color-scheme`. Add `color-scheme: dark` to the page's dark CSS, or use `mode="dark"` if the page is always dark.
+- **Older browsers show the light table.** Switching needs CSS `light-dark()` (in browsers since 2024); in a browser without it, an `"auto"` table is always light.
