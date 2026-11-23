@@ -125,7 +125,8 @@ class Theme:
     dark
         A `Theme` with the values to use instead when the table is shown in dark mode. It can hold
         only the color tokens `background`, `foreground`, `border`, `border_strong` and `stripe`,
-        and options that are written to the table's stylesheet (such as `table_body_hlines_color`).
+        and color options that are written to the table's stylesheet (such as
+        `table_body_hlines_color`).
     **options
         Any option accepted by `GT.tab_options()`, for example `data_row_padding`.
 
@@ -369,12 +370,19 @@ def _check_dark(dark: Theme) -> None:
         )
 
     default_options = Options()
-    not_stylesheet = [k for k in dark.options if not getattr(default_options, k).scss]
-    if not_stylesheet:
+    not_colors = [k for k in dark.options if not is_color_option(k, default_options)]
+    if not_colors:
         raise ValueError(
-            "A `dark` theme can only set options that are written to the table's stylesheet, "
-            f"but received: {', '.join(not_stylesheet)}."
+            "A `dark` theme can only set color options that are written to the table's "
+            f"stylesheet (such as `table_body_hlines_color`), but received: "
+            f"{', '.join(not_colors)}."
         )
+
+
+def is_color_option(name: str, default_options: Options) -> bool:
+    """Whether an option is a color written to the table's stylesheet (which can vary by mode, as
+    `light-dark()` takes colors only)."""
+    return getattr(default_options, name).scss and name.endswith(("_color", "_color_light"))
 
 
 def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None = None) -> GTSelf:
@@ -385,7 +393,7 @@ def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None =
     table its colors, fonts and other options, and can hold a separate set of colors for dark mode
     through its `dark=` argument. The mode picks which colors are used: `"light"` always uses the
     light colors, `"dark"` always uses the dark colors, and `"auto"` (the default) follows the
-    viewer's preference.
+    color scheme of the page the table is shown in.
 
     Parameters
     ----------
@@ -558,7 +566,8 @@ def uses_variables(variables: bool = True) -> bool:
 
 def follows_preference(data: GTData) -> bool:
     """
-    Whether a table follows the viewer's preference for dark.
+    Whether a table follows the color scheme of the page it is shown in (on a page that the table
+    makes, the viewer's preference).
 
     Only a table in `"auto"` mode does, and not one with a background color set explicitly (with
     `tab_options()` or `opt_stylize()`), as those colors were chosen for a light table.
