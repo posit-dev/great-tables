@@ -339,7 +339,10 @@ def _(data, column: str, values: dict[int, Any]):
         return _set_cells_one_by_one(data, column, values)
 
     series = data.to_series(col_indx).clone()
-    series.scatter(list(values), pl.Series(list(values.values()), dtype=pl.String))
+    # (Polars before 1.37 raises for indices that aren't sorted, as they aren't when a later
+    # formatter covers earlier rows)
+    rows = sorted(values)
+    series.scatter(rows, pl.Series([values[row] for row in rows], dtype=pl.String))
     data.replace_column(col_indx, series)
     return data
 

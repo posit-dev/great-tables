@@ -110,6 +110,7 @@ IS_NA_SCALARS: dict[str, Any] = {
 params_set_cells_values: list[dict[int, str | None]] = [
     {1: "x"},
     {2: "z", 0: "x", 1: "y"},
+    {2: "z", 0: "x"},
     {0: None, 2: "z"},
     {},
 ]
@@ -525,6 +526,19 @@ def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
     assert [None if is_na(res, cell) else cell for cell in cells] == [
         values.get(i) for i in range(3)
     ]
+
+
+def test_set_cells_rows_formatted_out_of_order(frame_constructor: DataFrameConstructor):
+    # A later formatter covers an earlier row, so the formatted rows come unsorted (Polars before
+    # 1.37 can't `scatter()` to unsorted rows)
+    gt = (
+        GT(frame_constructor({"x": ["a", "b", "c"]}))
+        .fmt(str.upper, columns="x", rows=[2])
+        .fmt(str.upper, columns="x", rows=[0])
+    )
+    body = gt._render_formats("html")._body.body
+
+    assert _column_cells(body, "x") == ["A", "b", "C"]
 
 
 @pytest.mark.parametrize("values", params_set_cells_values)
