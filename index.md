@@ -404,6 +404,7 @@ films = (
     .i_cols_controls(columns="decade", groupable=True, hideable=True)
     .i_export(["csv", "clipboard", "code"], filename="cannes")
     .i_pagination(page_size=8)
+    .i_responsive("scroll")
 )
 ```
 
