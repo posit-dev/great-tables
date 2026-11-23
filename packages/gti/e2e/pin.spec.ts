@@ -4,8 +4,8 @@ import { ready } from "./helpers";
 // exibble three times over (24 rows, grp_b then grp_a, each with a summary row, then a grand
 // summary row), selectable, on one page, with char moved to the start and pinned there, and fctr
 // moved to the end and pinned there, under a spanner ("Ends") across its edge, in a container
-// 480px wide; with groups shown as a column, in a body 300px high (in a container 640px wide); and
-// right to left.
+// 480px wide; with groups shown as a column, in a body 300px high (in a container 640px wide); in a
+// body 300px high, with group headings that have no background of their own; and right to left.
 
 const el = (page: Page) => page.locator("gt-table");
 const scroller = (page: Page) => el(page).locator(".gt-i-scroller");
@@ -61,6 +61,24 @@ const underPinned = (page: Page) =>
       }
     }
     return found;
+  });
+
+// The table's background, how many of its parts are filled with it (the sticky header and the
+// stuck rows' cells without a background, and the pinned cells, behind theirs), and those whose
+// fill isn't it
+const fills = (page: Page) =>
+  el(page).evaluate((node) => {
+    const table = node.querySelector("table") as HTMLTableElement;
+    const background = getComputedStyle(table).backgroundColor;
+    const backed = Array.from(
+      table.querySelectorAll<HTMLElement>(':scope > thead[style*="background-color"], :scope > tbody > tr > [style*="background-color"]'),
+    );
+    const filled = Array.from(table.querySelectorAll<HTMLElement>(".gt-i-filled"));
+    const stale = [
+      ...backed.filter((el) => el.style.backgroundColor !== background),
+      ...filled.filter((el) => !getComputedStyle(el).backgroundImage.endsWith(`linear-gradient(${background}, ${background})`)),
+    ];
+    return { background, backed: backed.length, filled: filled.length, stale: stale.map((el) => el.className) };
   });
 
 // The columns' names shown with the query box that are over a pinned label's cell other than
@@ -200,6 +218,25 @@ test.describe("pinned columns", () => {
     const group = await rect(el(page).locator("tbody .gt_stub_row_group").last());
     expect(group.left).toBeGreaterThan(view.left);
     expect(charLabel.left).toBeGreaterThan(group.right);
+    expect(errors).toEqual([]);
+  });
+
+  test("are filled again as the page's colours change, as are the sticky header and rows", async ({ page }) => {
+    const errors = await ready(page, "pin-scroll.html");
+    await scrollTo(page, 100, 200);
+    const light = await fills(page);
+    // (The header and the group headings' cells, and the pinned cells of the rows)
+    expect(light.backed).toBeGreaterThan(1);
+    expect(light.filled).toBeGreaterThan(10);
+    expect(light.stale).toEqual([]);
+    // With the system's scheme
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect.poll(async () => (await fills(page)).background).not.toBe(light.background);
+    await expect.poll(async () => (await fills(page)).stale).toEqual([]);
+    // With a host's theme (a class on <body>), light whatever the system's scheme
+    await page.locator("body").evaluate((body) => body.classList.add("quarto-light"));
+    await expect.poll(async () => (await fills(page)).background).toBe(light.background);
+    await expect.poll(async () => (await fills(page)).stale).toEqual([]);
     expect(errors).toEqual([]);
   });
 
