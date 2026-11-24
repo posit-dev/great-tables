@@ -1147,7 +1147,9 @@ def main() -> None:
         "controls.html": page(controls_html("cc") + "\n" + runtime_src, head=styles),
         # Pinned columns (at the start and the end), in a container 480px wide: with group
         # headings; with groups shown as a column, in a body that scrolls (in one 640px wide, with
-        # room for that column); right to left; and with a filter on every column
+        # room for that column); in a body that scrolls, with the group headings stuck (with no
+        # background of their own, from the page's CSS); right to left; and with a filter on every
+        # column
         "pin.html": page(
             '<div style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
             head=styles,
@@ -1155,6 +1157,13 @@ def main() -> None:
         "pin-column.html": page(
             '<div style="width: 640px">'
             + pin_html("pn", groups_as_column=True, height="300px")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "pin-scroll.html": page(
+            '<div style="width: 480px; --gt-row-group-background-color: transparent">'
+            + pin_html("pn", height="300px")
             + "</div>\n"
             + runtime_src,
             head=styles,

@@ -13,6 +13,7 @@ readers to sort, filter and search in the browser.
 <link rel="stylesheet" href="assets/homepage.css">
 <script src="assets/homepage.js" defer></script>
 <script src="assets/backdrop.js" defer></script>
+<script src="assets/tabblen.js" defer></script>
 ```
 
 ::: {.gth-cta}
@@ -357,6 +358,7 @@ films = (
     .i_cols_controls(columns="decade", groupable=True, hideable=True)
     .i_export(["csv", "clipboard", "code"], filename="cannes")
     .i_pagination(page_size=8)
+    .i_responsive("scroll")
 )
 ```
 
@@ -456,6 +458,9 @@ HTML and LaTeX, images and PDFs, and with gridwell, Word, Excel, PowerPoint, RTF
 
 ## Get started {.gth-heading}
 
+:::: {.gth-start}
+
+::: {.gth-start-text}
 Install Great Tables from PyPI:
 
 ```bash
@@ -464,3 +469,10 @@ pip install great_tables
 
 Then head over to the [User Guide](/user-guide/introduction.qmd) to make your first table, or look
 through the [Examples](/examples/) for ideas.
+:::
+
+```{=html}
+<gt-tabblen class="gth-tabblen" bubble="top" follow cell-trick="shuffle"></gt-tabblen>
+```
+
+::::

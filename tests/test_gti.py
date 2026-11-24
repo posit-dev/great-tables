@@ -481,7 +481,11 @@ def test_spec_display_from_opt_interactive():
 def row_padding(html: str, selector: str) -> str:
     rule = re.search(rf"{selector} {{[^}}]*?padding-top: ([^;]+);", html)
     assert rule is not None
-    return rule.group(1)
+    # The rule reads `var(--gt-<option>, <default>)`: the declaration of that property, if any
+    var = re.fullmatch(r"var\((--[\w-]+), ([^)]+)\)", rule.group(1))
+    assert var is not None
+    declared = re.search(rf"{var.group(1)}: ([^;]+);", html)
+    return declared.group(1) if declared else var.group(2)
 
 
 def test_render_compact_halves_row_padding():
@@ -557,6 +561,28 @@ def test_render_height_marks_the_element():
     )
     scroll = render_gti_html(gt.opt_interactive(height="min(60vh, 600px)"), runtime="none")
     assert scroll.startswith('<gt-table data-gti-scroll style="--gt-i-height: min(60vh, 600px)">\n')
+
+
+def gt_table_tag(html: str) -> str:
+    return html[html.index("<gt-table") : html.index(">", html.index("<gt-table"))]
+
+
+def test_theme_accent_is_set_on_gt_table():
+    from great_tables import Theme
+
+    gt = GT(pd.DataFrame({"x": [1, 2]})).opt_theme(Theme(accent="#FF0000")).opt_interactive()
+    assert "--gt-i-accent: #FF0000" in gt_table_tag(gt.as_raw_html())
+
+    tall = gt.tab_options(ihtml_height="300px")
+    tag = gt_table_tag(tall.as_raw_html())
+    assert tag.count(" style=") == 1
+    assert "--gt-i-height: 300px" in tag and "--gt-i-accent: #FF0000" in tag
+    assert "data-gti-scroll" in tag
+
+
+def test_no_accent_without_theme():
+    gt = GT(pd.DataFrame({"x": [1, 2]})).opt_interactive()
+    assert "--gt-i-accent" not in gt_table_tag(gt.as_raw_html())
 
 
 # ranks ----

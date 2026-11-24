@@ -11,6 +11,18 @@ When readers need more than `~~GT.opt_interactive()` gives them (see
 with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
 ```{python}
+#| include: false
+# (On this page, the tables scroll sideways in a narrow container, as if made with
+# `i_responsive("scroll")`, rather than being stacked as cards on a phone: the cards are shown
+# once, under "Narrow containers", where they're explained)
+import functools
+
+import great_tables.gti
+
+great_tables.gti.Settings = functools.partial(great_tables.gti.Settings, responsive="scroll")
+```
+
+```{python}
 import polars as pl
 from great_tables import GTI, data
 
@@ -53,6 +65,11 @@ A `GTI` table is the table GT made, with a few parts added around it. Here they 
 table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
 ![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open" cells="Make|Model|HP|MSRP/Ferrari|F12|731|$320k/Ford|GT|647|$447k" cell-trick="export" intro='[["say", "Filter me, sort me, export me!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 From the top:
 

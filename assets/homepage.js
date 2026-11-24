@@ -1,5 +1,5 @@
 // The homepage's showcase: the stepper that builds a table one layer at a time, the tour of an
-// interactive table (with the code for the reader's view of it), and the copy buttons
+// interactive table (with the code for the reader's view of it), the copy buttons, and Tabblen
 (() => {
   "use strict";
 
@@ -425,10 +425,38 @@
     }
   }
 
+  // Tabblen (assets/tabblen.js), by the steps for getting started: when he's first seen, he waves,
+  // says hello and spells out his library's name in his cells, and he hops when the install
+  // command is copied
+  function setUpTabblen(start) {
+    const tabblen = start.querySelector("gt-tabblen");
+    if (!tabblen || !window.customElements) return;
+    customElements.whenDefined("gt-tabblen").then(async () => {
+      start.addEventListener("click", (event) => {
+        if (!event.target.closest(".gd-code-copy, .code-copy-button, [data-copy]")) return;
+        tabblen.say("Copied! Off you go.", 1800);
+        tabblen.play([["mood", "grin"], ["hop", 2], ["mood", "happy"]]);
+      });
+      await tabblen.seen();
+      tabblen.say("Hi! I'm Tabblen.", 2200);
+      await tabblen.play([
+        ["wave", 2],
+        ["arms", "open"],
+        ["write", "GREAT TABLES"],
+        ["mood", "grin"],
+        ["hop", 1],
+        ["wait", 400],
+        ["mood", "happy"],
+        ["arms", "rest"],
+      ]);
+    });
+  }
+
   function init() {
     setUpCopyButtons();
     document.querySelectorAll(".gth-stepper").forEach(setUpStepper);
     document.querySelectorAll(".gth-tour").forEach(setUpTour);
+    document.querySelectorAll(".gth-start").forEach(setUpTabblen);
   }
 
   if (document.readyState === "loading") {

@@ -10,6 +10,11 @@ than limiting you to a simple list of column names, the package supports a flexi
 that includes positional indexing, pattern-matching functions, and Polars selectors. This page
 demonstrates each of these approaches.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="up rest" cells="date|temp|time|wind/May 1|18.9|00:20|6.7/May 1|17.8|00:50|7.2" cell-trick="columns" intro='[["say", "Which columns should I pick?"]]'></gt-tabblen>
+```
+
 As your table-building code grows, hardcoding column names becomes fragile. If a column is renamed
 or added upstream, your table code breaks silently or raises an error. Pattern-based selection
 (whether through functions or Polars selectors) makes your code more resilient to upstream changes

@@ -607,6 +607,25 @@ body.quarto-dark.gd-homepage :is(#quarto-content, main.content, #quarto-document
   font-size: 1.15rem;
 }
 
+/* Getting started, with Tabblen (assets/tabblen.js) beside it */
+
+.gth-start {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.gth-start-text > :last-child {
+  margin-bottom: 0;
+}
+
+.gth-tabblen {
+  width: 230px;
+  margin-right: 1.5rem;
+}
+
 /* Dark mode */
 
 body.quarto-dark.gd-homepage,
@@ -662,5 +681,15 @@ html.quarto-dark .gth-card:hover {
 
   .gth-new-count {
     display: none;
+  }
+
+  .gth-start {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gth-tabblen {
+    justify-self: center;
+    width: 150px;
+    margin-right: 0;
   }
 }

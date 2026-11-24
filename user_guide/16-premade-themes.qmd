@@ -11,6 +11,11 @@ convenience methods that bundle these options into simple, one-line calls. This 
 how to use premade themes and the various convenience methods available for quick table
 customization.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="point rest" cells='[[{"text": "open", "fill": "#0076BA", "color": "#fff"}, {"text": "high", "fill": "#0076BA", "color": "#fff"}, {"text": "low", "fill": "#0076BA", "color": "#fff"}, {"text": "close", "fill": "#0076BA", "color": "#fff"}], ["2077", "2077", "2062", "2063"], [{"text": "2061", "fill": "#0076BA2e"}, {"text": "2063", "fill": "#0076BA2e"}, {"text": "2044", "fill": "#0076BA2e"}, {"text": "2044", "fill": "#0076BA2e"}]]' cell-trick="stylize" intro='[["say", "Six premade themes, one line each!"], ["mood", "wink"], ["wait", 500], ["mood", "grin"]]'></gt-tabblen>
+```
+
 Premade themes are ideal for getting a polished look quickly, especially during exploratory work or
 when building dashboards where visual consistency matters more than pixel-perfect custom styling.
 For publication or brand-specific tables, you may want to start with a premade theme and then
@@ -182,3 +187,5 @@ The `opt_*()` methods give you quick access to common styling patterns without n
 the specific `~~GT.tab_options()` argument names. For full control, you can always drop down to
 `~~GT.tab_options()` directly, but these convenience methods cover the most frequent customization
 needs in just a single method call.
+
+For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).

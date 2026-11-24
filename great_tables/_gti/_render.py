@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Literal
 from .._gt_data import ColInfoTypeEnum, Options
 from .._render_checks import RenderWarning
 from .._text import _process_text
+from .._theme import color_scheme_style_attr
 from .._utils_render_html import _get_header_ids
 from ._details import details_template, leave_out_details_column, render_details
 from ._query import js_trim, label_text
@@ -174,8 +175,16 @@ def gti_element(
         table_html += f"<style>\n{stack_css(data, spec, table_html)}</style>\n"
     # (Each row's details, inert until the reader opens them, and not shown without the runtime)
     table_html += "".join(details_template(row, html) for row, html in details.items())
+    # (The controls are outside the table's own element, so the theme's accent is set here)
+    style = []
     if height is not None:
-        attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
+        attrs += " data-gti-scroll"
+        style.append(f"--gt-i-height: {escape(height)}")
+    accent = data._theme.tokens.get("accent") if data._theme is not None else None
+    if accent is not None:
+        style.append(f"--gt-i-accent: {escape(accent)}")
+    if style:
+        attrs += f' style="{"; ".join(style)}"'
     return (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
@@ -183,10 +192,12 @@ def gti_element(
     )
 
 
-def page_html(fragment: str) -> str:
-    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body."""
+def page_html(fragment: str, data: GTData) -> str:
+    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body, and the
+    table's color scheme declared."""
     return (
-        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n'
+        f'<!DOCTYPE html>\n<html lang="en"{color_scheme_style_attr(data)}>\n<head>\n'
+        '<meta charset="utf-8"/>\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
         f"</head>\n<body>\n{fragment}</body>\n</html>\n"
     )

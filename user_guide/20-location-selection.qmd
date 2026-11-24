@@ -10,6 +10,11 @@ location specifier identifies a region of the table (such as the header, body, s
 many of them also support targeting specific columns or rows within that region. This page provides
 a comprehensive overview of all available location specifiers and how to use them effectively.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="point rest" cells="|temp|hum|wind/GIB|18.9|68%|6.7/MAD|24.1|41%|3.2" cell-trick="locations" intro='[["say", "Which part should we style?"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Understanding the `loc` module is valuable because it provides a single, consistent vocabulary for
 addressing any part of the table. Rather than learning separate APIs for styling the header vs. the
 body vs. the stub, you use the same `loc.*()` specifiers everywhere. This means that once you know

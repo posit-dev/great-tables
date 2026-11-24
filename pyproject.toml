@@ -58,6 +58,7 @@ all = [
     "great_tables[solara]",
     "great_tables[marimo]",
     "great_tables[gridwell]",
+    "great_tables[brand]",
     "great_tables[dev]",
 ]
 
@@ -99,9 +100,15 @@ marimo = [
     "narwhals",
 ]
 
+# For `Theme.from_brand()`
+brand = [
+    "brand_yml>=0.2.0",
+]
+
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
+    "sqlglot!=30.34.0",  # writes Ibis's `IS NOT NULL` as `IS (NOT NULL)`, which DuckDB can't parse
     "pandas",
     "plotnine",
     "numpy>=1.22.4",
@@ -117,6 +124,7 @@ dev = [
 dev-no-pandas = [
     "ruff==0.17.4",
     "anywidget",
+    "brand_yml>=0.2.0",
     "duckdb",
     "jupyter",
     "gt-extras>=0.0.7",

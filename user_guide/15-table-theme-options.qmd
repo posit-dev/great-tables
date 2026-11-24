@@ -11,6 +11,11 @@ colors, fonts, borders, and spacing for entire table parts in a single call. Thi
 structure of option names, demonstrates how to style different parts, and shows how to build a
 complete table theme.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="rest up" cells="mfr|model|hp|msrp/Ford|GT|647|447k/Audi|R8|610|169k" cell-trick="options" intro='[["say", "So many options to set!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 A useful way to think about the relationship between `~~GT.tab_options()` and `~~GT.tab_style()`:
 use `tab_options()` when you want to set broad defaults for entire table parts (e.g., "all column
 labels should have this background color"). Use `tab_style()` when you need to target specific
@@ -250,3 +255,5 @@ consistent, polished appearance.
 When the option you need doesn't exist, `~~GT.opt_css()` lets you add your own CSS rules to the
 table. Give the table an ID with `~~GT.with_id()` (or `GT(id=...)`) so that the rules can be scoped
 to it without affecting other tables on the page.
+
+To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).

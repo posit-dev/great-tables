@@ -11,6 +11,11 @@ parts of the table, like the header, specific spanner labels, the footer, and mo
 different location specifiers, you can apply fill colors, borders, and text styles to virtually any
 region of your table.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open" cells="row|num|char|fctr/row_1|0.11|apricot|one/row_2|2.22|banana|two" cell-trick="paint" intro='[["say", "Header to footer, it can all be styled!"], ["mood", "grin"], ["wait", 400], ["mood", "wink"]]'></gt-tabblen>
+```
+
 Whole-table styling is valuable when you want to establish visual hierarchy or brand consistency
 across the table. For example, giving the header a distinct background separates it from the data,
 while styling the stub helps readers distinguish identifiers from values. This kind of structural

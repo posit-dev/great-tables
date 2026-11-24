@@ -10,6 +10,11 @@ context without cluttering the main display. **Great Tables** manages footnotes 
 are automatically sequenced, placed consistently, and matched to their explanatory text in the table
 footer.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" cells="temp|hum|wind|hPa/18.9|68%|6.7|1015/18.9|73%|7.2|1015" cell-trick="footnote" intro='[["look", 0, 1], ["tap", 2], ["say", "Psst… the details are down here."], ["mood", "wink"]]'></gt-tabblen>
+```
+
 Footnotes are best suited for cell-specific or column-specific context that would clutter the main
 display if placed inline. For information that applies to the entire table, a source note in the
 footer (via `tab_source_note()`) is usually a better fit because it avoids attaching a mark to any

@@ -54,13 +54,13 @@ def test_scss_default_generated(snapshot):
     # we're using this just to generate the css
     gt = GT(pd.DataFrame({"x": [1, 2, 3]}))
 
-    assert snapshot == compile_scss(gt, id="abc", compress=False)
+    assert snapshot == compile_scss(gt, id="abc", compress=False, variables=False)
 
 
 def test_compile_scss_no_font_names():
     """compile_scss works when table_font_names is None (font_family_attr becomes empty string)."""
     gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(table_font_names=None)
-    css = compile_scss(gt, id="abc", compress=False)
+    css = compile_scss(gt, id="abc", compress=False, variables=False)
     # Should produce CSS without a font-family rule
     assert isinstance(css, str)
     assert len(css) > 0
@@ -81,7 +81,9 @@ def _css_rule(css: str, selector: str) -> str:
 def test_column_labels_padding_bottom(options: dict, padding_bottom: str):
     # As in gt, the column labels' bottom padding is `column_labels_padding` plus 1px
     gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(**options)
-    rule = _css_rule(compile_scss(gt, id="abc", compress=False), "#abc .gt_col_heading")
+    rule = _css_rule(
+        compile_scss(gt, id="abc", compress=False, variables=False), "#abc .gt_col_heading"
+    )
 
     assert f"padding-bottom: {padding_bottom};" in rule
 
@@ -89,7 +91,7 @@ def test_column_labels_padding_bottom(options: dict, padding_bottom: str):
 @pytest.mark.parametrize("background, color", [("#FFFFFF", "#333333"), ("#000000", "#FFFFFF")])
 def test_footnotes_font_color(background: str, color: str):
     gt = GT(pd.DataFrame({"x": [1, 2]})).tab_options(table_background_color=background)
-    css = compile_scss(gt, id="abc", compress=False)
+    css = compile_scss(gt, id="abc", compress=False, variables=False)
 
     assert "font-color(" not in css
     assert f"color: {color};" in _css_rule(css, "#abc .gt_footnotes")
@@ -100,7 +102,7 @@ def test_footnotes_font_color(background: str, color: str):
 def test_element_rules_scoped_to_table(compress: bool, id: "str | None", scope: str):
     # Rules for bare elements mustn't reach other tables on the page
     gt = GT(pd.DataFrame({"x": [1, 2]}))
-    css = compile_scss(gt, id=id, compress=compress)
+    css = compile_scss(gt, id=id, compress=compress, variables=False)
     selectors = [
         s.strip()
         for rule in re.findall(r"(?:^|\})\s*([^{}@]+?)\s*\{", css, flags=re.MULTILINE)

@@ -19,6 +19,11 @@ nanoplots include the following:
 - you can annotate plots with a reference line and/or area
 - plenty of easy-to-use options for composing your plots
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up up" cells="12|18|9|24/30|22|35|28/5|14|11|20" cell-trick="nanoplot" intro='[["say", "Tiny plots, right in the cells!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Nanoplots shine when you want to show trends or distributions alongside other tabular data, so the
 reader can correlate a visual pattern with the row's other values at a glance. They are not a
 replacement for full-sized charts but should instead be used when the visual is supplementary

@@ -10,6 +10,11 @@ column names are often abbreviated, inconsistently cased, or full of underscores
 Presentation-ready column labels are one of the highest-impact improvements you can make to a table,
 and they require very little effort.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="up rest" cells="date|time|temp|wind/May 1|00:20|18.9|6.7/May 1|00:50|18.9|7.2" cell-trick="spanner" intro='[["mood", "thinking"], ["wait", 800], ["mood", "happy"], ["say", "A good label goes a long way."]]'></gt-tabblen>
+```
+
 Beyond simple labels, **Great Tables** lets you group related columns together under spanner labels,
 reorder columns for clarity, and customize label text with rich formatting. This page walks through
 each of these capabilities.

@@ -13,6 +13,11 @@ selection, and can set them. A page an app makes itself (with Flask, Django or F
 the table as it works in the browser, with its runtime included once, however many tables the page
 has.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="point rest" cells="mfr|model|hp|mpg_c/BMW|i8|357|28/Ford|GT|647|11" cell-trick="select" intro='[["say", "Python can see what you pick!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 ## Using the table from Python
 
 In a notebook, `~~GTI.i_as_widget()` shows the table as a widget (with

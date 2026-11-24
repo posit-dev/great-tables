@@ -11,6 +11,11 @@ appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="point rest" cells="0.1111|2.222|33.33|444.4/5550|65100|777000|8880000/1325.81|13.255|0.4400|17.95" cell-trick="format" intro='[["mood", "thinking"], ["wait", 900], ["say", "These numbers need some formatting!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
 when large numbers lack digit separators, readers slow down as they try to parse each value.
 Consistent formatting reduces cognitive load and makes comparisons across rows immediate. The same

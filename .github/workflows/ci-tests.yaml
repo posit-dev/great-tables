@@ -79,11 +79,32 @@ jobs:
         run: |
           make test-no-pandas
 
+  test-polars-old:
+    # Polars isn't a dependency, so users (and Pyodide, which ships 1.33.1) can have an old one
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: "3.12"
+          activate-environment: true
+      - name: Install dependencies
+        run: |
+          uv pip install -e '.[all]' 'polars==1.33.1'
+      - name: pytest unit tests
+        # (Polars 1.33.1 reverses the order of an all-null column's rows in a descending sort,
+        # even with `maintain_order=True`, so the generated code can order such rows differently)
+        run: |
+          pytest --no-cov --deselect "tests/test_gti_query.py::test_random_query_code[polars-polars]"
+
   release-pypi:
     name: "Release to pypi"
     runs-on: ubuntu-latest
     environment: deploy-pypi
-    needs: [build, test-pandas]
+    needs: [build, test-pandas, test-polars-old]
     if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v5

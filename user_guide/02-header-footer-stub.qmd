@@ -10,6 +10,11 @@ title and optional subtitle, the **Table Footer** anchors it with source notes o
 information, and the **Stub** provides a left-hand column of row identifiers. All three are added
 using the `tab_*()` family of methods.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="point rest" cells='[[{"text": "CN", "color": "#f900c3"}, "1.26", "1.34", "1.41"], [{"text": "IN", "color": "#f900c3"}, "1.06", "1.24", "1.42"], [{"text": "US", "color": "#f900c3"}, "0.28", "0.31", "0.33"]]' cell-trick="frame" intro='[["say", "Header, stub, footer: I’ve got all three!"], ["mood", "grin"], ["hop", 1], ["mood", "wink"]]'></gt-tabblen>
+```
+
 A well-structured frame transforms a bare data grid into something self-explanatory. Without these
 components, your reader has to look outside the table for context: what is this data? Where did it
 come from? What do the rows represent? Adding a header, footer, and stub answers those questions
