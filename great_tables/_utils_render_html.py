@@ -133,14 +133,19 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
 
 
 def _wrap_rotated_column_label(text: str, info: ColInfo) -> HTML | Tag:
+    """Wrap a label from `cols_label_rotate()` in a span that rotates it.
+
+    The `writing-mode` is set on the span and not on the `<th>`, since Safari doesn't size a
+    rotated cell for its text and so wraps short labels. The `height: max-content` keeps the label
+    on one line: Safari shows only the first line of a rotated label that wraps.
+    """
     if info.column_label_rotate is None:
         return HTML(text)
 
-    dir, _align, _padding = info.column_label_rotate
     return Tag(
         "span",
         HTML(text),
-        style=f"writing-mode: {dir}; vertical-align: middle; height: max-content;",
+        style=f"writing-mode: {info.column_label_rotate}; height: max-content;",
     )
 
 
