@@ -5,10 +5,12 @@ import polars as pl
 import pyarrow as pa
 import pyarrow.compute as pc
 import pytest
-from great_tables import GT
+
+from great_tables import GT, html, loc, md, style
 from great_tables._boxhead import _align_to_char
-from great_tables.gt import _get_column_labels
 from great_tables._helpers import UnitStr
+from great_tables._utils_render_html import create_columns_component_h
+from great_tables.gt import _get_column_labels
 from tests.utils import DataFrameConstructor, assert_rendered_columns
 
 
@@ -62,13 +64,98 @@ def test_cols_label_rotate_dir_fails():
     assert "Dir must be one of" in exc_info.value.args[0]
 
 
+def test_cols_label_rotate_unknown_column_fails():
+    df = pd.DataFrame({"x": [], "y": []})
+
+    with pytest.raises(ValueError, match="The table has no column named 'zz'"):
+        GT(df).cols_label_rotate(columns=["x", "zz"])
+
+
 def test_cols_label_rotate_align_default():
     df = pd.DataFrame({"x": [], "y": []})
     gt1 = GT(df).cols_label_rotate(columns=["x"], dir="sideways-rl")
     gt2 = GT(df).cols_label_rotate(columns=["y"], dir="sideways-lr")
 
-    assert "text-align: right;" in gt1._styles[0].styles[0].rule
-    assert "text-align: left;" in gt2._styles[0].styles[0].rule
+    # The label is placed at the bottom whichever way the text runs
+    assert "vertical-align: bottom;" in gt1._styles[0].styles[0].rule
+    assert "vertical-align: bottom;" in gt2._styles[0].styles[0].rule
+
+
+@pytest.mark.parametrize(
+    "dir, align, valign",
+    [
+        ("sideways-lr", "left", "bottom"),
+        ("sideways-lr", "center", "middle"),
+        ("sideways-lr", "right", "top"),
+        ("sideways-rl", "left", "top"),
+        ("sideways-rl", "center", "middle"),
+        ("sideways-rl", "right", "bottom"),
+        ("vertical-lr", "left", "top"),
+        ("vertical-lr", "center", "middle"),
+        ("vertical-lr", "right", "bottom"),
+    ],
+)
+def test_cols_label_rotate_align_places_label_along_the_cell(dir: str, align: str, valign: str):
+    df = pd.DataFrame({"x": [], "y": []})
+    gt = GT(df).cols_label_rotate(columns="x", dir=dir, align=align)
+
+    # `align` sets where the label sits along the cell's height; across the column it's centered
+    assert gt._styles[0].styles[0].rule == (
+        f"text-align: center; vertical-align: {valign}; padding: 8px 0px;"
+    )
+    assert [info.column_label_rotate for info in gt._boxhead] == [dir, None]
+
+
+@pytest.mark.parametrize("dir", ["sideways-lr", "sideways-rl", "vertical-lr"])
+def test_cols_label_rotate_renders_label_span(dir):
+    df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
+    gt = (
+        GT(df, id="test")
+        .cols_label(x="Plain", y=html("<strong>HTML</strong>"), z=md("*Markdown*"))
+        .cols_label_rotate(columns=["x", "y", "z"], dir=dir, align="center", padding=12)
+        .tab_style(
+            style=style.text(weight="bold"),
+            locations=loc.column_labels(columns=["x", "y"]),
+        )
+    )
+
+    rendered = str(create_columns_component_h(gt._build_data("html")))
+
+    for colname in ("x", "y", "z"):
+        assert f'scope="col" id="test-{colname}"' in rendered
+
+    assert "text-align: center; vertical-align: middle; padding: 12px 0px;" in rendered
+    assert "font-weight: bold;" in rendered
+    assert f'<span style="writing-mode: {dir}; height: max-content;">' in rendered
+    assert rendered.count('<span style="writing-mode:') == 3
+    assert re.search(r"<th[^>]*writing-mode", rendered) is None
+
+    assert "<strong>HTML</strong>" in rendered
+    assert "<em>Markdown</em>" in rendered
+
+
+def test_cols_label_rotate_renders_label_span_with_spanners():
+    df = pd.DataFrame({"w": [1], "x": [2], "y": [3], "z": [4]})
+    gt = (
+        GT(df, id="test")
+        .tab_spanner("Spanner", columns=["x", "y"])
+        .tab_footnote("A note", locations=loc.column_labels("y"))
+        .cols_label_rotate(columns=["w", "y"])
+    )
+
+    rendered = str(create_columns_component_h(gt._build_data("html")))
+    spans = re.findall(r'<span style="writing-mode: sideways-lr; height: max-content;">', rendered)
+
+    # `w` is in the spanner row (with a rowspan of 2) and `y` is under the spanner; `x` and `z`
+    # aren't rotated
+    assert len(spans) == 2
+    assert re.search(r'id="test-w">\s*<span style="writing-mode', rendered)
+    assert re.search(
+        r'id="test-y">\s*<span style="writing-mode: [^"]*">y<span class="gt_footnote_marks"',
+        rendered,
+    )
+    assert re.search(r'id="test-x">x</th>', rendered)
+    assert re.search(r'id="test-z">z</th>', rendered)
 
 
 def test_final_columns_stub_move_to_beginning():

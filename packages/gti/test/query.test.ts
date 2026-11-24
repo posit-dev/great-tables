@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { ColumnFilter, type FilterClause, type FilterQuery } from "../src/filter";
 import {
+  aliasOf,
   formatQuery,
+  labelAliases,
   parseQuery,
   type QuerySyntaxError,
+  queryAliases,
   queryContext,
   queryProblem,
   readQuery,
+  typedLabel,
 } from "../src/query";
 
 const error = (text: string) => {
@@ -457,6 +461,79 @@ describe("queryProblem", () => {
     expect(problem('`z z` contains " "')).toBeNull();
     expect(problem('x >= 1 or `z z` contains ""')).toEqual({ clause: 1, message: '`z z` needs text to look for, in an "or" or a "not"' });
     expect(problem('not `z z` contains " "')).toEqual({ clause: 0, message: '`z z` needs text to look for, in an "or" or a "not"' });
+  });
+});
+
+describe("columns' labels", () => {
+  it("are typed as their letters and digits, folded, joined by underscores", () => {
+    expect(typedLabel("MPG City")).toBe("mpg_city");
+    expect(typedLabel("Temp. (°C)")).toBe("temp_c");
+    expect(typedLabel("País de origen")).toBe("pais_de_origen");
+    expect(typedLabel("already_a_name")).toBe("already_a_name");
+    // (Not one with none, whose first is a digit, or that's the query's own word)
+    expect(typedLabel("%")).toBe("");
+    expect(typedLabel("2nd place")).toBe("");
+    expect(typedLabel("Top")).toBe("");
+    expect(typedLabel("Or")).toBe("");
+  });
+
+  it("are their columns, as they are and typed, unless they're a name or shared", () => {
+    const aliases = labelAliases([
+      ["ctry", "Country"],
+      ["mpg_c", "MPG City"],
+      ["a", "Total"],
+      ["b", "Total"],
+      ["c", "a"],
+      ["d", "d"],
+    ]);
+    expect(Object.fromEntries(aliases)).toEqual({ Country: "ctry", country: "ctry", "MPG City": "mpg_c", mpg_city: "mpg_c" });
+    expect(aliasOf("Country", aliases)).toBe("ctry");
+    expect(aliasOf("COUNTRY", aliases)).toBe("ctry");
+    expect(aliasOf("mpg city", aliases)).toBe("mpg_c");
+    expect(aliasOf("Total", aliases)).toBeUndefined();
+    expect(aliasOf("a", aliases)).toBeUndefined();
+  });
+
+  it("are found in a query's text, ending within a span, but not as they're typed in backticks", () => {
+    const names = new Set(["ctry", "mpg_c", "country"]);
+    const aliases = labelAliases([
+      ["ctry", "Country"],
+      ["mpg_c", "MPG City"],
+    ]);
+    expect(queryAliases('mpg_city >= 20 and `MPG City` <= 30 and ctry in ("a")', names, aliases)).toEqual([
+      { from: 0, to: 8, label: "mpg_city", column: "mpg_c" },
+      { from: 19, to: 29, label: "MPG City", column: "mpg_c" },
+    ]);
+    // (A name is that column)
+    expect(queryAliases('country in ("a")', names, aliases)).toEqual([]);
+    expect(queryAliases("mpg_city >= 20 and `MPG City", names, aliases)).toEqual([
+      { from: 0, to: 8, label: "mpg_city", column: "mpg_c" },
+    ]);
+    expect(queryAliases("mpg_city >= 20 and `MPG City` <= 30", names, aliases, 9)).toEqual([
+      { from: 19, to: 29, label: "MPG City", column: "mpg_c" },
+    ]);
+    expect(queryAliases("mpg_city >= 20", names, aliases, 0, 7)).toEqual([]);
+  });
+
+  it("say which columns a label is, as a problem", () => {
+    const filters = [
+      new ColumnFilter({ column: "a", type: "range", values: [1, 2] }, 1, []),
+      new ColumnFilter({ column: "b", type: "range", values: [1, 2] }, 2, []),
+      new ColumnFilter({ column: "c c", type: "range", values: [1, 2] }, 3, []),
+    ];
+    const labels = new Map([
+      ["a", "Total"],
+      ["b", "Total"],
+      ["c c", "Grand total"],
+    ]);
+    const problem = (text: string) => queryProblem(filters, parseQuery(text), labels);
+    expect(problem("total >= 1")).toEqual({ clause: 0, message: "total is the label of a and b: use one of their names" });
+    expect(problem("`Grand Total` >= 1")).toEqual({
+      clause: 0,
+      message: "`Grand Total` is the label of `c c`: use its name",
+    });
+    expect(problem("sum >= 1")).toEqual({ clause: 0, message: "sum isn't a column with a filter" });
+    expect(queryProblem(filters, parseQuery("total >= 1"))).toEqual({ clause: 0, message: "total isn't a column with a filter" });
   });
 });
 

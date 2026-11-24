@@ -891,7 +891,7 @@ def test_tab_spanner_selector_without_matches_is_noop():
 
 def test_cols_move_after_not_found_raises():
     df = pd.DataFrame({"x": [1], "y": [2], "z": [3]})
-    with pytest.raises(ValueError, match="not found"):
+    with pytest.raises(ValueError, match="no column named 'nonexistent'"):
         GT(df).cols_move(columns=["x"], after="nonexistent")
 
 

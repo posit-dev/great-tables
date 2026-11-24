@@ -789,9 +789,12 @@ def test_a_stub_indent_is_the_level_times_the_indent_length():
     gt = make_indented_gt()
     ir = ir_of(gt)
     assert stub_indents(ir) == [("a", None), ("b", "15px"), ("c", None), ("d", "25px")]
-    # As Great Tables indents them (its classes, `calc(5px * 3)` in its CSS); not summary rows
+    # As Great Tables indents them (its classes, `calc(<indent length> * 3)` in its CSS); not summary rows
     assert html_indents(gt) == [("a", 0), ("b", 3), ("Sum", 0), ("c", 0), ("d", 5), ("Sum", 0)]
-    assert "gt_indent_3 { text-indent: calc(5px * 3); }" in gt.as_raw_html()
+    assert (
+        "gt_indent_3 { text-indent: calc(var(--gt-stub-indent-length, 5px) * 3); }"
+        in gt.as_raw_html()
+    )
     summaries = [c for g in ir["table"]["tbody"] for r in g["summary_rows"] for c in r["cells"]]
     assert not any("indent" in defs_of(ir, c["style_id"]) for c in summaries)
     # Body cells aren't indented
@@ -1342,6 +1345,10 @@ class _Cells(HTMLParser):
             self.cell[3].append(("^" + data.strip()) if self.in_mark else data.strip())
 
 
+# The colors that Great Tables adds to cells for dark mode, which are not part of the IR's styles
+DARK_MODE_COLOR = re.compile(r" ?color: (?:light-dark\([^;]*\)|var\(--_gt-text-(?:dark|light)\));")
+
+
 def drawn(gt: GT) -> dict[str, Any]:
     """What Great Tables draws, by part: each cell's text and marks, with its style attribute
     read as the IR's style definitions."""
@@ -1349,7 +1356,7 @@ def drawn(gt: GT) -> dict[str, Any]:
     parser.feed(gt.as_raw_html())
     parts: dict[str, Any] = {"head": {}, "body": [], "footnotes": [], "source_notes": []}
     for section, classes, css, tokens in parser.cells:
-        entry = (tokens, _css_style(css))
+        entry = (tokens, _css_style(DARK_MODE_COLOR.sub("", css)))
         if "gt_title" in classes:
             parts["title"] = entry
         elif "gt_subtitle" in classes:

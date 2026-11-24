@@ -340,6 +340,8 @@ def test_i_responsive_stack_css_is_the_tables():
     assert STACK_ROOT not in css and STACK_WIDTH not in css
     assert "@container gt-i-stack (width < 500px)" in css
     assert "gt-table:not([data-gti-stack-off]) #t table{" in css
+    # (The width queried is that of GT's `<div>`, which `container_width=` sets)
+    assert "gt-table[data-gti-stack]:not([data-gti-stack-off]) #t{container:gt-i-stack" in css
 
 
 def test_i_responsive_stack_css_has_a_random_id():
@@ -371,9 +373,9 @@ def test_i_responsive_stack_css_labels_the_cells():
         .i_responsive("stack")
     )
     css = stack_style(gti)
-    assert '#t [headers~="t-num"]{--gt-i-label:"Top · Sp · num"}' in css
-    assert '#t th[id="t-num"]{--gt-i-spanner:"Top · Sp · "}' in css
-    assert '#t [headers~="t-char"]{--gt-i-label:"Top · Sp · Text"}' in css
+    assert '#t [headers~="t-num"]{--gt-i-label:"Top – Sp – num"}' in css
+    assert '#t th[id="t-num"]{--gt-i-spanner:"Top – Sp – "}' in css
+    assert '#t [headers~="t-char"]{--gt-i-label:"Top – Sp – Text"}' in css
     assert '#t [headers~="t-fctr"]{--gt-i-label:"fctr"}' in css
     # (No spanner, no prefix for its chip)
     assert 'th[id="t-fctr"]' not in css
@@ -382,6 +384,22 @@ def test_i_responsive_stack_css_labels_the_cells():
 def test_i_responsive_stack_css_labels_are_text():
     gti = GTI(DF, id="t").cols_label(y=html("<b>Big</b> &amp; y")).i_responsive("stack")
     assert '#t [headers~="t-y"]{--gt-i-label:"Big & y"}' in stack_style(gti)
+
+
+@pytest.mark.parametrize(
+    "label, text",
+    [
+        (md("Density (/km<sup>2</sup>)"), "Density (/km²)"),
+        (html("CO<SUB>2</SUB> &amp; H<sub>2</sub>O"), "CO₂ & H₂O"),
+        ("Speed ({{m s^-1}})", "Speed (m s⁻¹)"),
+        ("{{x_i^2}}", "xᵢ²"),
+        # (Not every character has a form, so they're left as they are)
+        (html("x<sup>a b</sup>, x<sub>y</sub>"), "xa b, xy"),
+    ],
+)
+def test_i_responsive_stack_css_labels_scripts_as_characters(label: object, text: str):
+    gti = GTI(DF, id="t").cols_label(y=label).i_responsive("stack")
+    assert f'#t [headers~="t-y"]{{--gt-i-label:"{text}"}}' in stack_style(gti)
 
 
 @pytest.mark.parametrize(
@@ -482,9 +500,16 @@ def test_row_start_must_be_0_or_1(value):
 
 def test_i_display_compact_halves_row_padding():
     def row_padding(gt: GT) -> str:
-        rule = re.search(r"#t \.gt_row {[^}]*?padding-top: ([^;]+);", gt.as_raw_html())
+        html = gt.as_raw_html()
+        rule = re.search(r"#t \.gt_row {[^}]*?padding-top: ([^;]+);", html)
         assert rule is not None
-        return rule.group(1)
+        # The rule reads `var(--gt-data-row-padding, <default>)`: the declaration of it, if any
+        declared = re.search(r"--gt-data-row-padding: ([^;]+);", html)
+        return (
+            declared.group(1)
+            if declared
+            else re.fullmatch(r"var\([^,]+, ([^)]+)\)", rule.group(1))[1]
+        )
 
     assert row_padding(GTI(DF, id="t")) == "8px"
     assert row_padding(GTI(DF, id="t").i_display(compact=True)) == "4px"
@@ -1574,7 +1599,7 @@ def test_i_export_code_has_what_the_code_needs():
     assert list(code["columns"]) == ["id", "y"]
     assert code["columns"]["id"]["dtype"] == "string"
     assert code["columns"]["id"]["literals"] == ['"r0"', '"r1"', '"r2"', '"r3"', '"r4"', '"r5"']
-    assert code["columns"]["y"] == {"dtype": "other", "nullable": False, "literals": None}
+    assert code["columns"]["y"] == {"dtype": "integer", "nullable": False, "literals": None}
 
 
 def test_i_export_code_is_for_the_data_library():
@@ -1613,7 +1638,7 @@ def test_i_export_code_has_python_values():
     gti = GTI(frame).i_cols_filter(columns="n", type="range")
     gti = gti.i_cols_filter(columns=["d", "t", "s", "b", "td"], type="facet").i_export("code")
     columns = spec_of(gti)["export"]["code"]["columns"]
-    assert columns["n"] == {"dtype": "other", "nullable": True, "literals": None}
+    assert columns["n"] == {"dtype": "integer", "nullable": True, "literals": None}
     assert columns["d"]["literals"] == ["datetime.date(2020, 1, 2)"]
     assert columns["t"]["literals"] == [
         "datetime.datetime(2020, 1, 2, 3, 4)",
@@ -1815,6 +1840,20 @@ def test_i_row_details_keeps_room_for_the_bar():
     assert gt_table_tag(gti.i_row_details(lambda row: "x")) == "<gt-table data-gti-bar>"
     # (Not without any rows with details)
     assert gt_table_tag(gti.i_row_details(lambda row: None)) == "<gt-table>"
+
+
+def test_i_row_details_do_not_inherit_the_tables_variables():
+    inner = GT(pd.DataFrame({"a": [1]}), id="inner")
+    styled = GTI(DF).opt_table_font(font="monospace", add=False).cols_hide(columns="y")
+    found = templates_of(styled.i_row_details(lambda row: inner))
+    assert all(
+        html.startswith('<div style="display: contents;') and "--gt-font-family: initial" in html
+        for html in found.values()
+    )
+    # (Public variables only: not the table's private ones)
+    assert "--_gt-" not in found[0].split(">", 1)[0]
+    plain = templates_of(GTI(DF).i_row_details(lambda row: inner))
+    assert all("display: contents" not in html for html in plain.values())
 
 
 def test_i_row_details_templates_follow_the_table():
@@ -2113,6 +2152,30 @@ def test_from_gt_needs_a_gt():
         GTI.from_gt(DF)  # type: ignore[arg-type]
 
 
+def test_from_gt_with_the_explorer_preset():
+    gt = GT(FILTER_DF, rowname_col="id")
+    explorer = GTI.from_gt(gt, preset="explorer")
+    assert explorer._interactive == GTI(FILTER_DF, rowname_col="id", preset="explorer")._interactive
+    assert GTI.from_gt(gt, preset="report")._interactive == GTI.from_gt(gt)._interactive
+    # (Set over what `opt_interactive()` set, as its `i_` methods set them)
+    made = GTI.from_gt(gt.opt_interactive(use_highlight=True, selection_mode="multiple"))
+    settings = GTI.from_gt(
+        gt.opt_interactive(use_highlight=True, selection_mode="multiple"), preset="explorer"
+    )._interactive
+    assert settings == made._explorer()._interactive
+    assert settings.selection == "multiple" and settings.bar and settings.compact
+    # (And over a `GTI` table's)
+    gti = GTI(FILTER_DF).i_pagination(page_size=25)
+    assert GTI.from_gt(gti, preset="explorer")._interactive == gti._explorer()._interactive
+    assert GTI.from_gt(gti, preset="explorer")._interactive.page_size == 25
+
+
+@pytest.mark.parametrize("preset", ["explore", None])
+def test_from_gt_preset_must_be_known(preset):
+    with pytest.raises(ValueError, match='`preset=` must be "report" or "explorer"'):
+        GTI.from_gt(GT(DF), preset=preset)
+
+
 # output ----
 
 
@@ -2125,7 +2188,9 @@ def test_as_raw_html_is_interactive():
 
 def test_as_raw_html_make_page():
     html = GTI(DF).as_raw_html(make_page=True)
-    assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n')
+    assert html.startswith(
+        '<!DOCTYPE html>\n<html lang="en" style="color-scheme: light dark">\n<head>\n'
+    )
     assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
     assert "<body>\n<gt-table data-gti-bar data-gti-stack>\n" in html
     assert html.endswith("</body>\n</html>\n")
@@ -2154,6 +2219,17 @@ def test_write_raw_html(tmp_path):
         encoding="utf-8"
     )
     assert "<gt-table" not in (tmp_path / "gt.html").read_text(encoding="utf-8")
+
+
+def test_write_raw_html_runtime(tmp_path):
+    # (Without the runtime, for a page that has it once, as `as_raw_html()` has it)
+    for name, table in [("gti", GTI(DF, id="t")), ("gt", GT(DF, id="t").opt_interactive())]:
+        table.write_raw_html(tmp_path / f"{name}.html", runtime="none")
+        table.write_raw_html(tmp_path / f"{name}-inline.html")
+        text = (tmp_path / f"{name}.html").read_text(encoding="utf-8")
+        assert text == table.as_raw_html(runtime="none")
+        assert "<gt-table" in text and "<script>" not in text
+        assert "<script>" in (tmp_path / f"{name}-inline.html").read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("method", ["save", "gtsave", "as_latex"])

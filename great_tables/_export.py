@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING, Literal, TypeAlias
 
 from ._helpers import random_id
 from ._scss import compile_scss
+from ._theme import pin_mode
 from ._utils import _try_import
 from ._utils_render_latex import _render_as_latex
 
@@ -167,11 +168,14 @@ def as_raw_html(
     Parameters
     ----------
     inline_css
-        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes.
-        This is essential for email clients, which often strip out `<style>` blocks but preserve
-        inline styles. It doesn't apply to an interactive table (one made with
+        If `True`, all CSS styles are inlined into the HTML elements as `style` attributes, with
+        literal values for the table's mode (`"auto"` gives the light table). Use it for email and
+        for older renderers: the default `<style>` block is written with CSS custom properties,
+        which email clients such as Gmail and Outlook and old engines such as wkhtmltopdf don't
+        support, so they draw the table unstyled. It doesn't apply to an interactive table (one made with
         [`opt_interactive()`](`great_tables.GT.opt_interactive`)), which needs its `<style>` block
-        and its script.
+        and its script: it's ignored, with a warning (for a table in an email, use
+        `opt_interactive(active=False)`).
     make_page
         If `True`, the table will be wrapped in a complete HTML page with proper `<html>`, `<head>`,
         and `<body>` tags. This is useful when you want to display the table in a web browser or
@@ -261,14 +265,24 @@ def as_raw_html(
     if self._options.ihtml_active.value:
         from ._gti import page_html, render_gti_html
 
+        if inline_css:
+            warnings.warn(
+                "An interactive table (from `opt_interactive()`) can't have its CSS inlined, so "
+                "`inline_css=True` is ignored: its HTML needs a <style> block and a script, which "
+                "email clients don't run. For a table in an email, use "
+                "`opt_interactive(active=False)`.",
+                stacklevel=2,
+            )
+
         fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
-        return page_html(fragment) if make_page else fragment
+        return page_html(fragment, self) if make_page else fragment
 
     built_table = self._build_data(context="html")
 
     table_html = built_table._render_as_html(
         make_page=make_page,
         all_important=all_important,
+        variables=not inline_css,
     )
 
     if inline_css:
@@ -285,7 +299,9 @@ def as_raw_html(
             id = random_id() if table_id is None else table_id
 
             # Compile the SCSS as CSS
-            table_css = compile_scss(self, id=id, compress=False, all_important=all_important)
+            table_css = compile_scss(
+                self, id=id, compress=False, all_important=all_important, variables=False
+            )
 
             return inline_fragment(html=table_html, css=table_css)
 
@@ -518,7 +534,7 @@ def save(  # pragma: no cover
 
     # Get the HTML content from the displayed output
     # Prepend utf-8 charset so the Chrome webdriver renders unicode correctly
-    html_content = "<meta charset='utf-8'>" + as_raw_html(self)
+    html_content = "<meta charset='utf-8'>" + as_raw_html(pin_mode(self))
 
     wdriver = _get_web_driver(web_driver)
 
@@ -649,6 +665,7 @@ def write_raw_html(
     newline: str | None = None,
     make_page: bool = False,
     all_important: bool = False,
+    runtime: Literal["inline", "none"] = "inline",
 ) -> None:
     """
     Write the table to an HTML file.
@@ -670,6 +687,18 @@ def write_raw_html(
         largely supported in email clients over using CSS in a `<style>` block.
     newline
         The newline character to use when writing the file. Defaults to `os.linesep`.
+    make_page
+        If `True`, the table is wrapped in a complete HTML page, with `<html>`, `<head>` and
+        `<body>` tags.
+    all_important
+        If `True`, all CSS declarations are marked with `!important`.
+    runtime
+        Whether an interactive table's HTML is followed by the runtime that makes it interactive,
+        its JavaScript and CSS: `"inline"` (the default) or `"none"`, for a page that has the
+        runtime once, however many tables it shows (see
+        [`runtime_tags()`](`great_tables.web.runtime_tags`)). A static table has no runtime, so
+        this doesn't change it.
+
     Returns
     -------
     None
@@ -679,7 +708,7 @@ def write_raw_html(
 
     # (As the table renders itself: a `GTI` table renders as interactive HTML)
     html_content = gt.as_raw_html(
-        inline_css=inline_css, make_page=make_page, all_important=all_important
+        inline_css=inline_css, make_page=make_page, all_important=all_important, runtime=runtime
     )
 
     newline = newline if newline is not None else os.linesep
@@ -835,7 +864,7 @@ def gtsave(
     import nokap
 
     # Get the HTML content of the table
-    html_content = as_raw_html(self)
+    html_content = as_raw_html(pin_mode(self))
 
     # Use nokap.from_html() to render the table to an image or PDF
     nokap.from_html(

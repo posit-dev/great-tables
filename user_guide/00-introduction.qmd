@@ -13,6 +13,11 @@ straight from the web:
 
 ![A collage of display tables taken from web pages, articles, and magazines.](../assets/tables_from_the_web.png)
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cell-trick="ripple" intro='[["wave", 2], ["say", "Hi! I’m Tabblen."], ["mood", "grin"], ["say", "Let’s make some tables!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Display tables exist because raw DataFrames are working artifacts, not communication tools. When you
 share findings with colleagues, stakeholders, or readers, the formatting of your table directly
 affects how well your message lands. Good structure and styling reduce cognitive load, draw

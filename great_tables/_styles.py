@@ -338,6 +338,12 @@ class CellStyleFill(CellStyle):
 
 
 @dataclass
+class _FillWithoutContrastText(CellStyleFill):
+    """A fill from `data_color(autocolor_text=False)`: the table gives a cell with it no contrast
+    text color, as it does other fills without a text color."""
+
+
+@dataclass
 class CellStyleBorders(CellStyle):
     """A style specification for cell borders.
 

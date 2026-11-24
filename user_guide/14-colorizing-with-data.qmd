@@ -11,6 +11,11 @@ missing data when there's lots of data. Tables can have this sort of treatment a
 formatted numeric values are shown along with some color treatment coinciding with the underlying
 data values.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="love" arms="open" cells="12|45|78|30/56|91|23|67/34|83|15|60" cell-trick="colorize" intro='[["say", "Let’s color these by value!"], ["cellTrick", 1, 1]]'></gt-tabblen>
+```
+
 Data coloring works best when you want readers to spot patterns across many values at once (e.g.,
 trends over time, outliers, relative magnitude, etc.). For tables with just a few rows, explicit
 formatting or footnotes may be more effective since the reader can take in all the values directly.

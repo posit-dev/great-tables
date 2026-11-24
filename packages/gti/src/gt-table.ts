@@ -29,18 +29,22 @@ import {
 import { columnRuns, orderRuns } from "./order";
 import { pageCount, pageItems, pageSizeChoices } from "./paging";
 import { type Box, type Part, type Place, placeParts, union } from "./parts";
-import { Profile, timeOf } from "./profile";
+import { type Bar as Bin, type Counts, Profile, timeOf } from "./profile";
 import {
+  aliasOf,
   formatColumn,
   formatQuery,
   formatValue,
+  labelAliases,
   NEGATED,
   parseQuery,
   type QueryContext,
   type QuerySyntaxError,
+  queryAliases,
   queryContext,
   queryProblem,
   readQuery,
+  typedLabel,
 } from "./query";
 import { CellText, fold, searchTerms } from "./search";
 import {
@@ -110,8 +114,11 @@ export const VIEW_EVENT = "gt-table-view";
 export const SEARCH_HIGHLIGHT = "gt-i-search";
 
 /**
- * The prefix of the names of the query box's highlights, for styling them: `-keyword`, `-string`,
- * `-number` (and `true`, `false` and `null`) and `-error` (the place of what's wrong).
+ * The prefix of the names of the query box's highlights, for styling them: `-column`, `-keyword`
+ * (an op), `-logic` (`and`, `or` and `not`), `-string` (and a pattern), `-number` (and a date
+ * bound), `-literal` (`true`, `false` and `null`), `-punct` (and a pattern's flags), `-error` (the
+ * place of what's wrong, or a column that isn't one with a filter) and `-fixed` (a column's label
+ * just put right, as its name).
  */
 const QUERY_HIGHLIGHT = "gt-i-query";
 
@@ -412,12 +419,24 @@ interface QueryBox {
   /** Its highlights' ranges, in the mirror's text, and the place of what's wrong in the text. */
   ranges: [Highlight, Range][];
   mark: [number, number] | null;
+  /** Where the text being put in starts (before it's in), and while the runtime puts text in. */
+  before: number | null;
+  fixing: boolean;
+  /** The columns' names just put in place of their labels, shown for a moment. */
+  fixed: [number, number][];
+  fixedTimer: ReturnType<typeof setTimeout> | null;
+  /** The layer over the table with the names of the columns with filters, by their labels. */
+  names: HTMLElement | null;
+  namesFrame: number;
+  namesDrawn: string;
 }
 
 interface Suggestion {
   text: string;
   /** What else it is (a column's label, a value as the query has it), if it says more. */
   detail: string;
+  /** Which of those is the query's text (in a monospaced font): `text`, unless it's `detail`. */
+  code?: "detail";
   insert: string;
   /** How far before the end of what's inserted the caret goes. */
   back: number;
@@ -550,6 +569,10 @@ interface Exported {
 // How long the mouse is on a bar's button before its tooltip shows, and how far from it that is
 const TIP_DELAY_MS = 500;
 const TIP_GAP = 6;
+// How long a profile's bar's tooltip stays after a touch lifts, and the most ms between a double
+// tap's taps
+const TIP_HOLD_MS = 1500;
+const TAP_MS = 350;
 
 // The bar is as wide as the table, but no narrower than this (where there's room)
 const BAR_MIN_WIDTH = 300;
@@ -611,10 +634,17 @@ function labelText(cell: Element): string {
 const labelCells = (table: HTMLTableElement) =>
   new Map(Array.from(table.querySelectorAll<HTMLTableCellElement>(":scope > thead th[id]"), (th) => [th.id, th]));
 
+// A copy of a cell's value (a row's column dropped) given the cell's own fill and text color
+function paintCopy(cell: HTMLElement, value: HTMLElement): void {
+  value.style.backgroundColor = cell.style.backgroundColor;
+  value.style.color = cell.style.color;
+  value.classList.toggle("gt-i-tinted", cell.style.backgroundColor !== "");
+}
+
 // A copy of a cell, without its footnote marks (or the button showing a row's dropped columns)
 function withoutMarks(cell: Element): Element {
   const clone = cell.cloneNode(true) as Element;
-  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile, .gt-i-dtype")) {
+  for (const mark of clone.querySelectorAll(".gt_footnote_marks, .gt-i-expand, .gt-i-profile, .gt-i-dtype, .gt-i-about")) {
     mark.remove();
   }
   return clone;
@@ -705,6 +735,33 @@ function backdropColor(el: Element): string {
     }
   }
   return "Canvas";
+}
+
+// What fills what's behind a table, to be done again as the page's colours change: as a theme's
+// toggle changes a class or attribute of `<html>` or `<body>`, as the system's light or dark
+// scheme changes, or as a background behind a table finishes a transition
+const refills = new Set<(behind?: EventTarget | null) => void>();
+let watchingColors = false;
+
+function watchColors(doc: Document, refill: (behind?: EventTarget | null) => void): void {
+  refills.add(refill);
+  if (watchingColors) {
+    return;
+  }
+  watchingColors = true;
+  const all = (behind?: EventTarget | null) => refills.forEach((each) => each(behind));
+  const observer = new MutationObserver(() => all());
+  for (const node of [doc.documentElement, doc.body]) {
+    if (node !== null) {
+      observer.observe(node, { attributeFilter: ["class", "style", "data-theme", "data-bs-theme"] });
+    }
+  }
+  doc.addEventListener("transitionend", (event) => {
+    if (event.propertyName === "background-color") {
+      all(event.target);
+    }
+  });
+  doc.defaultView?.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => all());
 }
 
 // An element of a class, with attributes
@@ -818,6 +875,20 @@ function profileSlot(th: HTMLTableCellElement): HTMLElement {
   );
 }
 
+// The narrowest a column can be made: 2em of its label
+const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComputedStyle(th).fontSize) || 16));
+
+// A column label's description (its dtype, and its profile's summary), which a screen reader
+// reads on the label itself, not with each of its cells: hidden, as its name is the label's text
+function aboutSlot(th: HTMLTableCellElement): HTMLElement {
+  let about = th.querySelector<HTMLElement>(":scope > .gt-i-about");
+  if (about === null) {
+    about = th.insertBefore(element(th.ownerDocument, "span", "gt-i-about", { id: `gt-i-about-${++infoCount}`, hidden: "" }), th.firstChild);
+    th.setAttribute("aria-describedby", about.id);
+  }
+  return about;
+}
+
 // A profile's share of rows, as a percentage ("<1%" for a few)
 const percent = (part: number, whole: number) => (part / whole < 0.005 ? "<1%" : `${Math.round((part / whole) * 100)}%`);
 
@@ -846,14 +917,31 @@ function edgeFormat(profile: Profile, lang: string | undefined): (x: number) => 
   return (x) => format.format(x);
 }
 
+// A share of a profile's rows ("3 rows (12%)")
+const share = (count: number, rows: number) => (count === 0 ? plural(0) : `${plural(count)} (${percent(count, rows)})`);
+
+// The bar of a plot of `n` across `box` nearest to `x`, a pointer's
+const barAt = (box: DOMRect, n: number, x: number) => Math.max(0, Math.min(n - 1, Math.floor(((x - box.left) / box.width) * n) || 0));
+
 /** A column's profile under its label (see `addProfiles()`). */
 interface ProfileView {
   profile: Profile;
-  /** Its bars, their tooltips and what they name, and its caption. */
+  /** The column's label and its text, the profile, its plot and bars, what they name, and its caption. */
+  th: HTMLTableCellElement;
+  label: string;
+  root: HTMLElement;
+  svg: SVGSVGElement;
   rects: SVGRectElement[];
-  titles: SVGTitleElement[];
   names: string[];
   caption: HTMLElement;
+  /** The rows kept, as last counted (`null` before), and each bar's height, from 0 to 1. */
+  counts: Counts | null;
+  heights: number[];
+  /** How a histogram's bins' edges are written (see `edgeFormat()`). */
+  edge: (x: number) => string;
+  /** The label's description, and the column's dtype, which it starts with (if it has one). */
+  about: HTMLElement;
+  dtype: string;
   /** A value's text, by its rank, as its cells show it. */
   valueName: (rank: number) => string;
 }
@@ -918,6 +1006,19 @@ export class GtTable extends HTMLElement {
   /** The columns' profiles, and the rows (`matched`) they last counted (`undefined` before). */
   private profileViews: ProfileView[] = [];
   private profiled: Uint8Array | null | undefined = undefined;
+  /**
+   * A profile's bar's tooltip and the line from it to the bar (made when one's first shown), whose
+   * profile and bar they're of, and the timer hiding them; and the larger view of a profile (see
+   * `openProfile()`), whose profile it's of (`null` while closed), and its bar read out (-1 for none).
+   */
+  private profileTip: HTMLElement | null = null;
+  private profileLead: HTMLElement | null = null;
+  private tipView: ProfileView | null = null;
+  private tipBar = -1;
+  private tipTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+  private profilePanel: HTMLElement | null = null;
+  private profileOpen: ProfileView | null = null;
+  private profileBar = -1;
   /** The cells colored from the rows kept, and the rows (`matched`) they were last colored for. */
   private colorings: Coloring[] = [];
   private colored: Uint8Array | null | undefined = undefined;
@@ -949,6 +1050,26 @@ export class GtTable extends HTMLElement {
   private view = { start: 0, end: 0, total: 0 };
   private pager: Pager | null = null;
   private bar: Bar | null = null;
+  /**
+   * Fill the sticky bar, the sticky header and rows, and the pinned cells with what's behind them
+   * again (as the page's colours change, or the background of `behind`, if it's behind the table).
+   */
+  private refill = (behind?: EventTarget | null): void => {
+    if (behind != null && !(behind instanceof Node && behind.contains(this))) {
+      return;
+    }
+    const root = this.bar?.root;
+    if (root?.hasAttribute("data-gti-stick")) {
+      root.style.backgroundColor = backdropColor(this);
+    }
+    // (The header first, which is behind its pinned cells)
+    if (this.scrollsDown) {
+      this.fillRows([...this.stuckTop, ...this.stuckBottom]);
+    }
+    for (const cell of this.table?.querySelectorAll<HTMLTableCellElement>(":scope > * > tr > .gt-i-pinned") ?? []) {
+      this.fill(cell);
+    }
+  };
   /** The element's handler for `/`, which opens the bar's search. */
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
   /** The element's handler for the keys that page. */
@@ -1147,6 +1268,11 @@ export class GtTable extends HTMLElement {
   private expanders = new Map<HTMLTableRowElement, HTMLButtonElement>();
   private opened = new Set<HTMLTableRowElement>();
   private details = new Map<HTMLTableRowElement, HTMLTableRowElement>();
+  /**
+   * The copies of the columns dropped, in a row under a row open: each one's column, its text,
+   * the cell it copies and the copy.
+   */
+  private droppedCells = new WeakMap<HTMLTableRowElement, [number, CellText, HTMLElement, HTMLElement][]>();
   /** The data rows' details, by row: each one's `<template>`. */
   private contents = new Map<HTMLTableRowElement, HTMLTemplateElement>();
   /** Whether a row's button (or a tap on a row with details) opens it yet. */
@@ -1530,7 +1656,7 @@ export class GtTable extends HTMLElement {
       (event) => {
         const target = (event.target as Element).closest("button, input[type=checkbox], input[type=radio], label");
         const control = target instanceof HTMLLabelElement ? target.control : target;
-        if (control instanceof HTMLElement && this.ownerDocument.activeElement !== control) {
+        if (control instanceof HTMLElement && this.focusedElement() !== control) {
           control.focus({ preventScroll: true });
         }
       },
@@ -1544,10 +1670,12 @@ export class GtTable extends HTMLElement {
   }
 
   connectedCallback(): void {
+    watchColors(this.ownerDocument, this.refill);
     if (this.table !== null) {
       // Moved: keep the hydrated table (and its view), unless its children were replaced
       if (this.contains(this.table)) {
         this.observeLayout();
+        this.refill();
         if (this.spec?.display.parts === true) {
           this.showParts(true);
         }
@@ -1571,10 +1699,13 @@ export class GtTable extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    refills.delete(this.refill);
     this.leaveLink();
     this.showParts(false);
     this.closePanel(false);
     this.closeFilter(false);
+    this.closeProfile(false);
+    this.hideProfileTip();
     this.stopObserving();
     this.layout?.disconnect();
     this.layout = null;
@@ -1638,8 +1769,8 @@ export class GtTable extends HTMLElement {
   /**
    * The code for the view, as the export panel copies it: Python that filters and sorts the
    * table's data (as `df`) as the filters and sort do (not the search, which is of the text
-   * shown), then drops the columns hidden, for Polars, pandas or Narwhals (by default, the data's
-   * library), with its imports.
+   * shown), and the grouping (sorting by its column first), then drops the columns hidden, for
+   * Polars, pandas or Narwhals (by default, the data's library), with its imports.
    * It's what Great Tables' `query_code()` writes. Empty until hydrated, and for a table without
    * "code" among its export formats (whose spec has what the code needs).
    *
@@ -1651,7 +1782,9 @@ export class GtTable extends HTMLElement {
     if (backend !== undefined && !CODE_BACKENDS.includes(backend)) {
       throw new RangeError(`\`backend\` must be "polars", "pandas" or "narwhals", not ${JSON.stringify(backend)}`);
     }
-    return spec == null || code == null ? "" : viewCode(this.filter, this.sortKeys, this.hiddenIds, spec.filters ?? [], code, backend ?? code.backend);
+    return spec == null || code == null
+      ? ""
+      : viewCode(this.filter, this.sortKeys, this.hiddenIds, spec.filters ?? [], code, backend ?? code.backend, this.groupColumn);
   }
 
   /**
@@ -1766,6 +1899,7 @@ export class GtTable extends HTMLElement {
     if (spec.controls.resizing) {
       this.addResizers(table, spec);
     }
+    this.nameLabels(table);
     this.addGuide(table);
     this.addFootHandle(spec);
     this.hideable = spec.columns.flatMap((column) =>
@@ -2432,6 +2566,7 @@ export class GtTable extends HTMLElement {
     const doc = this.ownerDocument;
     // (Kept in view, as the cells across the table)
     const body = element(doc, "div", "gt-i-details-body gt-i-inview");
+    const copies: [number, CellText, HTMLElement, HTMLElement][] = [];
     if (this.dropped.length > 0) {
       const labels = labelCells(this.table as HTMLTableElement);
       const cells = this.dataCells(tr);
@@ -2445,6 +2580,9 @@ export class GtTable extends HTMLElement {
         if (id != null && cell !== undefined && this.dropped.includes(id)) {
           const value = element(doc, "dd", "");
           value.append(...Array.from(withoutMarks(cell).childNodes));
+          // (To highlight the search's matches in, and color, as the cell)
+          copies.push([c, new CellText(value), cell as HTMLElement, value]);
+          paintCopy(cell as HTMLElement, value);
           const term = element(doc, "dt", "");
           term.textContent = this.columnTitle(id, labels);
           list.append(term, value);
@@ -2459,6 +2597,7 @@ export class GtTable extends HTMLElement {
       body.append(content);
     }
     const details = element(doc, "tr", "gt-i-details");
+    this.droppedCells.set(details, copies);
     const td = element(doc, "td", "gt_row gt_left gt-i-inview-cell");
     td.append(body);
     details.append(td);
@@ -2553,18 +2692,19 @@ export class GtTable extends HTMLElement {
 
   /**
    * Whether the table's container is as wide as what's in it (as a table's cell, a float or an
-   * inline block is), which it can't be stacked in: as the container its width is queried in, the
-   * table would have no width of its own. Measured as that container, by whether a width for
-   * what's in it widens it; `null` while it isn't shown.
+   * inline block is), which it can't be stacked in: as the container its width is queried in (GT's
+   * `<div>`, without a width of its own), the table would have no width of its own. Measured as
+   * that container, by whether a width for what's in it widens it; `null` while it isn't shown.
    */
   private fitsContent(): boolean | null {
-    if (this.getClientRects().length === 0) {
+    const box = this.table?.parentElement ?? this;
+    if (box.getClientRects().length === 0) {
       return null;
     }
-    const width = this.offsetWidth;
-    this.style.setProperty("contain-intrinsic-inline-size", "9999px");
-    const fits = this.offsetWidth > width;
-    this.style.removeProperty("contain-intrinsic-inline-size");
+    const width = box.offsetWidth;
+    box.style.setProperty("contain-intrinsic-inline-size", "9999px");
+    const fits = box.offsetWidth > width;
+    box.style.removeProperty("contain-intrinsic-inline-size");
     return fits;
   }
 
@@ -2672,11 +2812,6 @@ export class GtTable extends HTMLElement {
     this.frameScroller(table);
 
     // Rows scroll under the sticky ones, which need a background to hide them
-    const backdrop = backdropColor(table);
-    const thead = table.tHead;
-    if (thead !== null && isTransparent(getComputedStyle(thead).backgroundColor)) {
-      thead.style.backgroundColor = backdrop;
-    }
     this.fillRows([...this.stuckTop, ...this.stuckBottom]);
 
     this.addShade("top");
@@ -2725,14 +2860,15 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Sticky rows' cells without a background are filled with what's behind the table
+  // The sticky header, and sticky rows' cells, without a background are filled with what's behind
+  // the table (and marked, to be filled again as the page's colours change)
   private fillRows(trs: HTMLTableRowElement[]): void {
-    const backdrop = backdropColor(this.table as HTMLTableElement);
-    for (const tr of trs) {
-      for (const cell of Array.from(tr.cells)) {
-        if (isTransparent(getComputedStyle(cell).backgroundColor)) {
-          cell.style.backgroundColor = backdrop;
-        }
+    const table = this.table as HTMLTableElement;
+    const backdrop = backdropColor(table);
+    for (const el of [table.tHead, ...trs.flatMap((tr) => Array.from(tr.cells))]) {
+      if (el !== null && (el.classList.contains("gt-i-backed") || isTransparent(getComputedStyle(el).backgroundColor))) {
+        el.style.backgroundColor = backdrop;
+        el.classList.add("gt-i-backed");
       }
     }
   }
@@ -2793,7 +2929,7 @@ export class GtTable extends HTMLElement {
       const padding = getComputedStyle(scroller);
       const padTop = parseFloat(padding.paddingTop) || 0;
       const padBottom = parseFloat(padding.paddingBottom) || 0;
-      const head = table.tHead?.getBoundingClientRect().height ?? 0;
+      const head = table.tHead === null ? 0 : this.rect(table.tHead).height;
       let foot = 0;
       for (let i = this.stuckBottom.length - 1; i >= 0; i--) {
         const tr = this.stuckBottom[i] as HTMLTableRowElement;
@@ -2803,9 +2939,9 @@ export class GtTable extends HTMLElement {
         for (const cell of Array.from(tr.cells)) {
           setStyle(cell, "bottom", `${foot - padBottom}px`);
         }
-        foot += tr.getBoundingClientRect().height;
+        foot += this.rect(tr).height;
       }
-      const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => tr.getBoundingClientRect().height));
+      const heading = Math.max(0, ...this.stuckTop.filter((tr) => !tr.hidden).map((tr) => this.rect(tr).height));
       this.foot = foot;
       setStyle(this, "--gt-i-pad", `${padTop}px`);
       setStyle(this, "--gt-i-head", `${head - padTop}px`);
@@ -2878,7 +3014,7 @@ export class GtTable extends HTMLElement {
         const at = before[c];
         for (const p of starts) {
           if (at !== undefined && p.c0 === c && before[p.c1 + 1] === undefined) {
-            before[p.c1 + 1] = at + p.cell.getBoundingClientRect().width;
+            before[p.c1 + 1] = at + this.rect(p.cell).width;
           }
         }
       }
@@ -2888,7 +3024,7 @@ export class GtTable extends HTMLElement {
         const at = after[c];
         for (const p of endings) {
           if (at !== undefined && p.c1 === c - 1 && after[p.c0] === undefined) {
-            after[p.c0] = at + p.cell.getBoundingClientRect().width;
+            after[p.c0] = at + this.rect(p.cell).width;
           }
         }
       }
@@ -3025,9 +3161,9 @@ export class GtTable extends HTMLElement {
     if (scroller === null || table === null) {
       return;
     }
-    const outer = this.getBoundingClientRect();
-    const port = scroller.getBoundingClientRect();
-    const box = table.getBoundingClientRect();
+    const outer = this.rect(this);
+    const port = this.rect(scroller);
+    const box = this.rect(table);
     const top = port.top + scroller.clientTop;
     const bottom = top + scroller.clientHeight;
     const start = port.left + scroller.clientLeft;
@@ -3039,14 +3175,14 @@ export class GtTable extends HTMLElement {
       const left = Math.max(box.left, start);
       const right = Math.min(box.right, end);
       // (Measured, since the column labels stick only once the container's padding scrolls by)
-      const head = table.tHead === null ? top : table.tHead.getBoundingClientRect().bottom;
+      const head = table.tHead === null ? top : this.rect(table.tHead).bottom;
       let under = Math.max(0, head - top);
       for (const tr of this.stuckTop) {
         const cell = tr.hidden ? undefined : tr.cells[0];
         if (cell === undefined) {
           continue;
         }
-        const rect = cell.getBoundingClientRect();
+        const rect = this.rect(cell);
         if (rect.top > head + 0.5) {
           // (Headings further down aren't stuck)
           break;
@@ -3068,11 +3204,11 @@ export class GtTable extends HTMLElement {
     }
     const wide = this.hasAttribute("data-gti-wide");
     const labels = table.querySelector(":scope > thead > tr.gt_col_headings") ?? this.tbody;
-    const y0 = Math.max(top, labels?.getBoundingClientRect().top ?? box.top);
-    const y1 = Math.min(bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom);
+    const y0 = Math.max(top, labels == null ? box.top : this.rect(labels).top);
+    const y1 = Math.min(bottom, this.tbody === null ? box.bottom : this.rect(this.tbody).bottom);
     const rtl = this.isRtl();
-    const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
-    const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
+    const edge = this.edgeCell?.isConnected ? this.rect(this.edgeCell) : null;
+    const endEdge = this.endEdge?.isConnected ? this.rect(this.endEdge) : null;
     const scrolled = Math.abs(scroller.scrollLeft);
     const place = (shade: HTMLElement, at: number, shown: boolean) => {
       setStyle(shade, "top", y(y0));
@@ -3579,6 +3715,18 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // A label (or the stubhead) with controls or a resize handle in it is named by its text alone: a
+  // screen reader reads its name with each of its cells, which would otherwise take in its
+  // controls' names ("num Sort by num Filter num")
+  private nameLabels(table: HTMLTableElement): void {
+    for (const th of table.querySelectorAll<HTMLTableCellElement>(":scope > thead th")) {
+      const label = labelText(th);
+      if (label !== "" && th.querySelector(".gt-i-head-controls, .gt-i-resizer, [role=button]") !== null) {
+        th.setAttribute("aria-label", label);
+      }
+    }
+  }
+
   // Once a column label has controls, every label in the bottom row of labels has their row (empty,
   // if it has none), so that the labels line up over it
   private alignLabels(table: HTMLTableElement): void {
@@ -3595,6 +3743,7 @@ export class GtTable extends HTMLElement {
       if (th !== undefined && typeof dtype === "string") {
         const row = controlsRow(th);
         row.insertBefore(element(this.ownerDocument, "span", "gt-i-dtype"), row.firstChild).textContent = dtype;
+        aboutSlot(th).textContent = dtype;
       }
     }
   }
@@ -3612,8 +3761,10 @@ export class GtTable extends HTMLElement {
   }
 
   // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
-  // other labels in the bottom row, so that they line up. Profiles are hidden from assistive
-  // technology, as they'd be part of the labels' names
+  // other labels in the bottom row, so that they line up. A profile is a button, opening its larger
+  // view (see `openProfile()`) on a double click or tap too; across it, the pointer shows the
+  // tooltip of the bar nearest it (see `showProfileTip()`). Its plot and caption are hidden from
+  // assistive technology, which has their summaries in the labels' descriptions
   private addProfiles(table: HTMLTableElement, spec: Spec): void {
     const cells = labelCells(table);
     const doc = this.ownerDocument;
@@ -3627,12 +3778,20 @@ export class GtTable extends HTMLElement {
         continue;
       }
       const profile = new Profile(profileSpec, ranks);
+      const about = aboutSlot(th);
       const root = profileSlot(th);
+      const label = labelText(th) || profileSpec.column;
       root.classList.add(`gt-i-profile-${profileSpec.plot}`);
+      root.removeAttribute("aria-hidden");
+      root.setAttribute("role", "button");
+      root.setAttribute("aria-label", `Show the profile of ${label}`);
+      root.setAttribute("aria-expanded", "false");
+      root.tabIndex = 0;
       th.classList.add("gt-i-profiled");
       const svg = root.appendChild(doc.createElementNS(SVG_NS, "svg"));
       svg.setAttribute("viewBox", `0 0 ${Math.max(1, profile.bars.length)} 1`);
       svg.setAttribute("preserveAspectRatio", "none");
+      svg.setAttribute("aria-hidden", "true");
       const known = new Map<number, string>();
       const valueName = (rank: number) => {
         let name = known.get(rank);
@@ -3645,23 +3804,30 @@ export class GtTable extends HTMLElement {
         return name;
       };
       const edge = edgeFormat(profile, lang);
-      const view: ProfileView = { profile, rects: [], titles: [], names: [], caption: root, valueName };
+      // (Its description is its dtype so far, from `addDtypes()`)
+      const view: ProfileView = {
+        profile,
+        th,
+        label,
+        root,
+        svg,
+        rects: [],
+        names: [],
+        caption: root,
+        counts: null,
+        heights: [],
+        edge,
+        about,
+        dtype: about.textContent ?? "",
+        valueName,
+      };
       profile.bars.forEach((bar, i) => {
-        const g = svg.appendChild(doc.createElementNS(SVG_NS, "g"));
-        view.titles.push(g.appendChild(doc.createElementNS(SVG_NS, "title")));
-        // (The column the bar is in, which shows its tooltip, then the bar)
-        for (const hit of [true, false]) {
-          const rect = g.appendChild(doc.createElementNS(SVG_NS, "rect"));
-          rect.setAttribute("x", String(hit ? i : i + 0.1));
-          rect.setAttribute("width", hit ? "1" : "0.8");
-          rect.setAttribute("height", hit ? "1" : "0");
-          if (hit) {
-            rect.classList.add("gt-i-profile-hit");
-          } else {
-            rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
-            view.rects.push(rect);
-          }
-        }
+        const rect = svg.appendChild(doc.createElementNS(SVG_NS, "rect"));
+        rect.setAttribute("x", String(i + 0.1));
+        rect.setAttribute("width", "0.8");
+        rect.setAttribute("height", "0");
+        rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
+        view.rects.push(rect);
         view.names.push(
           bar.rank >= 0
             ? valueName(bar.rank)
@@ -3672,7 +3838,40 @@ export class GtTable extends HTMLElement {
                 : `${edge(bar.low)} – ${edge(bar.high)}`,
         );
       });
-      view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text"));
+      const caption = (view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text", { "aria-hidden": "true" })));
+
+      // (Not over the caption, by the mouse, which has the caption's own tooltip; a touch's tooltip
+      // stays a moment after it lifts, from under the finger)
+      const point = (event: PointerEvent) => {
+        if (event.pointerType === "mouse" && caption.contains(event.target as Node)) {
+          this.hideProfileTip();
+        } else {
+          this.showProfileTip(view, barAt(this.rect(svg), view.rects.length, event.clientX / this.zoom()));
+        }
+      };
+      root.addEventListener("pointerdown", point);
+      root.addEventListener("pointermove", point);
+      root.addEventListener("pointerleave", (event) => this.hideProfileTip(event.pointerType === "mouse" ? 0 : TIP_HOLD_MS));
+      root.addEventListener("dblclick", () => this.openProfile(view));
+      // (A double tap, which a browser may not make a double click)
+      let tapped = -Infinity;
+      let tapX = 0;
+      root.addEventListener("pointerup", (event) => {
+        if (event.pointerType !== "mouse") {
+          const twice = event.timeStamp - tapped < TAP_MS && Math.abs(event.clientX - tapX) < 2 * PRESS_SLOP;
+          tapped = twice ? -Infinity : event.timeStamp;
+          tapX = event.clientX;
+          if (twice) {
+            this.openProfile(view);
+          }
+        }
+      });
+      root.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          this.openProfile(view);
+        }
+      });
       this.profileViews.push(view);
     }
     if (this.profileViews.length > 0) {
@@ -3686,31 +3885,294 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.profiled = this.matched;
-    for (const { profile, rects, titles, names, caption, valueName } of this.profileViews) {
-      const counts = profile.count(this.matched);
+    this.hideProfileTip();
+    for (const view of this.profileViews) {
+      const { profile, rects, caption, about, dtype, valueName } = view;
+      const counts = (view.counts = profile.count(this.matched));
       const most = Math.max(1, ...counts.bars);
-      counts.bars.forEach((count, i) => {
+      view.heights = counts.bars.map((count, i) => {
         // (A bar of a few rows is still seen)
         const height = count === 0 ? 0 : Math.max(count / most, 0.06);
         rects[i]?.setAttribute("y", String(1 - height));
         rects[i]?.setAttribute("height", String(height));
-        (titles[i] as SVGTitleElement).textContent = `${names[i]}: ${plural(count)}`;
+        return height;
       });
-      const parts: string[] = [];
-      if (counts.distinct > 0) {
-        parts.push(
-          profile.spec.plot === "top"
-            ? `${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`
-            : counts.low === counts.high
-              ? valueName(counts.low)
-              : `${valueName(counts.low)} – ${valueName(counts.high)}`,
-        );
-      }
-      if (counts.missing > 0) {
-        parts.push(`${percent(counts.missing, counts.rows)} missing`);
-      }
-      caption.textContent = counts.rows === 0 ? "No rows" : parts.join(" · ");
+      // (The values' range, its ends joined by " – " in the caption and " to " in the description)
+      const values =
+        counts.distinct === 0
+          ? []
+          : profile.spec.plot === "top"
+            ? [`${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`]
+            : [...new Set([valueName(counts.low), valueName(counts.high)])];
+      const missing = counts.missing > 0 ? `${percent(counts.missing, counts.rows)} missing` : "";
+      const parts = (joint: string) => (counts.rows === 0 ? ["No rows"] : [values.join(joint), missing]).filter((part) => part !== "");
+      caption.textContent = parts(" – ").join(" · ");
       caption.title = caption.textContent;
+      about.textContent = [dtype, ...parts(" to ")].filter((part) => part !== "").join(", ");
+    }
+    this.drawProfile();
+  }
+
+  /**
+   * Show the tooltip of a profile's bar: what it is, and its rows, over the column's label (or
+   * under it, without room in the element above), as far toward the element's sides as fits, with
+   * a line from it to the top of the bar (or, from under the label, its foot)
+   */
+  private showProfileTip(view: ProfileView, i: number): void {
+    clearTimeout(this.tipTimer);
+    const counts = view.counts;
+    if (counts === null || (this.tipView === view && this.tipBar === i)) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const tip = (this.profileTip ??= element(doc, "div", "gt-i-tip gt-i-profile-tip", { "aria-hidden": "true" }));
+    const lead = (this.profileLead ??= element(doc, "div", "gt-i-profile-lead", { "aria-hidden": "true" }));
+    if (tip.parentNode !== this) {
+      this.append(tip, lead);
+    }
+    this.tipView?.rects[this.tipBar]?.classList.remove("gt-i-profile-on");
+    view.rects[i]?.classList.add("gt-i-profile-on");
+    this.tipView = view;
+    this.tipBar = i;
+    const name = element(doc, "strong", "");
+    name.textContent = view.names[i] as string;
+    tip.replaceChildren(name, element(doc, "br", ""), share(counts.bars[i] as number, counts.rows));
+    tip.hidden = lead.hidden = false;
+    this.listenProfiles(true);
+
+    // (Measured at the element's start, where it has all of the element's width)
+    tip.style.left = "0";
+    const host = this.rect(this);
+    const th = this.rect(view.th);
+    const plot = this.rect(view.svg);
+    const { width, height } = this.rect(tip);
+    const x = plot.left + ((i + 0.5) / view.rects.length) * plot.width;
+    const above = th.top - TIP_GAP - height >= host.top || th.bottom + TIP_GAP + height > host.bottom;
+    const top = above ? th.top - TIP_GAP - height : th.bottom + TIP_GAP;
+    const left = Math.max(host.left, Math.min(x - width / 2, host.right - width));
+    // (The line leaves the tooltip's edge, not its rounded corners)
+    const fromX = Math.max(left + 6, Math.min(x, left + width - 6));
+    const fromY = above ? top + height : top;
+    const dx = x - fromX;
+    const dy = (above ? plot.top + (1 - (view.heights[i] as number)) * plot.height : plot.bottom) - fromY;
+    tip.style.left = `${left - host.left}px`;
+    tip.style.top = `${top - host.top}px`;
+    lead.style.left = `${fromX - host.left}px`;
+    lead.style.top = `${fromY - host.top}px`;
+    lead.style.width = `${Math.hypot(dx, dy)}px`;
+    lead.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+    lead.style.color = getComputedStyle(view.th).color;
+  }
+
+  // Hide the tooltip of a profile's bar (after `delay` ms)
+  private hideProfileTip(delay = 0): void {
+    clearTimeout(this.tipTimer);
+    if (delay > 0) {
+      this.tipTimer = setTimeout(() => this.hideProfileTip(), delay);
+      return;
+    }
+    this.tipView?.rects[this.tipBar]?.classList.remove("gt-i-profile-on");
+    this.tipView = null;
+    this.tipBar = -1;
+    if (this.profileTip !== null && this.profileLead !== null) {
+      this.profileTip.hidden = this.profileLead.hidden = true;
+    }
+    if (this.profileOpen === null) {
+      this.listenProfiles(false);
+    }
+  }
+
+  // While a profile's tooltip or larger view shows: anything scrolling hides the tooltip and moves
+  // the view, as Escape and a press elsewhere hide the tooltip, and a press outside the view closes it
+  private readonly profileEvent = (event: Event) => {
+    const path = event.composedPath();
+    const open = this.profileOpen;
+    if (event.type === "scroll") {
+      this.placeProfile();
+    } else if (event.type === "pointerdown") {
+      if (open !== null && !path.includes(this.profilePanel as HTMLElement) && !path.includes(open.root)) {
+        this.closeProfile(false);
+      }
+      if (this.tipView !== null && path.includes(this.tipView.root)) {
+        return;
+      }
+    } else if ((event as KeyboardEvent).key !== "Escape") {
+      return;
+    }
+    this.hideProfileTip();
+  };
+
+  private listenProfiles(on: boolean): void {
+    for (const type of ["scroll", "keydown", "pointerdown"]) {
+      this.ownerDocument[on ? "addEventListener" : "removeEventListener"](type, this.profileEvent, true);
+    }
+  }
+
+  /**
+   * Open a profile's larger view, under its column's label: the profile's whole caption, and its
+   * plot, with axes (a histogram's, with its bins' edges under it and its counts beside it, its
+   * bars read out as the pointer goes over them or the arrow keys move along them), or "top"'s
+   * bars with their values and counts. It's drawn again as the rows kept change
+   */
+  private openProfile(view: ProfileView): void {
+    this.hideProfileTip();
+    if (this.profileOpen === view) {
+      return;
+    }
+    this.closeProfile(false);
+    this.closeFilter(false);
+    this.closePanel(false);
+    const doc = this.ownerDocument;
+    let panel = this.profilePanel;
+    if (panel === null) {
+      panel = this.profilePanel = element(doc, "div", "gt-i-filter gt-i-profile-panel", { role: "group", id: `gt-i-profile-${++infoCount}` });
+      const head = panel.appendChild(element(doc, "div", "gt-i-filter-head"));
+      head.append(element(doc, "span", "gt-i-filter-title"));
+      const close = head.appendChild(element(doc, "button", "gt-i-info-button", { type: "button" }));
+      close.textContent = "Close";
+      close.addEventListener("click", () => this.closeProfile(true));
+      panel.append(element(doc, "div", "gt-i-profile-body"));
+      // Escape closes it, as Tab does out of either end of it (back to its profile)
+      panel.addEventListener("keydown", (event) => {
+        const stops = panel?.querySelectorAll("button, [tabindex]") ?? [];
+        if (
+          event.key === "Escape" ||
+          (event.key === "Tab" && event.target === stops[event.shiftKey ? 0 : stops.length - 1])
+        ) {
+          // (And don't, say, close a dialog the table is in)
+          event.preventDefault();
+          event.stopPropagation();
+          this.closeProfile(true);
+        }
+      });
+    }
+    // (Over the table, so filled with what's behind it; in the table's font)
+    panel.style.backgroundColor = backdropColor(this);
+    panel.style.fontFamily = familyOf(this.table as HTMLTableElement);
+    panel.setAttribute("aria-label", `Profile of ${view.label}`);
+    (panel.firstChild?.firstChild as HTMLElement).textContent = view.label;
+    panel.hidden = false;
+    this.append(panel);
+    view.root.setAttribute("aria-controls", panel.id);
+    view.root.setAttribute("aria-expanded", "true");
+    this.profileOpen = view;
+    this.profileBar = -1;
+    this.drawProfile();
+    this.placeProfile();
+    this.listenProfiles(true);
+    panel.querySelector("button")?.focus();
+  }
+
+  // Draw the open larger view (see `openProfile()`) from its profile's counts
+  private drawProfile(): void {
+    const view = this.profileOpen;
+    const panel = this.profilePanel;
+    const counts = view?.counts;
+    if (view == null || panel === null || counts == null) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const { profile, names } = view;
+    const n = names.length;
+    const most = Math.max(1, ...counts.bars);
+    const text = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, content: string) => {
+      const el = element(doc, tag, className);
+      el.textContent = content;
+      return el;
+    };
+    const body = element(doc, "div", "gt-i-profile-body");
+    body.append(text("p", "gt-i-profile-sum", counts.rows === 0 ? `${view.caption.textContent}` : `${plural(counts.rows)} · ${view.caption.textContent}`));
+    const focused = panel.querySelector(".gt-i-profile-plot:focus") !== null;
+    if (profile.spec.plot === "top") {
+      const rows = body.appendChild(element(doc, "div", "gt-i-profile-rows"));
+      counts.bars.forEach((count, i) => {
+        const meter = element(doc, "span", "gt-i-profile-meter");
+        meter.appendChild(element(doc, "i", profile.bars[i]?.rank === -1 ? "gt-i-profile-other" : "")).style.width = `${(count / most) * 100}%`;
+        rows.append(text("span", "", names[i] as string), meter, text("span", "", share(count, counts.rows)));
+      });
+    } else if (n > 0) {
+      // Its plot, with the most rows a bin has and 0 beside it, and its ends and middle under it (a
+      // bin's value, for bins of one value, else the edges)
+      const chart = body.appendChild(element(doc, "div", "gt-i-profile-chart"));
+      const yAxis = element(doc, "div", "gt-i-profile-y");
+      yAxis.append(text("span", "", String(most)), text("span", "", "0"));
+      const plot = element(doc, "div", "gt-i-profile-plot", { tabindex: "0", role: "img", "aria-label": `Histogram of ${view.label}` });
+      const bars = counts.bars.map((count) => {
+        const bar = plot.appendChild(element(doc, "i", ""));
+        bar.style.height = count === 0 ? "0" : `max(2px, ${(count / most) * 100}%)`;
+        return bar;
+      });
+      const { bars: bins } = profile;
+      const ends = bins.every((bin) => bin.low === bin.high)
+        ? [n > 1 ? names[0] : "", n % 2 === 1 ? names[(n - 1) / 2] : "", n > 1 ? names[n - 1] : ""]
+        : [view.edge((bins[0] as Bin).low), n % 2 === 0 ? view.edge((bins[n / 2] as Bin).low) : "", view.edge((bins[n - 1] as Bin).high)];
+      const xAxis = element(doc, "div", "gt-i-profile-x");
+      xAxis.append(...ends.map((end) => text("span", "", end as string)));
+      chart.append(yAxis, plot, element(doc, "span", ""), xAxis);
+
+      // (Its bins are a list for assistive technology, which doesn't have the plot nor its readout)
+      const readout = body.appendChild(element(doc, "p", "gt-i-profile-read", { "aria-hidden": "true" }));
+      const list = body.appendChild(element(doc, "ul", "gt-i-hidden"));
+      const bin = (i: number) => `${names[i]}: ${share(counts.bars[i] as number, counts.rows)}`;
+      names.forEach((_, i) => list.append(text("li", "", bin(i))));
+      const read = (i: number) => {
+        this.profileBar = i;
+        bars.forEach((bar, k) => bar.classList.toggle("gt-i-profile-on", k === i));
+        readout.textContent = bin(i);
+      };
+      const point = (event: PointerEvent) => read(barAt(this.rect(plot), n, event.clientX / this.zoom()));
+      plot.addEventListener("pointerdown", point);
+      plot.addEventListener("pointermove", point);
+      plot.addEventListener("keydown", (event) => {
+        const to = ({ ArrowLeft: this.profileBar - 1, ArrowRight: this.profileBar + 1, Home: 0, End: n - 1 } as Record<string, number>)[event.key];
+        if (to !== undefined) {
+          event.preventDefault();
+          read(Math.max(0, Math.min(n - 1, to)));
+        }
+      });
+      if (this.profileBar >= 0) {
+        read(Math.min(this.profileBar, n - 1));
+      }
+    }
+    panel.lastChild?.replaceWith(body);
+    if (focused) {
+      panel.querySelector<HTMLElement>(".gt-i-profile-plot")?.focus();
+    }
+  }
+
+  // The larger view is under its column's label, from the label's inline start (as far as the
+  // element's width allows); it closes once the profile is hidden, as the table is stacked
+  private placeProfile(): void {
+    const panel = this.profilePanel;
+    const view = this.profileOpen;
+    if (panel === null || view === null) {
+      return;
+    }
+    if (this.stacked) {
+      this.closeProfile(false);
+      return;
+    }
+    const host = this.rect(this);
+    const th = this.rect(view.th);
+    const width = panel.offsetWidth;
+    const start = this.isRtl() ? th.right - width : th.left;
+    panel.style.left = `${Math.max(0, Math.min(start - host.left, host.width - width))}px`;
+    panel.style.top = `${th.bottom + 4 - host.top}px`;
+  }
+
+  private closeProfile(focus: boolean): void {
+    const view = this.profileOpen;
+    if (view === null) {
+      return;
+    }
+    this.profileOpen = null;
+    (this.profilePanel as HTMLElement).hidden = true;
+    view.root.setAttribute("aria-expanded", "false");
+    if (this.tipView === null) {
+      this.listenProfiles(false);
+    }
+    if (focus) {
+      view.root.focus();
     }
   }
 
@@ -3751,6 +4213,12 @@ export class GtTable extends HTMLElement {
           }
         }
       });
+    }
+    // (And the copies of the cells dropped, under the rows open)
+    for (const details of this.details.values()) {
+      for (const [, , cell, value] of this.droppedCells.get(details) ?? []) {
+        paintCopy(cell, value);
+      }
     }
   }
 
@@ -3798,7 +4266,7 @@ export class GtTable extends HTMLElement {
     handle.setAttribute("aria-orientation", "vertical");
     handle.setAttribute("aria-label", `Resize ${labelText(th) || `column ${index + 1}`}`);
     const resizer: Resizer = { handle, th, index };
-    this.showWidth(resizer, th.getBoundingClientRect().width);
+    this.showWidth(resizer, this.rect(th).width);
     th.classList.add("gt-i-resizable");
     th.append(handle);
     this.resizers.push(resizer);
@@ -3840,7 +4308,8 @@ export class GtTable extends HTMLElement {
     // (No text selection, and no scrolling by touch)
     event.preventDefault();
     const x = event.clientX;
-    const direction = this.isRtl() ? -1 : 1;
+    // (The pointer's way across, in the table's CSS pixels)
+    const direction = (this.isRtl() ? -1 : 1) / this.zoom();
     let width = start;
     const move = (event: PointerEvent) => {
       width = this.setColumnWidth(resizer, start + (event.clientX - x) * direction);
@@ -3959,7 +4428,7 @@ export class GtTable extends HTMLElement {
       } else if (step === undefined) {
         return;
       } else if (rows) {
-        const shown = this.rowsShown();
+        const shown = this.footRows();
         const size = this.rowsWithin(shown + step);
         if (size !== shown) {
           this.userPageSize(size, "size");
@@ -3981,13 +4450,22 @@ export class GtTable extends HTMLElement {
     return Math.min(this.size ?? Infinity, (this.spec as Spec).nrows);
   }
 
+  // The rows the foot of the page is at: a page's size, as it's padded to it, or the rows shown on
+  // one that isn't (a search's, on the one page of every row)
+  private footRows(): number {
+    return this.pads(this.size) ? this.rowsShown() : Math.max(1, this.view.end - this.view.start);
+  }
+
+  // A page size the foot can go to: one row to every row, or one short of every row while a search
+  // or filter leaves some out (whose one page of every row isn't padded, and shrinks back to them)
   private rowsWithin(size: number): number {
-    return Math.max(1, Math.min(size, (this.spec as Spec).nrows));
+    const { nrows } = this.spec as Spec;
+    return Math.max(1, Math.min(size, this.view.total < nrows ? nrows - 1 : nrows));
   }
 
   // The height of the container the body scrolls in
   private portHeight(): number {
-    return (this.scroller as HTMLElement).getBoundingClientRect().height;
+    return this.rect(this.scroller as HTMLElement).height;
   }
 
   // A height for the body to scroll within (in whole px): from the column labels and the rows stuck
@@ -4000,7 +4478,7 @@ export class GtTable extends HTMLElement {
 
   private leastHeight(): number {
     const scroller = this.scroller as HTMLElement;
-    const head = this.table?.tHead?.getBoundingClientRect().height ?? 0;
+    const head = this.table?.tHead == null ? 0 : this.rect(this.table.tHead).height;
     return head + this.foot + this.oneRow() + scroller.offsetHeight - scroller.clientHeight;
   }
 
@@ -4008,7 +4486,7 @@ export class GtTable extends HTMLElement {
   private oneRow(): number {
     for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
-        return tr.getBoundingClientRect().height || 24;
+        return this.rect(tr).height || 24;
       }
     }
     return 24;
@@ -4053,20 +4531,22 @@ export class GtTable extends HTMLElement {
     event.preventDefault();
     const scrolls = (this.spec as Spec).layout.height !== null;
     const before = scrolls ? this.heightValue : this.size;
-    const start = scrolls ? this.portHeight() : this.rowsShown();
+    const start = scrolls ? this.portHeight() : this.footRows();
     const first = (this.page - 1) * (this.size ?? 0);
     const rows = this.view.end - this.view.start;
     const height = scrolls ? 1 : (rows > 0 ? this.dataRowsHeight() / rows : 0) || this.rowHeight || 24;
     const y = event.clientY;
+    const zoom = this.zoom();
     const move = (event: PointerEvent) => {
-      const dy = event.clientY - y;
+      const dy = (event.clientY - y) / zoom;
       if (scrolls) {
         this.heightValue = this.heightWithin(start + dy);
         this.applyHeight();
         return;
       }
       const size = this.rowsWithin(start + Math.round(dy / height));
-      if (size !== this.size) {
+      // (Not yet, at the rows it starts at, which may not be the page's size)
+      if (size !== this.size && !(size === start && this.size === before)) {
         this.pageSizeValue = size;
         this.pageValue = Math.floor(first / size) + 1;
         this.render();
@@ -4103,7 +4583,7 @@ export class GtTable extends HTMLElement {
     let height = 0;
     for (const tr of (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr")) {
       if (!tr.hidden && typeof this.bodyRows.get(tr) === "number") {
-        height += tr.getBoundingClientRect().height;
+        height += this.rect(tr).height;
       }
     }
     return height;
@@ -4126,10 +4606,10 @@ export class GtTable extends HTMLElement {
       return;
     }
     const grand = this.grandBottom();
-    let { left, right } = table.getBoundingClientRect();
-    let y = grand !== null && !grand.hidden ? grand.getBoundingClientRect().top : tbody.getBoundingClientRect().bottom;
+    let { left, right } = this.rect(table);
+    let y = grand !== null && !grand.hidden ? this.rect(grand).top : this.rect(tbody).bottom;
     if (scroller !== null) {
-      const port = scroller.getBoundingClientRect();
+      const port = this.rect(scroller);
       left = Math.max(left, port.left + scroller.clientLeft);
       right = Math.min(right, left + scroller.clientWidth);
       if (scrolls) {
@@ -4137,7 +4617,7 @@ export class GtTable extends HTMLElement {
         y = port.bottom - (scroller.style.borderBottomColor === "transparent" ? parseFloat(scroller.style.borderBottomWidth) : 0);
       }
     }
-    const outer = this.getBoundingClientRect();
+    const outer = this.rect(this);
     setStyle(handle, "top", `${y - outer.top - this.clientTop}px`);
     setStyle(handle, "left", `${left - outer.left - this.clientLeft}px`);
     setStyle(handle, "width", `${Math.max(0, right - left)}px`);
@@ -4156,11 +4636,11 @@ export class GtTable extends HTMLElement {
   // are shown, moved and hidden), in the same row
   private resizerBefore(th: HTMLTableCellElement): Resizer | null {
     const rtl = this.isRtl();
-    const box = th.getBoundingClientRect();
+    const box = this.rect(th);
     const at = rtl ? box.right : box.left;
     return (
       this.resizers.find((resizer) => {
-        const other = resizer.th === th ? null : resizer.th.getBoundingClientRect();
+        const other = resizer.th === th ? null : this.rect(resizer.th);
         return (
           other != null &&
           other.width > 0 &&
@@ -4192,6 +4672,32 @@ export class GtTable extends HTMLElement {
     th.append(grip);
   }
 
+  // The part of the scrolling container in view (all of the window without one), less the pinned
+  // columns for a cell that scrolls under them
+  private viewOf(cell: Element): Box {
+    let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
+    const scroller = this.scroller;
+    if (scroller !== null) {
+      const port = this.rect(scroller);
+      left = port.left + scroller.clientLeft;
+      right = left + scroller.clientWidth;
+      top = port.top + scroller.clientTop;
+      bottom = top + scroller.clientHeight;
+    }
+    if (this.hasAttribute("data-gti-wide") && !cell.classList.contains("gt-i-pinned")) {
+      const edge = this.edgeCell?.isConnected ? this.rect(this.edgeCell) : null;
+      const endEdge = this.endEdge?.isConnected ? this.rect(this.endEdge) : null;
+      if (this.isRtl()) {
+        right = Math.min(right, edge?.left ?? right);
+        left = Math.max(left, endEdge?.right ?? left);
+      } else {
+        left = Math.max(left, edge?.right ?? left);
+        right = Math.min(right, endEdge?.left ?? right);
+      }
+    }
+    return { left, top, right, bottom };
+  }
+
   // Place the guide along its column, in the part of the table in view (past the pinned columns,
   // for one that scrolls under them), with its edges thick along the label where they're dragged
   private placeGuide(): void {
@@ -4204,37 +4710,17 @@ export class GtTable extends HTMLElement {
     if (!shown) {
       return;
     }
-    const box = th.getBoundingClientRect();
-    let [left, right, top, bottom] = [-Infinity, Infinity, -Infinity, Infinity];
-    const scroller = this.scroller;
-    if (scroller !== null) {
-      const port = scroller.getBoundingClientRect();
-      left = port.left + scroller.clientLeft;
-      right = left + scroller.clientWidth;
-      top = port.top + scroller.clientTop;
-      bottom = top + scroller.clientHeight;
-    }
-    const rtl = this.isRtl();
-    if (this.hasAttribute("data-gti-wide") && !th.classList.contains("gt-i-pinned")) {
-      const edge = this.edgeCell?.isConnected ? this.edgeCell.getBoundingClientRect() : null;
-      const endEdge = this.endEdge?.isConnected ? this.endEdge.getBoundingClientRect() : null;
-      if (rtl) {
-        right = Math.min(right, edge?.left ?? right);
-        left = Math.max(left, endEdge?.right ?? left);
-      } else {
-        left = Math.max(left, edge?.right ?? left);
-        right = Math.min(right, endEdge?.left ?? right);
-      }
-    }
+    const box = this.rect(th);
+    const { left, right, top, bottom } = this.viewOf(th);
     const x0 = Math.max(box.left, left);
     const x1 = Math.min(box.right, right);
     const y0 = Math.max(box.top, top);
-    const y1 = Math.min(Math.max(box.bottom, this.tbody?.getBoundingClientRect().bottom ?? box.bottom), bottom);
+    const y1 = Math.min(Math.max(box.bottom, this.tbody === null ? box.bottom : this.rect(this.tbody).bottom), bottom);
     if (x1 - x0 < 1 || y1 - y0 < 1) {
       guide.removeAttribute("data-gti-shown");
       return;
     }
-    const outer = this.getBoundingClientRect();
+    const outer = this.rect(this);
     setStyle(guide, "left", `${x0 - outer.left - this.clientLeft}px`);
     setStyle(guide, "top", `${y0 - outer.top - this.clientTop}px`);
     setStyle(guide, "width", `${x1 - x0}px`);
@@ -4243,6 +4729,7 @@ export class GtTable extends HTMLElement {
     // (An edge out of view isn't drawn)
     const end = th.classList.contains("gt-i-resizable");
     const before = this.guideBefore !== null;
+    const rtl = this.isRtl();
     const [leftLine, rightLine] = Array.from(guide.children) as HTMLElement[];
     for (const [line, at, grip] of [
       [leftLine, box.left >= left - 0.5, rtl ? end : before],
@@ -4272,17 +4759,21 @@ export class GtTable extends HTMLElement {
   // A new width for a column, at least 2em of its label; returns the width it gets
   private setColumnWidth(resizer: Resizer, width: number): number {
     const col = this.resizerCol(resizer) as HTMLElement;
-    const min = Math.ceil(2 * (parseFloat(getComputedStyle(resizer.th).fontSize) || 16));
-    width = Math.max(min, Math.round(width));
+    width = Math.max(minWidth(resizer.th), Math.round(width));
     col.style.width = `${width}px`;
     this.showWidth(resizer, width);
     return width;
   }
 
+  // A column's width on its handle: from the narrowest it can be made to the table's box (or as
+  // narrow or wide as it is, if it's more so)
   private showWidth(resizer: Resizer, width: number): void {
-    const px = String(Math.round(width));
-    resizer.handle.setAttribute("aria-valuenow", px);
-    resizer.handle.setAttribute("aria-valuetext", `${px} pixels`);
+    const px = Math.round(width);
+    const { handle } = resizer;
+    handle.setAttribute("aria-valuenow", String(px));
+    handle.setAttribute("aria-valuetext", `${px} pixels`);
+    handle.setAttribute("aria-valuemin", String(Math.min(px, minWidth(resizer.th))));
+    handle.setAttribute("aria-valuemax", String(Math.max(px, Math.round((this.scroller ?? this).clientWidth))));
   }
 
   // A double-click or Enter puts the column back to its width before any column was resized
@@ -4379,8 +4870,8 @@ export class GtTable extends HTMLElement {
     // (A hidden column has none)
     const widths =
       full === undefined
-        ? Array.from({ length: columns }, (_, i) => (this.hiddenGrid.has(i) ? 0 : label(i)?.getBoundingClientRect().width))
-        : Array.from(full.children, (cell) => cell.getBoundingClientRect().width);
+        ? Array.from({ length: columns }, (_, i) => (this.hiddenGrid.has(i) ? 0 : this.rectOf(label(i))?.width))
+        : Array.from(full.children, (cell) => this.rect(cell).width);
     return columns > 0 && widths.every((width) => width !== undefined) ? (widths as number[]) : null;
   }
 
@@ -4423,7 +4914,7 @@ export class GtTable extends HTMLElement {
     const grid = new Set([...this.hiddenIds, ...this.dropped].map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
     // (The width each column hidden has, which it has again if the widths are fixed while it's hidden)
     for (const c of grid) {
-      const width = (p: Placed) => p.cell.getBoundingClientRect().width;
+      const width = (p: Placed) => this.rect(p.cell).width;
       const shown = this.hiddenGrid.has(c)
         ? undefined
         : this.columnCells.find((p) => p.c0 === c && p.c1 === c && width(p) > 0);
@@ -4850,7 +5341,7 @@ export class GtTable extends HTMLElement {
       reset.hidden = true;
       reset.addEventListener("click", () => {
         // (Focus, on the button going, goes on to the next)
-        const focused = reset.contains(doc.activeElement);
+        const focused = reset.contains(this.focusedElement());
         this.userResetView();
         if (focused) {
           info.button.focus();
@@ -5125,9 +5616,9 @@ export class GtTable extends HTMLElement {
       tip.textContent = target.dataset.gtiTip as string;
       tip.hidden = false;
       doc.addEventListener("keydown", escape, true);
-      const bar = root.getBoundingClientRect();
-      const box = target.getBoundingClientRect();
-      const { width, height } = tip.getBoundingClientRect();
+      const bar = this.rect(root);
+      const box = this.rect(target);
+      const { width, height } = this.rect(tip);
       const top = box.top - height - TIP_GAP;
       tip.style.left = `${Math.max(Math.min(box.left + (box.width - width) / 2, bar.right - width), bar.left) - bar.left}px`;
       tip.style.top = `${(top < 0 ? box.bottom + TIP_GAP : top) - bar.top}px`;
@@ -5258,7 +5749,7 @@ export class GtTable extends HTMLElement {
       });
       section("Search").append(input);
       syncs.push(() => {
-        if (doc.activeElement !== input) {
+        if (this.focusedElement() !== input) {
           input.value = this.searchValue;
         }
       });
@@ -5429,7 +5920,7 @@ export class GtTable extends HTMLElement {
       this.pressed = false;
       const target = event.target as Element;
       const th = target.closest("th");
-      if (event.pointerType === "mouse" || th === null || target.closest(".gt-i-resizer") !== null) {
+      if (event.pointerType === "mouse" || th === null || target.closest(".gt-i-resizer, .gt-i-profile") !== null) {
         return;
       }
       const id =
@@ -5643,19 +6134,39 @@ export class GtTable extends HTMLElement {
     }
   };
 
+  // Where a layer over the table can draw (from the element's padding box's corner, at `x0` and
+  // `y0` in the view): within the view across (and the page's top), and what clips the element (a
+  // container that scrolls, as Quarto's for a wide table)
+  private layerBounds(x0: number, y0: number): Box {
+    const doc = this.ownerDocument;
+    const zoom = this.zoom();
+    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0) / zoom, right: doc.documentElement.clientWidth / zoom, bottom: Infinity };
+    for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
+      const { overflowX, overflowY } = getComputedStyle(node);
+      if (overflowX !== "visible" || overflowY !== "visible") {
+        const { left, top, right, bottom } = this.rect(node);
+        view.left = Math.max(view.left, left);
+        view.top = Math.max(view.top, top);
+        view.right = Math.min(view.right, right);
+        view.bottom = Math.min(view.bottom, bottom);
+      }
+    }
+    return { left: view.left - x0, top: view.top - y0, right: view.right - x0, bottom: view.bottom - y0 };
+  }
+
   /** Draw the parts' outlines and names on `layer`, where the parts are now (if they've moved). */
   private drawParts(layer: HTMLElement): void {
     const bar = this.bar as Bar;
-    const origin = this.getBoundingClientRect();
+    const origin = this.rect(this);
     const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
     // (What's in the scrolling container, as far as it shows)
-    const clip = this.scroller?.getBoundingClientRect();
+    const clip = this.rectOf(this.scroller);
     const boxOf = (els: (Element | null | undefined)[]): Box | null => {
       const boxes = els.flatMap((el) => {
         if (el == null) {
           return [];
         }
-        let { left, top, right, bottom } = el.getBoundingClientRect();
+        let { left, top, right, bottom } = this.rect(el);
         if (clip !== undefined && this.scroller?.contains(el)) {
           [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
           [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
@@ -5702,21 +6213,8 @@ export class GtTable extends HTMLElement {
       const boxes = groups.map(boxOf).filter((box): box is Box => box !== null);
       return boxes.length === 0 ? [] : [{ name, boxes, places }];
     });
-    // Within the view across (and the page's top), and what clips the element (a container that
-    // scrolls, as Quarto's for a wide table)
     const doc = this.ownerDocument;
-    const view = { left: 0, top: -(doc.defaultView?.scrollY ?? 0), right: doc.documentElement.clientWidth, bottom: Infinity };
-    for (let node = this.parentElement; node !== null && node !== doc.body; node = node.parentElement) {
-      const { overflowX, overflowY } = getComputedStyle(node);
-      if (overflowX !== "visible" || overflowY !== "visible") {
-        const { left, top, right, bottom } = node.getBoundingClientRect();
-        view.left = Math.max(view.left, left);
-        view.top = Math.max(view.top, top);
-        view.right = Math.min(view.right, right);
-        view.bottom = Math.min(view.bottom, bottom);
-      }
-    }
-    const bounds = { left: view.left - x0, top: view.top - y0, right: view.right - x0, bottom: view.bottom - y0 };
+    const bounds = this.layerBounds(x0, y0);
     const drawn = JSON.stringify([origin.width, origin.height, bounds, parts]);
     if (drawn === this.partsDrawn) {
       return;
@@ -5821,6 +6319,30 @@ export class GtTable extends HTMLElement {
     return Object.assign(popup, { pageKeys, open });
   }
 
+  // The element with focus, in the table's root: in a shadow root (as in Panel), the document's is
+  // the host (and a table out of the document has none)
+  private focusedElement(): Element | null {
+    return (this.getRootNode() as Document | ShadowRoot).activeElement ?? null;
+  }
+
+  // The table's zoom (a CSS `zoom` on it or around it, as in a slide scaled to fit), by which its
+  // boxes on the page are larger than its CSS pixels; 1 where the browser doesn't say
+  private zoom(): number {
+    return (this as { currentCSSZoom?: number }).currentCSSZoom || 1;
+  }
+
+  // A box, in the table's CSS pixels (as its styles and the DOM's sizes are), from the window's
+  // corner: events' points are divided by the zoom to go with it
+  private rect(of: Element | Range): DOMRect {
+    const box = of.getBoundingClientRect();
+    const zoom = this.zoom();
+    return zoom === 1 ? box : new DOMRect(box.x / zoom, box.y / zoom, box.width / zoom, box.height / zoom);
+  }
+
+  private rectOf(el: Element | null | undefined): DOMRect | undefined {
+    return el == null ? undefined : this.rect(el);
+  }
+
   private openPanel(popup: Popup): void {
     if (this.popup === popup) {
       return;
@@ -5857,11 +6379,11 @@ export class GtTable extends HTMLElement {
   private placePanel(panel: HTMLElement): void {
     panel.removeAttribute("data-gti-below");
     panel.style.maxHeight = "";
-    const bar = (this.bar as Bar).root.getBoundingClientRect();
+    const bar = this.rect((this.bar as Bar).root);
     const gap = 8;
     const above = bar.top - gap;
-    const below = this.ownerDocument.documentElement.clientHeight - bar.bottom - gap;
-    const height = panel.getBoundingClientRect().height;
+    const below = this.ownerDocument.documentElement.clientHeight / this.zoom() - bar.bottom - gap;
+    const height = this.rect(panel).height;
     const down = height > above && below > above;
     panel.toggleAttribute("data-gti-below", down);
     const room = down ? below : above;
@@ -5870,9 +6392,11 @@ export class GtTable extends HTMLElement {
     }
   }
 
-  // Close the open panel (if it's `popup`)
-  private closePanel(focus: boolean, popup = this.popup): void {
-    if (popup === null || popup !== this.popup) {
+  // Close the open panel (if it's `popup`'s: by its panel, as the shortcuts' is opened from the
+  // info panel's button too, as a copy of their popup with that button)
+  private closePanel(focus: boolean, which = this.popup): void {
+    const popup = this.popup;
+    if (popup === null || popup.panel !== which?.panel) {
       return;
     }
     this.popup = null;
@@ -6108,7 +6632,7 @@ export class GtTable extends HTMLElement {
         return id == null ? [] : (columns.items.get(id)?.root ?? []);
       });
       if (roots.some((root, i) => columns.list.children[i] !== root)) {
-        const focused = (this.getRootNode() as Document | ShadowRoot).activeElement;
+        const focused = this.focusedElement();
         arrange(roots, roots.find((root) => root.contains(focused)), columns.list);
       }
     }
@@ -6193,8 +6717,8 @@ export class GtTable extends HTMLElement {
       }
       const others = items().filter((item) => item !== root);
       const at = others.filter((item) => {
-        const box = item.getBoundingClientRect();
-        return event.clientY > box.top + box.height / 2;
+        const box = this.rect(item);
+        return event.clientY / this.zoom() > box.top + box.height / 2;
       }).length;
       others.splice(at, 0, root);
       arrange(others, root);
@@ -6435,7 +6959,7 @@ export class GtTable extends HTMLElement {
         if (cell == null) {
           copy.textContent = label;
         }
-        for (const name of ["class", "id", "rowspan", "headers"]) {
+        for (const name of ["class", "id", "rowspan", "headers", "aria-label", "aria-describedby"]) {
           copy.removeAttribute(name);
         }
         for (const property of Array.from(copy.style)) {
@@ -6524,7 +7048,8 @@ export class GtTable extends HTMLElement {
     });
   }
 
-  // A column's label, after its spanners' ("Revenue – gross"), or its id, without one
+  // A column's label, after its spanners' ("Revenue – gross", as a stacked table's cards have it),
+  // or its id, without one
   private columnTitle(id: string, labels: Map<string, HTMLTableCellElement>, spanned = true): string {
     const spec = this.spec as Spec;
     const label = (key: string | null) => {
@@ -6993,8 +7518,8 @@ export class GtTable extends HTMLElement {
     if (anchor === null || panel == null || this.sheet?.contains(panel)) {
       return;
     }
-    const host = this.getBoundingClientRect();
-    const button = anchor.getBoundingClientRect();
+    const host = this.rect(this);
+    const button = this.rect(anchor);
     const width = panel.offsetWidth;
     const height = panel.offsetHeight;
     const start = this.isRtl() ? button.right - width : button.left;
@@ -7311,7 +7836,7 @@ export class GtTable extends HTMLElement {
     const field = element(doc, "div", "gt-i-query-field");
     const text = element(doc, "span", "gt-i-query-text", { dir: "ltr" });
     const mirror = element(doc, "span", "gt-i-query-mirror", { "aria-hidden": "true" });
-    // (An example, in the first filter's column)
+    // (An example, in the first filter's column, and how to see them all)
     const first = this.filters[0]?.filter as ColumnFilter;
     const input = element(doc, "input", "", {
       type: "text",
@@ -7319,7 +7844,7 @@ export class GtTable extends HTMLElement {
       spellcheck: "false",
       autocapitalize: "off",
       enterkeyhint: "go",
-      placeholder: `${formatColumn(first.column)} ${OP_SUGGESTIONS[first.type][0]?.text}`,
+      placeholder: `${formatColumn(first.column)} ${OP_SUGGESTIONS[first.type][0]?.text} · Tab or ↓ for columns`,
       role: "combobox",
       "aria-label": "Filters as text",
       "aria-autocomplete": "list",
@@ -7352,16 +7877,36 @@ export class GtTable extends HTMLElement {
       context: null,
       ranges: [],
       mark: null,
+      before: null,
+      fixing: false,
+      fixed: [],
+      fixedTimer: null,
+      names: null,
+      namesFrame: 0,
+      namesDrawn: "",
     };
     bar.query = box;
 
     toggle.addEventListener("click", () => (root.hidden ? this.openQuery() : this.closeQuery(false)));
     apply.addEventListener("click", () => this.applyQuery(box));
     cancel.addEventListener("click", () => this.closeQuery(true));
-    // (Suggestions as text is typed, not deleted)
-    input.addEventListener("input", (event) =>
-      this.editQuery(box, !(event as InputEvent).inputType?.startsWith("delete") && input.value.trim() !== ""),
-    );
+    input.addEventListener("beforeinput", () => {
+      box.before = input.selectionStart;
+    });
+    // (Suggestions as text is typed, not deleted; and a column's label just typed, or put in, is
+    // put right, but not one that's back with an undo)
+    input.addEventListener("input", (event) => {
+      if (box.fixing) {
+        return;
+      }
+      const type = (event as InputEvent).inputType ?? "";
+      const caret = input.selectionStart ?? input.value.length;
+      if (type.startsWith("insert") && box.before !== null && box.before <= caret) {
+        this.fixQuery(box, box.before, type.startsWith("insertFrom") ? caret : caret - 1);
+      }
+      box.before = null;
+      this.editQuery(box, !type.startsWith("delete") && input.value.trim() !== "");
+    });
     input.addEventListener("keydown", (event) => this.queryKey(box, event));
     for (const type of ["input", "scroll", "keyup", "pointerup", "select"]) {
       input.addEventListener(type, () => {
@@ -7414,6 +7959,11 @@ export class GtTable extends HTMLElement {
       box.input.scrollLeft = box.input.scrollWidth;
     }
     box.mirror.scrollLeft = box.input.scrollLeft;
+    // (Empty, with the columns to start with, none of them taken by Enter, which applies no filters)
+    if (text === "") {
+      this.suggest(box, true, false);
+    }
+    this.showNames(box, true);
   }
 
   private closeQuery(focus: boolean): void {
@@ -7422,7 +7972,10 @@ export class GtTable extends HTMLElement {
       return;
     }
     this.suggest(box, false);
+    this.showNames(box, false);
     box.mark = null;
+    box.fixed = [];
+    clearTimeout(box.fixedTimer ?? undefined);
     box.input.value = "";
     this.paintQuery(box);
     box.root.hidden = true;
@@ -7456,7 +8009,8 @@ export class GtTable extends HTMLElement {
       if (count === 0) {
         this.suggest(box, true);
       } else {
-        this.setSuggestion(box, (box.active + (key === "ArrowDown" ? 1 : count - 1)) % count);
+        const from = box.active < 0 && key === "ArrowUp" ? 0 : box.active;
+        this.setSuggestion(box, (from + (key === "ArrowDown" ? 1 : count - 1)) % count);
       }
     } else if (key === " " && event.ctrlKey) {
       event.preventDefault();
@@ -7464,6 +8018,15 @@ export class GtTable extends HTMLElement {
     } else if ((key === "Enter" || (key === "Tab" && !event.shiftKey)) && box.active >= 0) {
       event.preventDefault();
       this.takeSuggestion(box, box.active);
+    } else if (key === "Tab" && !event.shiftKey && !event.ctrlKey && count === 0) {
+      // Where a column goes, the columns (none of them taken, so that a second Tab leaves)
+      const caret = box.input.selectionStart ?? 0;
+      if (caret === box.input.selectionEnd && queryContext(box.input.value, caret).expect === "column") {
+        this.suggest(box, true, false);
+        if (box.suggestions.length > 0) {
+          event.preventDefault();
+        }
+      }
     } else if (key === "Enter") {
       // (And don't submit a form the table is in)
       event.preventDefault();
@@ -7502,10 +8065,34 @@ export class GtTable extends HTMLElement {
         box.ranges.push([highlight, range]);
       }
     };
-    for (const { role, from, to } of readQuery(text).parts) {
-      if (role === "keyword" || role === "string" || role === "number" || role === "literal") {
-        mark(role === "literal" ? "number" : role, from, to);
+    const { names, aliases } = this.queryNames();
+    const caret = box.input.selectionStart ?? text.length;
+    for (const { role, kind, from, to, text: piece, open, state } of readQuery(text).parts) {
+      const word = piece.toLowerCase();
+      if (role === "column") {
+        mark("column", from, to);
+        // (A column that's neither a name nor a label of one with a filter, once it's typed)
+        const col = kind === "quoted" ? piece.slice(1, open ? undefined : -1).replace(/``/g, "`") : piece;
+        if ((caret < from || caret > to) && !names.has(col) && aliasOf(col, aliases) === undefined) {
+          mark("error", from, to);
+        }
+      } else if (role === "keyword") {
+        mark(word === "and" || word === "or" || (word === "not" && state.expect === "column") ? "logic" : "keyword", from, to);
+      } else if (role === "string" && kind === "regex") {
+        // (Its flags dimmed)
+        const flags = open ? 0 : (/[A-Za-z0-9_]*$/.exec(piece) as RegExpExecArray)[0].length;
+        mark("string", from, to - flags);
+        mark("punct", to - flags, to);
+      } else if (role === "string" && state.expect === "bound") {
+        // (A date, as a bound, as a number is)
+        const control = this.filters.find((c) => c.filter.column === state.col);
+        mark(control?.filter.type === "date" ? "number" : "string", from, to);
+      } else if (role !== null) {
+        mark(role, from, to);
       }
+    }
+    for (const [from, to] of box.fixed) {
+      mark("fixed", from, to);
     }
     // (One at the end, on the space after the text)
     if (box.mark !== null) {
@@ -7513,15 +8100,75 @@ export class GtTable extends HTMLElement {
     }
   }
 
+  // The names of the columns with filters, and their labels to them (see `labelAliases()`)
+  private queryNames(): { names: Set<string>; aliases: Map<string, string> } {
+    return {
+      names: new Set(this.filters.map(({ filter }) => filter.column)),
+      aliases: labelAliases(this.filters.map(({ filter, label }) => [filter.column, label])),
+    };
+  }
+
+  // Put text in place of the query's text from `from` to `to`, as typing would (so that undo takes
+  // it out), but without suggesting or putting it right
+  private replaceQuery(box: QueryBox, from: number, to: number, text: string): void {
+    const { input } = box;
+    box.fixing = true;
+    input.setSelectionRange(from, to);
+    // (Where the browser can't, without its undo)
+    const doc = this.ownerDocument;
+    if (this.focusedElement() !== input || typeof doc.execCommand !== "function" || !doc.execCommand("insertText", false, text)) {
+      input.setRangeText(text, from, to, "end");
+    }
+    box.fixing = false;
+  }
+
+  // Put the columns' names in place of their labels (see `labelAliases()`) whose ends are from
+  // `from` to `to`, keeping the caret where it was in the text, and say so
+  private fixQuery(box: QueryBox, from = 0, to = box.input.value.length): void {
+    const { input } = box;
+    const { names, aliases } = this.queryNames();
+    const found = queryAliases(input.value, names, aliases, from, to);
+    if (found.length === 0) {
+      return;
+    }
+    let caret = input.selectionStart ?? input.value.length;
+    // (From the last, so that the others are where they were)
+    for (const { from, to, column } of [...found].reverse()) {
+      const name = formatColumn(column);
+      this.replaceQuery(box, from, to, name);
+      if (to <= caret) {
+        caret += name.length - (to - from);
+      }
+    }
+    input.setSelectionRange(caret, caret);
+    let shift = 0;
+    box.fixed = found.map(({ from, to, column }) => {
+      const [at, length] = [from + shift, formatColumn(column).length];
+      shift += length - (to - from);
+      return [at, at + length];
+    });
+    clearTimeout(box.fixedTimer ?? undefined);
+    box.fixedTimer = setTimeout(() => {
+      box.fixed = [];
+      box.fixedTimer = null;
+      this.paintQuery(box);
+    }, 1500);
+    const label = (col: string) => this.filters.find(({ filter }) => filter.column === col)?.label ?? col;
+    this.announce(found.map(({ column }) => `${label(column)} is ${formatColumn(column)}`).join("; "));
+  }
+
   // Apply the text's query, or say what's wrong with it (and go to where it is)
   private applyQuery(box: QueryBox): void {
+    // (With the columns' names in place of their labels)
+    this.fixQuery(box);
     const text = box.input.value;
     const filters = this.filters.map((control) => control.filter);
+    const labels = new Map(this.filters.map(({ filter, label }) => [filter.column, label]));
     let query: FilterQuery | null;
     let problem: { message: string; mark: [number, number] | null } | null = null;
     try {
       query = parseQuery(text);
-      const found = queryProblem(filters, query);
+      const found = queryProblem(filters, query, labels);
       if (found !== null) {
         problem = { message: found.message, mark: readQuery(text).clauses[found.clause] ?? null };
       }
@@ -7559,22 +8206,26 @@ export class GtTable extends HTMLElement {
   }
 
   // Show the suggestions for the caret's place (or none, without `open`), the first one active
-  private suggest(box: QueryBox, open: boolean): void {
+  // (unless not `pick`), the query's text of each in a monospaced font
+  private suggest(box: QueryBox, open: boolean, pick = true): void {
     const items = open ? this.suggestions(box) : [];
     const { list, input } = box;
     box.suggestions = items;
     list.replaceChildren(
       ...items.map((item, i) => {
-        const li = element(this.ownerDocument, "li", "", { id: `${list.id}-${i}`, role: "option" });
-        const detail = element(this.ownerDocument, "span", "gt-i-query-detail");
+        const doc = this.ownerDocument;
+        const li = element(doc, "li", "", { id: `${list.id}-${i}`, role: "option" });
+        const [text, detail] = [element(doc, "span", ""), element(doc, "span", "gt-i-query-detail")];
+        text.textContent = item.text;
         detail.textContent = item.detail;
-        li.append(item.text, detail);
+        (item.code === "detail" ? detail : text).classList.add("gt-i-query-code");
+        li.append(text, detail);
         return li;
       }),
     );
     list.hidden = items.length === 0;
     input.setAttribute("aria-expanded", String(items.length > 0));
-    this.setSuggestion(box, items.length > 0 ? 0 : -1);
+    this.setSuggestion(box, items.length > 0 && pick ? 0 : -1);
     if (items.length === 0 || box.context === null) {
       return;
     }
@@ -7584,7 +8235,7 @@ export class GtTable extends HTMLElement {
     if (node !== null) {
       const range = this.ownerDocument.createRange();
       range.setStart(node, box.context.from);
-      left = range.getBoundingClientRect().left - box.root.getBoundingClientRect().left;
+      left = this.rect(range).left - this.rect(box.root).left;
     }
     list.style.left = `${Math.max(0, Math.min(left, box.root.clientWidth - list.offsetWidth))}px`;
   }
@@ -7622,7 +8273,7 @@ export class GtTable extends HTMLElement {
     let items: Suggestion[] = [];
     if (expect === "column") {
       items = this.filters
-        .filter(({ filter, label }) => fits(filter.column, label))
+        .filter(({ filter, label }) => fits(filter.column, label, typedLabel(label)))
         .map(({ filter, label }) => {
           const name = formatColumn(filter.column);
           return { text: name, detail: label === filter.column ? "" : label, insert: `${name} `, back: 0 };
@@ -7653,7 +8304,13 @@ export class GtTable extends HTMLElement {
       items = (control.filter.type === "bool" ? this.boolNames(control) : this.facetNames(control))
         .map(([key, name]) => {
           const literal = key === MISSING ? "null" : formatValue(values[key] ?? null);
-          return { text: name, detail: literal === JSON.stringify(name) ? "" : literal, insert: literal, back: 0 };
+          return {
+            text: name,
+            detail: literal === JSON.stringify(name) ? "" : literal,
+            code: "detail" as const,
+            insert: literal,
+            back: 0,
+          };
         })
         .filter((item) => !chosen.has(item.insert) && fits(item.text, item.insert));
     } else if (expect === "bound" && control?.filter.type === "date" && !(prefix.length > 1 && /^".*"$/s.test(prefix))) {
@@ -7665,7 +8322,7 @@ export class GtTable extends HTMLElement {
         .filter((key, i) => typeof values[key] === "string" && (i === 0 || key > 0))
         .map((key) => {
           const literal = formatValue(values[key] ?? null);
-          return { text: names[key]?.[1] ?? literal, detail: literal, insert: `${literal} `, back: 0 };
+          return { text: names[key]?.[1] ?? literal, detail: literal, code: "detail" as const, insert: `${literal} `, back: 0 };
         })
         .filter((item) => fits(item.text, item.detail));
     } else if (expect === "and" && (word !== "" || /\s/.test(text[caret - 1] ?? ""))) {
@@ -7698,6 +8355,128 @@ export class GtTable extends HTMLElement {
     const insert = item.insert.endsWith(" ") && /^\s/.test(text.slice(context.to)) ? item.insert.trimEnd() : item.insert;
     const caret = context.from + item.insert.length - item.back;
     input.value = text.slice(0, context.from) + insert + text.slice(context.to);
+    input.setSelectionRange(caret, caret);
+    this.editQuery(box, true);
+    box.mirror.scrollLeft = input.scrollLeft;
+  }
+
+  // While the query box is open, the names of the columns with filters (as the query has them), each
+  // under its label (over its controls), on a layer over the table, so that nothing moves; a
+  // click puts one in at the caret. (Those without a label shown, as a hidden column's, are in the
+  // suggestions.)
+  private showNames(box: QueryBox, show: boolean): void {
+    cancelAnimationFrame(box.namesFrame);
+    box.names?.remove();
+    box.names = null;
+    if (!show) {
+      return;
+    }
+    const layer = element(this.ownerDocument, "div", "gt-i-names", { "aria-hidden": "true" });
+    this.append(layer);
+    box.names = layer;
+    box.namesDrawn = "";
+    // (A press on a name leaves focus in the input, as on a suggestion)
+    layer.addEventListener("mousedown", (event) => event.preventDefault());
+    layer.addEventListener("click", (event) => {
+      const name = (event.target as Element).closest<HTMLElement>("[data-gti-column]");
+      if (name !== null) {
+        this.insertName(box, name.dataset.gtiColumn as string);
+      }
+    });
+    const frame = () => {
+      this.drawNames(box, layer);
+      box.namesFrame = requestAnimationFrame(frame);
+    };
+    frame();
+  }
+
+  // Draw the columns' names on `layer`, where their labels are now (if they've moved)
+  private drawNames(box: QueryBox, layer: HTMLElement): void {
+    const origin = this.rect(this);
+    const [x0, y0] = [origin.left + this.clientLeft, origin.top + this.clientTop];
+    const columns: string[] = [];
+    // (How far across its box each goes, as its label does, and between which edges it's seen)
+    const across: number[] = [];
+    const spans: [number, number][] = [];
+    const parts = this.filters.flatMap(({ filter, th }): Part[] => {
+      if (th === null) {
+        return [];
+      }
+      // (Over its controls, under its label, which it leaves to be read; or over the label)
+      const controls = this.rectOf(th.querySelector(".gt-i-head-controls"));
+      let { left, top, right, bottom } = controls?.width ? controls : this.rect(th);
+      // (As far as it shows in the scrolling container, past the pinned columns)
+      const clip = this.scroller?.contains(th) ? this.viewOf(th) : null;
+      if (clip !== null) {
+        [left, top] = [Math.max(left, clip.left), Math.max(top, clip.top)];
+        [right, bottom] = [Math.min(right, clip.right), Math.min(bottom, clip.bottom)];
+      }
+      if (right - left < 1 || bottom - top < 1) {
+        return [];
+      }
+      columns.push(filter.column);
+      across.push(th.classList.contains("gt_right") ? 1 : th.classList.contains("gt_center") ? 0.5 : 0);
+      spans.push(clip === null ? [-Infinity, Infinity] : [clip.left - x0, clip.right - x0]);
+      const boxes = [{ left: left - x0, top: top - y0, right: right - x0, bottom: bottom - y0 }];
+      return [{ name: formatColumn(filter.column), boxes, places: ["over"] }];
+    });
+    const bounds = this.layerBounds(x0, y0);
+    // (Off the toolbar and the bar)
+    const avoid = [this.toolbar, this.bar?.root].flatMap((el) => {
+      const rect = this.rectOf(el);
+      return rect == null || rect.width === 0
+        ? []
+        : [{ left: rect.left - x0, top: rect.top - y0, right: rect.right - x0, bottom: rect.bottom - y0 }];
+    });
+    const drawn = JSON.stringify([origin.width, origin.height, bounds, parts, avoid]);
+    if (drawn === box.namesDrawn) {
+      return;
+    }
+    box.namesDrawn = drawn;
+    const names = parts.map(({ name }, i) => {
+      const el = element(this.ownerDocument, "span", "gt-i-names-name", { "data-gti-column": columns[i] as string });
+      el.textContent = name;
+      return el;
+    });
+    layer.replaceChildren(...names);
+    const sizes = names.map((el) => ({ width: el.offsetWidth, height: el.offsetHeight }));
+    // (Each halfway down what it's over, and across it as its label is, kept off the pinned columns
+    // where its label's partly under one: where `placeParts()` puts it, 4px in from its box's top
+    // and left)
+    const middled = parts.map((part, i) => {
+      const { left, top, right, bottom } = part.boxes[0] as Box;
+      const { width = 0, height = 0 } = sizes[i] ?? {};
+      const [from, to] = spans[i] ?? [-Infinity, Infinity];
+      const x = left + Math.max(0, right - left - width - 8) * (across[i] ?? 0);
+      const over = {
+        left: Math.max(from, Math.min(x, to - width - 8)),
+        top: (top + bottom - height) / 2 - 4,
+        right,
+        bottom,
+      };
+      return { ...part, boxes: [over] };
+    });
+    placeParts(middled, sizes, bounds, avoid).forEach(({ label }, i) => {
+      const el = names[i] as HTMLElement;
+      el.style.left = `${label.left}px`;
+      el.style.top = `${label.top}px`;
+    });
+  }
+
+  // Put a column's name in at the caret (in place of a column being typed there), with a space
+  // around it where it needs one, and suggest what can go after it
+  private insertName(box: QueryBox, column: string): void {
+    const { input } = box;
+    const text = input.value;
+    const [start, end] = [input.selectionStart ?? text.length, input.selectionEnd ?? text.length];
+    const context = queryContext(text, start);
+    const [from, to] = start === end && context.expect === "column" ? [context.from, context.to] : [start, end];
+    const name = formatColumn(column);
+    const before = from > 0 && !/[\s(]/.test(text[from - 1] as string) ? " " : "";
+    const after = /^\s/.test(text.slice(to)) ? "" : " ";
+    input.focus();
+    this.replaceQuery(box, from, to, `${before}${name}${after}`);
+    const caret = from + before.length + name.length + 1;
     input.setSelectionRange(caret, caret);
     this.editQuery(box, true);
     box.mirror.scrollLeft = input.scrollLeft;
@@ -7830,7 +8609,7 @@ export class GtTable extends HTMLElement {
     if (field != null) {
       if (this.searchValue !== "") {
         this.openSearch(false);
-      } else if (!field.contains(this.ownerDocument.activeElement)) {
+      } else if (!field.contains(this.focusedElement())) {
         this.closeSearch(false);
       }
     }
@@ -7898,7 +8677,7 @@ export class GtTable extends HTMLElement {
     }
     // (Before the input is hidden, which takes its focus and so ends the jump again)
     this.jumping = false;
-    const focused = bar.jump.contains(this.ownerDocument.activeElement);
+    const focused = bar.jump.contains(this.focusedElement());
     const value = bar.jumpInput.value.trim();
     bar.jump.hidden = true;
     bar.readout.hidden = false;
@@ -8066,6 +8845,7 @@ export class GtTable extends HTMLElement {
       this.outlineBar();
       this.placeFoot();
       this.placeFilter();
+      this.placeProfile();
       this.stick();
       // (In the next frame, like the column widths below)
       this.queuePin();
@@ -8111,8 +8891,8 @@ export class GtTable extends HTMLElement {
         bar.style.marginLeft = bar.style.width = "";
       }
     }
-    const outer = this.getBoundingClientRect();
-    const table = this.table.getBoundingClientRect();
+    const outer = this.rect(this);
+    const table = this.rect(this.table);
     const left = Math.max(0, table.left - outer.left);
     for (const bar of bars) {
       bar.style.marginLeft = `${left}px`;
@@ -8154,7 +8934,7 @@ export class GtTable extends HTMLElement {
     if (bar === null || bar.root.getClientRects().length === 0) {
       return;
     }
-    const last = bar.info.button.getBoundingClientRect().top;
+    const last = this.rect(bar.info.button).top;
     let first = last;
     for (const child of bar.root.children) {
       if (
@@ -8165,10 +8945,10 @@ export class GtTable extends HTMLElement {
       ) {
         continue;
       }
-      first = Math.min(first, child.getBoundingClientRect().top);
+      first = Math.min(first, this.rect(child).top);
     }
     if (last - first > 1) {
-      bar.root.style.setProperty("--gt-i-controls-top", `${first - bar.root.getBoundingClientRect().top}px`);
+      bar.root.style.setProperty("--gt-i-controls-top", `${first - this.rect(bar.root).top}px`);
     } else {
       bar.root.style.removeProperty("--gt-i-controls-top");
     }
@@ -8593,8 +9373,7 @@ export class GtTable extends HTMLElement {
     if (!this.widthsFixed && this.needsWidths()) {
       this.fixWidths();
     }
-    // (Not a stacked table's, whose cards are as tall as their contents)
-    const pads = size !== null && this.spec.nrows > size && !this.stacked;
+    const pads = this.pads(size);
     if (pads) {
       this.measurePage(size);
     }
@@ -8642,6 +9421,13 @@ export class GtTable extends HTMLElement {
     if (laidOut === this.laidOut) {
       return;
     }
+    // (The cells name their group's heading, as a screen reader reads it with them, as GT's cells
+    // do: by its id, first in their `headers`, which are taken out for another grouping)
+    for (const tr of this.rowElements) {
+      for (const td of tr.querySelectorAll(":scope > td[headers]")) {
+        td.setAttribute("headers", (td.getAttribute("headers") as string).replace(/^gt-i-group-\d+ /, ""));
+      }
+    }
     this.laidOut = laidOut;
     // (The body is as tall as its headings make it, on a full page, measured again)
     this.padKey = "";
@@ -8678,8 +9464,13 @@ export class GtTable extends HTMLElement {
     this.blocks = values.map((rank) => {
       const members = byRank.get(rank) as number[];
       const tr = element(doc, "tr", "gt_group_heading_row");
-      const th = element(doc, "th", "gt_group_heading", { scope: "colgroup" });
+      const th = element(doc, "th", "gt_group_heading", { scope: "colgroup", id: `gt-i-group-${++infoCount}` });
       th.colSpan = this.emptySpan();
+      for (const row of members) {
+        for (const td of (this.rowElements[row] as HTMLTableRowElement).querySelectorAll(":scope > td[headers]")) {
+          td.setAttribute("headers", `${th.id} ${td.getAttribute("headers")}`);
+        }
+      }
       const cell = this.dataCells(this.rowElements[members[0] as number] as HTMLTableRowElement)[index];
       if (rank === null || cell === undefined) {
         th.textContent = "(Missing)";
@@ -8861,7 +9652,7 @@ export class GtTable extends HTMLElement {
       }
       tr = tr.nextElementSibling as HTMLTableRowElement | null;
     }
-    const focused = this.ownerDocument.activeElement;
+    const focused = this.focusedElement();
     for (const tr of edges) {
       if (!tr.contains(focused)) {
         tbody.insertBefore(tr, tr.nextSibling);
@@ -9033,8 +9824,8 @@ export class GtTable extends HTMLElement {
       return null;
     }
     return {
-      columns: Array.from(full.children).map((cell) => cell.getBoundingClientRect().width),
-      table: table.getBoundingClientRect().width,
+      columns: Array.from(full.children).map((cell) => this.rect(cell).width),
+      table: this.rect(table).width,
     };
   }
 
@@ -9140,20 +9931,20 @@ export class GtTable extends HTMLElement {
     const table = this.table;
     return table === null || table.getClientRects().length === 0
       ? ""
-      : `${size} ${Math.round(table.getBoundingClientRect().width)}`;
+      : `${size} ${Math.round(this.rect(table).width)}`;
   }
 
   // Whether short pages are padded to a height measured at another page size or table width (or
   // not measured, as the table wasn't laid out); not while a column is being resized
   private padStale(): boolean {
     const size = this.size;
-    return (
-      size !== null &&
-      (this.spec?.nrows ?? 0) > size &&
-      !this.stacked &&
-      this.padKey !== this.padKeyNow(size) &&
-      !this.hasAttribute("data-gti-resizing")
-    );
+    return this.pads(size) && this.padKey !== this.padKeyNow(size) && !this.hasAttribute("data-gti-resizing");
+  }
+
+  // Whether short pages of a size are padded: while there are pages, and not in a stacked table,
+  // whose cards are as tall as their contents
+  private pads(size: number | null): size is number {
+    return size !== null && (this.spec?.nrows ?? 0) > size && !this.stacked;
   }
 
   /**
@@ -9179,16 +9970,16 @@ export class GtTable extends HTMLElement {
     this.measuring = false;
     this.borders?.redraw();
     this.padHeight = this.bodyHeight();
-    const heights = shown.map((tr) => tr.getBoundingClientRect().height);
+    const heights = shown.map((tr) => this.rect(tr).height);
     this.rowHeight = heights.length === 0 ? 0 : heights.reduce((a, b) => a + b, 0) / heights.length;
   }
 
   // The body's height, but for the rows under rows open
   private bodyHeight(): number {
-    let height = (this.tbody as HTMLTableSectionElement).getBoundingClientRect().height;
+    let height = this.rect(this.tbody as HTMLTableSectionElement).height;
     for (const details of this.details.values()) {
       if (!details.hidden && details.isConnected) {
-        height -= details.getBoundingClientRect().height;
+        height -= this.rect(details).height;
       }
     }
     return height;
@@ -9345,7 +10136,7 @@ export class GtTable extends HTMLElement {
     }
     numbers.dataset.gtiPages = key;
     // A page number keeps focus as it's replaced: the new page's has it
-    const active = this.ownerDocument.activeElement;
+    const active = this.focusedElement();
     const focused = active !== null && numbers.contains(active);
     numbers.replaceChildren(
       ...pageItems(page, count).map((item) => {
@@ -9530,6 +10321,19 @@ export class GtTable extends HTMLElement {
       for (const filter of texts) {
         found.push(...(cells[filter.index]?.find([filter.needle]) ?? []));
       }
+      // (And in the copies of its columns dropped, under it when it's open)
+      const details = this.details.get(tr);
+      // (Not `of (...) ?? []`, which Panel's Sucrase makes `of_nullishCoalesce(...)`)
+      const dropped = details === undefined ? [] : (this.droppedCells.get(details) ?? []);
+      for (const [c, cell] of dropped) {
+        // (Not hidden, as it's dropped)
+        if (!this.unsearched.has(c)) {
+          found.push(...cell.find(this.terms));
+        }
+        for (const filter of texts) {
+          found.push(...(filter.index === c ? cell.find([filter.needle]) : []));
+        }
+      }
       for (const { startNode, startOffset, endNode, endOffset } of found) {
         const range = this.ownerDocument.createRange();
         range.setStart(startNode, startOffset);
@@ -9680,6 +10484,8 @@ export class GtTable extends HTMLElement {
     this.asked++;
     this.waiting = null;
     this.removeAttribute("aria-busy");
+    this.closeProfile(false);
+    this.hideProfileTip();
     this.profileViews = [];
     this.profiled = undefined;
     this.filters = [];

@@ -308,7 +308,7 @@ def test_options_all_available(gt_tbl: GT):
 
 
 def test_scss_default_generated(gt_tbl: GT, snapshot):
-    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False, variables=False)
 
 
 def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
@@ -332,7 +332,7 @@ def test_scss_from_opt_table_outline(gt_tbl: GT, snapshot):
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_width").value == "10px"
         assert getattr(gt_tbl_outline._options, f"table_border_{part}_color").value == "blue"
 
-    assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False)
+    assert snapshot == compile_scss(gt_tbl_outline, id="abc", compress=False, variables=False)
 
 
 def test_opt_table_font_add_font():
@@ -461,7 +461,7 @@ def test_tab_options_striping_stub_snap(snapshot):
 def test_opt_stylize_default(snapshot):
     gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize()
 
-    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False, variables=False)
 
 
 def test_opt_stylize_no_striping(snapshot):
@@ -469,7 +469,7 @@ def test_opt_stylize_no_striping(snapshot):
         add_row_striping=False
     )
 
-    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False)
+    assert snapshot == compile_scss(gt_tbl, id="abc", compress=False, variables=False)
 
 
 def test_opt_striping_with_group_snap(snapshot):
@@ -489,7 +489,7 @@ def test_opt_striping_with_group_snap(snapshot):
 def test_opt_stylize_outline_present(style, snapshot):
     gt_tbl = GT(exibble, rowname_col="row", groupname_col="group").opt_stylize(style=style)
 
-    css = compile_scss(gt_tbl, id="abc", compress=False)
+    css = compile_scss(gt_tbl, id="abc", compress=False, variables=False)
 
     css_gt_table_cls = re.sub(r"^.*?#abc \.gt_table \{\n(.*?)\}.*$", r"\1", css, flags=re.DOTALL)
 
@@ -821,3 +821,44 @@ def test_opt_stylize_invalid_style_raises(gt_tbl: GT):
     # ValueError when style is not 1-6
     with pytest.raises(ValueError, match="style.*must be an integer value from.*1.*to.*6"):
         gt_tbl.opt_stylize(style=7)
+
+
+def test_tab_options_marks_options_as_set():
+    gt = GT(pd.DataFrame({"x": [1]}))
+    assert gt._options.table_background_color.is_set is False
+
+    out = gt.tab_options(table_background_color="#FFFFFF")
+    assert out._options.table_background_color.is_set is True
+    assert out._options.data_row_padding.is_set is False
+    assert out.opt_stylize()._options.column_labels_background_color.is_set is True
+
+
+def test_every_changed_option_is_marked_set():
+    from dataclasses import fields
+
+    from great_tables._gt_data import Options
+
+    gt = (
+        GT(pd.DataFrame({"x": [1]}), id="abc")
+        .opt_stylize()
+        .opt_row_striping()
+        .opt_vertical_padding(scale=0.5)
+        .opt_table_font(font="Courier")
+        .opt_interactive(selection_mode=None)
+    )
+    defaults = Options()
+    for f in fields(gt._options):
+        info = getattr(gt._options, f.name)
+        if info.value != getattr(defaults, f.name).value:
+            assert info.is_set, f.name
+    assert gt._options.table_id.is_set and gt._options.ihtml_selection_mode.is_set
+
+
+def test_set_options_survive_deepcopy_and_pickle():
+    import copy
+    import pickle
+
+    gt = GT(pd.DataFrame({"x": [1]})).tab_options(data_row_padding="3px")
+    for clone in (copy.deepcopy(gt), pickle.loads(pickle.dumps(gt))):
+        assert clone._options.data_row_padding.is_set is True
+        assert clone._options.heading_padding.is_set is False

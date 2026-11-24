@@ -9,6 +9,11 @@ no shortage of tools, styles, formats and themes, you can produce a very wide ra
 you haven't yet, head over to the [examples gallery](/examples/index.qmd) for a flavor of the
 variety that is possible.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="open up" cells="team|rating|wins|pts/Ace|4|12|88/Bolt|2|7|61" cell-trick="extend" intro='[["say", "Add-ons make me even greater!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 But what happens when there's something you want to add to your table, and it's not directly
 supported by **Great Tables**? Let's say you have a very specific use case for your great table, so
 it's not necessarily broad enough to contribute to the package. Or maybe it *is* generalizable, but

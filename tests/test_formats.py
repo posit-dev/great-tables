@@ -6042,7 +6042,7 @@ def test_fmt_number_min_sep_threshold_invalid(min_sep_threshold: Any):
         ([-0.5, 0.4], "colon-sep", dict(force_sign=True), ["00:00:00", "00:00:00"]),
         ([-3661, 5], "colon-sep", dict(force_sign=True), ["−01:01:01", "+00:00:05"]),
         # The narrow and wide styles show such a duration as less than a second, keeping the sign
-        ([-0.5], "narrow", dict(), ["−<1s"]),
+        ([-0.5], "narrow", dict(), ["−&lt;1s"]),
     ],
 )
 def test_fmt_duration_iso_and_zero_signs(x_in, duration_style: str, kwargs: dict, x_out: list[str]):

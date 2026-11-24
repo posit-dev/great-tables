@@ -7,6 +7,11 @@ bread-crumbs: false
 Terms used throughout the **Great Tables** documentation, listed alphabetically. Where a term
 has a direct counterpart in the API, the relevant class, method, or module is noted.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="rest" cells="A–F|G–L|M–S|T–Z/Body|Header|Stub|Title/Footer|Locale|Style|" cell-trick="define" intro='[["say", "All the table words, A to Z!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Body
 : The main data area of the table, consisting of rows and columns of cells that hold the
   underlying data values (after any formatting or substitution has been applied). The body

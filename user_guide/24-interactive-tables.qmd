@@ -13,6 +13,11 @@ can be read before the script runs, or if it never does. It's interactive wherev
 shown: in Jupyter notebooks, Quarto documents, and HTML files written with
 `~~GT.write_raw_html()`.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="rest up" cells="fruit|qty|price|kcal/fig|12|3.50|74/kiwi|40|0.80|61" cell-trick="sort" intro='[["say", "Sort me, search me!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Interactive tables are ideal for exploratory contexts where the reader needs to find specific values
 in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and
 filtering let readers answer their own questions about the data without you having to anticipate

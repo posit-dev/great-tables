@@ -21,8 +21,10 @@ from ._gt_data import (
 )
 from ._html import HTML, Tag, TagList, css
 from ._spanners import spanners_print_matrix
+from ._styles import CellStyleBorders, CellStyleFill, CellStyleText, _FillWithoutContrastText
 from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text
+from ._theme import CSS_COLOR_KEYWORDS, dark_blend, foreground_option
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 if TYPE_CHECKING:
@@ -111,10 +113,96 @@ def _is_loc(loc: str | loc.Loc, cls: type[loc.Loc]):
     return isinstance(loc, cls)
 
 
+# A hex color whose alpha channel is not fully opaque
+TRANSLUCENT_HEX = re.compile(
+    r"#(?:[0-9a-f]{3}[0-9a-e]|[0-9a-f]{6}(?:[0-9a-f][0-9a-e]|[0-9a-e][0-9a-f]))", re.IGNORECASE
+)
+
+
+def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None:
+    """
+    The declaration that makes a cell's literal colors work in dark mode, and where it goes: after
+    the style entry at the index given, or before all of them (`None`). `None` if there is none.
+
+    A fill with no text color gets the table's text color for its brightness; it goes first, so
+    that any color the user wrote wins. A fill that `data_color()` made with `autocolor_text=False`
+    gets it in dark mode only (`light-dark()` picks by the table's `color-scheme`), and keeps the
+    inherited text color in light mode. A text color with no fill is blended toward the inherited
+    text color in dark mode only, right after that color. Colors that aren't plain strings, or that
+    can't be parsed, add nothing.
+    """
+    fills = [el for el in style_entries if isinstance(el, CellStyleFill)]
+    texts = [i for i, el in enumerate(style_entries) if isinstance(el, CellStyleText) and el.color]
+
+    if fills and not texts:
+        # (The last fill is the one drawn)
+        fill = fills[-1]
+
+        # (Only an opaque color has a brightness: a keyword or a translucent color shows what is
+        # behind or around it)
+        color = fill.color
+        try:
+            usable = (
+                isinstance(color, str)
+                and color.strip().lower() not in CSS_COLOR_KEYWORDS
+                and not TRANSLUCENT_HEX.fullmatch(color.strip())
+            )
+            option = foreground_option(color) if usable else None
+        except ValueError:
+            option = None
+
+        if option is None:
+            return None
+        text = TEXT_VARS[option]
+        if isinstance(fill, _FillWithoutContrastText):
+            # (`currentcolor` in `color` is the inherited color)
+            return None, f"color: light-dark(currentcolor, {text});"
+        return None, f"color: {text};"
+
+    elif texts and not fills and isinstance(style_entries[texts[-1]].color, str):
+        color = style_entries[texts[-1]].color
+        return texts[-1], f"color: light-dark({color}, {dark_blend(color)});"
+
+    return None
+
+
+TEXT_VARS = {
+    "table_font_color": "var(--_gt-text-dark)",
+    "table_font_color_light": "var(--_gt-text-light)",
+}
+
+
+def _dark_aware_borders(entry: CellStyleBorders) -> str:
+    """The declarations that blend a cell's border color toward its text color in dark mode only
+    (as the default black would vanish on a dark table), each with a leading space, or `""`."""
+    color = entry.color
+    if not isinstance(color, str) or color.strip().lower() in CSS_COLOR_KEYWORDS:
+        return ""
+    sides = [entry.sides] if isinstance(entry.sides, str) else entry.sides
+    if "all" in sides:
+        sides = ["top", "bottom", "left", "right"]
+    blend = f"light-dark({color}, {dark_blend(color)})"
+    return "".join(f" border-{side}-color: {blend};" for side in sides)
+
+
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
     style_entries = list(chain.from_iterable(x.styles for x in styles))
     rendered_styles = [el._to_html_style() for el in style_entries]
+    for i, el in enumerate(style_entries):
+        if isinstance(el, CellStyleBorders) and rendered_styles[i]:
+            rendered_styles[i] += _dark_aware_borders(el)
+
+    dark_aware = _dark_aware_color(style_entries)
+    if dark_aware is not None:
+        after, declaration = dark_aware
+        if after is None:
+            rendered_styles.insert(0, declaration)
+        else:
+            # (A text style writes its color first)
+            authored = f"color: {style_entries[after].color};"
+            rest = rendered_styles[after].removeprefix(authored)
+            rendered_styles[after] = f"{authored} {declaration}{rest}"
 
     # TODO dedupe rendered styles in sequence
 
@@ -130,6 +218,23 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # if not wrapping the styles for html element,
     # return None so that no style attribute is written
     return None
+
+
+def _wrap_rotated_column_label(text: str, info: ColInfo) -> HTML | Tag:
+    """Wrap a label from `cols_label_rotate()` in a span that rotates it.
+
+    The `writing-mode` is set on the span and not on the `<th>`, since Safari doesn't size a
+    rotated cell for its text and so wraps short labels. The `height: max-content` keeps the label
+    on one line: Safari shows only the first line of a rotated label that wraps.
+    """
+    if info.column_label_rotate is None:
+        return HTML(text)
+
+    return Tag(
+        "span",
+        HTML(text),
+        style=f"writing-mode: {info.column_label_rotate}; height: max-content;",
+    )
 
 
 def _make_svg_ids_unique(html_str: str, prefix: str) -> str:
@@ -551,7 +656,7 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings.append(
                 Tag(
                     "th",
-                    HTML(column_label_with_footnotes),
+                    _wrap_rotated_column_label(column_label_with_footnotes, info),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
                     colspan=1,
@@ -648,7 +753,7 @@ def create_columns_component_h(data: GTData) -> str:
                 level_1_spanners.append(
                     Tag(
                         "th",
-                        HTML(column_label_with_footnotes),
+                        _wrap_rotated_column_label(column_label_with_footnotes, h_info),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{first_set_alignment}",
                         rowspan=2,
                         colspan=1,
@@ -738,7 +843,10 @@ def create_columns_component_h(data: GTData) -> str:
                 spanned_column_labels.append(
                     Tag(
                         "th",
-                        HTML(remaining_headings_label_with_footnotes),
+                        _wrap_rotated_column_label(
+                            remaining_headings_label_with_footnotes,
+                            next(info for info in boxhead if info.var == remaining_heading),
+                        ),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
@@ -904,6 +1012,20 @@ def _calculate_hierarchical_stub_rowspans(
 
 
 def create_body_component_h(data: GTData) -> str:
+    all_body_rows = "\n".join(create_body_rows_h(data))
+
+    return f"""<tbody class="gt_table_body">
+{all_body_rows}
+</tbody>"""
+
+
+def create_body_rows_h(
+    data: GTData, cell_classes: dict[int, dict[str, str]] | None = None
+) -> list[str]:
+    # The body's `<tr>`s. (`cell_classes` gives classes to add to the data rows' cells: by each
+    # row's place among the data rows shown, from 0, then by column, as a GTI table's kernel mode
+    # tints missing values)
+
     # for now, just coerce everything in the original data to a string
     # so we can fill in the body data with it
     _str_orig_data = cast_frame_to_string(data._tbl_data)
@@ -1143,6 +1265,7 @@ def create_body_component_h(data: GTData) -> str:
             row_class="gt_row_group_first" if leading_cell else None,
             stub_col_rowspans=row_stub_rowspans,
             stub_col_rows=row_stub_rows,
+            cell_classes=cell_classes.get(j) if cell_classes else None,
         )
         body_rows.append(row_html)
 
@@ -1201,11 +1324,7 @@ def create_body_component_h(data: GTData) -> str:
         )
         body_rows.append(row_html)
 
-    all_body_rows = "\n".join(body_rows)
-
-    return f"""<tbody class="gt_table_body">
-{all_body_rows}
-</tbody>"""
+    return body_rows
 
 
 def _create_row_component_h(
@@ -1228,6 +1347,7 @@ def _create_row_component_h(
     stub_col_rowspans: list[int] | None = None,  # Rowspan values for stub cols (multi-col stub)
     stub_col_rows: list[list[int]] | None = None,  # Data rows covered by each stub cell
     header_ids: _HeaderIds | None = None,  # Ids of the header cells, for `headers` attributes
+    cell_classes: dict[str, str] | None = None,  # Classes to add to cells, by column
 ) -> str:
     """Create a single table row (either data row or summary row)"""
 
@@ -1342,6 +1462,8 @@ def _create_row_component_h(
             cell_content = _get_cell(tbl_data, row_index, colinfo.var)
 
         classes = [css_class] if css_class else []
+        if cell_classes and colinfo.var in cell_classes:
+            classes.append(cell_classes[colinfo.var])
 
         cell_str = str(cell_content)
         cell_alignment = colinfo.defaulted_align

@@ -155,3 +155,27 @@ def test_fasthtml():
     assert page.count(JS) == 1
     assert page.count('<table class="gt_table"') == 2
     assert "&lt;" not in page.split("<body>")[0]
+
+
+def test_fasthtml_route_returns_a_table():
+    pytest.importorskip("fasthtml")
+    pytest.importorskip("httpx")
+    from fasthtml.common import Div, FastHTML
+    from starlette.testclient import TestClient
+
+    interactive, gt_interactive, static = tables()
+    app = FastHTML(secret_key="test")  # (Without writing a .sesskey file)
+    app.get("/one")(lambda: interactive)
+    app.get("/two")(lambda: (gt_interactive, Div("After")))
+    app.get("/three")(lambda: static)
+
+    # (Each in a page, as its HTML, as a component is: not its repr, nor escaped)
+    client = TestClient(app)
+    for path, table in [("/one", interactive), ("/two", gt_interactive), ("/three", static)]:
+        page = client.get(path).text
+        assert page.startswith("<!doctype html>")
+        assert table.as_raw_html() in page
+        assert "&lt;" not in page and "GT(" not in page
+    assert elements(client.get("/one").text) == 1
+    assert "<div>After</div>" in client.get("/two").text
+    assert interactive.__ft__() == interactive.__html__() == interactive.as_raw_html()

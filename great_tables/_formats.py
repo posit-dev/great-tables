@@ -5026,8 +5026,10 @@ def fmt_duration_context(
             locale=locale,
         )
 
-    # Escape the `<` of values below the smallest output unit (e.g., `<1s`) for LaTeX
-    if context == "latex":
+    # Escape the `<` of values below the smallest output unit (e.g., `<1s`) for HTML and LaTeX
+    if context == "html":
+        x_formatted = _html_escape(x_formatted)
+    elif context == "latex":
         x_formatted = _latex_escape(x_formatted)
 
     # A duration shown as zero in the colon and ISO styles (e.g., `00:00:00` for `-0.4` seconds)

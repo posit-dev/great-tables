@@ -21,3 +21,10 @@ from great_tables.this import table
 
 table().show()
 ```
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<div style="margin-top: 2rem; text-align: center">
+  <gt-tabblen mood="zen" arms="open" bubble="top" cell-trick="zen" intro='[["wait", 800], ["say", "Simple is better than complex.", 3500]]'></gt-tabblen>
+</div>
+```

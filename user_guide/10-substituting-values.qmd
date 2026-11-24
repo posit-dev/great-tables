@@ -10,6 +10,11 @@ misleading when displayed directly in a table. The `sub_*()` family of methods l
 these problematic values with more meaningful text, improving readability without altering your
 underlying data.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" cells="B|0|0.0|0.0/C|42|0.542|1e13/E|3|None|None" cell-trick="substitute" intro='[["say", "Hmm, some of these look a little awkward…"]]'></gt-tabblen>
+```
+
 It is worth noting that substitution is about communication, not data cleaning. The underlying
 DataFrame is unchanged---what changes is how problematic values are *presented* to the reader. A
 `None` displayed as "N/A" or an em dash is immediately understood as intentionally missing, whereas

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from ._locations import Loc
     from ._styles import CellStyle
     from ._text import BaseText
+    from ._theme import Theme
 
 T = TypeVar("T")
 
@@ -129,6 +130,8 @@ class GTData:
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
     _data_colors: list = field(default_factory=list)  # list[DataColorInfo]
     _has_built: bool = False
+    _theme: Theme | None = None
+    _theme_mode: str = "auto"
 
     def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
@@ -155,7 +158,7 @@ class GTData:
         stub, boxhead = _prep_gt(data, rowname_col, groupname_col, auto_align)
 
         if id is not None:
-            options = Options(table_id=OptionsInfo(True, "table", "value", id))
+            options = Options()._set_option_value("table_id", id)
         else:
             options = Options()
 
@@ -291,6 +294,8 @@ class ColInfo:
     column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
+    # The `writing-mode` of a label rotated by `cols_label_rotate()`
+    column_label_rotate: str | None = None
     # Position of the column within the stub (0 = outermost level); only set for columns given in
     # `rowname_col`, and kept when the column is hidden so that it can be restored as a stub column
     stub_level: int | None = None
@@ -501,6 +506,15 @@ class Boxhead(_Sequence[ColInfo]):
         set_cols = set(columns)
         out_cols: list[ColInfo] = [
             replace(x, column_align=align) if x.var in set_cols else x for x in self._d
+        ]
+
+        return self.__class__(out_cols)
+
+    # Set the direction of rotated column labels
+    def _set_column_label_rotate(self, columns: list[str], dir: str) -> Self:
+        set_cols = set(columns)
+        out_cols: list[ColInfo] = [
+            replace(x, column_label_rotate=dir) if x.var in set_cols else x for x in self._d
         ]
 
         return self.__class__(out_cols)
@@ -1339,6 +1353,7 @@ class OptionsInfo:
     category: str
     type: str
     value: Any
+    is_set: bool = False
 
     def _validate_value(self, value: Any, option_name: str) -> Any:
         """Validate and coerce an option value based on its type.
@@ -1400,6 +1415,19 @@ class OptionsInfo:
             return value
         else:
             return value
+
+
+@dataclass(frozen=True)
+class _ThemeOptionsInfo(OptionsInfo):
+    """An option value that `resolve_options()` derived from a theme, rather than one the user set."""
+
+
+def is_user_set(info: OptionsInfo, default: OptionsInfo) -> bool:
+    """
+    Whether the user set an option: it is marked as set, or it has a value other than its default
+    that a theme didn't give it (as when code outside Great Tables replaced the value).
+    """
+    return info.is_set or (not isinstance(info, _ThemeOptionsInfo) and info.value != default.value)
 
 
 @dataclass(frozen=True)
@@ -1641,6 +1669,6 @@ class Options:
     def _set_option_value(self, option: str, value: Any):
         old_info = getattr(self, option)
         validated_value = old_info._validate_value(value, option_name=option)
-        new_info = replace(old_info, value=validated_value)
+        new_info = replace(old_info, value=validated_value, is_set=True)
 
         return replace(self, **{option: new_info})

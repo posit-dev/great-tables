@@ -52,6 +52,22 @@ def test_datasets_pd_pl_same_shape(name: str):
     assert pd_df.shape == pl_df.shape
 
 
+@pytest.mark.parametrize("name", _DATASET_NAMES)
+def test_datasets_pd_pl_same_missing_values(name: str):
+    # (Namibia's country code, "NA", isn't missing)
+    pd_df = getattr(data.pd, name)
+    pl_df = getattr(data.pl, name)
+    pd_missing = {col: pd_df[col].isna().to_list() for col in pd_df.columns}
+    pl_missing = {col: pl_df[col].is_null().to_list() for col in pl_df.columns}
+    assert pd_missing == pl_missing
+
+
+def test_countrypops_keeps_namibias_code():
+    for df in (data.countrypops, data.pd.countrypops):
+        namibia = df[df["country_name"] == "Namibia"]
+        assert set(namibia["country_code_2"]) == {"NA"}
+
+
 def test_pd_namespace_caches_results():
     df1 = data.pd.exibble
     df2 = data.pd.exibble

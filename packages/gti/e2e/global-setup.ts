@@ -16,7 +16,7 @@ export function python(): string {
 
 export default function globalSetup(): void {
   const exe = python();
-  for (const script of ["make_fixtures.py", "make_hosts.py"]) {
+  for (const script of ["make_fixtures.py", "make_hosts.py", "make_theme_fixtures.py"]) {
     const result = spawnSync(exe, [join(here, script)], { stdio: "inherit" });
     if (result.error !== undefined || result.status !== 0) {
       throw new Error(

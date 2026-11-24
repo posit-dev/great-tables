@@ -256,3 +256,30 @@ def test_needs_anywidget(monkeypatch):
     monkeypatch.delitem(sys.modules, "great_tables._gti._widget")
     with pytest.raises(ImportError, match="pip install anywidget"):
         GTI(pd.DataFrame(DATA)).i_as_widget()
+
+
+def test_needs_narwhals(monkeypatch):
+    # (Which the `widget`, `streamlit` and `panel` extras install, for finding a view's rows and
+    # keeping a table's rows in Python; and the "code" export needs it too)
+    widget = make_widget()
+    monkeypatch.setitem(sys.modules, "narwhals", None)
+    with pytest.raises(ImportError, match=r"Finding a view's rows .* `pip install narwhals`"):
+        widget.rows
+    with pytest.raises(ImportError, match=r"Keeping a table's rows in Python .* narwhals"):
+        GTI(pd.DataFrame(DATA)).i_scale(engine="kernel").i_as_widget()
+    with pytest.raises(ImportError, match=r'The "code" export .* narwhals'):
+        GTI(pd.DataFrame(DATA)).i_export("code")
+    # (Without them, a table needs only what Great Tables does)
+    GTI(pd.DataFrame(DATA)).i_export("csv").i_view(sort="num").i_as_widget()
+
+
+@pytest.mark.parametrize("extra", ["widget", "streamlit", "panel", "solara", "marimo"])
+def test_extras_install_narwhals(extra):
+    tomllib = pytest.importorskip("tomllib")
+    from pathlib import Path
+
+    pyproject = Path(__file__).parent.parent / "pyproject.toml"
+    extras = tomllib.loads(pyproject.read_text(encoding="utf-8"))["project"][
+        "optional-dependencies"
+    ]
+    assert "narwhals" in extras[extra]

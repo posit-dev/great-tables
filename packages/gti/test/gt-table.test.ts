@@ -442,6 +442,28 @@ describe("sorting", () => {
     expect(header(el, "x").classList.contains("gt-i-sortable")).toBe(true);
   });
 
+  it("names each label by its text, not with its controls'", async () => {
+    const el = await mountTable(GROUPED, {
+      yLabel: 'y (<span>units</span>)<span class="gt_footnote_marks">1</span>',
+      columns: { x: { dtype: "f64" } },
+      filters: [{ column: "x", type: "range", values: [5, 10, 20] }],
+    });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(header(el, "y").getAttribute("aria-label")).toBe("y (units)");
+    // (A label without controls is named by its text already)
+    const plain = await mountTable(GROUPED, { controls: { sorting: false } });
+    expect(header(plain, "x").hasAttribute("aria-label")).toBe(false);
+    // (And the stubhead, with a resize handle, by its text too)
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const stub = await mountTable(GROUPED, {
+      controls: { resizing: true },
+      thead:
+        `<tr class="gt_col_headings"><th class="gt_col_heading">Row</th>` +
+        `<th class="gt_col_heading gt_right" id="t-x">x</th><th class="gt_col_heading gt_left" id="t-y">y</th></tr>`,
+    });
+    expect(stub.querySelector("thead th:not([id])")?.getAttribute("aria-label")).toBe("Row");
+  });
+
   it("leaves the label's markup as it is", async () => {
     const label = "<em>y</em> (<span>units</span>)";
     const el = await mountTable(GROUPED, { yLabel: label });
@@ -2119,6 +2141,58 @@ describe("the control bar", () => {
   });
 });
 
+describe("a table in a shadow root", () => {
+  // (As Panel shows one: there, the document's focused element is the shadow root's host)
+  async function mountShadow(options: TableOptions = {}) {
+    const { html, spec } = gtTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+    document.body.innerHTML = "<div></div>";
+    const root = (document.body.firstElementChild as HTMLElement).attachShadow({ mode: "open" });
+    root.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    await tick();
+    return { el: root.querySelector(TAG_NAME) as GtTable, root };
+  }
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+
+  it("keeps the bar's search open when `search` is emptied while it has focus", async () => {
+    const { el, root } = await mountShadow();
+    part(el, "search").click();
+    el.search = "a";
+    el.search = "";
+    expect((el.querySelector(".gt-i-search-field") as HTMLElement).hidden).toBe(false);
+    expect(root.activeElement).toBe(searchBox(el));
+  });
+
+  it("puts focus back on the readout after a jump to a page", async () => {
+    const { el, root } = await mountShadow();
+    const readout = el.querySelector(".gt-i-readout") as HTMLButtonElement;
+    readout.click();
+    const input = el.querySelector(".gt-i-readout-jump input") as HTMLInputElement;
+    expect(root.activeElement).toBe(input);
+    input.value = "3";
+    press(input, "Enter");
+    expect(el.page).toBe(3);
+    expect(root.activeElement).toBe(readout);
+  });
+
+  it("keeps focus on the current page number as the numbers change", async () => {
+    const { el, root } = await mountShadow({ controls: { search: false, bar: false } });
+    const page = (target: string) =>
+      el.querySelector(`.gt-i-pager button[data-gti-page="${target}"]`) as HTMLButtonElement;
+    page("2").focus();
+    page("2").click();
+    expect(el.page).toBe(2);
+    expect(root.activeElement).toBe(page("2"));
+    expect(root.activeElement?.getAttribute("aria-current")).toBe("page");
+  });
+});
+
 describe("the info panel", () => {
   const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
   const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
@@ -2511,6 +2585,31 @@ describe("the bar's reset, shortcuts and tooltips", () => {
     expect(pagedOpen.hidden).toBe(true);
   });
 
+  it("closes the shortcuts opened from the info panel as their button would close them", async () => {
+    // (As the search opens)
+    const el = await mountBar();
+    const info = part(el, "info");
+    info.click();
+    (panelOf(el, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(el, "keys").hidden).toBe(false);
+    part(el, "search").click();
+    expect(panelOf(el, "keys").hidden).toBe(true);
+    expect(info.getAttribute("aria-expanded")).toBe("false");
+
+    // (As the shortcuts go)
+    const paged = await mountTable(GROUPED, {
+      controls: { search: false, sorting: false, bar: true },
+      pagination: { enabled: true },
+    });
+    const pagedInfo = part(paged, "info");
+    pagedInfo.click();
+    (panelOf(paged, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(paged, "keys").hidden).toBe(false);
+    paged.pageSize = 10;
+    expect(panelOf(paged, "keys").hidden).toBe(true);
+    expect(pagedInfo.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("keeps a panel open as a press in it that focuses nothing there focuses the table", async () => {
     const el = await mountBar();
     const info = part(el, "info");
@@ -2810,14 +2909,49 @@ describe("the handle under the rows", () => {
     expect(el.pageSize).toBe(2);
   });
 
-  it("works on a search's rows, up to every row of the table", async () => {
+  it("goes from the rows a search shows to one short of every row, past which its page isn't padded", async () => {
+    // (3 of the 5 rows match: on pages of 2, then 3 and 4, padded to them)
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    el.search = "a";
+    press(rows, "ArrowDown");
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    press(rows, "ArrowDown");
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(4);
+
+    // (On a page of every row, the foot is at the 3 shown)
+    el.pageSize = 5;
+    press(rows, "ArrowUp");
+    expect(el.pageSize).toBe(2);
+    el.pageSize = 5;
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    el.pageSize = 5;
+    pointer(rows, "pointerdown", { clientY: 100 });
+    pointer(rows, "pointermove", { clientY: 105 });
+    expect(el.pageSize).toBe(5);
+    pointer(rows, "pointermove", { clientY: 76 });
+    expect(el.pageSize).toBe(2);
+    pointer(rows, "pointermove", { clientY: 1000 });
+    expect(el.pageSize).toBe(4);
+    pointer(rows, "pointerup", { clientY: 1000 });
+
+    // (Every row, with no search)
+    el.search = "";
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(5);
+  });
+
+  it("works on a search's rows, up to one short of every row of the table", async () => {
     const el = await mountRows();
     const rows = handle(el) as HTMLElement;
     el.search = "row_1";
     press(rows, "ArrowDown");
     expect(el.pageSize).toBe(3);
     press(rows, "PageDown");
-    expect(el.pageSize).toBe(5);
+    expect(el.pageSize).toBe(4);
   });
 
   it("is a size a kept view can have", async () => {
@@ -3318,7 +3452,7 @@ describe("export", () => {
       ["a", "row_3", "10", "c"],
     ]);
     expect(table.querySelectorAll("thead th")).toHaveLength(4);
-    expect(table.querySelectorAll("[class], [id], [rowspan], [headers]")).toHaveLength(0);
+    expect(table.querySelectorAll("[class], [id], [rowspan], [headers], [aria-label], [aria-describedby]")).toHaveLength(0);
     // (The stub's cells are still header cells)
     const row1 = table.rows[2] as HTMLTableRowElement;
     expect(Array.from(row1.cells, (cell) => cell.tagName)).toEqual(["TD", "TH", "TD", "TD"]);
@@ -4353,7 +4487,7 @@ describe("date filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const options = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const press = (key: string) =>
       input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
     input.value = "x ";
@@ -4502,7 +4636,7 @@ describe("bool filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const suggestions = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const type = (text: string) => {
       input.value = text;
       input.setSelectionRange(text.length, text.length);
@@ -4542,7 +4676,7 @@ describe("the query box", () => {
   const list = (el: GtTable) => root(el).querySelector('[role="listbox"]') as HTMLElement;
   const error = (el: GtTable) => root(el).querySelector(".gt-i-query-error") as HTMLElement;
   const options = (el: GtTable) =>
-    Array.from(list(el).querySelectorAll("li"), (li) => (li.firstChild as Text).data);
+    Array.from(list(el).querySelectorAll("li"), (li) => li.firstChild?.textContent);
   const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
     const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
     target.dispatchEvent(event);
@@ -4611,7 +4745,7 @@ describe("the query box", () => {
     expect(field.getAttribute("aria-controls")).toBe(list(el).id);
     expect(field.getAttribute("enterkeyhint")).toBe("go");
     expect(field.getAttribute("spellcheck")).toBe("false");
-    expect(field.placeholder).toBe("x >= …");
+    expect(field.placeholder).toBe("x >= … · Tab or ↓ for columns");
     expect(list(el).getAttribute("aria-label")).toBe("Suggestions");
     expect(root(el).querySelector('[aria-label="Apply the filters"]')).not.toBeNull();
   });
@@ -4717,13 +4851,13 @@ describe("the query box", () => {
   it("suggests columns, then their ops, then a facet's values, as text is typed", async () => {
     const { el } = await mountQuery();
     toggle(el).click();
-    input(el).value = "";
-    // (Not as it opens; with ArrowDown)
-    expect(list(el).hidden).toBe(true);
-    press(input(el), "ArrowDown");
+    // (As it opens empty, with none chosen until ArrowDown)
     expect(list(el).hidden).toBe(false);
     expect(options(el)).toEqual(["x", "y"]);
     expect(input(el).getAttribute("aria-expanded")).toBe("true");
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(input(el).hasAttribute("aria-activedescendant")).toBe(false);
+    press(input(el), "ArrowDown");
     const first = list(el).querySelector("li") as HTMLElement;
     expect(first.getAttribute("role")).toBe("option");
     expect(first.getAttribute("aria-selected")).toBe("true");
@@ -4786,6 +4920,106 @@ describe("the query box", () => {
     replace(el, "ki");
     expect(options(el)).toEqual(["y"]);
     expect(list(el).querySelector(".gt-i-query-detail")?.textContent).toBe("Kind");
+  });
+
+  it("puts a column's name in place of its label, as the label's typed, pasted or applied", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind of y" });
+    toggle(el).click();
+    // Type text at the end as a browser does, with what kind of input it is
+    const enter = (text: string, inputType = "insertText") => {
+      const field = input(el);
+      field.dispatchEvent(new InputEvent("beforeinput", { inputType, bubbles: true, cancelable: true }));
+      field.value += text;
+      field.setSelectionRange(field.value.length, field.value.length);
+      field.dispatchEvent(new InputEvent("input", { inputType, bubbles: true }));
+    };
+    // (Not as it's typed, but once it ends)
+    enter("kind_of");
+    enter("_y");
+    expect(input(el).value).toBe("kind_of_y");
+    enter(" ");
+    expect(input(el).value).toBe("y ");
+    expect(input(el).selectionStart).toBe(2);
+    expect(live(el)).toBe("Kind of y is y");
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+
+    // As it's pasted, as it is in backticks
+    replace(el, "");
+    enter('`Kind of y` in ("a") and x >= 5', "insertFromPaste");
+    expect(input(el).value).toBe('y in ("a") and x >= 5');
+    // (And not as it's taken out)
+    replace(el, "kind_of_y");
+    enter("", "deleteContentBackward");
+    expect(input(el).value).toBe("kind_of_y");
+
+    // And as it's applied
+    replace(el, 'x >= 5 and kind_of_y in ("b")');
+    press(input(el), "Enter");
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 5 },
+        { col: "y", op: "in", value: ["b"] },
+      ],
+    });
+    toggle(el).click();
+    expect(input(el).value).toBe('x >= 5 and y in ("b")');
+  });
+
+  it("opens the columns on Tab where a column goes, and leaves on a second Tab", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    press(input(el), "Escape");
+    expect(list(el).hidden).toBe(true);
+    expect(press(input(el), "Tab").defaultPrevented).toBe(true);
+    expect(options(el)).toEqual(["x", "y"]);
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+
+    // (Not where a column doesn't go)
+    replace(el, "x >= 5 ");
+    press(input(el), "Escape");
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+    expect(list(el).hidden).toBe(true);
+  });
+
+  it("has the columns' names in code, and their labels in the table's font", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    toggle(el).click();
+    const items = Array.from(list(el).querySelectorAll("li"));
+    expect(items.map((li) => li.querySelector(".gt-i-query-code")?.textContent)).toEqual(["x", "y"]);
+    expect(items[1]?.querySelector(".gt-i-query-detail:not(.gt-i-query-code)")?.textContent).toBe("Kind");
+    // (And a facet's values, beside what they are)
+    replace(el, "y in (");
+    expect(list(el).querySelector(".gt-i-query-code")?.classList.contains("gt-i-query-detail")).toBe(true);
+  });
+
+  it("shows the columns' names over the table as it's open, to put in at the caret", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const at = this.id === "t-x" ? 0 : this.id === "t-y" ? 100 : -1;
+      return at < 0 ? new DOMRect(0, 0, 400, 300) : new DOMRect(at, 50, 100, 20);
+    });
+    toggle(el).click();
+    const layer = el.querySelector(".gt-i-names") as HTMLElement;
+    expect(layer.getAttribute("aria-hidden")).toBe("true");
+    const names = Array.from(layer.querySelectorAll<HTMLElement>(".gt-i-names-name"));
+    expect(names.map((name) => name.textContent)).toEqual(["x", "y"]);
+    replace(el, "x >= 5 and");
+    names[1]?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 and y ");
+    expect(input(el).selectionStart).toBe(13);
+    expect(document.activeElement).toBe(input(el));
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+    // (In place of a column being typed)
+    replace(el, "x >= 5 or k");
+    input(el).setSelectionRange(11, 11);
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 or y ");
+
+    press(input(el), "Escape");
+    press(input(el), "Escape");
+    expect(el.querySelector(".gt-i-names")).toBeNull();
   });
 
   it("doesn't suggest as text is deleted, or for none", async () => {
@@ -6032,10 +6266,26 @@ describe("column resizing", () => {
       expect(handle.getAttribute("aria-valuenow")).toBe("100");
       expect(handle.getAttribute("aria-valuetext")).toBe("100 pixels");
       expect(handle.tabIndex).toBe(0);
+      expect(handle.getAttribute("aria-valuemin")).toBe("32");
       // (Beside the sort button, not in it)
       expect(handle.parentElement?.classList.contains("gt-i-resizable")).toBe(true);
       expect(handle.closest("button")).toBeNull();
     }
+  });
+
+  it("says how narrow and how wide a column can be made", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(600);
+    const el = await resizable();
+    const handle = handles(el)[1] as HTMLElement;
+    const range = () => ["aria-valuemin", "aria-valuenow", "aria-valuemax"].map((name) => handle.getAttribute(name));
+    // (From 2em to the table's width, and wider as it's made so)
+    expect(range()).toEqual(["32", "100", "600"]);
+    for (let i = 0; i < 60; i++) {
+      press(handle, "ArrowRight", true);
+    }
+    expect(range()).toEqual(["32", "3100", "3100"]);
+    press(handle, "Home");
+    expect(range()).toEqual(["32", "32", "600"]);
   });
 
   it("resizes a column with the arrow keys, fixing every column's width", async () => {
@@ -7345,16 +7595,19 @@ describe("a table that can be stacked", () => {
   });
 
   it("isn't stacked in a container as wide as what's in it", async () => {
-    // (Shown, and widened by a width for what's in it, as it would be in a table's cell)
+    // (Shown, and GT's <div> around the table, the container queried, widened by a width for
+    // what's in it, as it would be in a table's cell)
     vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(() => [{}] as unknown as DOMRectList);
     vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
-      return this.style.getPropertyValue("contain-intrinsic-inline-size") === "" ? 0 : 400;
+      const sized = this.style.getPropertyValue("contain-intrinsic-inline-size") !== "";
+      return sized && this.querySelector(":scope > table") !== null ? 400 : 0;
     });
     for (const responsive of ["stack", "auto"] as const) {
       const el = await stackable({ layout: { responsive }, columns: { y: { hideable: true } } });
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
       expect(el.hasAttribute("data-gti-stacked")).toBe(false);
-      expect(el.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
+      const div = el.querySelector("table")?.parentElement as HTMLElement;
+      expect(div.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
       // (And still not, as it shows fewer columns)
       el.hiddenColumns = ["y"];
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
@@ -8107,6 +8360,14 @@ describe("the filter & sort sheet", () => {
     expect(sheet(el).open).toBe(true);
   });
 
+  it("doesn't open on a long press of a column's profile, along which a finger reads its bars", async () => {
+    const el = await mountSheet({ profiles: [{ column: "y", plot: "top", values: null }] });
+    vi.useFakeTimers();
+    pointer(header(el, "y").querySelector(".gt-i-profile svg") as Element, "pointerdown", { clientX: 10, clientY: 10 });
+    vi.advanceTimersByTime(600);
+    expect(el.querySelector("dialog")).toBeNull();
+  });
+
   it("can't hide a column that's the only one shown", async () => {
     const el = await mountSheet({ columns: { x: { hideable: true } } });
     vi.useFakeTimers();
@@ -8309,12 +8570,23 @@ describe("column profiles", () => {
   const mountProfiles = (options: TableOptions = {}) => mountTable(GROUPED, { profiles: PROFILES, ...options });
   const profile = (th: Element) => th.querySelector<HTMLElement>(":scope > .gt-i-profile");
   const caption = (el: GtTable, column: string) => profile(header(el, column))?.querySelector(".gt-i-profile-text")?.textContent;
-  const titles = (el: GtTable, column: string) =>
-    Array.from(profile(header(el, column))?.querySelectorAll("title") ?? [], (title) => title.textContent);
   const heights = (el: GtTable, column: string) =>
-    Array.from(profile(header(el, column))?.querySelectorAll("rect:not(.gt-i-profile-hit)") ?? [], (rect) =>
-      Number(rect.getAttribute("height")),
-    );
+    Array.from(profile(header(el, column))?.querySelectorAll("rect") ?? [], (rect) => Number(rect.getAttribute("height")));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
+  const shownTip = (el: GtTable) => {
+    const tip = el.querySelector<HTMLElement>(":scope > .gt-i-profile-tip");
+    return tip === null || tip.hidden ? null : `${tip.firstChild?.textContent}: ${tip.lastChild?.textContent}`;
+  };
+  // (The mouse over a column's bar `i`, of a plot 10px a bar)
+  const hover = (el: GtTable, column: string, i: number, init: PointerEventInit = {}) => {
+    const svg = profile(header(el, column))?.querySelector("svg") as SVGSVGElement;
+    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 10 * svg.childElementCount, 10));
+    pointer(svg, "pointermove", { clientX: 10 * i + 5, ...init });
+    return shownTip(el);
+  };
+  // Each bar's tooltip
+  const titles = (el: GtTable, column: string) => heights(el, column).map((_, i) => hover(el, column, i));
 
   it("draws a profile under each profiled column's label (after its controls), and room for one under the others", async () => {
     const el = await mountProfiles();
@@ -8323,7 +8595,15 @@ describe("column profiles", () => {
       expect(th.classList.contains("gt-i-profiled")).toBe(true);
       expect(th.lastElementChild).toBe(profile(th));
       expect(profile(th)?.previousElementSibling?.classList.contains("gt-i-head-controls")).toBe(true);
-      expect(profile(th)?.getAttribute("aria-hidden")).toBe("true");
+      // (A button opening its larger view, whose plot and caption are hidden)
+      expect(profile(th)?.hasAttribute("aria-hidden")).toBe(false);
+      expect(profile(th)?.getAttribute("role")).toBe("button");
+      expect(profile(th)?.getAttribute("aria-label")).toBe(`Show the profile of ${column}`);
+      expect(profile(th)?.getAttribute("aria-expanded")).toBe("false");
+      expect(profile(th)?.tabIndex).toBe(0);
+      expect(profile(th)?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector(".gt-i-profile-text")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector("title")).toBeNull();
     }
     expect(profile(header(el, "x"))?.classList.contains("gt-i-profile-histogram")).toBe(true);
     expect(profile(header(el, "y"))?.classList.contains("gt-i-profile-top")).toBe(true);
@@ -8332,6 +8612,7 @@ describe("column profiles", () => {
     expect(heights(el, "y")).toHaveLength(3);
     const stubhead = el.querySelector("thead th:not([id])") as HTMLTableCellElement;
     expect(profile(stubhead)?.childElementCount).toBe(0);
+    expect(profile(stubhead)?.getAttribute("aria-hidden")).toBe("true");
     expect(stubhead.classList.contains("gt-i-profiled")).toBe(false);
   });
 
@@ -8343,18 +8624,28 @@ describe("column profiles", () => {
   it("names each bar's values and rows, and says the range shown and the share missing", async () => {
     const el = await mountProfiles();
     const x = titles(el, "x");
-    expect(x[0]).toBe("5: 1 row");
+    expect(x[0]).toBe("5: 1 row (20%)");
     expect(x[1]).toBe("6: 0 rows");
-    expect(x[5]).toBe("10: 1 row");
-    expect(x[15]).toBe("20: 2 rows");
+    expect(x[5]).toBe("10: 1 row (20%)");
+    expect(x[15]).toBe("20: 2 rows (40%)");
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
     // (The bars go up to the most rows, a few rows' still seen)
     expect(heights(el, "x")[15]).toBe(1);
     expect(heights(el, "x")[0]).toBe(0.5);
     expect(heights(el, "x")[1]).toBe(0);
     // (y's values, as its cells show them, most rows' first)
-    expect(titles(el, "y")).toEqual(["a: 3 rows", "b: 1 row", "c: 1 row"]);
+    expect(titles(el, "y")).toEqual(["a: 3 rows (60%)", "b: 1 row (20%)", "c: 1 row (20%)"]);
     expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("names a histogram's bins of times in a time zone by its clock, as its cells show them", async () => {
+    // (x's values, in Tokyo: midnight, 5am and 10am, written as the cells show them)
+    const zoned = ["2015-06-15T00:00:00+09:00", "2015-06-15T05:00:00+09:00", "2015-06-15T10:00:00+09:00"];
+    const el = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "histogram", values: zoned }] });
+    const x = titles(el, "x");
+    expect(x).toHaveLength(20);
+    expect(x[0]).toBe("Jun 15, 2015, 12:00 AM – Jun 15, 2015, 12:30 AM: 1 row (20%)");
+    expect(x[19]).toBe("Jun 15, 2015, 9:30 AM – Jun 15, 2015, 10:00 AM: 2 rows (40%)");
   });
 
   it("counts the rows the search and filters keep, with the same bars", async () => {
@@ -8362,7 +8653,7 @@ describe("column profiles", () => {
     el.search = "a";
     // (Rows 1, 3 and 4: 5, a missing value and 20)
     expect(caption(el, "x")).toBe("5 – 20 · 33% missing");
-    expect(titles(el, "x")[15]).toBe("20: 1 row");
+    expect(titles(el, "x")[15]).toBe("20: 1 row (33%)");
     expect(heights(el, "x")).toHaveLength(16);
     expect(caption(el, "y")).toBe("1 value");
     expect(heights(el, "y")).toEqual([1, 0, 0]);
@@ -8371,6 +8662,30 @@ describe("column profiles", () => {
     expect(heights(el, "y")).toEqual([0, 0, 0]);
     el.search = "";
     expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("describes each profiled label by its dtype and summary, which a screen reader reads", async () => {
+    const el = await mountProfiles({ columns: { x: { dtype: "f64" } }, export: { formats: ["csv"] } });
+    const about = (column: string) => {
+      const th = header(el, column);
+      const found = el.ownerDocument.getElementById(th.getAttribute("aria-describedby") ?? "");
+      expect(found?.parentElement).toBe(th);
+      expect(found?.hidden).toBe(true);
+      return found?.textContent;
+    };
+    expect(about("x")).toBe("f64, 5 to 20, 20% missing");
+    expect(about("y")).toBe("3 values");
+    el.search = "zzz";
+    expect(about("x")).toBe("f64, No rows");
+    el.search = "a";
+    expect(about("y")).toBe("1 value");
+    // (Not part of the label's text)
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+    // (And a dtype without a profile is described too)
+    const plain = await mountTable(GROUPED, { columns: { y: { dtype: "str" } } });
+    expect(plain.ownerDocument.getElementById(header(plain, "y").getAttribute("aria-describedby") ?? "")?.textContent).toBe("str");
+    expect(header(plain, "x").hasAttribute("aria-describedby")).toBe(false);
   });
 
   it("counts again only when other rows are kept, not when the table is sorted or paged", async () => {
@@ -8395,6 +8710,228 @@ describe("column profiles", () => {
     const el = await mountProfiles({ controls: { sorting: false } });
     expect(el.querySelector(".gt-i-head-controls")).toBeNull();
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+  });
+
+  // (The element, x's label and its plot (16 bars of 5px), and the tooltip, where they are)
+  const place = (host: DOMRect, th: DOMRect) => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.matches("gt-table")
+        ? host
+        : this.matches("th")
+          ? th
+          : this.matches("svg")
+            ? new DOMRect(th.x + 5, th.bottom - 30, 80, 20)
+            : this.matches(".gt-i-profile-tip")
+              ? new DOMRect(0, 0, 60, 30)
+              : new DOMRect();
+    });
+  };
+  const tipBox = (el: GtTable) => {
+    const tip = el.querySelector(":scope > .gt-i-profile-tip") as HTMLElement;
+    const lead = el.querySelector(":scope > .gt-i-profile-lead") as HTMLElement;
+    const { left, top, width, transform } = lead.style;
+    return { tip: [tip.style.left, tip.style.top], lead: { left, top, width, transform }, hidden: tip.hidden || lead.hidden };
+  };
+
+  it("shows the tooltip of the bar nearest the pointer, over the label, with a line down to the bar", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(0, 0, 400, 300), new DOMRect(100, 50, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    // (Past the plot's end, the last bar's: 20, the bar of the most rows, its top at the plot's)
+    pointer(svg, "pointermove", { clientX: 199 });
+    expect(shownTip(el)).toBe("20: 2 rows (40%)");
+    expect(tipBox(el)).toEqual({
+      tip: ["152.5px", "14px"],
+      lead: { left: "182.5px", top: "44px", width: "36px", transform: `rotate(${Math.PI / 2}rad)` },
+      hidden: false,
+    });
+    expect(svg.querySelectorAll("rect")[15]?.classList.contains("gt-i-profile-on")).toBe(true);
+    expect(el.querySelector(".gt-i-profile-tip")?.getAttribute("aria-hidden")).toBe("true");
+    // (The mouse leaving, it goes)
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerleave");
+    expect(shownTip(el)).toBeNull();
+    expect(tipBox(el).hidden).toBe(true);
+    expect(svg.querySelector(".gt-i-profile-on")).toBeNull();
+  });
+
+  it("keeps the tooltip within the element, the line going aslant, and under the label without room over it", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(150, 20, 250, 300), new DOMRect(100, 20, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    pointer(svg, "pointermove", { clientX: 106 });
+    expect(shownTip(el)).toBe("5: 1 row (20%)");
+    const { tip, lead } = tipBox(el);
+    // (At the element's start, under the label; the line from near its corner up to the bar's foot)
+    expect(tip).toEqual(["0px", "66px"]);
+    expect([lead.left, lead.top]).toEqual(["6px", "66px"]);
+    const [dx, dy] = [107.5 - 156, 70 - 86];
+    expect(parseFloat(lead.width)).toBeCloseTo(Math.hypot(dx, dy), 4);
+    expect(lead.transform).toBe(`rotate(${Math.atan2(dy, dx)}rad)`);
+  });
+
+  it("shows a bar's tooltip as a finger slides along the profile, for a moment after it lifts", async () => {
+    const el = await mountProfiles();
+    vi.useFakeTimers();
+    try {
+      const root = profile(header(el, "x")) as HTMLElement;
+      const svg = root.querySelector("svg") as SVGSVGElement;
+      vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 10));
+      pointer(svg, "pointerdown", { pointerType: "touch", clientX: 2 });
+      expect(shownTip(el)).toBe("5: 1 row (20%)");
+      pointer(svg, "pointermove", { pointerType: "touch", clientX: 55 });
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      pointer(root, "pointerleave", { pointerType: "touch" });
+      vi.advanceTimersByTime(1000);
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      vi.advanceTimersByTime(500);
+      expect(shownTip(el)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("hides the tooltip on Escape, a scroll, a press elsewhere, or new counts, and not over the caption", async () => {
+    const el = await mountProfiles();
+    const outside = document.body.appendChild(document.createElement("button"));
+    for (const away of [
+      () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })),
+      () => outside.dispatchEvent(new Event("scroll")),
+      () => pointer(outside, "pointerdown"),
+      () => (el.search = "a"),
+    ]) {
+      el.search = "";
+      expect(hover(el, "x", 0)).not.toBeNull();
+      away();
+      expect(shownTip(el)).toBeNull();
+    }
+    // (Nor a press on its own profile)
+    expect(hover(el, "x", 0)).not.toBeNull();
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerdown", { clientX: 5 });
+    expect(shownTip(el)).not.toBeNull();
+    // (By the mouse, the caption has its own tooltip)
+    pointer(profile(header(el, "x"))?.querySelector(".gt-i-profile-text") as Element, "pointermove");
+    expect(shownTip(el)).toBeNull();
+  });
+
+  const view = (el: GtTable) => el.querySelector<HTMLElement>(":scope > .gt-i-profile-panel");
+  const texts = (root: Element | null | undefined, selector: string) =>
+    Array.from(root?.querySelectorAll(selector) ?? [], (part) => part.textContent);
+
+  it("opens a larger view of a histogram on a double click: its whole caption, and its plot with axes", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    root.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el) as HTMLElement;
+    expect(panel.hidden).toBe(false);
+    expect(panel.getAttribute("role")).toBe("group");
+    expect(panel.getAttribute("aria-label")).toBe("Profile of x");
+    expect(root.getAttribute("aria-expanded")).toBe("true");
+    expect(root.getAttribute("aria-controls")).toBe(panel.id);
+    expect(panel.querySelector(".gt-i-filter-title")?.textContent).toBe("x");
+    expect(document.activeElement?.textContent).toBe("Close");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 5 – 20 · 20% missing");
+    // (The most rows a bar has, beside it, and the first and last bins' values under it)
+    expect(texts(panel, ".gt-i-profile-y > span")).toEqual(["2", "0"]);
+    expect(texts(panel, ".gt-i-profile-x > span")).toEqual(["5", "", "20"]);
+    const plot = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(plot.children).toHaveLength(16);
+    expect((plot.children[1] as HTMLElement).style.height).toBe("0px");
+    expect(plot.getAttribute("role")).toBe("img");
+    expect(plot.getAttribute("aria-label")).toBe("Histogram of x");
+    // (Its bins, for assistive technology)
+    const bins = texts(panel, "ul.gt-i-hidden > li");
+    expect(bins).toHaveLength(16);
+    expect([bins[0], bins[15]]).toEqual(["5: 1 row (20%)", "20: 2 rows (40%)"]);
+
+    // Its readout, of the bar the pointer is over, or the arrow keys move to
+    const readout = () => panel.querySelector(".gt-i-profile-read")?.textContent;
+    expect(readout()).toBe("");
+    vi.spyOn(plot, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 100));
+    pointer(plot, "pointermove", { clientX: 52 });
+    expect(readout()).toBe("10: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(true);
+    const key = (name: string) => {
+      const event = new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true });
+      plot.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    expect(key("ArrowRight")).toBe(true);
+    expect(readout()).toBe("11: 0 rows");
+    key("End");
+    key("ArrowRight");
+    expect(readout()).toBe("20: 2 rows (40%)");
+    key("Home");
+    key("ArrowLeft");
+    expect(readout()).toBe("5: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(false);
+
+    // It's drawn again as the rows kept change, the plot keeping focus and its bar
+    plot.focus();
+    el.search = "a";
+    const again = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(document.activeElement).toBe(again);
+    expect(readout()).toBe("5: 1 row (33%)");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("3 rows · 5 – 20 · 33% missing");
+    el.search = "zzz";
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("No rows");
+  });
+
+  it("opens a larger view of the most common values, with their bars and rows", async () => {
+    const el = await mountProfiles();
+    profile(header(el, "y"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el);
+    expect(panel?.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 3 values");
+    expect(texts(panel, ".gt-i-profile-rows > *")).toEqual(["a", "", "3 rows (60%)", "b", "", "1 row (20%)", "c", "", "1 row (20%)"]);
+    const meters = Array.from(panel?.querySelectorAll<HTMLElement>(".gt-i-profile-meter > i") ?? [], (bar) => bar.style.width);
+    expect(meters.map((width) => Math.round(parseFloat(width)))).toEqual([100, 33, 33]);
+    expect(panel?.querySelector(".gt-i-profile-plot")).toBeNull();
+  });
+
+  it("opens the larger view on Enter or a double tap, and closes it on Escape, its button, or a press elsewhere", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    const key = (target: Element, name: string) => target.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true }));
+    root.focus();
+    key(root, "Enter");
+    expect(view(el)?.hidden).toBe(false);
+    key(document.activeElement as Element, "Escape");
+    expect(view(el)?.hidden).toBe(true);
+    expect(root.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(root);
+
+    key(root, " ");
+    expect(view(el)?.hidden).toBe(false);
+    (view(el)?.querySelector("button") as HTMLButtonElement).click();
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+
+    // (A tap doesn't, two do)
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 10 });
+    expect(view(el)?.hidden).toBe(true);
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 14 });
+    expect(view(el)?.hidden).toBe(false);
+    // (A press in it or on its profile keeps it; elsewhere, even another profile, closes it)
+    pointer(view(el) as HTMLElement, "pointerdown");
+    pointer(root, "pointerdown");
+    expect(view(el)?.hidden).toBe(false);
+    pointer(profile(header(el, "y")) as HTMLElement, "pointerdown");
+    expect(view(el)?.hidden).toBe(true);
+    // (Tab out of either end closes it, back to its profile)
+    key(root, "Enter");
+    const stops = Array.from(view(el)?.querySelectorAll<HTMLElement>("button, [tabindex]") ?? []);
+    expect(stops.map((stop) => stop.className)).toEqual(["gt-i-info-button", "gt-i-profile-plot"]);
+    stops[1]?.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+  });
+
+  it("closes the larger view as the table is made again, and names a label with a profile", async () => {
+    const el = await mountProfiles({ controls: { sorting: false } });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    profile(header(el, "x"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(view(el)?.hidden).toBe(false);
+    el.remove();
+    expect(view(el)?.hidden).toBe(true);
   });
 });
 
@@ -8438,6 +8975,28 @@ describe("grouping rows", () => {
     expect(() => (el.groupBy = "row")).toThrow(RangeError);
   });
 
+  it("puts each group's heading among its cells' headers, as GT does a row group's", async () => {
+    const { el } = await mountGroup();
+    const trs = () => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt_group_heading_row)"));
+    // (Each row's x cell with its label as its header, as GT has it; its y cell without)
+    for (const tr of trs()) {
+      tr.querySelector("td")?.setAttribute("headers", "t-x");
+    }
+    const headers = (row: number) =>
+      Array.from(trs().find((tr) => el.bodyRow(tr) === row)?.querySelectorAll("td") ?? [], (td) => td.getAttribute("headers"));
+    el.groupBy = "y";
+    const ids = headings(el).map((tr) => tr.cells[0]?.id ?? "");
+    expect(ids.every((id) => /^gt-i-group-\d+$/.test(id))).toBe(true);
+    expect(new Set(ids).size).toBe(3);
+    expect(headers(1)).toEqual([`${ids[0]} t-x`, null]);
+    expect(headers(0)).toEqual([`${ids[1]} t-x`, null]);
+    // (The old group's gone)
+    el.groupBy = "x";
+    expect(headers(1)).toEqual([`${headings(el)[0]?.cells[0]?.id} t-x`, null]);
+    el.groupBy = null;
+    expect(headers(1)).toEqual(["t-x", null]);
+  });
+
   it("sorts the rows in their groups, and the groups as their column is sorted", async () => {
     const { el } = await mountGroup();
     el.groupBy = "y";
@@ -8449,6 +9008,24 @@ describe("grouping rows", () => {
     el.sort = [{ column: "x", descending: true }];
     // (The missing still last)
     expect(rows(el)).toEqual(["# 20 (2)", 0, 4, "# 10 (1)", 2, "# 5 (1)", 1, "# (Missing) (1)", 3]);
+  });
+
+  it("writes the code with the rows in the order of the groups", async () => {
+    const code: CodeSpec = {
+      backend: "pandas",
+      columns: { x: { dtype: "float", nullable: false, literals: null }, y: { dtype: "string", nullable: false, literals: null } },
+    };
+    const { el } = await mountGroup({ export: { formats: ["code"], code } });
+    const sorted = (names: string, ascending: string) =>
+      `df.sort_values([${names}], ascending=[${ascending}], na_position="last", kind="stable")\n`;
+    el.sort = [{ column: "x", descending: true }];
+    expect(el.toCode()).toBe(sorted('"x"', "False"));
+    el.groupBy = "y";
+    expect(el.toCode()).toBe(sorted('"y", "x"', "True, False"));
+    el.sort = [{ column: "y", descending: true }];
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
+    el.groupBy = null;
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
   });
 
   it("counts the rows that match, without the groups that have none, and a heading on each page", async () => {
@@ -9977,6 +10554,77 @@ describe("a table in a Panel app", () => {
     expect(two.sort).toEqual([{ column: "x", descending: false }]);
     click(two, "x");
     expect(one.sort).toEqual([{ column: "x", descending: true }]);
+  });
+
+  it("takes a change only if it's later than the last from where it's from", () => {
+    // (A notebook's Panel can send one again, after a later one)
+    const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    fake.update({ _update: { _rows: [1], n: 2 } });
+    fake.update({ _update: { _rows: [2], n: 1 } });
+    fake.update({ _update: { _rows: [3], n: 2 } });
+    expect(model.get("_rows")).toEqual([1]);
+    fake.update({ _report: { _rows: [4], n: 2, from: "other" } });
+    fake.update({ _report: { _rows: [5], n: 1, from: "other" } });
+    expect(model.get("_rows")).toEqual([4]);
+    // (Each view's reports, and Python's changes, counted on their own)
+    fake.update({ _report: { _rows: [6], n: 1, from: "third" } });
+    expect(model.get("_rows")).toEqual([6]);
+    fake.update({ _update: { _rows: [7], n: 3 } });
+    expect(model.get("_rows")).toEqual([7]);
+  });
+
+  it("has the state each way without a `</`, which would end a notebook's script", () => {
+    const fake = fakeProxy({ _update: { ...FIRST, _view: { ...VIEW, search: "<\0/script>" } }, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</script>" });
+    // (Its reports, each of whose strings is written as Python's are)
+    model.set("_view", { ...VIEW, search: "a</b</c" });
+    model.set("_rows", [1]);
+    model.save_changes();
+    expect(fake.state._report).toEqual({ _view: { ...VIEW, search: "a<\0/b<\0/c" }, _rows: [1], n: 1, from: expect.any(String) });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "a</b</c" });
+    // (And another view's)
+    fake.update({ _report: { _view: { ...VIEW, search: "<\0/p>", hidden: ["<\0/x"] }, n: 1, from: "other" } });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</p>", hidden: ["</x"] });
+  });
+
+  it("asks again what Python hasn't answered, until it's answered", () => {
+    // (A notebook's Panel can lose a message, either way)
+    vi.useFakeTimers();
+    try {
+      const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+      const model = modelOf(fake.model);
+      const ask = { type: "ask", id: "v:1", kind: "page" };
+      model.send(ask);
+      vi.advanceTimersByTime(999);
+      expect(fake.sent).toEqual([ask]);
+      vi.advanceTimersByTime(1);
+      expect(fake.sent).toEqual([ask, ask]);
+      vi.advanceTimersByTime(2000);
+      expect(fake.sent).toHaveLength(3);
+      // (Another view's answer isn't its)
+      fake.fire("msg:custom", { type: "answer", id: "w:1", answer: {} });
+      fake.fire("msg:custom", { type: "answer", id: "v:1", answer: {} });
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(3);
+
+      // (After 1, 2, 4, 8 and 16 seconds, then no more)
+      fake.sent.length = 0;
+      model.send({ ...ask, id: "v:2" });
+      vi.advanceTimersByTime(31000);
+      expect(fake.sent).toHaveLength(6);
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(6);
+
+      // (Nor once the view's gone)
+      model.send({ ...ask, id: "v:3" });
+      model.close();
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(7);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("asks Python for a page with Panel's messages, and shows its answer", async () => {

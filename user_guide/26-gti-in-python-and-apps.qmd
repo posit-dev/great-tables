@@ -13,6 +13,11 @@ selection, and can set them. A page an app makes itself (with Flask, Django or F
 the table as it works in the browser, with its runtime included once, however many tables the page
 has.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="point rest" cells="mfr|model|hp|mpg_c/BMW|i8|357|28/Ford|GT|647|11" cell-trick="select" intro='[["say", "Python can see what you pick!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 ## Using the table from Python
 
 In a notebook, `~~GTI.i_as_widget()` shows the table as a widget (with
@@ -187,10 +192,10 @@ each time.
 In a [Panel](https://panel.holoviz.org) app or notebook, `GTIPane`, from `great_tables.panel`
 (installed with `pip install great_tables[panel]`), shows an interactive table (a `GTI` table, or a
 `GT` table with `opt_interactive()`) as a Panel component, whose state is in its parameters:
-`query`, `search` and `sort` (a list, e.g., `["-hp"]`), the data `rows` kept (in the order shown)
-and the rows in its `selection`. Each change the reader makes sets them, so that they can be used
-with `pn.bind()` or watched like any other parameter; and setting `query`, `search`, `sort` or
-`selection` changes the table.
+`query`, `search` and `sort` (a list, e.g., `["-hp"]`, which can be set to a column name, `"-hp"`,
+too), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the
+reader makes sets them, so that they can be used with `pn.bind()` or watched like any other
+parameter; and setting `query`, `search`, `sort` or `selection` changes the table.
 
 ```python
 import panel as pn
@@ -264,8 +269,8 @@ An app that makes its own pages, with templates (as [Flask](https://flask.pallet
 interactive table as its HTML, which `as_raw_html()` gives: the table's `<gt-table>` element,
 followed by the runtime that makes it interactive (its JavaScript and CSS). The table works in the
 browser, as in an HTML file, without asking the app for anything. A table put in a Jinja template
-(as Flask's are, `{{ table }}`) or in a FastHTML component (`Div(table)`) is shown as its HTML,
-as it is.
+(as Flask's are, `{{ table }}`) or in a FastHTML component (`Div(table)`), or returned by a
+FastHTML route on its own, is shown as its HTML, as it is.
 
 A page with several tables needs the runtime only once: `runtime_tags()`, from
 `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it,

@@ -4,8 +4,8 @@ import { ready } from "./helpers";
 // exibble three times over (24 rows, grp_b then grp_a, each with a summary row, then a grand
 // summary row), selectable, on one page, with char moved to the start and pinned there, and fctr
 // moved to the end and pinned there, under a spanner ("Ends") across its edge, in a container
-// 480px wide; with groups shown as a column, in a body 300px high (in a container 640px wide); and
-// right to left.
+// 480px wide; with groups shown as a column, in a body 300px high (in a container 640px wide); in a
+// body 300px high, with group headings that have no background of their own; and right to left.
 
 const el = (page: Page) => page.locator("gt-table");
 const scroller = (page: Page) => el(page).locator(".gt-i-scroller");
@@ -42,6 +42,59 @@ const label = (page: Page, column: string) => el(page).locator(`thead th[id$="-$
 // The class of the cell at a point
 const at = (page: Page, x: number, y: number) =>
   page.evaluate(([x, y]) => document.elementFromPoint(x as number, y as number)?.closest("th, td")?.className ?? null, [x, y]);
+
+// The controls and resize handles of the column labels that scroll, where they're under a pinned
+// label's cell: each with whether that cell is what's at the middle of where they overlap
+const underPinned = (page: Page) =>
+  el(page).evaluate((node) => {
+    const pinned = Array.from(node.querySelectorAll("thead th.gt-i-pinned"));
+    const found: [string, boolean][] = [];
+    for (const control of node.querySelectorAll("thead th:not(.gt-i-pinned) :is(button, .gt-i-resizer)")) {
+      const a = control.getBoundingClientRect();
+      for (const th of pinned) {
+        const b = th.getBoundingClientRect();
+        const [left, right] = [Math.max(a.left, b.left), Math.min(a.right, b.right)];
+        const [top, bottom] = [Math.max(a.top, b.top), Math.min(a.bottom, b.bottom)];
+        if (right - left >= 2 && bottom - top >= 2) {
+          found.push([control.className, th.contains(document.elementFromPoint((left + right) / 2, (top + bottom) / 2))]);
+        }
+      }
+    }
+    return found;
+  });
+
+// The table's background, how many of its parts are filled with it (the sticky header and the
+// stuck rows' cells without a background, and the pinned cells, behind theirs), and those whose
+// fill isn't it
+const fills = (page: Page) =>
+  el(page).evaluate((node) => {
+    const table = node.querySelector("table") as HTMLTableElement;
+    const background = getComputedStyle(table).backgroundColor;
+    const backed = Array.from(
+      table.querySelectorAll<HTMLElement>(':scope > thead[style*="background-color"], :scope > tbody > tr > [style*="background-color"]'),
+    );
+    const filled = Array.from(table.querySelectorAll<HTMLElement>(".gt-i-filled"));
+    const stale = [
+      ...backed.filter((el) => el.style.backgroundColor !== background),
+      ...filled.filter((el) => !getComputedStyle(el).backgroundImage.endsWith(`linear-gradient(${background}, ${background})`)),
+    ];
+    return { background, backed: backed.length, filled: filled.length, stale: stale.map((el) => el.className) };
+  });
+
+// The columns' names shown with the query box that are over a pinned label's cell other than
+// their own
+const namesOverPinned = (page: Page) =>
+  el(page).evaluate((node) => {
+    const pinned = Array.from(node.querySelectorAll("thead th.gt-i-pinned"), (th) => [th, th.getBoundingClientRect()] as const);
+    return Array.from(node.querySelectorAll<HTMLElement>(".gt-i-names-name")).flatMap((name) => {
+      const a = name.getBoundingClientRect();
+      const own = node.querySelector(`thead th[id$="-${name.dataset.gtiColumn}"]`);
+      const over = pinned.some(
+        ([th, b]) => th !== own && a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom && a.bottom > b.top,
+      );
+      return over ? [name.textContent] : [];
+    });
+  });
 
 test.describe("pinned columns", () => {
   test("stay in view after the stub and at the end, as the rest scroll between them", async ({ page }) => {
@@ -89,6 +142,42 @@ test.describe("pinned columns", () => {
     expect(errors).toEqual([]);
   });
 
+  for (const [fixture, sign] of [
+    ["pin-filters.html", 1],
+    ["pin-rtl.html", -1],
+  ] as const) {
+    test(`keep their labels over the controls of those scrolling under them (${fixture})`, async ({ page }) => {
+      const errors = await ready(page, fixture);
+      let checked = 0;
+      for (const left of [50, 100, 150, 250, 99999]) {
+        await scrollTo(page, sign * left);
+        await expect.poll(async () => Math.abs(await scrollLeft(page))).toBeGreaterThan(40);
+        const found = await underPinned(page);
+        expect(found.filter(([, covered]) => !covered)).toEqual([]);
+        checked += found.length;
+      }
+      // (Sort and filter buttons and resize handles, at either end)
+      expect(checked).toBeGreaterThan(5);
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test("keep the columns' names off them as the query box is open", async ({ page }) => {
+    const errors = await ready(page, "pin-filters.html");
+    await el(page).getByRole("button", { name: "Edit the filters as text" }).click();
+    const names = el(page).locator(".gt-i-names-name");
+    await expect(names.filter({ hasText: /^char$/ })).toHaveCount(1);
+    for (const left of [50, 100, 150, 250, 99999]) {
+      await scrollTo(page, left);
+      await expect.poll(() => scrollLeft(page)).toBeGreaterThan(40);
+      // (Drawn again on the next frame)
+      await expect.poll(() => namesOverPinned(page)).toEqual([]);
+      await expect(names.filter({ hasText: /^fctr$/ })).toHaveCount(1);
+      expect(await names.count()).toBeGreaterThan(2);
+    }
+    expect(errors).toEqual([]);
+  });
+
   test("shade the columns scrolled past them, and the hint is by the ones at the end", async ({ page }) => {
     await ready(page, "pin.html");
     const start = el(page).locator('.gt-i-shade[data-gti-edge="left"]');
@@ -129,6 +218,26 @@ test.describe("pinned columns", () => {
     const group = await rect(el(page).locator("tbody .gt_stub_row_group").last());
     expect(group.left).toBeGreaterThan(view.left);
     expect(charLabel.left).toBeGreaterThan(group.right);
+    expect(errors).toEqual([]);
+  });
+
+  test("are filled again as the page's colours change, as are the sticky header and rows", async ({ page }) => {
+    const errors = await ready(page, "pin-scroll.html");
+    await scrollTo(page, 100, 200);
+    const light = await fills(page);
+    // (The header and the group headings' cells, and the pinned cells of the rows)
+    expect(light.backed).toBeGreaterThan(1);
+    expect(light.filled).toBeGreaterThan(10);
+    expect(light.stale).toEqual([]);
+    // With the system's scheme, on a page that follows it
+    await page.addStyleTag({ content: ":root { color-scheme: light dark }" });
+    await page.emulateMedia({ colorScheme: "dark" });
+    await expect.poll(async () => (await fills(page)).background).not.toBe(light.background);
+    await expect.poll(async () => (await fills(page)).stale).toEqual([]);
+    // With a host's theme (a class on <body>), light whatever the system's scheme
+    await page.locator("body").evaluate((body) => body.classList.add("quarto-light"));
+    await expect.poll(async () => (await fills(page)).background).toBe(light.background);
+    await expect.poll(async () => (await fills(page)).stale).toEqual([]);
     expect(errors).toEqual([]);
   });
 

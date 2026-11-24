@@ -14,14 +14,17 @@ dynamic: true
 
 # Logo
 logo:
-  light: assets/GT_logo.svg
-  dark: assets/GT_logo.svg
+  light: assets/GT_logo.light.svg
+  dark: assets/GT_logo.dark.svg
 
 # Homepage
 homepage: index
 hero:
-  logo: assets/GT_logo.svg
+  logo:
+    light: assets/GT_logo.light.svg
+    dark: assets/GT_logo.dark.svg
   logo_height: 200px
+  name: false
   tagline: "Absolutely Delightful Table-making in Python"
 
 # Scale-to-fit for Great Tables output (but not interactive tables, which scroll sideways in place,
@@ -245,6 +248,8 @@ reference:
         - from_column
         - google_font
         - system_fonts
+        - Theme
+        - Theme.from_brand
         - define_units
         - nanoplot_options
 
@@ -254,6 +259,7 @@ reference:
         having to use `tab_options()` directly.
       contents:
         - GT.opt_stylize
+        - GT.opt_theme
         - GT.opt_footnote_marks
         - GT.opt_footnote_spec
         - GT.opt_footnote_order

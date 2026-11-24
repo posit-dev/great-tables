@@ -11,6 +11,11 @@ the API documentation. These datasets cover a range of subject areas and sizes, 
 any of them as a Pandas DataFrame, a Polars DataFrame, or both, depending on how you prefer to
 work.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="num|char|fctr|time/0.11|apricot|one|13:35/2.22|banana|two|14:40" cell-trick="scroll" intro='[["look", 0, 0.6], ["wait", 700], ["mood", "grin"], ["say", "Sixteen datasets, ready to go!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 These built-in datasets exist so you can experiment with Great Tables features without needing to
 bring your own data. They make it easy to follow along with examples, test table-building code, and
 explore different formatting options. They also demonstrate the range of data types and structures

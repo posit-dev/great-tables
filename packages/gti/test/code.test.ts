@@ -33,8 +33,13 @@ const code = (
   query: FilterQuery | null,
   sort: SortKey[],
   backend: CodeBackend,
-  { filters = FILTERS, spec = SPEC, hidden = [] }: { filters?: FilterSpec[]; spec?: CodeSpec; hidden?: string[] } = {},
-) => viewCode(query, sort, hidden, filters, spec, backend);
+  {
+    filters = FILTERS,
+    spec = SPEC,
+    hidden = [],
+    groupBy = null,
+  }: { filters?: FilterSpec[]; spec?: CodeSpec; hidden?: string[]; groupBy?: string | null } = {},
+) => viewCode(query, sort, hidden, filters, spec, backend, groupBy);
 
 describe("pyNumber", () => {
   it("writes whole numbers as integers", () => {
@@ -455,7 +460,7 @@ describe("viewCode", () => {
       { column: "t", type: "date", values: ["2015-06-05T09:30:00"] },
       { column: "i", type: "range", values: [1, 2] },
     ];
-    const spec: CodeSpec = { ...SPEC, columns: { ...SPEC.columns, t: column("datetime"), i: column("other", null, true) } };
+    const spec: CodeSpec = { ...SPEC, columns: { ...SPEC.columns, t: column("datetime"), i: column("integer", null, true) } };
     const query: FilterQuery = {
       and: [
         { col: "num", op: "top_n", value: 3 },
@@ -486,8 +491,58 @@ describe("viewCode", () => {
         "import numpy as np\n\ndf[\n" +
           '    (df["num"].where(np.isfinite(df["num"])).rank(method="min", ascending=False) <= 3)\n' +
           '    & (df["t"].rank(method="min") <= 1)\n' +
-          '    & ((df["i"].rank(method="min", ascending=False) <= 2) | ~(df["num"].where(np.isfinite(df["num"])).rank(method="min") <= 10))\n' +
+          '    & ((df["i"].astype("float64").rank(method="min", ascending=False) <= 2) | ~(df["num"].where(np.isfinite(df["num"])).rank(method="min") <= 10))\n' +
           "]\n",
+      );
+    });
+
+    it("keeps pandas' nullable ranks from being missing", () => {
+      // (A missing value ranks as `pd.NA`, which `~` would keep, and the mask then drop, and
+      // before pandas 3 a nullable number's is ranked: a numpy float's NaN isn't)
+      const not: FilterQuery = { and: [{ not: { col: "i", op: "top_n", value: 1 } }] };
+      expect(code(not, [], "pandas", { filters, spec })).toBe('df[\n    ~(df["i"].astype("float64").rank(method="min", ascending=False) <= 1)\n]\n');
+      expect(code(not, [], "polars", { filters, spec })).toContain('~(pl.col("i").rank("min", descending=True) <= 1).fill_null(False),');
+      const float = { ...spec, columns: { ...spec.columns, num: column("float", null, true) } };
+      expect(code({ and: [{ col: "num", op: "top_n", value: 1 }] }, [], "pandas", { filters, spec: float })).toBe(
+        'import numpy as np\n\ndf[\n    df["num"].astype("float64").where(np.isfinite(df["num"])).rank(method="min", ascending=False) <= 1\n]\n',
+      );
+      // (Another nullable dtype's rank is filled; a numpy integer's needn't be)
+      const other = { ...spec, columns: { ...spec.columns, i: column("datetime", null, true), t: column("integer") } };
+      const both: FilterQuery = { and: [{ col: "i", op: "top_n", value: 1 }, { col: "t", op: "bottom_n", value: 1 }] };
+      expect(code(both, [], "pandas", { filters, spec: other })).toBe(
+        'df[\n    ((df["i"].rank(method="min", ascending=False) <= 1).fillna(False))\n    & (df["t"].rank(method="min") <= 1)\n]\n',
+      );
+    });
+  });
+
+  describe("of a view grouped by a column", () => {
+    const by = (...keys: string[]) => keys.map((key) => ({ column: key.replace(/^-/, ""), descending: key.startsWith("-") }));
+
+    it("sorts by the column first, as the groups are laid out, then by the sort", () => {
+      expect(code(null, [], "pandas", { groupBy: "few" })).toBe(
+        'df.sort_values(["few"], ascending=[True], na_position="last", kind="stable")\n',
+      );
+      expect(code(null, by("-num", "name"), "polars", { groupBy: "few" })).toBe(
+        "import polars as pl\n\n" +
+          'df.sort(["few", "num", "name"], descending=[False, True, False], nulls_last=True, maintain_order=True)\n',
+      );
+    });
+
+    it("sorts by the column once, descending if the view sorts by it so", () => {
+      expect(code(null, by("name", "-few"), "pandas", { groupBy: "few" })).toBe(
+        'df.sort_values(["few", "name"], ascending=[False, True], na_position="last", kind="stable")\n',
+      );
+      // (A float's NaN first, descending, as the groups have it with Narwhals too)
+      expect(code(null, by("-num"), "narwhals", { groupBy: "num" })).toBe(
+        "import narwhals as nw\n\n" +
+          "(\n" +
+          "    nw.from_native(df)\n" +
+          '    .with_row_index("_row")\n' +
+          '    .with_columns((nw.col("num").is_nan() & ~nw.col("num").is_null()).fill_null(False).alias("_nan_num"))\n' +
+          '    .sort(["_nan_num", "num", "_row"], descending=[True, True, False], nulls_last=True)\n' +
+          '    .drop(["_row", "_nan_num"])\n' +
+          "    .to_native()\n" +
+          ")\n",
       );
     });
   });
