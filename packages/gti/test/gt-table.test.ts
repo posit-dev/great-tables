@@ -10540,10 +10540,16 @@ describe("a table in a Panel app", () => {
   });
 
   it("sets on the table what Python changes", async () => {
-    const { table, state, update } = await show();
+    const { table, state, assigned, update } = await show();
+    const reports = assigned.length;
     update({ _update: { _view: { ...VIEW, sort: [{ column: "x", descending: true }] }, _rows: null, n: 1 } });
     expect(table.sort).toEqual([{ column: "x", descending: true }]);
-    expect(state._report).toMatchObject({ _rows: [0, 4, 2, 1, 3], n: 2 });
+    // (The rows it keeps reported as the change is taken, as a notebook's Panel needs; and again
+    // once it's taken, as Panel's Pyodide worker drops what's set while it applies Python's changes)
+    const rows = (n: number) => ({ _report: { _rows: [0, 4, 2, 1, 3], n, from: expect.any(String) } });
+    expect(assigned.slice(reports)).toEqual([rows(2)]);
+    await tick();
+    expect(assigned.slice(reports)).toEqual([rows(2), rows(3)]);
     update({ _update: { _selection: [1, 3], n: 2 } });
     expect(table.selection).toEqual([1, 3]);
   });
