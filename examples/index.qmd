@@ -483,6 +483,21 @@ coffee_table
 
 :::
 
+:::{.g-col-lg-6 .g-col-12}
+
+<a href="../demos/marimo/" target="_blank">marimo app ⬀</a>
+  &nbsp;&nbsp;&nbsp;&nbsp;<a href="../demos/streamlit/" target="_blank">Streamlit app ⬀</a>
+  &nbsp;&nbsp;&nbsp;&nbsp;<a href="../demos/panel/" target="_blank">Panel app ⬀</a>
+
+**GTI in apps**: the same interactive table in a marimo notebook and in Streamlit and Panel apps,
+each run in the browser. The cars selected reach Python, which shows them as a table of their own,
+and a button sorts the table from Python. The code for each is in
+[GTI in Python and Apps](/user-guide/gti-in-python-and-apps.qmd).
+
+[![](../assets/demos/streamlit.webp){fig-alt="The Streamlit app: a GTI table of cars, two of them selected, and a bar chart of their horsepower."}](../demos/streamlit/)
+
+:::
+
 
 :::::
 ::::::
