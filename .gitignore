@@ -128,6 +128,9 @@ uv.lock
 # Great Docs build artifact
 objects.json
 
+# The docs' live app demos, as demos/build.py builds them
+/_demos/
+
 # Local dev skills
 dev-skills/
 

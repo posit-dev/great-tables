@@ -18,6 +18,7 @@ pytest.importorskip("streamlit")
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 from great_tables.streamlit import _SESSION_KEY  # noqa: E402
+from tests.utils import DEMOS, docs_code  # noqa: E402
 
 FILTER = {"and": [{"col": "fctr", "op": "in", "value": ["one", "two"]}]}
 
@@ -82,21 +83,27 @@ def data(at: AppTest) -> dict[str, Any]:
     return json.loads(at.get("bidi_component")[0].proto.json)
 
 
-def shown(at: AppTest) -> Any:
-    return at.session_state[_SESSION_KEY].tables["table"]
+def shown(at: AppTest, key: str = "table") -> Any:
+    return at.session_state[_SESSION_KEY].tables[key]
 
 
-def report(at: AppTest, id: str, asks: list[dict[str, Any]] | None = None, **parts: Any) -> AppTest:
+def report(
+    at: AppTest,
+    id: str,
+    asks: list[dict[str, Any]] | None = None,
+    key: str = "table",
+    **parts: Any,
+) -> AppTest:
     # The browser's report of the table's state (its known one, with these parts), and its asks,
     # in the component's state, then the run it makes
-    known = shown(at).known
+    known = shown(at, key).known
     reported = {
         "view": {**known["view"], **parts.pop("view", {})},
         "rows": parts.pop("rows", known["rows"]),
         "selection": parts.pop("selection", known["selection"]),
     }
-    at.session_state["table"] = {
-        "gti": {"token": shown(at).token, "report": id, "state": reported, "asks": asks or []}
+    at.session_state[key] = {
+        "gti": {"token": shown(at, key).token, "report": id, "state": reported, "asks": asks or []}
     }
     at.run()
     assert not at.exception
@@ -317,3 +324,29 @@ def test_st_gti_checks(kwargs: dict[str, Any], error: type[Exception], match: st
     assert len(at.exception) == 1
     assert at.exception[0].proto.type == error.__name__
     assert match in at.exception[0].message
+
+
+DEMO = DEMOS / "streamlit" / "app.py"
+
+
+# (Altair's, for the chart of no cars, before any are selected)
+@pytest.mark.filterwarnings("ignore:I don't know how to infer vegalite type")
+def test_demo_app():
+    # (The docs' demo, as it's run in the browser: with two cars selected, then sorted by the button)
+    at = AppTest.from_file(str(DEMO), default_timeout=60).run()
+    assert not at.exception
+    assert at.markdown[0].value == "0 of 47 cars selected"
+    at = report(at, "a", key="cars", selection=[0, 2])
+    assert at.markdown[0].value == "2 of 47 cars selected"
+    assert at.get("vega_lite_chart")
+    chosen = at.get("html")[0].proto.body
+    assert "Ford" in chosen and "458 Spider" in chosen and "$447,000" in chosen
+    at.button[0].click().run()
+    assert not at.exception
+    assert data(at)["update"]["view"] == {"sort": [{"column": "hp", "descending": True}]}
+
+
+def test_demo_app_is_the_docs():
+    # (The code shown is the app that's run)
+    (code,) = docs_code("27-gti-in-python-and-apps.qmd", "Using the table in a Streamlit app")
+    assert code == DEMO.read_text(encoding="utf-8")

@@ -62,6 +62,11 @@ funding:
   homepage: https://posit.co
   ror: https://ror.org/03wc8by49
 
+# Live app demos (each a page of its own, which `python demos/build.py` builds into `_demos/`)
+custom_pages:
+  - dir: _demos
+    output: demos
+
 # Custom Sections
 sections:
   - title: Examples

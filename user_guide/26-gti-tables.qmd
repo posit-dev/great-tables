@@ -820,4 +820,6 @@ readers can export the rows they've selected instead.
 Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
 widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app
 makes itself, with Flask, Django or FastHTML, can show it. See
-[GTI in Python and Apps](27-gti-in-python-and-apps.qmd).
+[GTI in Python and Apps](27-gti-in-python-and-apps.qmd), where a marimo notebook and a Streamlit
+and a Panel app with a `GTI` table can be run in the browser, to see a selection reach Python and
+Python sort the table.

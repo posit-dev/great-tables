@@ -8,6 +8,7 @@ given to its message handler. The two together are tested in Panel apps
 
 from __future__ import annotations
 
+import runpy
 from typing import Any
 
 import pandas as pd
@@ -18,6 +19,7 @@ pytest.importorskip("panel")
 from great_tables import GT, GTI  # noqa: E402
 from great_tables._gti._state import author_view  # noqa: E402
 from great_tables.panel import GTIPane  # noqa: E402
+from tests.utils import DEMOS, docs_code  # noqa: E402
 
 DATA = pd.DataFrame(
     {
@@ -355,3 +357,29 @@ def test_pane_keeps_the_public_parameters_in_python():
     names = set(model.data.properties())
     assert {"_html", "_update", "_report", "_kernel", "_nrows"} <= names
     assert not names & {"query", "search", "sort", "rows", "selection"}
+
+
+DEMO = DEMOS / "panel" / "app.py"
+
+
+# (Panel 1.10's, for a button's `name=`, which the demo keeps, as `label=` is new in it)
+@pytest.mark.filterwarnings("ignore:Widget.name is deprecated")
+def test_demo_app():
+    # (The docs' demo, as it's run in the browser: with two cars selected, then sorted by the button)
+    app = runpy.run_path(str(DEMO))
+    table = app["table"]
+    assert app["chosen"](table.rows, table.selection)[0].object == "0 of 47 cars selected"
+    report(table, _selection=[0, 2])
+    count, chosen = app["chosen"](table.rows, table.selection)
+    assert count.object == "2 of 47 cars selected"
+    html = chosen.object.as_raw_html()
+    assert "Ford" in html and "458 Spider" in html and "$447,000" in html
+    app["fastest"].clicks += 1
+    assert [table.sort, table.selection] == [["-hp"], []]
+    assert sent(table)["_view"]["sort"] == [{"column": "hp", "descending": True}]
+
+
+def test_demo_app_is_the_docs():
+    # (The code shown is the app that's run)
+    (code,) = docs_code("27-gti-in-python-and-apps.qmd", "Using the table in a Panel app")
+    assert code == DEMO.read_text(encoding="utf-8")

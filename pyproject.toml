@@ -184,6 +184,10 @@ ignore = [
     "TRY004",  # TypeError for invalid types: switching from ValueError would break callers
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# (A marimo notebook's cells show their last expression, and each returns what it defines)
+"demos/marimo/*" = ["B018", "PLR1711"]
+
 [tool.coverage.report]
 exclude_also = [
     "if TYPE_CHECKING:"
