@@ -39,8 +39,9 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `pagination`: whether rows are split into pages, how many to a page, and the page controls
 - `display`: how body rows look: highlighted under the pointer (or when tapped), compact (already
   in the table's CSS, as smaller row padding), and whether cell text wraps; whether the column
-  labels and cells are in a monospaced font (`monospace`); and whether each data row has its
-  number (its place in the data, counted from `row_start`, 0 or 1) before its cells
+  labels and cells are in a monospaced font (`monospace`); whether the parts GTI adds are named
+  over the table from the start, for good, as on a docs page (`parts`); and whether each data row
+  has its number (its place in the data, counted from `row_start`, 0 or 1) before its cells
   (`row_numbers`), and the number of rows and columns is above the table (`dimensions`), after
   what the data is (`data_kind`, such as `"Polars DataFrame"`; `null` to say nothing of it).
   Producers that leave these out have none of them (and rows numbered from 1).
@@ -274,6 +275,7 @@ class DisplaySpec(TypedDict):
     compact: bool
     wrap: bool
     monospace: bool
+    parts: bool
     row_numbers: bool
     row_start: int
     dimensions: bool
@@ -324,9 +326,9 @@ CodeBackend = Literal["polars", "pandas", "narwhals"]
 
 
 class CodeColumnSpec(TypedDict):
-    # (What the code goes by: a column of strings, of floats, of categories, of dates, of dates
-    # and times, or of another type)
-    dtype: Literal["string", "float", "categorical", "date", "datetime", "other"]
+    # (What the code goes by: a column of strings, of floats, of integers, of categories, of dates,
+    # of dates and times, or of another type)
+    dtype: Literal["string", "float", "integer", "categorical", "date", "datetime", "other"]
     nullable: bool  # a pandas nullable dtype, whose comparisons can be missing
     literals: list[str | None] | None  # a facet's values as Python (`None` where it can't be)
 
@@ -704,6 +706,7 @@ def build_spec(
             compact=settings.compact,
             wrap=settings.wrap,
             monospace=settings.monospace,
+            parts=settings.parts,
             row_numbers=settings.row_numbers,
             row_start=row_start_of(settings),
             dimensions=settings.dimensions,

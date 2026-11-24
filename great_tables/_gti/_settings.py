@@ -106,6 +106,8 @@ class Settings:
     wrap: bool = True
     # (The column labels and the cells in a monospaced font, as `i_display()` set it)
     monospace: bool = False
+    # (The parts GTI adds named over the table, for good, as `i_display()` set it: for a docs page)
+    parts: bool = False
     # (What readers see of the data itself, as `i_inspect()` set it: each row's number (its place
     # in the data), each column's dtype (under its label), the number of rows and columns (above
     # the table), and the missing values (tinted); none, by default)
@@ -177,7 +179,7 @@ class Settings:
         height = options.ihtml_height.value
         # (`tab_options()` takes only these)
         selection = options.ihtml_selection_mode.value
-        # (`opt_interactive()` doesn't check the type, so an unknown one falls back to "numbers")
+        # (`tab_options()` takes only these, but options set otherwise fall back to "numbers")
         pagination_type = options.ihtml_pagination_type.value
         return cls(
             sorting=bool(options.ihtml_use_sorting.value),

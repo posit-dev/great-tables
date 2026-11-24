@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Literal
 from .._gt_data import ColInfoTypeEnum, Options
 from .._render_checks import RenderWarning
 from .._text import _process_text
+from .._theme import color_scheme_style_attr
 from .._utils_render_html import _get_header_ids
 from ._details import details_template, leave_out_details_column, render_details
 from ._query import js_trim, label_text
@@ -159,6 +160,8 @@ def gti_element(
         attrs += " data-gti-nowrap"
     if spec["display"]["monospace"]:
         attrs += " data-gti-monospace"
+    if spec["display"]["parts"]:
+        attrs += " data-gti-parts"
     height = spec["layout"]["height"]
     responsive = spec["layout"]["responsive"]
     # (An "auto" table whose columns have priorities drops them, rather than being stacked)
@@ -172,8 +175,16 @@ def gti_element(
         table_html += f"<style>\n{stack_css(data, spec, table_html)}</style>\n"
     # (Each row's details, inert until the reader opens them, and not shown without the runtime)
     table_html += "".join(details_template(row, html) for row, html in details.items())
+    # (The controls are outside the table's own element, so the theme's accent is set here)
+    style = []
     if height is not None:
-        attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
+        attrs += " data-gti-scroll"
+        style.append(f"--gt-i-height: {escape(height)}")
+    accent = data._theme.tokens.get("accent") if data._theme is not None else None
+    if accent is not None:
+        style.append(f"--gt-i-accent: {escape(accent)}")
+    if style:
+        attrs += f' style="{"; ".join(style)}"'
     return (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
@@ -181,10 +192,12 @@ def gti_element(
     )
 
 
-def page_html(fragment: str) -> str:
-    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body."""
+def page_html(fragment: str, data: GTData) -> str:
+    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body, and the
+    table's color scheme declared."""
     return (
-        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n'
+        f'<!DOCTYPE html>\n<html lang="en"{color_scheme_style_attr(data)}>\n<head>\n'
+        '<meta charset="utf-8"/>\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
         f"</head>\n<body>\n{fragment}</body>\n</html>\n"
     )
@@ -296,7 +309,8 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
         if header is None:
             continue
         spanners = [spanner_labels.get(id, "") for id in header_ids.column_spanners[info.var]]
-        prefix = "".join(f"{label} · " for label in spanners if label)
+        # (After its spanners' labels, as the runtime has them: "Revenue – gross")
+        prefix = "".join(f"{label} – " for label in spanners if label)
         label = prefix + (_label(info.column_label) or info.var)
         rules.append(
             f"{root} [headers~={_css_string(header)}]{{--gt-i-label:{_css_string(label)}}}"
@@ -309,7 +323,32 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
 
 
 def _label(label: object) -> str:
-    return label_text(str(_process_text(label)))  # type: ignore[arg-type]
+    """A label's text for a card, with its superscripts and subscripts (as `km<sup>2</sup>`) in
+    Unicode's (`km²`), as a CSS string can't have markup."""
+    html = str(_process_text(label))  # type: ignore[arg-type]
+    return label_text(_SCRIPT.sub(_scripted, html))
+
+
+# The characters with a superscript or subscript form, and the elements whose text may be in them
+_SCRIPTS = {
+    "sup": dict(zip("0123456789+-−=()in", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻⁼⁽⁾ⁱⁿ", strict=True)),
+    "sub": dict(
+        zip("0123456789+-−=()aehijklmnoprstuvx", "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ", strict=True)
+    ),
+}
+_SCRIPT = re.compile(
+    r"<(sup|sub)\b[^>]*>((?:(?!</?su[pb]\b).)*)</\1\s*>", re.IGNORECASE | re.DOTALL
+)
+
+
+def _scripted(found: re.Match[str]) -> str:
+    """A `<sup>` or `<sub>` as its text in superscript or subscript characters, if each of them has
+    one (otherwise as it is, its text run into the text before it)."""
+    forms = _SCRIPTS[found.group(1).lower()]
+    text = label_text(found.group(2))
+    if text and all(char in forms for char in text):
+        return "".join(forms[char] for char in text)
+    return found.group(0)
 
 
 def _shown_columns(spec: Spec) -> int:

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from great_tables._gt_data import DataColorInfo
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from great_tables._styles import _FillWithoutContrastText
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import (
     DataFrameLike,
@@ -731,7 +732,9 @@ def _apply_data_color_styles(
 
         else:
             gt_obj = tab_style(
-                gt_obj, style=fill(color=color_val), locations=body(columns=col, rows=[i])
+                gt_obj,
+                style=_FillWithoutContrastText(color=color_val),
+                locations=body(columns=col, rows=[i]),
             )
 
     return gt_obj

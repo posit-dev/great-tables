@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Any
 
 from typing_extensions import Self
@@ -47,6 +48,7 @@ from ._formats import (
     fmt_units,
     fmt_url,
 )
+from ._gridwell import as_gridwell
 from ._gt_data import GTData
 from ._heading import tab_header
 from ._helpers import random_id
@@ -101,6 +103,7 @@ from ._spanners import (
     cols_width,
     tab_spanner,
     tab_spanner_delim,
+    tab_spanner_label_with,
 )
 from ._stub import reorder_stub_df
 from ._stubhead import tab_stubhead
@@ -115,6 +118,7 @@ from ._tab_create_modify import (
 )
 from ._tab_stub_indent import tab_stub_indent
 from ._tbl_data import _get_cell, _set_cell, _set_cells, n_rows
+from ._theme import color_scheme_style_attr, opt_theme, render_mode, resolve_options, uses_variables
 from ._utils import _migrate_unformatted_to_output
 from ._utils_render_html import (
     _get_table_aria_attrs,
@@ -447,6 +451,7 @@ class GT(
     sub_values = sub_values
 
     opt_stylize = opt_stylize
+    opt_theme = opt_theme
     opt_align_table_header = opt_align_table_header
     opt_all_caps = opt_all_caps
     opt_css = opt_css
@@ -482,6 +487,7 @@ class GT(
     tab_footnote = tab_footnote
     tab_spanner = tab_spanner
     tab_spanner_delim = tab_spanner_delim
+    tab_spanner_label_with = tab_spanner_label_with
     tab_stubhead = tab_stubhead
     tab_stub_indent = tab_stub_indent
     tab_style = tab_style
@@ -511,6 +517,7 @@ class GT(
     as_raw_html = as_raw_html
     write_raw_html = write_raw_html
     as_latex = as_latex
+    as_gridwell = as_gridwell
 
     pipe = pipe
 
@@ -537,6 +544,13 @@ class GT(
         # The table's HTML, as it is, in a page made with a Jinja template (as Flask's are) or with
         # FastHTML, which take what has an `__html__()` as HTML (Django makes it a string first)
         return self.as_raw_html()
+
+    def __ft__(self) -> str:
+        # The table's HTML, for FastHTML, as one of its components: so a route can return the table
+        # on its own (or in a tuple), which it shows as HTML, in a page (rather than as its repr)
+        from .web import _HTML
+
+        return _HTML(self.as_raw_html())
 
     # (Not seen by type checkers, which can still tell when an attribute is misspelled)
     if not TYPE_CHECKING:
@@ -603,7 +617,12 @@ class GT(
 
         # ...
 
-        return built._replace(_body=final_body, _stub=final_stub, _boxhead=final_boxhead)
+        return built._replace(
+            _body=final_body,
+            _stub=final_stub,
+            _boxhead=final_boxhead,
+            _options=resolve_options(built, "light"),
+        )
 
     def render(
         self,
@@ -622,9 +641,13 @@ class GT(
         self,
         make_page: bool = False,
         all_important: bool = False,
+        variables: bool = True,
     ) -> str:
         # TODO: better to put these checks in a pre render hook?
         _render_check(self)
+
+        # Non-HTML Quarto formats (like Typst or Word) can't use CSS variables or media queries
+        variables = uses_variables(variables)
 
         heading_component = create_heading_component_h(data=self)
         column_labels_component = create_columns_component_h(data=self)
@@ -663,6 +686,9 @@ class GT(
 </table>
 """
 
+        if not variables:
+            html_table = _resolve_cell_colors(self, html_table)
+
         # Obtain the `table_id` value from the Options (might be set, might be None)
         table_id = self._options.table_id.value
 
@@ -671,7 +697,7 @@ class GT(
         # Compile the SCSS as CSS
         from ._scss import compile_scss
 
-        css = compile_scss(data=self, id=id, all_important=all_important)
+        css = compile_scss(data=self, id=id, all_important=all_important, variables=variables)
 
         # Obtain options set for overflow and container dimensions
 
@@ -691,9 +717,12 @@ class GT(
 """
 
         if make_page:
+            # Declare which color schemes the page supports, so that its own chrome follows suit
+            color_scheme = color_scheme_style_attr(self, variables)
+
             # Create an HTML page and place the table within it
             finalized_table = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en"{color_scheme}>
 <head>
 <meta charset="utf-8"/>
 </head>
@@ -703,6 +732,31 @@ class GT(
 </html>
 """
         return finalized_table
+
+
+def _resolve_cell_colors(data: GT, html_table: str) -> str:
+    """Replace the cell colors that depend on the mode with literal ones: the authored colors stay."""
+    mode = render_mode(data)
+    options = resolve_options(data, mode)
+
+    html_table = html_table.replace("var(--_gt-text-dark)", options.table_font_color.value)
+    html_table = html_table.replace("var(--_gt-text-light)", options.table_font_color_light.value)
+
+    # (A `data_color(autocolor_text=False)` fill's text color is the inherited one in light mode)
+    html_table = re.sub(
+        r"color: light-dark\(currentcolor, ([^;]+?)\); ",
+        r"color: \1; " if mode == "dark" else "",
+        html_table,
+    )
+
+    # (Only the blends that `_dark_aware_color()` and `_dark_aware_borders()` write: a declaration
+    # the user wrote stays)
+    return re.sub(
+        r" ((?:border-(?:top|right|bottom|left)-)?color): light-dark\(([^;]+?), "
+        r"color-mix\(in srgb, \2 35%, currentcolor\)\);",
+        "",
+        html_table,
+    )
 
 
 # =============================================================================

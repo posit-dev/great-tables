@@ -11,6 +11,11 @@ header, footnotes, or spanners (perhaps from a shared helper function or a templ
 to strip a component out rather than rebuild the table from scratch. Every `rm_*()` method returns
 the `GT` object, so these calls chain like any other.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="neutral" cells="model|hp|trq|msrp/GT|647|550|447k/488|661|561|245k" cell-trick="remove" intro='[["say", "Too much? Take some out!"], ["mood", "wink"], ["wait", 600], ["mood", "neutral"]]'></gt-tabblen>
+```
+
 A common workflow where removal shines is when you start with a template or shared helper function
 that builds a fully-decorated table and then strip away the parts that aren't relevant for a
 particular audience or context. For example, a detailed report might include footnotes and source
@@ -23,10 +28,9 @@ a small slice of the `gtcars` dataset and give it a header, a stubhead label, a 
 and two source notes.
 
 ```{python}
-from great_tables import GT, md, loc
-from great_tables.data import gtcars
+from great_tables import GT, data, loc, md
 
-gtcars_mini = gtcars[["model", "mfr", "hp", "trq", "msrp"]].head(5)
+gtcars_mini = data.pl.gtcars.select("model", "mfr", "hp", "trq", "msrp").head(5)
 
 gt_tbl = (
     GT(gtcars_mini, rowname_col="model")
@@ -105,8 +109,8 @@ removed.
 The ability to remove by level is especially useful when working with deeply nested spanners
 (spanners that span other spanners). Rather than tracking individual spanner IDs (which can become
 unwieldy as the number of spanners grows) you can clear an entire tier at once. For instance, if you
-have a three-level spanner hierarchy and want to simplify the table down to a single level, two
-`rm_spanners()` calls with the appropriate `levels=` values will do the job cleanly.
+have a three-level spanner hierarchy and want to simplify the table down to a single level, a
+single `rm_spanners(levels=[1, 2])` call will do the job cleanly.
 
 The `rm_*()` methods round out the table-building workflow: the `tab_*()` methods put components in
 place, and their `rm_*()` counterparts take them back out. Because each returns a `GT` object, you

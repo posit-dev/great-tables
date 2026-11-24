@@ -26,23 +26,42 @@ _Absolutely Delightful Table-making in Python_
 With **Great Tables** anyone can make wonderful-looking tables in Python. The philosophy here is that we can construct a wide variety of useful tables by working with a cohesive set of table components. You can mix and match things like a _header_ and _footer_, attach a _stub_ (which contains row labels), arrange _spanner labels_ over top of the _column labels_, and much more. Not only that, but you can format the cell values in a variety of awesome ways.
 
 <div align="center">
+<a href="https://posit-dev.github.io/great-tables/examples/"><img src="https://posit-dev.github.io/great-tables/assets/readme_showcase.webp" width="880px" alt="An animation that cycles through eight tables made with Great Tables: country populations with flags and nanoplots, S&P 500 months with line and bar nanoplots, the fastest cars in gtcars with spanners and a footnote, a heatmap of solar zenith angles, Paris Métro stations with line logos, gas-phase reaction rates with chemical formulas, best-selling pizzas with summary rows, and an interactive table of Ontario's municipalities with column filters and profiles."></a>
+<br>
+<sub>Every table here is made with <b>Great Tables</b> from its own datasets (<a href="https://github.com/posit-dev/great-tables/blob/main/scripts/make_readme_showcase.py">see the code</a>).</sub>
+</div>
+
+## What You Can Do
+
+- **Structure a table** with a header, a stub of row labels, row groups, spanners over the column labels, footnotes, and source notes ([User Guide](https://posit-dev.github.io/great-tables/user-guide/header-footer-stub.html)).
+- **Format values** with nearly 30 `fmt_*()` methods: numbers, currencies, percentages, dates and times, durations, scientific notation, units, chemical formulas, Markdown, icons, flags, and images, in any of over 500 locales ([User Guide](https://posit-dev.github.io/great-tables/user-guide/formatting-values.html)).
+- **Plot in cells** with nanoplots: small line, bar, and box plots made from a cell's values ([User Guide](https://posit-dev.github.io/great-tables/user-guide/nanoplots.html)).
+- **Color cells by their values** with `data_color()`, for heatmaps and highlights ([User Guide](https://posit-dev.github.io/great-tables/user-guide/colorizing-with-data.html)).
+- **Style anything**, from a single cell to the whole table, with `tab_style()`, `tab_options()`, and premade themes from `opt_stylize()` ([User Guide](https://posit-dev.github.io/great-tables/user-guide/premade-themes.html)).
+- **Summarize** groups of rows, and the whole table, with summary rows ([User Guide](https://posit-dev.github.io/great-tables/user-guide/summary-rows.html)).
+- **Make it interactive** with `GTI`: sorting, searching, column filters, column profiles, pagination, and row selection, in the browser or in Shiny, Streamlit, Panel, Solara, and marimo apps ([User Guide](https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html)).
+- **Export** to HTML, LaTeX, or an image or PDF file ([User Guide](https://posit-dev.github.io/great-tables/user-guide/exporting-and-saving.html)).
+
+<div align="center">
 <img src="https://posit-dev.github.io/great-tables/assets/the_components_of_a_table.svg" width="800px">
 </div>
 
-It all begins with **table data** in the form of a Pandas or Polars DataFrame. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered to HTML (the default option) or to an image file.
+It all begins with **table data** in the form of a Polars or Pandas DataFrame, or a PyArrow table. You then decide how to compose your output table with the elements and formatting you need for the task at hand. Finally, the table is rendered to HTML (the default option), to LaTeX, or to an image file.
+
+## A Quick Example
 
 The **Great Tables** package is designed to be both straightforward yet powerful. The emphasis is on simple methods for the everyday display table needs (but power when you need it). Here is a brief example of how to use **Great Tables** to create a table from the included `sp500` dataset:
 
 ```python
-from great_tables import GT
-from great_tables.data import sp500
+import polars as pl
+from great_tables import GT, data
 
 # Define the start and end dates for the data range
 start_date = "2010-06-07"
 end_date = "2010-06-14"
 
-# Filter sp500 using Pandas to dates between `start_date` and `end_date`
-sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
+# Filter sp500 to the dates between `start_date` and `end_date`
+sp500_mini = data.pl.sp500.filter((pl.col("date") >= start_date) & (pl.col("date") <= end_date))
 
 # Create a display table based on the `sp500_mini` table data
 (
@@ -59,9 +78,54 @@ sp500_mini = sp500[(sp500["date"] >= start_date) & (sp500["date"] <= end_date)]
 <img src="https://posit-dev.github.io/great-tables/assets/gt_sp500_table.svg" width="800px">
 </div>
 
-Typically we use Great Tables in an notebook environment or within a [**Quarto**](https://quarto.org) document. Tables won't print to the console, but using the [`show()` method](https://posit-dev.github.io/great-tables/reference/GT.show.html#great_tables.GT.show) on a table object while in the console will open the HTML table in your default browser.
+Typically we use **Great Tables** in a notebook environment or within a [**Quarto**](https://quarto.org) document. Tables won't print to the console, but using the [`show()` method](https://posit-dev.github.io/great-tables/reference/GT.show.html#great_tables.GT.show) on a table object while in the console will open the HTML table in your default browser.
 
-There are 16 datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `peeps`, `films`, `metro`, `gibraltar`, `constants`, `illness`, `reactions`, `photolysis`, and `nuclides`.
+## Interactive Tables
+
+A `GTI` table is a `GT` table that readers can work with: it has all the same methods for structuring, formatting, and styling, and `i_*()` methods that set up what readers can do with it. Out of the box, it can be sorted, searched, and paged through.
+
+```python
+import polars as pl
+from great_tables import GTI, data
+
+cars = data.pl.gtcars.select(
+    "mfr", "model", "year", "bdy_style", "ctry_origin", "hp", "mpg_h", "msrp"
+).with_columns(pl.col("bdy_style").str.to_titlecase())
+
+(
+    GTI(cars)
+    .tab_header(title="Grand Touring Cars", subtitle="47 cars from the gtcars dataset")
+    .cols_label(
+        mfr="Make",
+        model="Model",
+        year="Year",
+        bdy_style="Body",
+        ctry_origin="Origin",
+        hp="HP",
+        mpg_h="MPG",
+        msrp="Price",
+    )
+    .fmt_integer(columns=["year", "hp", "mpg_h"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .data_color(columns="hp", palette=["#FFF5EB", "#FDAE6B"])
+    .i_cols_filter()
+    .i_cols_profile(columns=["hp", "msrp"])
+    .i_export("csv")
+    .i_pagination(page_size=8)
+)
+```
+
+<div align="center">
+<a href="https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html"><img src="https://posit-dev.github.io/great-tables/assets/readme_gti_demo.webp" width="880px" alt="An animation of a GTI table of the cars in gtcars being used: the cars are sorted by horsepower, filtered to convertibles with the Body column's filter, searched for Ferrari, the two cars left are downloaded as a CSV file, and the filters are shown as text, before the view is reset. Profiles of the HP and Price columns change with the rows shown."></a>
+<br>
+<sub>A <code>GTI</code> table, sorted, filtered, searched, and downloaded as CSV in the browser (<a href="https://github.com/posit-dev/great-tables/blob/main/scripts/make_readme_gti_demo.py">see the code</a>).</sub>
+</div>
+
+The table works on its own in the browser (in a notebook, a Quarto document, or a saved HTML file), and in Python apps, where the app can read and set what the reader filters, sorts, and selects. See [Interactive Tables](https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html) in the User Guide to get started.
+
+## Datasets
+
+There are 16 datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcars`, `sp500`, `pizzaplace`, `exibble`, `towny`, `peeps`, `films`, `metro`, `gibraltar`, `constants`, `illness`, `reactions`, `photolysis`, and `nuclides`. Each one is available as a Polars DataFrame (e.g., `data.pl.gtcars`) or as a Pandas DataFrame (e.g., `data.pd.gtcars`).
 
 <div align="center" style="padding-top:20px">
 <img src="https://posit-dev.github.io/great-tables/assets/datasets.png" style="width:100%;">
@@ -69,9 +133,13 @@ There are 16 datasets provided by **Great Tables**: `countrypops`, `sza`, `gtcar
 
 All of this tabular data is great for experimenting with the functionality available inside **Great Tables** and we make extensive use of these datasets in our documentation.
 
-Beyond the methods shown in the simple `sp500`-based example, there are many possible ways to create super-customized tables. Check out the [documentation website](https://posit-dev.github.io/great-tables/) to get started via introductory articles for making **Great Tables**. There's a handy _Reference_ section that has detailed help for every method and function in the package.
+## Learning More
+
+Beyond the methods shown here, there are many possible ways to create super-customized tables. Check out the [documentation website](https://posit-dev.github.io/great-tables/) to get started via the [User Guide](https://posit-dev.github.io/great-tables/user-guide/introduction.html), and see the [Examples](https://posit-dev.github.io/great-tables/examples/) for complete tables made with **Great Tables**. There's a handy [_Reference_](https://posit-dev.github.io/great-tables/reference/) section that has detailed help for every method and function in the package.
 
 [![Documentation Site](https://img.shields.io/badge/Project%20Website-Documentation%20and%20Reference-blue?style=social)](https://posit-dev.github.io/great-tables/)
+
+## Community
 
 Let's talk about how to make **Great Tables**! There are a few locations where there is much potential for discussion.
 
@@ -89,12 +157,12 @@ Finally, there is the [_X account_](https://twitter.com/gt_package). There you'l
 
 These are all great places to ask questions about how to use the package, discuss some ideas, engage with others, and much more!
 
-## INSTALLATION
+## Installation
 
 The **Great Tables** package can be installed from **PyPI** with:
 
 ```bash
-$ pip install great_tables
+pip install great_tables
 ```
 
 You can also install [Great Tables from Conda-Forge](https://anaconda.org/conda-forge/great_tables) by using:
@@ -102,6 +170,8 @@ You can also install [Great Tables from Conda-Forge](https://anaconda.org/conda-
 ```bash
 conda install conda-forge::great_tables
 ```
+
+Some ways of using interactive tables from Python need an extra: `great_tables[widget]` for a Jupyter widget, or `great_tables[streamlit]`, `great_tables[panel]`, `great_tables[solara]`, or `great_tables[marimo]` for those apps (e.g., `pip install "great_tables[widget]"`).
 
 If you encounter a bug, have usage questions, or want to share ideas to make this package better, please feel free to file an [issue](https://github.com/posit-dev/great-tables/issues).
 
@@ -131,7 +201,7 @@ author = {Iannone, Richard},
 license = {MIT},
 title = {{great-tables: Make awesome display tables using Python.}},
 url = {https://github.com/posit-dev/great-tables},
-version = {0.14.0}
+doi = {10.5281/zenodo.14618357}
 }
 ```
 

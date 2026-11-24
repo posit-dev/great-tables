@@ -1,5 +1,5 @@
 ---
-title: Interactive Tables
+title: Making Tables Interactive
 jupyter: python3
 html-table-processing: none
 guide-section: Interactive Tables
@@ -12,6 +12,11 @@ Nothing else is needed to view it (no server, internet connection, or other libr
 can be read before the script runs, or if it never does. It's interactive wherever its HTML is
 shown: in Jupyter notebooks, Quarto documents, and HTML files written with
 `~~GT.write_raw_html()`.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="grin" arms="rest up" cells="fruit|qty|price|kcal/fig|12|3.50|74/kiwi|40|0.80|61" cell-trick="sort" intro='[["say", "Sort me, search me!"], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Interactive tables are ideal for exploratory contexts where the reader needs to find specific values
 in a larger dataset (e.g., dashboards, internal tools, or notebook-based analysis). Sorting and
@@ -32,7 +37,7 @@ There are two ways to make an interactive table, and they render it with the sam
   filters they get, which columns they can hide, move, or pin, how they can export the rows, how
   the table is first shown, and whether their view is kept for the next visit. A control bar below
   the table brings these together. `GTI.from_gt()` turns a `GT` table into a `GTI` one.
-  [GTI Tables](22-gti-tables.qmd) is about them.
+  [GTI Tables](25-gti-tables.qmd) is about them.
 
 If you're publishing a table and want readers to be able to sort, search and page through it,
 `opt_interactive()` is all you need. If the table is a focal point of the page (a lookup tool, a
@@ -44,11 +49,10 @@ A single call to `opt_interactive()` switches the table from static to interacti
 methods continue to work exactly as before.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import gtcars
 import polars as pl
+from great_tables import GT, data
 
-gtcars_pl = pl.from_pandas(gtcars).select(["mfr", "model", "year", "hp", "trq", "msrp"])
+gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
 
 (
     GT(gtcars_pl)
@@ -70,12 +74,8 @@ the stub and row groups, spanners, footnotes, source notes, and summary rows. Wh
 sorted, they're sorted within their groups.
 
 ```{python}
-from great_tables import GT
-from great_tables.data import gtcars
-import polars as pl
-
 gtcars_grouped = (
-    pl.from_pandas(gtcars)
+    data.pl.gtcars
     .filter(pl.col("ctry_origin").is_in(["Germany", "Italy"]))
     .select(["ctry_origin", "model", "year", "hp", "trq", "msrp"])
 )
@@ -109,7 +109,7 @@ and text to match for the rest.
 )
 ```
 
-Try typing `"Audi"` in the search box, or setting a range in the `HP` filter, to narrow the results.
+Try typing `Audi` in the search box, or setting a range in the `HP` filter, to narrow the results.
 
 ## Pagination options
 
@@ -189,7 +189,7 @@ from great_tables import style, loc
         style=[style.fill(color="#ddeeff"), style.text(weight="bold")],
         locations=loc.column_labels(columns=["hp", "trq"]),
     )
-    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+    .opt_interactive(use_search=True, use_filters=True)
 )
 ```
 
@@ -197,7 +197,7 @@ From the output you might notice:
 
 - HP values over 500 are highlighted in amber
 - MSRP values over \$200,000 appear in bold red
-- the `HP` and `Torque` column headers have a blue-tinted background
+- The `HP` and `Torque` column labels have a blue-tinted background
 
 Sort by `HP` or `MSRP` to confirm that the styling moves with the data.
 
@@ -213,16 +213,16 @@ each cell based on the underlying value, and the colors follow the data when you
     .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
     .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
     .fmt_currency(columns="msrp")
-    .data_color(columns="hp",  palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="hp", palette=["#fff7ec", "#ef6c00"])
     .data_color(columns="msrp", palette="Blues")
-    .opt_interactive(use_search=True, use_filters=True, page_size_default=10)
+    .opt_interactive(use_search=True, use_filters=True)
 )
 ```
 
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are
 computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table
-can color them again from the rows a filter keeps instead: see [Colors from the rows
-kept](22-gti-tables.qmd#colors-from-the-rows-kept).)
+can color them again from the rows a filter keeps instead: see
+[Colors from the rows kept](25-gti-tables.qmd#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -241,9 +241,9 @@ Pass `domain=` to lock the color range across columns so they share a common sca
     .data_color(
         columns=["hp", "trq"],
         palette=["#edf8fb", "#006d2c"],
-        domain=[200, 700],
+        domain=[200, 1000],
     )
-    .opt_interactive(use_search=True, page_size_default=10)
+    .opt_interactive(use_search=True)
 )
 ```
 
@@ -251,7 +251,7 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 
 When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its
 filters, column profiles, grouping, linked tables and the explorer preset are in
-[GTI Tables](22-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
+[GTI Tables](25-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
 notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()`
-tables too) is in [GTI in Python and Apps](23-gti-in-python-and-apps.qmd), as is showing tables in
+tables too) is in [GTI in Python and Apps](26-gti-in-python-and-apps.qmd), as is showing tables in
 pages an app makes itself, with Flask, Django or FastHTML.

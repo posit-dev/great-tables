@@ -1,0 +1,354 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "tab_style",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/tab_style.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/tab_style.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "char"
+      },
+      {
+        "align": "right",
+        "id": "num"
+      },
+      {
+        "align": "right",
+        "id": "currency"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "apricot"
+                  }
+                ],
+                "style": {
+                  "color": "#B42318",
+                  "font_style": "italic"
+                },
+                "text": "apricot",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "0.1111"
+                  }
+                ],
+                "text": "0.1111",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "49.95"
+                  }
+                ],
+                "text": "49.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "banana"
+                  }
+                ],
+                "style": {
+                  "color": "#B42318",
+                  "font_style": "italic"
+                },
+                "text": "banana",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2.222"
+                  }
+                ],
+                "style": {
+                  "background_color": "#E8F0FE",
+                  "font_weight": "bold"
+                },
+                "text": "2.222",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "17.95"
+                  }
+                ],
+                "text": "17.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "coconut"
+                  }
+                ],
+                "style": {
+                  "color": "#B42318",
+                  "font_style": "italic"
+                },
+                "text": "coconut",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "33.33"
+                  }
+                ],
+                "style": {
+                  "background_color": "#E8F0FE",
+                  "font_weight": "bold"
+                },
+                "text": "33.33",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1.39"
+                  }
+                ],
+                "text": "1.39",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "durian"
+                  }
+                ],
+                "style": {
+                  "color": "#B42318",
+                  "font_style": "italic"
+                },
+                "text": "durian",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "444.4"
+                  }
+                ],
+                "style": {
+                  "background_color": "#E8F0FE",
+                  "font_weight": "bold"
+                },
+                "text": "444.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "65100.0"
+                  }
+                ],
+                "text": "65100.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "style": {
+                  "color": "#B42318",
+                  "font_style": "italic"
+                },
+                "text": "None"
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "5550.0"
+                  }
+                ],
+                "style": {
+                  "background_color": "#E8F0FE",
+                  "font_weight": "bold"
+                },
+                "text": "5550.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "1325.81"
+                  }
+                ],
+                "text": "1325.81",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "char"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#F2F4F7"
+            },
+            "text": "char"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "num"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#F2F4F7"
+            },
+            "text": "num"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "currency"
+              }
+            ],
+            "scope": "col",
+            "style": {
+              "background_color": "#F2F4F7"
+            },
+            "text": "currency"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

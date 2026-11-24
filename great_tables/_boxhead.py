@@ -98,12 +98,11 @@ def cols_label(
     `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import reactions
+    from great_tables import GT, data
     import polars as pl
 
     reactions_mini = (
-        pl.from_pandas(reactions)
+        data.pl.reactions
         .filter(pl.col("cmpd_type") == "mercaptan")
         .select(["cmpd_name", "OH_k298"])
     )
@@ -525,6 +524,9 @@ def cols_label_rotate(
     `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the
     alignment to. If `columns` is not specified, the alignment is applied to all columns.
 
+    A rotated label is kept on one line and centered across its column. Line breaks in a label made
+    with `html()` aren't supported, since Safari shows only the first line.
+
     Parameters
     ----------
     columns
@@ -534,8 +536,10 @@ def cols_label_rotate(
         A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
         `"vertical-lr"`. See note for information on text layout.
     align
-        The alignment to apply. Must be one of `"left"`, `"center"`, `"right"`, or `"none"`. If text
-        is laid out vertically, this affects alignment along the vertical axis.
+        The alignment to apply along the height of the column labels row. Must be one of `"left"`,
+        `"center"`, `"right"`, or `None`. `"left"` places the label where its text starts (the
+        bottom for `"sideways-lr"`, the top otherwise), `"right"` where it ends, and `"center"` in
+        the middle. With `None`, the label is placed at the bottom.
     padding
         The vertical padding to apply to the column labels.
 
@@ -560,6 +564,22 @@ def cols_label_rotate(
     )
     ```
 
+    All three `dir` values can be compared side by side by assigning each direction to a different
+    column and renaming the labels to the direction names.
+
+    ```{python}
+    (
+        GT(exibble[["num", "char", "fctr"]])
+        .cols_label(num="sideways-lr", char="sideways-rl", fctr="vertical-lr")
+        .cols_label_rotate(columns="num", dir="sideways-lr")
+        .cols_label_rotate(columns="char", dir="sideways-rl")
+        .cols_label_rotate(columns="fctr", dir="vertical-lr")
+    )
+    ```
+
+    `"sideways-rl"` and `"vertical-lr"` look the same with Latin text. They differ with CJK
+    characters, which `"vertical-lr"` keeps upright.
+
     Other styles you provide won't override the column label rotation directives. Here we set the
     text to the right.
 
@@ -571,17 +591,16 @@ def cols_label_rotate(
     )
     ```
 
-    Labels that are restricted by the height of the stub head will wrap horizontally.
+    A long label makes the column labels row taller, since a rotated label isn't wrapped. The
+    `align=` argument places a shorter label along that height. Here `"center"` puts the `num`
+    label in the middle.
 
     ```{python}
     (
         GT(exibble_sm, rowname_col="row", groupname_col="group")
-        .cols_label({"fctr": "A longer description of the values in the column below"})
-        .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
-        .tab_style(
-            style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
-            locations=loc.column_labels(["fctr"])
-        )
+        .cols_label({"fctr": "A longer description of the values"})
+        .cols_label_rotate(columns="fctr")
+        .cols_label_rotate(columns="num", align="center")
     )
     ```
 
@@ -592,18 +611,16 @@ def cols_label_rotate(
     ##### `"sideways-lr"`
 
     For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
-    vertically from top to bottom. Characters are set sideways toward the left. Overflow lines are
-    appended to the right.
+    vertically from top to bottom. Characters are set sideways toward the left.
 
     ##### `"sideways-rl"`
 
     For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
-    vertically from bottom to top. Characters are set sideways toward the right. Overflow lines are
-    appended to the left.
+    vertically from bottom to top. Characters are set sideways toward the right.
 
     ##### `"vertical-lr"`
 
-    Identical to `"sideways-rl"`, but overflow lines are appended to the right.
+    Like `"sideways-rl"`, but CJK characters are kept upright rather than set sideways.
 
     """
     # Throw if `align` is not one of the four allowed values
@@ -619,9 +636,23 @@ def cols_label_rotate(
     if not align:
         align = "left" if dir == "sideways-lr" else "right"
 
-    res = self.tab_style(
+    # The label is rotated in a span (see `_wrap_rotated_column_label()`), so the cell centers it
+    # across the column and `align` places it along the cell's height: "left" is where the text
+    # starts, which is the bottom for "sideways-lr" and the top otherwise
+    starts_at_bottom = dir == "sideways-lr"
+    valign = {
+        "left": "bottom" if starts_at_bottom else "top",
+        "center": "middle",
+        "right": "top" if starts_at_bottom else "bottom",
+    }[align]
+
+    # Select the columns as the style below does, so that the same columns are rotated
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    boxhead = self._boxhead._set_column_label_rotate(sel_cols, dir=dir)
+    res = self._replace(_boxhead=boxhead).tab_style(
         style=CellStyleCss(
-            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
+            f"text-align: center; vertical-align: {valign}; padding: {padding}px 0px;"
         ),
         locations=LocColumnLabels(columns=columns),
     )

@@ -1,6 +1,6 @@
 import { expect, type FrameLocator, type Page, test } from "@playwright/test";
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -167,16 +167,28 @@ test("Jupyter: a notebook converted to HTML", async ({ page }) => {
 });
 
 // JupyterLab, serving the sources, with a notebook open (once its kernel is up)
-async function lab(page: Page, notebook: string, body: () => Promise<void>): Promise<void> {
+// (With `theme`, the name of the theme the user has set, in settings of its own)
+async function lab(page: Page, notebook: string, body: () => Promise<void>, theme?: string): Promise<void> {
   const port = await freePort();
   const token = "gti-hosts";
   const base = `http://127.0.0.1:${port}`;
+  // (With each comm's messages on the kernel's main thread, not on a subshell (a thread) of their
+  // own, as JupyterLab sends them by default to a kernel that has subshells (ipykernel's, from 7):
+  // which makes rarer a stall of the kernel's own, where the browser's messages wait, unread, on
+  // its shell socket, and the kernel answers nothing more; see BUGS.md)
+  const user = join(dir, theme === undefined ? "settings" : "settings-themed");
+  const settings = join(user, "@jupyterlab", "apputils-extension");
+  mkdirSync(settings, { recursive: true });
+  writeFileSync(join(settings, "kernels-settings.jupyterlab-settings"), JSON.stringify({ commsOverSubshells: "disabled" }));
+  if (theme !== undefined) {
+    writeFileSync(join(settings, "themes.jupyterlab-settings"), JSON.stringify({ theme }));
+  }
   const server = await serve(
     `${base}/api/status?token=${token}`,
     "-m", "jupyter", "lab", "--no-browser", `--port=${port}`, "--ip=127.0.0.1",
     `--ServerApp.token=${token}`, `--ServerApp.root_dir=${dir}`,
     "--LabApp.expose_app_in_browser=True",
-    `--LabApp.user_settings_dir=${join(dir, "settings")}`,
+    `--LabApp.user_settings_dir=${user}`,
     `--LabApp.workspaces_dir=${join(dir, "workspaces")}`,
   );
   try {
@@ -1072,3 +1084,136 @@ test("VS Code: outputs shown as its notebooks show them, in a sandboxed frame", 
   await sorts(frame);
   expect(errors).toEqual([]);
 });
+
+// The static table's background in each host, with the host's own light or dark theme and the
+// reader's preference: the table follows the host's theme, whatever the preference (these are the
+// hosts' real <body>, which the selectors in great_tables/_scss.py match).
+const LIGHT_BACKGROUND = "rgb(255, 255, 255)";
+const DARK_BACKGROUND = "rgb(30, 30, 30)";
+
+const themed = (page: Page) => page.locator("table.gt_table");
+
+test("Theme, nbconvert: a dark page theme under a light preference", async ({ page }) => {
+  test.skip(!has("nbconvert", "ipykernel"), "nbconvert and ipykernel aren't installed");
+  run(PYTHON, "-m", "jupyter", "nbconvert", "--to", "html", "--execute", "--HTMLExporter.theme=dark", "theme.ipynb");
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto(pathToFileURL(join(dir, "theme.html")).href);
+
+  await expect(page.locator("body")).toHaveAttribute("data-jp-theme-light", "false");
+  await expect(themed(page)).toHaveCSS("background-color", DARK_BACKGROUND);
+});
+
+test("Theme, nbconvert: a light page theme under a dark preference", async ({ page }) => {
+  test.skip(!has("nbconvert", "ipykernel"), "nbconvert and ipykernel aren't installed");
+  run(PYTHON, "-m", "jupyter", "nbconvert", "--to", "html", "--execute", "theme.ipynb");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto(pathToFileURL(join(dir, "theme.html")).href);
+
+  await expect(page.locator("body")).toHaveAttribute("data-jp-theme-light", "true");
+  await expect(themed(page)).toHaveCSS("background-color", LIGHT_BACKGROUND);
+});
+
+test("Theme, JupyterLab: its dark theme under a light preference", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel"), "JupyterLab and ipykernel aren't installed");
+  await page.emulateMedia({ colorScheme: "light" });
+  await lab(
+    page,
+    "theme.ipynb",
+    async () => {
+      await runAll(page);
+      await expect(page.locator("body")).toHaveAttribute("data-jp-theme-light", "false");
+      await expect(themed(page)).toHaveCSS("background-color", DARK_BACKGROUND);
+    },
+    "JupyterLab Dark",
+  );
+});
+
+test("Theme, JupyterLab: its default theme under a dark preference", async ({ page }) => {
+  test.skip(!has("jupyterlab", "ipykernel"), "JupyterLab and ipykernel aren't installed");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await lab(page, "theme.ipynb", async () => {
+    await runAll(page);
+    await expect(page.locator("body")).toHaveAttribute("data-jp-theme-light", "true");
+    await expect(themed(page)).toHaveCSS("background-color", LIGHT_BACKGROUND);
+  });
+});
+
+// (Quarto's own switch between the two themes of the document, which toggles the class of <body>)
+const quartoSwitch = (page: Page) => page.evaluate(() => (window as any).quartoToggleColorScheme());
+
+test("Theme, Quarto: a document switched to its dark theme under a light preference", async ({ page }) => {
+  test.skip(!quarto(), "Quarto isn't installed");
+  test.skip(!has("nbclient", "ipykernel"), "nbclient and ipykernel aren't installed");
+  run("quarto", "render", "theme.qmd");
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto(pathToFileURL(join(dir, "theme.html")).href);
+
+  await expect(page.locator("body")).toHaveClass(/quarto-light/);
+  await expect(themed(page)).toHaveCSS("background-color", LIGHT_BACKGROUND);
+  await quartoSwitch(page);
+  await expect(page.locator("body")).toHaveClass(/quarto-dark/);
+  await expect(themed(page)).toHaveCSS("background-color", DARK_BACKGROUND);
+});
+
+test("Theme, Quarto: a document in its light theme under a dark preference", async ({ page }) => {
+  test.skip(!quarto(), "Quarto isn't installed");
+  test.skip(!has("nbclient", "ipykernel"), "nbclient and ipykernel aren't installed");
+  run("quarto", "render", "theme.qmd");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto(pathToFileURL(join(dir, "theme.html")).href);
+
+  await expect(page.locator("body")).toHaveClass(/quarto-light/);
+  await expect(themed(page)).toHaveCSS("background-color", LIGHT_BACKGROUND);
+});
+
+// (marimo's theme, in the display settings of the app's script header, as the app's own marker on
+// <body>: `body.dark-theme[data-theme="dark"]` or `body.light-theme[data-theme="light"]`)
+const MARIMO_THEMES = [
+  { theme: "dark", preference: "light", background: DARK_BACKGROUND, color: "rgb(224, 224, 224)" },
+  { theme: "light", preference: "dark", background: LIGHT_BACKGROUND, color: "rgb(51, 51, 51)" },
+] as const;
+
+// The table's parts have the table's background, and a body cell's text is the table's own
+async function followsMarimo(page: Page, theme: string, background: string, color: string): Promise<void> {
+  await expect(page.locator("body")).toHaveClass(new RegExp(`${theme}-theme`));
+  await expect(page.locator("body")).toHaveAttribute("data-theme", theme);
+  const table = themed(page);
+  await expect(table).toHaveCSS("background-color", background);
+  await expect(table.locator(".gt_title")).toHaveCSS("background-color", background);
+  await expect(table.locator(".gt_col_heading").first()).toHaveCSS("background-color", background);
+  await expect(table.locator("td.gt_row").first()).toHaveCSS("color", color);
+}
+
+for (const mode of ["run", "edit"]) {
+  for (const { theme, preference, background, color } of MARIMO_THEMES) {
+    test(`Theme, marimo: its ${theme} theme under a ${preference} preference (marimo ${mode})`, async ({ page }) => {
+      test.skip(!has("marimo"), "marimo isn't installed");
+      const { url, server } = await marimo(`marimo_${theme}_theme_app.py`, mode);
+      try {
+        await page.emulateMedia({ colorScheme: preference });
+        await page.goto(url);
+        if (mode === "edit") {
+          await expect(page.locator("[id^='cell-'] [data-testid=run-button]")).not.toHaveCount(0, { timeout: 30_000 });
+          await expect(async () => {
+            await page.locator("[data-testid=run-button]:not([id^='cell-'] *)").click();
+            await expect(themed(page)).toHaveCount(1, { timeout: 5_000 });
+          }).toPass({ timeout: 45_000 });
+        }
+        await followsMarimo(page, theme, background, color);
+      } finally {
+        server.kill();
+      }
+    });
+  }
+}
+
+for (const { theme, preference, background, color } of MARIMO_THEMES) {
+  test(`Theme, marimo: its ${theme} theme under a ${preference} preference (an app exported to HTML)`, async ({ page }) => {
+    test.skip(!has("marimo"), "marimo isn't installed");
+    run(PYTHON, "-m", "marimo", "export", "html", `marimo_${theme}_theme_app.py`, "-o", `marimo_${theme}.html`);
+    await page.emulateMedia({ colorScheme: preference });
+    // (The page loads marimo's frontend from a CDN)
+    await page.goto(pathToFileURL(join(dir, `marimo_${theme}.html`)).href);
+    await followsMarimo(page, theme, background, color);
+  });
+}

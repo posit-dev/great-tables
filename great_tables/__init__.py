@@ -29,6 +29,7 @@ from ._helpers import (
     system_fonts,
 )
 from ._styles import FromColumn as from_column
+from ._theme import Theme
 from .gt import GT
 from .gti import GTI
 
@@ -36,6 +37,7 @@ __all__ = (
     "GT",
     "GTI",
     "LETTERS",
+    "Theme",
     "col_bin",
     "col_factor",
     "col_numeric",

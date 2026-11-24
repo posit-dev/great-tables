@@ -1087,6 +1087,8 @@ def test_cols_merge_uncert_invalid_col_uncert_zero_cols():
     # Line 1359: col_uncert resolves to 0 columns → ValueError
     df = pd.DataFrame({"val": [1.0], "uncert": [0.1]})
     with pytest.raises(ValueError, match="col_uncert.*one or two columns"):
+        GT(df).cols_merge_uncert(col_val="val", col_uncert=[])
+    with pytest.raises(ValueError, match="no column named 'nonexistent'"):
         GT(df).cols_merge_uncert(col_val="val", col_uncert="nonexistent")
 
 
@@ -1094,6 +1096,8 @@ def test_cols_merge_range_invalid_col_end():
     # Lines 1506-1508: col_end resolves to 0 columns → ValueError
     df = pd.DataFrame({"low": [1], "high": [2]})
     with pytest.raises(ValueError, match="col_end.*exactly one column"):
+        GT(df).cols_merge_range(col_begin="low", col_end=[])
+    with pytest.raises(ValueError, match="no column named 'nonexistent'"):
         GT(df).cols_merge_range(col_begin="low", col_end="nonexistent")
 
 
@@ -1101,4 +1105,6 @@ def test_cols_merge_n_pct_invalid_col_pct():
     # Lines 1654-1656: col_pct resolves to 0 columns → ValueError
     df = pd.DataFrame({"n": [1], "pct": [0.5]})
     with pytest.raises(ValueError, match="col_pct.*exactly one column"):
+        GT(df).cols_merge_n_pct(col_n="n", col_pct=[])
+    with pytest.raises(ValueError, match="no column named 'nonexistent'"):
         GT(df).cols_merge_n_pct(col_n="n", col_pct="nonexistent")

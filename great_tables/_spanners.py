@@ -3,9 +3,9 @@ from __future__ import annotations
 import copy
 import warnings
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import chain
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 from typing_extensions import TypedDict
 
@@ -16,7 +16,10 @@ from ._text import BaseText, Text
 from ._utils import OrderedSet, _assert_list_is_subset
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._gt_data import Boxhead
+    from ._helpers import UnitStr
     from ._tbl_data import SelectExpr
     from ._types import GTSelf
 
@@ -176,8 +179,6 @@ def tab_spanner(
     )
     ```
     """
-    from great_tables._helpers import UnitStr
-
     crnt_spanner_ids = {span.spanner_id for span in self._spanners}
 
     if id is None:
@@ -234,30 +235,13 @@ def tab_spanner(
     spanner_units = None
     spanner_pattern = None
 
-    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
-    if isinstance(label, str):
-        unitstr = UnitStr.from_str(label)
-
-        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
-            new_label = unitstr.units_str[0]
-        else:
-            new_label = unitstr
-
-    elif isinstance(label, BaseText):
-        new_label = label
-
-    else:
-        raise ValueError(
-            "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
-        )
-
     new_span = SpannerInfo(
         spanner_id=id,
         spanner_level=level,
         vars=column_names,
         spanner_units=spanner_units,
         spanner_pattern=spanner_pattern,
-        spanner_label=new_label,
+        spanner_label=_new_spanner_label(label),
     )
 
     spanners = self._spanners.append_entry(new_span)
@@ -461,6 +445,149 @@ def tab_spanner_delim(
             spanner_id = _unique_spanner_id(new_obj._spanners, cfg["label"])
             new_obj = tab_spanner(new_obj, id=spanner_id, gather=False, **cfg)
     return new_obj
+
+
+def tab_spanner_label_with(
+    self: GTSelf,
+    fn: Callable[[str], str | BaseText],
+    spanners: str | list[str] | None = None,
+    levels: int | list[int] | None = None,
+) -> GTSelf:
+    """
+    Relabel column spanners using a function.
+
+    The `tab_spanner_label_with()` method allows for modification of spanner labels through a
+    supplied function. This is useful for spanners made by
+    [`tab_spanner_delim()`](`great_tables.GT.tab_spanner_delim`), whose labels are pieces of the
+    column names. By default, the function is applied to the labels of all spanners but this can be
+    limited by spanner ID (with `spanners=`), by spanner level (with `levels=`), or both. Spanner IDs
+    aren't changed, so methods that target spanners by ID still work after relabeling.
+
+    Parameters
+    ----------
+    fn
+        A function that accepts a spanner label as input and returns a new label. It can return a
+        string (which may use units notation, see [`define_units()`](`great_tables.define_units`))
+        or a label made with the [`md()`](`great_tables.md`) or [`html()`](`great_tables.html`)
+        helper functions.
+    spanners
+        The spanners to relabel. Supplied as a single spanner ID or a list of spanner ID values. If
+        `None` (the default), then all spanners will be relabeled (subject to any constraint imposed
+        by `levels=`).
+    levels
+        The spanner levels to relabel, supplied as a single level or a list of levels. Spanners are
+        placed on levels starting from `0` (the level closest to the column labels). If `None` (the
+        default), then no levels-based constraint is applied.
+
+    Returns
+    -------
+    GT
+        The GT object is returned. This is the same object that the method is called on so that we
+        can facilitate method chaining.
+
+    Notes
+    -----
+    Only plain-text labels are passed to `fn`. Labels made with `md()` or `html()`, or that use units
+    notation, are left as they are.
+
+    Examples
+    --------
+    Let's use a subset of the `towny` dataset, where the `population_*` and `density_*` columns can
+    be split at the underscore with `tab_spanner_delim()`. That gives us two spanners, labeled
+    `"population"` and `"density"`.
+
+    ```{python}
+    from great_tables import GT
+    from great_tables.data import towny
+
+    towny_mini = towny[
+        ["name", "population_2016", "population_2021", "density_2016", "density_2021"]
+    ].head(5)
+
+    gt = GT(towny_mini, rowname_col="name").tab_spanner_delim(delim="_")
+    gt
+    ```
+
+    We can pass `str.title` to the `fn` parameter to capitalize the spanner labels.
+
+    ```{python}
+    gt.tab_spanner_label_with(fn=str.title)
+    ```
+
+    The function can return a string that uses units notation. Here, only the spanner with the ID
+    `"density"` is relabeled, with the units of population density added to its label.
+
+    ```{python}
+    gt.tab_spanner_label_with(
+        fn=lambda x: x.title() + " ({{ppl / km^2}})",
+        spanners="density",
+    )
+    ```
+
+    See Also
+    --------
+    [`cols_label_with()`](`great_tables.GT.cols_label_with`) to relabel columns using a function.
+    """
+    sel_ids = _resolve_spanner_ids(self._spanners, spanners=spanners, levels=levels)
+
+    new_spans = []
+    for span in self._spanners:
+        if span.spanner_id in sel_ids and isinstance(span.spanner_label, str):
+            span = replace(span, spanner_label=_new_spanner_label(fn(span.spanner_label)))
+        new_spans.append(span)
+
+    return self._replace(_spanners=Spanners(new_spans))
+
+
+def _new_spanner_label(label: Any) -> str | BaseText | UnitStr:
+    """Check a new spanner label, turning a string that uses units notation into a `UnitStr`."""
+    from great_tables._helpers import UnitStr
+
+    # Handle units syntax in the label (e.g., "Density ({{ppl / mi^2}})")
+    if isinstance(label, str):
+        unitstr = UnitStr.from_str(label)
+
+        if len(unitstr.units_str) == 1 and isinstance(unitstr.units_str[0], str):
+            return unitstr.units_str[0]
+        return unitstr
+
+    if isinstance(label, BaseText):
+        return label
+
+    raise ValueError(
+        "Spanner labels must be strings or Text objects. Use `md()` or `html()` for formatting."
+    )
+
+
+def _resolve_spanner_ids(
+    crnt_spanners: Spanners,
+    spanners: str | list[str] | None = None,
+    levels: int | list[int] | None = None,
+) -> set[str]:
+    """Return the IDs of the spanners selected by ID (`None` means all) and by level."""
+    crnt_ids = [span.spanner_id for span in crnt_spanners]
+
+    if spanners is None:
+        sel_ids = list(crnt_ids)
+    else:
+        sel_ids = [spanners] if isinstance(spanners, str) else list(spanners)
+        missing = [id for id in sel_ids if id not in crnt_ids]
+        if missing:
+            raise ValueError(f"These spanner ID values do not exist in the table: {missing}.")
+
+    if levels is not None:
+        sel_levels = [levels] if isinstance(levels, int) else list(levels)
+        crnt_levels = {span.spanner_level for span in crnt_spanners}
+        missing_levels = [lvl for lvl in sel_levels if lvl not in crnt_levels]
+        if missing_levels:
+            raise ValueError(f"These spanner levels do not exist in the table: {missing_levels}.")
+
+        ids_at_levels = {
+            span.spanner_id for span in crnt_spanners if span.spanner_level in sel_levels
+        }
+        sel_ids = [id for id in sel_ids if id in ids_at_levels]
+
+    return set(sel_ids)
 
 
 def _unique_spanner_id(spanners: Spanners, label: str) -> str:
@@ -1221,12 +1348,11 @@ def cols_merge(
     columns together, and the `low` & `high` columns (putting an em dash between both).
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import sp500
+    from great_tables import GT, data
     import polars as pl
 
     sp500_mini = (
-        pl.from_pandas(sp500)
+        data.pl.sp500
         .slice(49, 6)
         .select("open", "close", "low", "high")
     )
@@ -1251,11 +1377,11 @@ def cols_merge(
     any of the merged columns have missing values.
 
     ```{python}
-    from great_tables.data import gtcars
+    from great_tables import data
     import polars.selectors as cs
 
     gtcars_pl = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .filter(pl.col("year") == 2017)
         .select(["mfr", "model", "trq", "trq_rpm", "mpg_c", "mpg_h"])
     )
@@ -1389,12 +1515,11 @@ def cols_merge_uncert(
     columns together as a value with uncertainty.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import exibble
+    from great_tables import GT, data
     import polars as pl
 
     exibble_mini = (
-        pl.from_pandas(exibble)
+        data.pl.exibble
         .select("num", "currency")
         .slice(0, 7)
     )
@@ -1533,12 +1658,11 @@ def cols_merge_range(
     together as a range.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import gtcars
+    from great_tables import GT, data
     import polars as pl
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select("model", "mpg_c", "mpg_h")
         .slice(0, 8)
     )

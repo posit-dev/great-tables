@@ -11,17 +11,23 @@ giving you a post-processing layer for tasks like replacing abbreviations, apply
 labels, or inserting custom HTML. These methods complement the `fmt_*()` methods, which work on raw
 data values.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="great tables" cell-trick="flip" intro='[["mood", "thinking"], ["wait", 600], ["mood", "happy"], ["write", "GREAT TABLES", 110], ["mood", "grin"], ["say", "Same cells, new text!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 To clarify the distinction: `fmt_*()` methods work on raw data values *before* they become text.
 Text transforms work on the *already-rendered text* after formatting. This means you can use
-`~~GT.fmt_number()` to get consistent decimal places, and then use `text_transform()` to wrap the
-result in custom HTML or append a unit label. The two layers complement each other, where formatting
-handles the numeric conversion, and text transforms handle the final presentation touches.
+`~~GT.fmt_number()` to get consistent decimal places, and then use `~~GT.text_transform()` to wrap
+the result in custom HTML or append a unit label. The two layers complement each other, where
+formatting handles the numeric conversion, and text transforms handle the final presentation
+touches.
 
 ## Setting Up the Example Data
 
 ```{python}
 import polars as pl
-from great_tables import GT, loc, md
+from great_tables import GT, loc
 
 status_df = pl.DataFrame({
     "task": ["Data collection", "Analysis", "Report writing", "Peer review"],
@@ -249,8 +255,10 @@ labels using the `columns=` argument within `loc.column_labels()`.
 
 ## Combining Text Methods
 
-You can chain multiple text methods together. They are applied in the order specified, each
-operating on the result of the previous transformation.
+You can chain multiple text methods together. They are applied in the order specified, so when two
+of them target the same cells, the later one operates on the result of the earlier one. Here, the
+`status` labels produced by `~~GT.text_case_match()` are then bolded by `~~GT.text_transform()`
+whenever they read `"Complete"`.
 
 ```{python}
 (
@@ -260,6 +268,10 @@ operating on the result of the previous transformation.
         ("IN_PROGRESS", "In Progress"),
         ("NOT_STARTED", "Not Started"),
         locations=loc.body(columns="status")
+    )
+    .text_transform(
+        locations=loc.body(columns="status"),
+        fn=lambda text: f"<strong>{text}</strong>" if text == "Complete" else text
     )
     .text_case_match(
         ("high", "High ●"),

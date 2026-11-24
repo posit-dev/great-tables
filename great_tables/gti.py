@@ -248,21 +248,24 @@ class GTI(GT):
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
         object.__setattr__(self, "_interactive", Settings(data_kind=kind))
         if preset == "explorer":
-            explorer = (
-                self.i_cols_filter()
-                .i_cols_profile()
-                .i_cols_controls(hideable=True, reorderable=True)
-                .i_display(compact=True, wrap=False, monospace=True)
-                .i_export("csv")
-                .i_inspect()
-            )
-            object.__setattr__(self, "_interactive", explorer._interactive)
+            object.__setattr__(self, "_interactive", self._explorer()._interactive)
 
     _interactive: Settings
     _lazy: Lazy | None
 
+    def _explorer(self) -> Self:
+        # (The table with the explorer preset's settings, over those it has)
+        return (
+            self.i_cols_filter()
+            .i_cols_profile()
+            .i_cols_controls(hideable=True, reorderable=True)
+            .i_display(compact=True, wrap=False, monospace=True)
+            .i_export("csv")
+            .i_inspect()
+        )
+
     @classmethod
-    def from_gt(cls, gt: GT) -> GTI:
+    def from_gt(cls, gt: GT, preset: Preset = "report") -> GTI:
         """
         Make an interactive table from a `GT` table.
 
@@ -276,6 +279,12 @@ class GTI(GT):
         ----------
         gt
             A `GT` table.
+        preset
+            The settings the table starts with: `"report"` (the default) for those above; or
+            `"explorer"` for those of [`GTI(preset="explorer")`](`great_tables.GTI`), set over
+            them by the `i_` methods it's made with (each of which sets all of its feature's
+            settings, so that its `i_display()` sets how the rows look, whatever
+            `opt_interactive()` set, but the page controls and selection are kept).
 
         Returns
         -------
@@ -287,16 +296,33 @@ class GTI(GT):
         A table made with `GT()` can become interactive at the end.
 
         ```{python}
-        from great_tables import GT, GTI
-        from great_tables.data import towny
+        from great_tables import GT, GTI, data
 
-        gt_tbl = GT(towny[["name", "population_2021"]]).fmt_integer(columns="population_2021")
+        towny_mini = data.pl.towny.select("name", "population_2021")
+
+        gt_tbl = GT(towny_mini).fmt_integer(columns="population_2021")
 
         GTI.from_gt(gt_tbl)
         ```
+
+        A Polars DataFrame's `.style` property makes a `GT` table too, so a table started from it
+        can become interactive in the same way.
+
+        ```{python}
+        GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
+        ```
+
+        With `preset="explorer"`, it's set up for looking through its data, as a
+        `GTI(preset="explorer")` table is.
+
+        ```{python}
+        GTI.from_gt(gt_tbl, preset="explorer")
+        ```
         """
+        if preset not in PRESETS:
+            raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
         if isinstance(gt, GTI):
-            return gt
+            return gt._explorer() if preset == "explorer" else gt
         if not isinstance(gt, GT):
             raise TypeError(f"`GTI.from_gt()` needs a `GT` table, not {type(gt).__name__!r}.")
 
@@ -315,7 +341,7 @@ class GTI(GT):
         new = cls.__new__(cls)
         new.__dict__.update(gt.__dict__)
         object.__setattr__(new, "_interactive", settings)
-        return new
+        return new._explorer() if preset == "explorer" else new
 
     def _set_interactive(self, **changes: Any) -> Self:
         return self._replace(_interactive=replace(self._interactive, **changes))
@@ -437,9 +463,9 @@ class GTI(GT):
 
         With pagination, readers see a page of rows at a time, with arrows in the control bar below
         the table to go from page to page (as do the arrow keys, Page Up and Page Down, and Home
-        and End, in the bar). Between the arrows is the page and the number of pages, which can be
-        clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
-        in place. The (i) button at the end of the bar opens the table's info panel, which says
+        and End, with the table clicked or focus in it). Between the arrows is the page and the
+        number of pages, which can be clicked to type the page to go to. Each page is as tall as a
+        full one, so the controls stay in place. The (i) button at the end of the bar opens the table's info panel, which says
         which rows are shown and has the choice of page size. Readers can also drag the foot of
         the page's rows (the line between the last row and the grand summary rows or footer) down
         or up, for a row more or fewer on each page, from one row to all of them, or focus it and
@@ -599,10 +625,11 @@ class GTI(GT):
         it (a table's cell, or an inline block), once its script runs: before that, such a table
         has no width.
 
-        Whatever the mode, on a touch screen, a control bar narrower than 30em (480 pixels, at 16px text) folds
-        its search, its filters as text and its "Columns" button into one "Filter & sort" button,
-        which opens a sheet from the foot of the window with all of them, and the table's sort and
-        filters. A long press on a column's label opens a sheet for that column (to sort it, filter
+        Whatever the mode, in a container narrower than 30em (480 pixels, at 16px text), the
+        control bar folds its search, its filters as text and its "Columns" button into one
+        "Filter & sort" button, which opens a sheet from the foot of the window with all of them,
+        and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less.
+        There, a long press on a column's label opens a sheet for that column (to sort it, filter
         it, or hide it), while a tap still sorts by it.
 
         Parameters
@@ -662,9 +689,10 @@ class GTI(GT):
         compact: bool = False,
         wrap: bool = True,
         monospace: bool = False,
+        parts: bool = False,
     ) -> Self:
         """
-        Set how the table's rows look.
+        Set how the table's rows look, and whether its parts are named.
 
         Parameters
         ----------
@@ -680,6 +708,12 @@ class GTI(GT):
             Whether the column labels and the cells are in a monospaced font, for a table that's a
             look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
             title, the notes and the controls keep the table's font.
+        parts
+            Whether the parts GTI adds to the table (its status line, column controls, row numbers,
+            control bar, and so on) are outlined and named over it, from the start and for good,
+            for a page that shows readers what they are, as a docs page does. The table works as
+            ever under the names, which follow its parts as they move. Without it, readers can
+            name the parts themselves, with `?` or the button in the table's info panel.
 
         Returns
         -------
@@ -701,12 +735,25 @@ class GTI(GT):
         ```{python}
         GTI(exibble[["num", "char", "fctr"]]).i_display(compact=True, wrap=False, monospace=True)
         ```
+
+        And one with its parts named, as on a page that shows them: its status line and row
+        numbers (from `i_inspect()`), its column controls, and its control bar.
+
+        ```{python}
+        (
+            GTI(exibble[["num", "char", "fctr"]])
+            .i_inspect()
+            .i_pagination(page_size=4)
+            .i_display(parts=True)
+        )
+        ```
         """
         return self._set_interactive(
             highlight=_flag(highlight, "highlight"),
             compact=_flag(compact, "compact"),
             wrap=_flag(wrap, "wrap"),
             monospace=_flag(monospace, "monospace"),
+            parts=_flag(parts, "parts"),
         )
 
     def i_inspect(
@@ -803,9 +850,11 @@ class GTI(GT):
         each, and their text as the table shows it). The facets, ranges, date ranges and booleans
         go by the column's values, not by how they're formatted. Rows are shown when they
         pass every filter, and the search; the info panel (from the (i) button in the control bar)
-        says how many filters there are, and can clear them. The bar also shows the filters that are on, and its <> button opens them as
-        text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
-        (with suggestions as they type). Filters are off by default.
+        says how many filters there are, and can clear them. The bar also shows the filters that
+        are on, and its `{ }` button opens them as text, a query as
+        [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit (with suggestions
+        as they type, and a column's label in place of its name, which is put there for it).
+        Filters are off by default.
 
         Each call sets the filters of the columns it's given, so that some columns can be filtered
         one way, and others another; a later call for a column replaces what an earlier one set.
@@ -1085,7 +1134,7 @@ class GTI(GT):
         ```
 
         A table of the municipalities' names and populations that can be filtered by their status,
-        which it doesn't show (the filter is in the query bar, from the `<>` button in the control
+        which it doesn't show (the filter is in the query bar, from the `{ }` button in the control
         bar):
 
         ```{python}
@@ -1575,7 +1624,11 @@ class GTI(GT):
                 raise TypeError(
                     f"`group_by=` takes a column name (or `None`), not {type(group_by).__name__}."
                 )
-            if group_by not in resolve_cols_c(self, group_by, excl_stub=False):
+            try:
+                found = group_by in resolve_cols_c(self, group_by, excl_stub=False)
+            except ValueError:
+                found = False
+            if not found:
                 raise ValueError(f"`group_by=` names column {group_by!r}, which the table hasn't.")
         return self._set_interactive(
             view_filter=check_query(filter),
@@ -1691,7 +1744,8 @@ class GTI(GT):
         data, at first). The code works on the data's values, so it leaves out the search, and
         a `contains` or `matches` match is of a column's values as text (not of the text the
         table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
-        their row groups.
+        their row groups. (It needs the [Narwhals](https://narwhals-dev.github.io/narwhals/)
+        package, to know the data's types: `pip install narwhals`.)
 
         Parameters
         ----------
@@ -1739,6 +1793,10 @@ class GTI(GT):
                 )
             if fmt not in chosen:
                 chosen.append(fmt)
+        if "code" in chosen:
+            from ._gti._query import require_narwhals
+
+            require_narwhals('The "code" export (`i_export("code")`)')
 
         if filename is None:
             filename = Settings().export_filename
@@ -2146,7 +2204,7 @@ class GTI(GT):
             )
 
         fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
-        return page_html(fragment) if make_page else fragment
+        return page_html(fragment, self) if make_page else fragment
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
         """Not available for a GTI table, which is interactive HTML only."""

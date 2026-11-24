@@ -11,6 +11,11 @@ appropriate symbols. The `fmt_*()` family of methods in **Great Tables** handles
 letting you transform cell values into well-formatted text while preserving the underlying data for
 things like sorting and colorization.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="point rest" cells="0.1111|2.222|33.33|444.4/5550|65100|777000|8880000/1325.81|13.255|0.4400|17.95" cell-trick="format" intro='[["mood", "thinking"], ["wait", 900], ["say", "These numbers need some formatting!"], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Unformatted numbers are hard to scan. When every number has a different number of decimal places, or
 when large numbers lack digit separators, readers slow down as they try to parse each value.
 Consistent formatting reduces cognitive load and makes comparisons across rows immediate. The same
@@ -26,17 +31,17 @@ formatting to the cell values. First, we'll generate the basic GT object and tak
 table without any cell formatting applied.
 
 ```{python}
-from great_tables import GT, vals
-from great_tables.data import exibble
+from great_tables import GT, data, vals
 
-gt_ex = GT(exibble[["num", "date", "time", "currency"]].head(5))
+gt_ex = GT(data.pl.exibble.select("num", "date", "time", "currency").head(5))
 
 gt_ex
 ```
 
 The `num` column contains both small and much larger numbers. We can use the `~~GT.fmt_number()`
-method to obtain formatted values have a fixed level of decimal precision and grouping separators.
-At the same time, we'll format the numeric values in `currency` column to get monetary values.
+method to obtain formatted values that have a fixed level of decimal precision and grouping
+separators. At the same time, we'll format the numeric values in the `currency` column to get
+monetary values.
 
 ```{python}
 gt_ex = gt_ex.fmt_number(columns="num", decimals=2).fmt_currency(columns="currency")
@@ -61,7 +66,6 @@ gt_ex = (
 
 gt_ex
 ```
-
 
 It's possible to format cells that have already been formatted. Using a formatting method again on
 previously formatted cells will always work within the 'last-formatted-wins' rule.
@@ -158,8 +162,8 @@ print(fmt_date_1, fmt_date_2, fmt_time_1, fmt_time_2, sep="\n")
 The `vals` functions are especially handy during development, when you want to quickly test how a
 formatting option looks without building a full table. Sometimes it's easier and more convenient to
 experiment with formatting using the formatting functions in the `vals` module. There are many
-options to explore with each type of formatting and so visiting the [API Reference](/reference/) is
-certainly worthwhile.
+options to explore with each type of formatting and so visiting the
+[API Reference](/reference/index.qmd) is certainly worthwhile.
 
 ## HTML Escaping of Cell Values
 
@@ -176,10 +180,10 @@ To include raw HTML or Markdown in cells that would otherwise be escaped, use a 
 with the `html()` or `md()` helpers:
 
 ```{python}
+import polars as pl
 from great_tables import html, md
-import pandas as pd
 
-df = pd.DataFrame({
+df = pl.DataFrame({
     "plain": ["x & y", "a < b"],
     "rich_html": ["<b>bold</b>", "<em>italic</em>"],
     "rich_md": ["**bold**", "*italic*"],
@@ -194,15 +198,15 @@ df = pd.DataFrame({
 
 In the table above, the `plain` column values are automatically escaped (e.g., `&` becomes `&amp;`),
 while the `rich_html` and `rich_md` column values are rendered as HTML because they were processed
-through `fmt()` with the `html()` and `md()` helpers respectively.
+through `~~GT.fmt()` with the `html()` and `md()` helpers respectively.
 
-For finer control, `fmt_passthrough()` marks cells as formatted without transforming their values.
-By default it escapes special characters (just like unformatted cells), but you can set
+For finer control, `~~GT.fmt_passthrough()` marks cells as formatted without transforming their
+values. By default it escapes special characters (just like unformatted cells), but you can set
 `escape=False` to pass values through as raw HTML. It also accepts a `pattern=` argument for
 decorating values:
 
 ```{python}
-df = pd.DataFrame({
+df = pl.DataFrame({
     "safe_text": ["x & y", "a < b"],
     "raw_html": ["<b>bold</b>", "<em>italic</em>"],
     "decorated": ["ABC", "DEF"],
@@ -216,8 +220,9 @@ df = pd.DataFrame({
 )
 ```
 
-The same escaping applies to group labels and summary row labels. Column headers, titles, footnotes,
-and source notes were already escaped in prior versions.
+The same escaping applies to row group labels, summary row labels, column labels, the title and
+subtitle, footnotes, and source notes. In all of these places, wrap the text in `md()` or `html()`
+when you do want it interpreted as Markdown or HTML.
 
 ## Conclusion
 

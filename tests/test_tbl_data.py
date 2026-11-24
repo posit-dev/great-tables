@@ -110,6 +110,7 @@ IS_NA_SCALARS: dict[str, Any] = {
 params_set_cells_values: list[dict[int, str | None]] = [
     {1: "x"},
     {2: "z", 0: "x", 1: "y"},
+    {2: "z", 0: "x"},
     {0: None, 2: "z"},
     {},
 ]
@@ -527,6 +528,19 @@ def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
     ]
 
 
+def test_set_cells_rows_formatted_out_of_order(frame_constructor: DataFrameConstructor):
+    # A later formatter covers an earlier row, so the formatted rows come unsorted (Polars before
+    # 1.37 can't `scatter()` to unsorted rows)
+    gt = (
+        GT(frame_constructor({"x": ["a", "b", "c"]}))
+        .fmt(str.upper, columns="x", rows=[2])
+        .fmt(str.upper, columns="x", rows=[0])
+    )
+    body = gt._render_formats("html")._body.body
+
+    assert _column_cells(body, "x") == ["A", "b", "C"]
+
+
 @pytest.mark.parametrize("values", params_set_cells_values)
 def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int, str | None]):
     expected = _set_cells_with_set_cell(create_empty_frame(offset_index_df), "col2", values)
@@ -608,16 +622,21 @@ def test_eval_select_negative_int(
     assert eval_select(df, expr) == expected
 
 
-@pytest.mark.parametrize(("expr", "expected"), [("x", []), (["col1", "x"], [("col1", 0)])])
-def test_eval_select_unknown_name(
-    df: DataFrameLike, expr: str | list[str], expected: list[tuple[str, int]]
-):
-    # pandas and pyarrow skip names that aren't columns, polars raises
-    if native_backend(df) == "polars":
-        with pytest.raises(pl.exceptions.ColumnNotFoundError):
-            eval_select(df, expr)
-    else:
-        assert eval_select(df, expr) == expected
+@pytest.mark.parametrize(
+    ("expr", "message"),
+    [("x", "'x'"), (["col1", "x"], "'x'"), (["y", "col2", "x"], "'y', 'x'")],
+)
+def test_eval_select_unknown_name(df: DataFrameLike, expr: str | list[str], message: str):
+    # (Every backend raises, naming the names that aren't columns)
+    with pytest.raises(ValueError, match=f"^The table has no column named {message}\\.$"):
+        eval_select(df, expr)
+
+
+def test_unknown_column_raises_in_public_api(df: DataFrameLike):
+    with pytest.raises(ValueError, match="no column named 'colx'"):
+        GT(df).fmt_number(columns=["col1", "colx"])
+    with pytest.raises(ValueError, match="no column named 'colx'"):
+        GT(df).cols_hide("colx")
 
 
 def test_polars_columns_callable_in_public_api():
@@ -781,6 +800,23 @@ def test_render_pyarrow_string_view_dictionary(groupname_col: str | None):
     assert html_view == html_string
 
 
+@pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16")
+@pytest.mark.parametrize("groupname_col", [None, "g"])
+def test_render_pyarrow_string_view_null_and_empty_keys(groupname_col: str | None):
+    # (PyArrow encodes a string_view's null as "", so their rows were taken as one group)
+    keys = ["b", None, "a", ""]
+    x = [1, 2, 3, 4]
+    df_view = pa.table({"g": pa.array(keys, pa.string_view()), "x": x})
+    df_string = pa.table({"g": pa.array(keys, pa.string()), "x": x})
+
+    assert sorted(group_splits(df_view, "g").items(), key=str) == sorted(
+        {"b": [0], None: [1], "a": [2], "": [3]}.items(), key=str
+    )
+    html_view = GT(df_view, groupname_col=groupname_col, id="t").as_raw_html()
+    html_string = GT(df_string, groupname_col=groupname_col, id="t").as_raw_html()
+    assert html_view == html_string
+
+
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     # Rows are positions, not index labels
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
@@ -924,6 +960,19 @@ def test_to_frame_dtype_matrix(
 def test_get_rows(series_constructor: SeriesConstructor, indexes: list[int], expected: list[float]):
     ser = series_constructor([1.5, 2.5, 3.5])
     assert to_list(get_rows(ser, indexes)) == expected
+
+
+@pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16")
+def test_get_rows_pyarrow_string_view():
+    # (PyArrow has no `take` for a string_view)
+    for ser in [
+        pa.array(["a", None, "c"], pa.string_view()),
+        pa.chunked_array([["a", None], ["c"]], pa.string_view()),
+    ]:
+        assert to_list(get_rows(ser, [2, 1])) == ["c", None]
+    tbl = pa.table({"x": pa.array(["a", "b", "a"], pa.string_view())})
+    html = GT(tbl).data_color(palette=["red", "blue"]).as_raw_html()
+    assert html.count("background-color: #ff0000;") == 2
 
 
 def test_get_rows_offset_index(offset_index_df: pd.DataFrame):

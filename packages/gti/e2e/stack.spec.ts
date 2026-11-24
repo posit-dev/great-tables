@@ -55,8 +55,8 @@ test.describe("a table in a narrow container", () => {
     await expect(values).toHaveText(["5,550.00", "$1,325.81", "None", "five"]);
     const labels = await values.evaluateAll((cells) => cells.map((td) => getComputedStyle(td, "::before").content));
     expect(labels.map((text) => text.replace(/ \/ ""$/, ""))).toEqual([
-      '"Numbers · num"',
-      '"Numbers · currency"',
+      '"Numbers – num"',
+      '"Numbers – currency"',
       '"char"',
       '"fctr"',
     ]);
@@ -103,7 +103,7 @@ test.describe("a table in a narrow container", () => {
           .map(({ text }) => text),
       );
     expect(chips).toEqual(["", "num", "currency", "char", "fctr"]);
-    expect(await chip(page, "num").evaluate((th) => getComputedStyle(th, "::before").content)).toBe('"Numbers · "');
+    expect(await chip(page, "num").evaluate((th) => getComputedStyle(th, "::before").content)).toBe('"Numbers – "');
     expect(await chip(page, "char").evaluate((th) => getComputedStyle(th, "::before").content)).toBe("none");
     await expect(chip(page, "num")).toHaveCSS("border-radius", "999px");
     const first = await rect(card(page, "row_5"));
@@ -175,10 +175,34 @@ test.describe("a table that can be stacked, without JavaScript", () => {
     await expect(card(page, "row_5")).toHaveCSS("display", "flex");
     await expect(el(page).locator("thead tr.gt_col_headings:visible")).toHaveCount(0);
     await expect(el(page).locator("thead .gt_title")).toHaveText("exibble");
-    expect(await label(cell(page, "num").first())).toBe('"Numbers · num"');
+    expect(await label(cell(page, "num").first())).toBe('"Numbers – num"');
     expect(await label(cell(page, "fctr").first())).toBe('"fctr"');
     const container = await rect(page.locator("body > div"));
     expect((await rect(table(page))).right).toBeLessThanOrEqual(container.right + 0.5);
+  });
+
+  test("is stacked in GT's own container, narrowed by `container_width=`", async ({ page }) => {
+    await open(page, "stack-container.html");
+    await expect(card(page, "row_5")).toHaveCSS("display", "flex");
+  });
+});
+
+test.describe("a table in GT's own container, 360px wide (`container_width=`), in a wide page", () => {
+  test("is stacked in it, by itself or in an inline block", async ({ page }) => {
+    for (const name of ["stack-container.html", "stack-container-inline.html"]) {
+      const errors = await ready(page, name);
+      await expect(el(page)).toHaveAttribute("data-gti-stacked", "");
+      await expect(el(page)).not.toHaveAttribute("data-gti-stack-off");
+      await expect(el(page)).not.toHaveAttribute("data-gti-wide");
+      await expect(card(page, "row_5")).toHaveCSS("display", "flex");
+      // (The cards fit GT's container, which doesn't scroll sideways)
+      const container = el(page).locator("#k");
+      const box = await rect(container);
+      expect(box.right - box.left).toBeCloseTo(360, 0);
+      expect((await rect(table(page))).right).toBeLessThanOrEqual(box.right + 0.5);
+      expect(await container.evaluate((div) => div.scrollWidth - div.clientWidth)).toBeLessThanOrEqual(1);
+      expect(errors).toEqual([]);
+    }
   });
 });
 

@@ -5,7 +5,7 @@ import { CHROMIUM_TOUCH, dataRows, open, ready, tab, visible } from "./helpers";
 
 // GTI tables, with the control bar below them: exibble three times over (24 rows, in two groups),
 // 2 rows to a page (12 pages), with a search; as narrow as one column; in a container 300px wide;
-// and on one page, with room to scroll past it.
+// and on one page, with room to scroll past it; and 10 rows to a page, in a body that scrolls.
 
 const RUNTIME = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "great_tables", "js", "gti.js");
 
@@ -103,6 +103,50 @@ test("pages with its arrows, and with the keys in the bar", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
+test("pages with the keys from a click in the table", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await expect(el(page)).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(2);
+  await page.keyboard.press("End");
+  await expect(readout(page)).toHaveText("12/12");
+  await page.keyboard.press("PageUp");
+  expect(await pageOf(page)).toBe(11);
+  await page.keyboard.press("Home");
+  expect(await pageOf(page)).toBe(1);
+  // (Not on the page as a whole, which stays where it was)
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test("leaves the keys to a table that scrolls, but not to its bar", async ({ page }) => {
+  // Wider than its room: the side arrows scroll it, and Home and End page
+  let errors = await ready(page, "filters-container.html");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(1);
+  await page.keyboard.press("End");
+  expect(await pageOf(page)).toBe(5);
+  await barButton(page, "Previous page").focus();
+  await page.keyboard.press("ArrowLeft");
+  expect(await pageOf(page)).toBe(4);
+  expect(errors).toEqual([]);
+
+  // With a body that scrolls: Home, End and Page Up and Down scroll it, and the side arrows page
+  errors = await ready(page, "bar-scroll-pages.html");
+  await el(page).locator("tbody td.gt_row").first().click();
+  await page.keyboard.press("End");
+  await page.keyboard.press("PageDown");
+  expect(await pageOf(page)).toBe(1);
+  await page.keyboard.press("ArrowRight");
+  expect(await pageOf(page)).toBe(2);
+  await barButton(page, "Next page").focus();
+  await page.keyboard.press("End");
+  expect(await pageOf(page)).toBe(3);
+  expect(errors).toEqual([]);
+});
+
 test("goes to the first and last pages, from buttons outside its arrows", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   const [first, last] = [barButton(page, "First page"), barButton(page, "Last page")];
@@ -126,7 +170,7 @@ test("lists its shortcuts from a button after the search's, which the open searc
   await keys.click();
   const panel = bar(page).getByRole("group", { name: "Keyboard shortcuts" });
   await expect(panel).toBeVisible();
-  await expect(panel.locator(".gt-i-info-keys")).toContainText("First or last page, in the bar");
+  await expect(panel.locator(".gt-i-info-keys")).toContainText("First or last page");
   expect((await box(panel)).bottom).toBeLessThanOrEqual((await box(bar(page))).top);
 
   await barButton(page, "Search the table").click();
@@ -144,6 +188,129 @@ test("takes its shortcuts after a click in the table", async ({ page }) => {
   await expect(el(page)).toHaveCSS("outline-style", "none");
   await page.keyboard.press("/");
   await expect(search(page)).toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test("shows in its outline that the table has focus, for its keys", async ({ page }) => {
+  // (At once, with no transition, for less motion)
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const errors = await ready(page, "bar.html");
+  const outline = () =>
+    bar(page).evaluate((node) => {
+      const { borderTopColor, boxShadow } = getComputedStyle(node, "::before");
+      return { borderTopColor, boxShadow };
+    });
+  const off = await outline();
+  expect(off.boxShadow).toBe("none");
+
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await expect(el(page)).toBeFocused();
+  const on = await outline();
+  expect(on.boxShadow).not.toBe("none");
+  expect(on.borderTopColor).not.toBe(off.borderTopColor);
+  // (And with focus on a control in it, as the search)
+  await page.keyboard.press("/");
+  await expect(search(page)).toBeFocused();
+  expect(await outline()).toEqual(on);
+
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+  expect(await outline()).toEqual(off);
+  expect(errors).toEqual([]);
+});
+
+test("names its parts on `?`, apart from each other and by their outlines, until Escape", async ({ page }) => {
+  const errors = await ready(page, "bar.html");
+  const layer = el(page).locator(".gt-i-parts");
+  const names = layer.locator(".gt-i-parts-name");
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  await page.keyboard.press("?");
+  await expect(layer).toBeVisible();
+  for (const name of ["Search", "Keyboard shortcuts", "Page controls", "Page counter", "Table info"]) {
+    await expect(names.getByText(name, { exact: true })).toHaveCount(1);
+  }
+  // (With no focus ring of the browser's around the table, for the key pressed after the click)
+  expect(await el(page).evaluate((node) => getComputedStyle(node).outlineStyle)).toBe("none");
+  // None over another, each in the table's box, and an outline for each
+  const labels = await names.evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const { left, right, top, bottom } = node.getBoundingClientRect();
+      return { left, right, top, bottom };
+    }),
+  );
+  for (const [i, a] of labels.entries()) {
+    for (const b of labels.slice(i + 1)) {
+      expect(a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom).toBe(false);
+    }
+  }
+  const outer = await box(el(page));
+  expect(Math.min(...labels.map((label) => label.top))).toBeGreaterThanOrEqual(outer.top - 0.5);
+  expect(await layer.locator(".gt-i-parts-box").count()).toBeGreaterThanOrEqual(labels.length);
+  // (And follows the table as it changes: the search's open field)
+  const before = await names.getByText("Search", { exact: true }).evaluate((node) => node.getBoundingClientRect().left);
+  await barButton(page, "Search the table").click();
+  await expect(search(page)).toBeFocused();
+  await expect(layer).toBeVisible();
+  await expect
+    .poll(() => names.getByText("Search", { exact: true }).evaluate((node) => node.getBoundingClientRect().left))
+    .not.toBe(before);
+
+  await page.keyboard.press("Escape");
+  await expect(layer).toHaveCount(0);
+  // (The search stays open: Escape went to the names first)
+  await expect(search(page)).toBeVisible();
+
+  // From the info panel's button, until a press outside the table
+  await barButton(page, "Table info").click();
+  await el(page).getByRole("button", { name: "Name the table's parts" }).click();
+  await expect(layer).toBeVisible();
+  await page.mouse.click(2, outer.bottom + 40);
+  await expect(layer).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test("names its parts for good, with `parts`, within the container that clips it", async ({ page }) => {
+  const errors = await ready(page, "parts.html");
+  const layer = el(page).locator(".gt-i-parts");
+  const names = layer.locator(".gt-i-parts-name");
+  await expect(layer).toBeVisible();
+  for (const name of ["Column controls", "Search", "Page controls", "Page counter", "Table info"]) {
+    await expect(names.getByText(name, { exact: true })).toHaveCount(1);
+  }
+  const labels = () =>
+    names.evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const { left, right, top, bottom } = node.getBoundingClientRect();
+        return { left, right, top, bottom };
+      }),
+    );
+  // (Each in the box of the container that scrolls, which would cut it off; the bar's below it, in
+  // the room the table keeps for them there, off the table)
+  const outer = await box(page.locator("div[style*='overflow-x']"));
+  const bottom = (await box(bar(page))).bottom;
+  for (const label of await labels()) {
+    expect(label.left).toBeGreaterThanOrEqual(outer.left - 0.5);
+    expect(label.right).toBeLessThanOrEqual(outer.right + 0.5);
+    expect(label.top).toBeGreaterThanOrEqual(outer.top - 0.5);
+    expect(label.bottom).toBeLessThanOrEqual(outer.bottom + 0.5);
+  }
+  for (const name of ["Search", "Page controls", "Page counter", "Table info"]) {
+    const label = await box(names.getByText(name, { exact: true }));
+    expect(label.top).toBeGreaterThan(bottom);
+  }
+
+  // Not put away by `?`, Escape or a click outside, and the table works under it
+  await el(page).locator("tbody td.gt_row").nth(1).click();
+  for (const key of ["?", "Escape"]) {
+    await page.keyboard.press(key);
+  }
+  await page.mouse.click(2, outer.bottom + 40);
+  await expect(layer).toBeVisible();
+  await barButton(page, "Next page").click();
+  await expect(readout(page)).toHaveText("2/12");
+  // (Nor is there a button or key to name them)
+  await barButton(page, "Table info").click();
+  await expect(el(page).getByRole("button", { name: "Name the table's parts" })).toHaveCount(0);
+  await expect(el(page).locator('[data-gti-key="parts"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
@@ -525,6 +692,58 @@ test("gives a narrow bar's room to the open search", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("has the page's font size under a monospace table, and folds as wide", async ({ page }) => {
+  // (Not the platform's monospace size, smaller, which a lone `monospace` would give it)
+  const errors = await ready(page, "collapse.html");
+  const size = (locator: Locator) => locator.evaluate((node) => getComputedStyle(node).fontSize);
+  expect(await size(bar(page))).toBe(await size(el(page)));
+  await expect(bar(page)).toHaveAttribute("data-gti-narrow", "");
+  expect(errors).toEqual([]);
+});
+
+test("folds a bar with little room, not one under a narrow table with room", async ({ page }) => {
+  const errors = await ready(page, "bar-narrow.html");
+  // (As narrow as the bar in a narrow container, but with room, so not marked to fold: see the
+  // sheet's tests for what folds)
+  expect((await box(bar(page))).width).toBeCloseTo(300, 0);
+  await expect(bar(page)).not.toHaveAttribute("data-gti-narrow");
+  await page.locator("body").evaluate((body) => (body.style.width = "300px"));
+  await expect(bar(page)).toHaveAttribute("data-gti-narrow", "");
+  await page.locator("body").evaluate((body) => (body.style.width = ""));
+  await expect(bar(page)).not.toHaveAttribute("data-gti-narrow");
+  expect(errors).toEqual([]);
+});
+
+test("outlines every line of its controls, where they still take more than one", async ({ page }) => {
+  // (With undo and redo, in a body too narrow for them on one line)
+  const errors = await ready(page, "bar-scroll-pages.html");
+  const outline = () =>
+    bar(page).evaluate((node) => {
+      const { top, bottom } = node.getBoundingClientRect();
+      const style = getComputedStyle(node, "::before");
+      return { top: top + parseFloat(style.top), bottom: bottom - parseFloat(style.bottom) };
+    });
+  const line = async () => {
+    const [search, info] = await Promise.all([box(barButton(page, "Search the table")), box(barButton(page, "Table info"))]);
+    return { search, info };
+  };
+  let { search, info } = await line();
+  expect(info.top).toBeCloseTo(search.top, 0);
+  expect((await outline()).top).toBeCloseTo(search.top, 0);
+  await page.locator("body").evaluate((body) => (body.style.width = "200px"));
+  await expect.poll(async () => (await line()).info.top - (await line()).search.top).toBeGreaterThan(20);
+  ({ search, info } = await line());
+  // (From the first line's top to the last's bottom)
+  await expect.poll(async () => (await outline()).top).toBeCloseTo(search.top, 0);
+  expect((await outline()).bottom).toBeCloseTo(info.bottom, 0);
+  // (And one line again, with room)
+  await page.locator("body").evaluate((body) => (body.style.width = ""));
+  await expect.poll(async () => Math.round((await outline()).top - (await line()).info.top)).toBe(0);
+  // (Narrow enough to wrap, the table is stacked, and it's unstacked as it's laid out with room,
+  // which the observer doing so reports as a loop: Safari logs it, as in stack.spec.ts)
+  expect(errors.filter((error) => !error.startsWith("ResizeObserver loop"))).toEqual([]);
+});
+
 test("sticks to the bottom of the view for a table of every row", async ({ page }) => {
   await page.setViewportSize({ width: 1000, height: 400 });
   const errors = await ready(page, "bar-sticky.html");
@@ -542,6 +761,26 @@ test("sticks to the bottom of the view for a table of every row", async ({ page 
   await expect
     .poll(async () => (await box(bar(page))).top - (await box(el(page).locator("table"))).bottom)
     .toBeGreaterThanOrEqual(-1);
+  expect(errors).toEqual([]);
+});
+
+test("fills its sticky bar again as the page's colours change", async ({ page }) => {
+  const errors = await ready(page, "bar-sticky.html");
+  await expect(bar(page)).toHaveAttribute("data-gti-stick", "");
+  const fill = () => bar(page).evaluate((node) => getComputedStyle(node).backgroundColor);
+  await page.addStyleTag({
+    content:
+      "@media (prefers-color-scheme: dark) { html { background-color: rgb(34, 34, 34); } }\n" +
+      "body { transition: background-color 0.15s; }\nbody.dark { background-color: rgb(17, 17, 17); }",
+  });
+  // With the system's scheme
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect.poll(fill).toBe("rgb(34, 34, 34)");
+  // With a theme's toggle (a class on <body>), whose background fades in
+  await page.locator("body").evaluate((body) => body.classList.add("dark"));
+  await expect.poll(fill).toBe("rgb(17, 17, 17)");
+  await page.locator("body").evaluate((body) => body.classList.remove("dark"));
+  await expect.poll(fill).toBe("rgb(34, 34, 34)");
   expect(errors).toEqual([]);
 });
 

@@ -1,0 +1,1189 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "exibble_basic",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/exibble_basic.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/exibble_basic.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "right",
+        "id": "num"
+      },
+      {
+        "align": "left",
+        "id": "char"
+      },
+      {
+        "align": "left",
+        "id": "fctr"
+      },
+      {
+        "align": "right",
+        "id": "date"
+      },
+      {
+        "align": "right",
+        "id": "time"
+      },
+      {
+        "align": "right",
+        "id": "datetime"
+      },
+      {
+        "align": "right",
+        "id": "currency"
+      },
+      {
+        "align": "left",
+        "id": "row"
+      },
+      {
+        "align": "left",
+        "id": "group"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "0.1111"
+                  }
+                ],
+                "text": "0.1111",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "apricot"
+                  }
+                ],
+                "text": "apricot",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "one"
+                  }
+                ],
+                "text": "one",
+                "typed_value": {
+                  "type": "string",
+                  "value": "one"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-01-15"
+                  }
+                ],
+                "text": "2015-01-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-01-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "13:35"
+                  }
+                ],
+                "text": "13:35",
+                "typed_value": {
+                  "type": "string",
+                  "value": "13:35"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-01-01 02:22"
+                  }
+                ],
+                "text": "2018-01-01 02:22",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-01-01 02:22"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "49.95"
+                  }
+                ],
+                "text": "49.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 49.95
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_1"
+                  }
+                ],
+                "text": "row_1",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_1"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_a"
+                  }
+                ],
+                "text": "grp_a",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "2.222"
+                  }
+                ],
+                "text": "2.222",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "banana"
+                  }
+                ],
+                "text": "banana",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "two"
+                  }
+                ],
+                "text": "two",
+                "typed_value": {
+                  "type": "string",
+                  "value": "two"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-02-15"
+                  }
+                ],
+                "text": "2015-02-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-02-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "14:40"
+                  }
+                ],
+                "text": "14:40",
+                "typed_value": {
+                  "type": "string",
+                  "value": "14:40"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-02-02 14:33"
+                  }
+                ],
+                "text": "2018-02-02 14:33",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-02-02 14:33"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "17.95"
+                  }
+                ],
+                "text": "17.95",
+                "typed_value": {
+                  "type": "number",
+                  "value": 17.95
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_2"
+                  }
+                ],
+                "text": "row_2",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_2"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_a"
+                  }
+                ],
+                "text": "grp_a",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "33.33"
+                  }
+                ],
+                "text": "33.33",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "coconut"
+                  }
+                ],
+                "text": "coconut",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "three"
+                  }
+                ],
+                "text": "three",
+                "typed_value": {
+                  "type": "string",
+                  "value": "three"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-03-15"
+                  }
+                ],
+                "text": "2015-03-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-03-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "15:45"
+                  }
+                ],
+                "text": "15:45",
+                "typed_value": {
+                  "type": "string",
+                  "value": "15:45"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-03-03 03:44"
+                  }
+                ],
+                "text": "2018-03-03 03:44",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-03-03 03:44"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "1.39"
+                  }
+                ],
+                "text": "1.39",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1.39
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_3"
+                  }
+                ],
+                "text": "row_3",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_3"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_a"
+                  }
+                ],
+                "text": "grp_a",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "444.4"
+                  }
+                ],
+                "text": "444.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "durian"
+                  }
+                ],
+                "text": "durian",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "four"
+                  }
+                ],
+                "text": "four",
+                "typed_value": {
+                  "type": "string",
+                  "value": "four"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-04-15"
+                  }
+                ],
+                "text": "2015-04-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-04-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "16:50"
+                  }
+                ],
+                "text": "16:50",
+                "typed_value": {
+                  "type": "string",
+                  "value": "16:50"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-04-04 15:55"
+                  }
+                ],
+                "text": "2018-04-04 15:55",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-04-04 15:55"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "65100.0"
+                  }
+                ],
+                "text": "65100.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 65100
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_4"
+                  }
+                ],
+                "text": "row_4",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_4"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_a"
+                  }
+                ],
+                "text": "grp_a",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_a"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "5550.0"
+                  }
+                ],
+                "text": "5550.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 5550
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "five"
+                  }
+                ],
+                "text": "five",
+                "typed_value": {
+                  "type": "string",
+                  "value": "five"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-05-15"
+                  }
+                ],
+                "text": "2015-05-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-05-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "17:55"
+                  }
+                ],
+                "text": "17:55",
+                "typed_value": {
+                  "type": "string",
+                  "value": "17:55"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-05-05 04:00"
+                  }
+                ],
+                "text": "2018-05-05 04:00",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-05-05 04:00"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "1325.81"
+                  }
+                ],
+                "text": "1325.81",
+                "typed_value": {
+                  "type": "number",
+                  "value": 1325.81
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_5"
+                  }
+                ],
+                "text": "row_5",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_5"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_b"
+                  }
+                ],
+                "text": "grp_b",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "fig"
+                  }
+                ],
+                "text": "fig",
+                "typed_value": {
+                  "type": "string",
+                  "value": "fig"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "six"
+                  }
+                ],
+                "text": "six",
+                "typed_value": {
+                  "type": "string",
+                  "value": "six"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-06-15"
+                  }
+                ],
+                "text": "2015-06-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-06-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-06-06 16:11"
+                  }
+                ],
+                "text": "2018-06-06 16:11",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-06-06 16:11"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "13.255"
+                  }
+                ],
+                "text": "13.255",
+                "typed_value": {
+                  "type": "number",
+                  "value": 13.255
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_6"
+                  }
+                ],
+                "text": "row_6",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_6"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_b"
+                  }
+                ],
+                "text": "grp_b",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "777000.0"
+                  }
+                ],
+                "text": "777000.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 777000
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "grapefruit"
+                  }
+                ],
+                "text": "grapefruit",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grapefruit"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "seven"
+                  }
+                ],
+                "text": "seven",
+                "typed_value": {
+                  "type": "string",
+                  "value": "seven"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "19:10"
+                  }
+                ],
+                "text": "19:10",
+                "typed_value": {
+                  "type": "string",
+                  "value": "19:10"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "2018-07-07 05:22"
+                  }
+                ],
+                "text": "2018-07-07 05:22",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2018-07-07 05:22"
+                }
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_7"
+                  }
+                ],
+                "text": "row_7",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_7"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_b"
+                  }
+                ],
+                "text": "grp_b",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "right",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "8880000.0"
+                  }
+                ],
+                "text": "8880000.0",
+                "typed_value": {
+                  "type": "number",
+                  "value": 8880000
+                }
+              },
+              {
+                "align": "left",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "honeydew"
+                  }
+                ],
+                "text": "honeydew",
+                "typed_value": {
+                  "type": "string",
+                  "value": "honeydew"
+                }
+              },
+              {
+                "align": "left",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "eight"
+                  }
+                ],
+                "text": "eight",
+                "typed_value": {
+                  "type": "string",
+                  "value": "eight"
+                }
+              },
+              {
+                "align": "right",
+                "col": 3,
+                "runs": [
+                  {
+                    "text": "2015-08-15"
+                  }
+                ],
+                "text": "2015-08-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-08-15"
+                }
+              },
+              {
+                "align": "right",
+                "col": 4,
+                "runs": [
+                  {
+                    "text": "20:20"
+                  }
+                ],
+                "text": "20:20",
+                "typed_value": {
+                  "type": "string",
+                  "value": "20:20"
+                }
+              },
+              {
+                "align": "right",
+                "col": 5,
+                "runs": [
+                  {
+                    "text": "None"
+                  }
+                ],
+                "text": "None"
+              },
+              {
+                "align": "right",
+                "col": 6,
+                "runs": [
+                  {
+                    "text": "0.44"
+                  }
+                ],
+                "text": "0.44",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.44
+                }
+              },
+              {
+                "align": "left",
+                "col": 7,
+                "runs": [
+                  {
+                    "text": "row_8"
+                  }
+                ],
+                "text": "row_8",
+                "typed_value": {
+                  "type": "string",
+                  "value": "row_8"
+                }
+              },
+              {
+                "align": "left",
+                "col": 8,
+                "runs": [
+                  {
+                    "text": "grp_b"
+                  }
+                ],
+                "text": "grp_b",
+                "typed_value": {
+                  "type": "string",
+                  "value": "grp_b"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "right",
+            "col": 0,
+            "runs": [
+              {
+                "text": "num"
+              }
+            ],
+            "scope": "col",
+            "text": "num"
+          },
+          {
+            "align": "left",
+            "col": 1,
+            "runs": [
+              {
+                "text": "char"
+              }
+            ],
+            "scope": "col",
+            "text": "char"
+          },
+          {
+            "align": "left",
+            "col": 2,
+            "runs": [
+              {
+                "text": "fctr"
+              }
+            ],
+            "scope": "col",
+            "text": "fctr"
+          },
+          {
+            "align": "right",
+            "col": 3,
+            "runs": [
+              {
+                "text": "date"
+              }
+            ],
+            "scope": "col",
+            "text": "date"
+          },
+          {
+            "align": "right",
+            "col": 4,
+            "runs": [
+              {
+                "text": "time"
+              }
+            ],
+            "scope": "col",
+            "text": "time"
+          },
+          {
+            "align": "right",
+            "col": 5,
+            "runs": [
+              {
+                "text": "datetime"
+              }
+            ],
+            "scope": "col",
+            "text": "datetime"
+          },
+          {
+            "align": "right",
+            "col": 6,
+            "runs": [
+              {
+                "text": "currency"
+              }
+            ],
+            "scope": "col",
+            "text": "currency"
+          },
+          {
+            "align": "left",
+            "col": 7,
+            "runs": [
+              {
+                "text": "row"
+              }
+            ],
+            "scope": "col",
+            "text": "row"
+          },
+          {
+            "align": "left",
+            "col": 8,
+            "runs": [
+              {
+                "text": "group"
+              }
+            ],
+            "scope": "col",
+            "text": "group"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [],
+    "subtitle": null,
+    "title": null
+  }
+}

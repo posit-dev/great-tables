@@ -174,6 +174,22 @@ def test_page_html_tints_missing_values():
     assert 'headers="fctr"' in tinted[0][0] and 'headers="num"' in tinted[2][0]
 
 
+@pytest.mark.parametrize("rowname_col", [None, "fctr"])
+def test_page_html_tints_missing_values_beside_a_cell_of_html(rowname_col):
+    # (A cell whose HTML has lines like the body's own rows and cells, which aren't taken for them)
+    cell = '<table>\n  <tr>\n    <td class="inner">nested</td>\n  </tr>\n</table>'
+    gti = (
+        GTI(pl.DataFrame(DATA), rowname_col=rowname_col)
+        .fmt(lambda _: cell, columns="char")
+        .i_inspect()
+    )
+    html = make_engine(gti).page(page_query(start=2))["html"]
+    tinted = [line for line in html.split("\n") if "gt-i-missing" in line]
+    assert len(tinted) == 2 and 'class="inner"' in html
+    assert re.search(r'headers="(stub-3 )?num"', tinted[0])
+    assert ('id="stub-4"' if rowname_col else 'headers="fctr"') in tinted[1]
+
+
 def test_render_gives_the_first_page_and_a_remote_spec():
     gti = make_gti().i_pagination(page_size=2).i_view(sort="-num").i_inspect()
     engine = make_engine(gti)

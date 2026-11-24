@@ -10,6 +10,11 @@ single, combined value. For example, a measurement and its uncertainty, a low an
 a range, or a count with its corresponding percentage. The `cols_merge*()` family of methods
 combines the content of two or more columns into one, giving you a more compact and readable table.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" arms="open" cells="12.4|0.32|10.5|14.2/8.92|0.15|7.8|10.1/15.0|0.48|13.2|16.8" cell-trick="merge" intro='[["say", "Two columns? Make them one!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
 Merging works best when two columns are conceptually a single value: a measurement and its
 uncertainty, a low and high bound forming a range, or a count paired with its percentage. In these
 cases, presenting the values separately forces the reader to mentally combine them anyway. If,
@@ -20,20 +25,20 @@ independently.
 ## Setting Up the Example Data
 
 We will use a small dataset that includes a measurement with uncertainty, a range, and a count with
-a percentage.
+a percentage (stored as a fraction).
 
 ```{python}
-import pandas as pd
+import polars as pl
 from great_tables import GT
 
-experiment_df = pd.DataFrame({
+experiment_df = pl.DataFrame({
     "trial": ["Trial 1", "Trial 2", "Trial 3", "Trial 4"],
     "measurement": [12.45, 8.92, 15.03, None],
     "uncertainty": [0.32, 0.15, 0.48, None],
     "low": [10.5, 7.8, 13.2, 9.1],
     "high": [14.2, 10.1, 16.8, 12.5],
     "n_obs": [120, 85, 200, 0],
-    "pct": [34.2, 24.3, 57.1, 0.0],
+    "pct": [0.342, 0.243, 0.571, 0.0],
 })
 
 gt_tbl = GT(experiment_df, rowname_col="trial")
@@ -111,8 +116,8 @@ can combine this with `~~GT.fmt_number()` to control the decimal precision of th
 )
 ```
 
-Formatting should be applied before merging, since the merge operates on the already-formatted text
-content.
+Merging always operates on the formatted text content, so the formatting is carried into the merged
+cells whether `~~GT.fmt_number()` is called before or after the merge.
 
 ## Merging a Range
 
@@ -141,11 +146,13 @@ rendered as an en dash and em dash, respectively. Any other string is used liter
 
 When you have a count column alongside a pre-computed percentage column, `~~GT.cols_merge_n_pct()`
 merges them into a format like `"120 (34.2%)"`. This is a common pattern in statistical tables and
-survey results.
+survey results. The percentage column should be formatted with `~~GT.fmt_percent()` so that the
+values are displayed as percentages.
 
 ```{python}
 (
     GT(experiment_df, rowname_col="trial")
+    .fmt_percent(columns="pct", decimals=1)
     .cols_merge_n_pct(col_n="n_obs", col_pct="pct")
 )
 ```
@@ -162,6 +169,7 @@ once.
 (
     GT(experiment_df, rowname_col="trial")
     .fmt_number(columns=["measurement", "uncertainty", "low", "high"], decimals=1)
+    .fmt_percent(columns="pct", decimals=1)
     .cols_merge_uncert(col_val="measurement", col_uncert="uncertainty")
     .cols_merge_range(col_begin="low", col_end="high")
     .cols_merge_n_pct(col_n="n_obs", col_pct="pct")

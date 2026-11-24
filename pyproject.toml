@@ -57,6 +57,8 @@ all = [
     "great_tables[panel]",
     "great_tables[solara]",
     "great_tables[marimo]",
+    "great_tables[gridwell]",
+    "great_tables[brand]",
     "great_tables[dev]",
 ]
 
@@ -68,14 +70,22 @@ extra = [
 
 widget = [
     "anywidget>=0.9",
+    "narwhals",
+]
+
+# For `GT.gtsave()` to SVG, Word, Excel, PowerPoint, RTF, and Typst
+gridwell = [
+    "gridwell>=0.1.0",
 ]
 
 streamlit = [
     "streamlit>=1.56",
+    "narwhals",
 ]
 
 panel = [
     "panel>=1.6.2",
+    "narwhals",
 ]
 
 solara = [
@@ -90,9 +100,15 @@ marimo = [
     "narwhals",
 ]
 
+# For `Theme.from_brand()`
+brand = [
+    "brand_yml>=0.2.0",
+]
+
 dev = [
     "great_tables[dev-no-pandas]",
     "ibis-framework[duckdb]",
+    "sqlglot!=30.34.0",  # writes Ibis's `IS NOT NULL` as `IS (NOT NULL)`, which DuckDB can't parse
     "pandas",
     "plotnine",
     "numpy>=1.22.4",
@@ -108,10 +124,12 @@ dev = [
 dev-no-pandas = [
     "ruff==0.17.4",
     "anywidget",
+    "brand_yml>=0.2.0",
     "duckdb",
     "jupyter",
     "gt-extras>=0.0.7",
     "hypothesis",
+    "jsonschema",
     "narwhals",
     "polars",
     "pre-commit>=3.2.0",
@@ -126,7 +144,9 @@ dev-no-pandas = [
 
 [project.urls]
 homepage = "https://github.com/posit-dev/great-tables"
+repository = "https://github.com/posit-dev/great-tables"
 documentation = "https://posit-dev.github.io/great-tables/"
+bug_tracker = "https://github.com/posit-dev/great-tables/issues"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -147,7 +167,7 @@ line-length = 100
 
 
 [tool.ruff.format]
-exclude = ["great_tables/vals.py"]
+exclude = ["great_tables/vals.py", "tests/gridwell_kit/*"]
 
 
 [tool.ruff.lint]

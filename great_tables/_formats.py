@@ -5027,8 +5027,10 @@ def fmt_duration_context(
             locale=locale,
         )
 
-    # Escape the `<` of values below the smallest output unit (e.g., `<1s`) for LaTeX
-    if context == "latex":
+    # Escape the `<` of values below the smallest output unit (e.g., `<1s`) for HTML and LaTeX
+    if context == "html":
+        x_formatted = _html_escape(x_formatted)
+    elif context == "latex":
         x_formatted = _latex_escape(x_formatted)
 
     # A duration shown as zero in the colon and ISO styles (e.g., `00:00:00` for `-0.4` seconds)
@@ -6049,12 +6051,11 @@ def fmt_tf(
     downward arrows (through the `colors=` option).
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import sp500
+    from great_tables import GT, data
     import polars as pl
 
     sp500_mini = (
-        pl.from_pandas(sp500)
+        data.pl.sp500
         .slice(0, 5)
         .drop(["volume", "adj_close", "high", "low"])
         .with_columns(dir = pl.col("close") > pl.col("open"))
@@ -6452,12 +6453,12 @@ def fmt_units(
     `"<unit_1> <unit_2>^-1"`).
 
     ```{python}
-    from great_tables.data import constants
+    from great_tables import data
     import polars as pl
     import polars.selectors as cs
 
     constants_mini = (
-        pl.from_pandas(constants)
+        data.pl.constants
         .filter(pl.col("name").str.contains("molar")).sort("value")
         .with_columns(
             name=pl.col("name")
@@ -8634,10 +8635,10 @@ def fmt_icon(
 
     ```{python}
     import polars as pl
-    from great_tables.data import towny
+    from great_tables import data
 
     towny_mini = (
-        pl.from_pandas(towny.loc[[323, 14, 26, 235]])
+        data.pl.towny[[323, 14, 26, 235]]
         .select(["name", "csd_type", "population_2021"])
         .with_columns(
            csd_type = pl.when(pl.col("csd_type") == "town")
@@ -8666,10 +8667,10 @@ def fmt_icon(
     which color should be used for each icon.
 
     ```{python}
-    from great_tables.data import sp500
+    from great_tables import data
 
     sp500_mini = (
-        pl.from_pandas(sp500)
+        data.pl.sp500
         .head(10)
         .select(["date", "open", "close"])
         .sort("date", descending=False)
@@ -8844,12 +8845,11 @@ def fmt_flag(
     flag icons.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import countrypops
+    from great_tables import GT, data
     import polars as pl
 
     countrypops_mini = (
-        pl.from_pandas(countrypops)
+        data.pl.countrypops
         .filter(pl.col("year") == 2021)
         .filter(pl.col("country_name").str.starts_with("S"))
         .sort("country_name")
@@ -8879,7 +8879,7 @@ def fmt_flag(
     import polars.selectors as cs
 
     countrypops_mini = (
-        pl.from_pandas(countrypops)
+        data.pl.countrypops
         .filter(pl.col("country_code_3").is_in(["BEL", "NLD", "LUX"]))
         .filter((pl.col("year") % 10 == 0) & (pl.col("year") >= 1960))
         .pivot("year", index = ["country_code_3", "country_name"], values="population")
@@ -9266,10 +9266,10 @@ def fmt_nanoplot(
     of them on the same scale). Hover over any box to see its quartiles and whiskers.
 
     ```{python}
-    from great_tables.data import gtcars
+    from great_tables import data
 
     hp_by_body_style = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .group_by("bdy_style")
         .agg(n=pl.len(), hp=pl.col("hp"))
         .sort("bdy_style")

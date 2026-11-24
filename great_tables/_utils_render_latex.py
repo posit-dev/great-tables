@@ -416,27 +416,24 @@ def create_columns_component_l(data: GTData, stub_layout: list[str] | None = Non
             omit_columns_row=True,
         )
 
-        # TODO: ensure that spanner IDs are not included in the output (spanner
-        # labels should be used instead)
-
-        # spanner_ids, spanner_col_names = spanners_print_matrix(
-        #     spanners=data._spanners,
-        #     boxhead=boxhead,
-        #     include_hidden=False,
-        #     ids=True,
-        #     omit_columns_row=True,
-        # )
-        for spanners_row in spanners:
-            spanners_row = {k: "" if v is None else v for k, v in spanners_row.items()}
-
-            spanner_ids_index = spanners_row.values()
-            spanners_rle = seq_groups(seq=spanner_ids_index)
+        spanner_ids, _ = spanners_print_matrix(
+            spanners=data._spanners,
+            boxhead=boxhead,
+            include_hidden=False,
+            ids=True,
+            omit_columns_row=True,
+        )
+        for label_row, id_row in zip(spanners, spanner_ids):
+            # Group adjacent columns by spanner ID; the IDs are wrapped in tuples because
+            # `seq_groups()` never joins `None` values, and adjacent columns without a spanner
+            # share one blank cell
+            spanners_rle = seq_groups((span_id,) for span_id in id_row.values())
 
             group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
             colspans = chain.from_iterable(group_spans)
             level_i_spanners = (
                 _process_text(span_label, context="latex") if span_label else None
-                for colspan, span_label in zip(colspans, spanners_row.values())
+                for colspan, span_label in zip(colspans, label_row.values())
                 if colspan > 0
             )
 
