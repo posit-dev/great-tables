@@ -8480,6 +8480,9 @@ The `cols_label_rotate()` method sets the orientation of the column label text t
 vertically. The `dir` argument can be set to one of `"sideways-lr"`, `"sideways-rl"`, or
 `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the
 alignment to. If `columns` is not specified, the alignment is applied to all columns.
+
+A rotated label is kept on one line and centered across its column. Line breaks in a label made
+with `html()` aren't supported, since Safari shows only the first line.
 :::
 
 ## Parameters {.doc-parameters}
@@ -8497,8 +8500,10 @@ alignment to. If `columns` is not specified, the alignment is applied to all col
 
 <code>[align]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Literal[[&quot;left&quot;]{.st}, [&quot;center&quot;]{.st}, [&quot;right&quot;]{.st}] | None]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [None]{.doc-parameter-default}</code>
 
-:   The alignment to apply. Must be one of `"left"`, `"center"`, `"right"`, or `"none"`. If text
-    is laid out vertically, this affects alignment along the vertical axis.
+:   The alignment to apply along the height of the column labels row. Must be one of `"left"`,
+    `"center"`, `"right"`, or `None`. `"left"` places the label where its text starts (the
+    bottom for `"sideways-lr"`, the top otherwise), `"right"` where it ends, and `"center"` in
+    the middle. With `None`, the label is placed at the bottom.
 
 <code>[padding]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [int]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[8]{.dv}]{.doc-parameter-default}</code>
 
@@ -8540,17 +8545,16 @@ text to the right.
 )
 ```
 
-Labels that are restricted by the height of the stub head will wrap horizontally.
+A long label makes the column labels row taller, since a rotated label isn't wrapped. The
+`align=` argument places a shorter label along that height. Here `"center"` puts the `num`
+label in the middle.
 
 ```{python}
 (
     GT(exibble_sm, rowname_col="row", groupname_col="group")
-    .cols_label({"fctr": "A longer description of the values in the column below"})
-    .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
-    .tab_style(
-        style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
-        locations=loc.column_labels(["fctr"])
-    )
+    .cols_label({"fctr": "A longer description of the values"})
+    .cols_label_rotate(columns="fctr")
+    .cols_label_rotate(columns="num", align="center")
 )
 ```
 
