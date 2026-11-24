@@ -4,7 +4,7 @@ Remove the table header.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L11-L48)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L12-L49)
 
 ``` python
 GT.rm_header()

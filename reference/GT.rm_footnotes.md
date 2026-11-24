@@ -4,7 +4,7 @@ Remove table footnotes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L145-L195)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L146-L196)
 
 ``` python
 GT.rm_footnotes(footnotes=None)

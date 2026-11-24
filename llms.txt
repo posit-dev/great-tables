@@ -19,6 +19,7 @@
 - [GT.tab_header](https://posit-dev.github.io/great-tables/reference/GT.tab_header.html): Add a table header
 - [GT.tab_spanner](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner.html): Insert a spanner above a selection of column headings
 - [GT.tab_spanner_delim](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_delim.html): Insert spanners by splitting column names with a delimiter
+- [GT.tab_spanner_label_with](https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_label_with.html): Relabel column spanners using a function
 - [GT.tab_stub](https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html): Add a table stub, to emphasize row and group information
 - [GT.tab_stubhead](https://posit-dev.github.io/great-tables/reference/GT.tab_stubhead.html): Add label text to the stubhead
 - [GT.tab_stub_indent](https://posit-dev.github.io/great-tables/reference/GT.tab_stub_indent.html): Control indentation of row labels in the stub

@@ -4,7 +4,7 @@ Remove column spanners.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L198-L286)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L199-L265)
 
 ``` python
 GT.rm_spanners(

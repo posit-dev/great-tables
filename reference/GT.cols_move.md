@@ -4,7 +4,7 @@ Move one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L523-L610)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L650-L737)
 
 ``` python
 GT.cols_move(

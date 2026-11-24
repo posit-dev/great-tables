@@ -697,6 +697,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_spanner_label_with.html</loc>
+    <lastmod>2026-11-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://posit-dev.github.io/great-tables/reference/GT.tab_stub.html</loc>
     <lastmod>2026-11-24</lastmod>
     <changefreq>monthly</changefreq>

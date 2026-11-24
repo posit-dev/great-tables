@@ -4,7 +4,7 @@ Remove the stubhead label.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L51-L87)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L52-L88)
 
 ``` python
 GT.rm_stubhead()

@@ -88,6 +88,46 @@ gt_gibraltar
 | 18.9 | 0.64 | 4.0 | 1014.6 | 2023-05-01 | 04:20 |
 | 18.9 | 0.64 | 3.1 | 1014.6 | 2023-05-01 | 04:50 |
 
+## Making Spanners from Column Names
+
+Sometimes the grouping is already part of the column names, as with `population_1996` and `density_1996` in the [towny](../reference/data.towny.md#great_tables.data.towny) dataset. The [tab_spanner_delim()](../reference/GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim) method splits column names at a delimiter, turning the first part into a spanner label and the rest into the column label.
+
+``` python
+towny_mini = data.pl.towny.head(5).select(
+    "name", "population_1996", "population_2021", "density_1996", "density_2021"
+)
+
+gt_towny = GT(towny_mini, rowname_col="name").tab_spanner_delim(delim="_")
+
+gt_towny
+```
+
+|                     | population |        | density |         |
+|---------------------|------------|--------|---------|---------|
+|                     | 1996       | 2021   | 1996    | 2021    |
+| Addington Highlands | 2429       | 2534   | 1.88    | 1.96    |
+| Adelaide Metcalfe   | 3128       | 3011   | 9.45    | 9.09    |
+| Adjala-Tosorontio   | 9359       | 10989  | 25.19   | 29.58   |
+| Admaston/Bromley    | 2837       | 2995   | 5.46    | 5.76    |
+| Ajax                | 64430      | 126666 | 966.84  | 1900.75 |
+
+The spanner labels come straight from the column names, so they're lowercase. The [tab_spanner_label_with()](../reference/GT.tab_spanner_label_with.md#great_tables.GT.tab_spanner_label_with) method relabels spanners with a function, here `str.title`:
+
+``` python
+gt_towny.tab_spanner_label_with(fn=str.title)
+```
+
+|                     | Population |        | Density |         |
+|---------------------|------------|--------|---------|---------|
+|                     | 1996       | 2021   | 1996    | 2021    |
+| Addington Highlands | 2429       | 2534   | 1.88    | 1.96    |
+| Adelaide Metcalfe   | 3128       | 3011   | 9.45    | 9.09    |
+| Adjala-Tosorontio   | 9359       | 10989  | 25.19   | 29.58   |
+| Admaston/Bromley    | 2837       | 2995   | 5.46    | 5.76    |
+| Ajax                | 64430      | 126666 | 966.84  | 1900.75 |
+
+The function can be limited to some of the spanners, by spanner ID (with `spanners=`) or by level (with `levels=`). Relabeling doesn't change spanner IDs (here, the original `"population"` and `"density"` labels), so methods like [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) and [rm_spanners()](../reference/GT.rm_spanners.md#great_tables.GT.rm_spanners) still target the spanners by those IDs. To relabel column labels with a function instead, use [cols_label_with()](../reference/GT.cols_label_with.md#great_tables.GT.cols_label_with).
+
 ## Moving and Relabeling Columns
 
 We can do two more things to make this presentable:

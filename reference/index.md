@@ -20,6 +20,9 @@ Insert a spanner above a selection of column headings.
 [GT.tab_spanner_delim()](GT.tab_spanner_delim.md#great_tables.GT.tab_spanner_delim)  
 Insert spanners by splitting column names with a delimiter.
 
+[GT.tab_spanner_label_with()](GT.tab_spanner_label_with.md#great_tables.GT.tab_spanner_label_with)  
+Relabel column spanners using a function.
+
 [GT.tab_stub()](GT.tab_stub.md#great_tables.GT.tab_stub)  
 Add a table stub, to emphasize row and group information.
 

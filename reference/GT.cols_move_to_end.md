@@ -4,7 +4,7 @@ Move one or more columns to the end.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L686-L751)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L813-L878)
 
 ``` python
 GT.cols_move_to_end(columns)

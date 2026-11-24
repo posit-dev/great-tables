@@ -4,7 +4,7 @@ Remove table source notes.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L90-L142)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_rm.py#L91-L143)
 
 ``` python
 GT.rm_source_notes(source_notes=None)

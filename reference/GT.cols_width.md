@@ -4,7 +4,7 @@ Set the widths of columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L939-L1137)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1066-L1264)
 
 ``` python
 GT.cols_width(

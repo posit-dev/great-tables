@@ -4,7 +4,7 @@ Merge two columns to a value range column.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1467-L1611)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_spanners.py#L1594-L1738)
 
 ``` python
 GT.cols_merge_range(

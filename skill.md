@@ -34,6 +34,7 @@ A table can contain a few useful components for conveying additional information
 - `GT.tab_header`
 - `GT.tab_spanner`
 - `GT.tab_spanner_delim`
+- `GT.tab_spanner_label_with`
 - `GT.tab_stub`
 - `GT.tab_stubhead`
 - `GT.tab_stub_indent`
