@@ -7,6 +7,7 @@ from itertools import chain
 from typing import TYPE_CHECKING, Any, cast
 
 from . import _locations as loc
+from ._data_color.utils import _html_color
 from ._gt_data import (
     _NO_GROUP,
     ColInfo,
@@ -145,7 +146,7 @@ def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None
             usable = (
                 isinstance(color, str)
                 and color.strip().lower() not in CSS_COLOR_KEYWORDS
-                and not TRANSLUCENT_HEX.fullmatch(color.strip())
+                and not TRANSLUCENT_HEX.fullmatch(_html_color([color.strip()])[0])
             )
             option = foreground_option(color) if usable else None
         except ValueError:
