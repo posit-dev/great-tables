@@ -734,14 +734,24 @@ class GT(
 
 def _resolve_cell_colors(data: GT, html_table: str) -> str:
     """Replace the cell colors that depend on the mode with literal ones: the authored colors stay."""
-    options = resolve_options(data, render_mode(data))
+    mode = render_mode(data)
+    options = resolve_options(data, mode)
 
     html_table = html_table.replace("var(--_gt-text-dark)", options.table_font_color.value)
     html_table = html_table.replace("var(--_gt-text-light)", options.table_font_color_light.value)
 
-    # (Only the declaration `_dark_aware_color()` writes: one the user wrote stays)
+    # (A `data_color(autocolor_text=False)` fill's text color is the inherited one in light mode)
+    html_table = re.sub(
+        r"color: light-dark\(currentcolor, ([^;]+?)\); ",
+        r"color: \1; " if mode == "dark" else "",
+        html_table,
+    )
+
+    # (Only the blends that `_dark_aware_color()` and `_dark_aware_borders()` write: a declaration
+    # the user wrote stays)
     return re.sub(
-        r" color: light-dark\(([^;]+?), color-mix\(in srgb, \1 35%, currentcolor\)\);",
+        r" ((?:border-(?:top|right|bottom|left)-)?color): light-dark\(([^;]+?), "
+        r"color-mix\(in srgb, \2 35%, currentcolor\)\);",
         "",
         html_table,
     )
