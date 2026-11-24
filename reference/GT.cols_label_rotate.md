@@ -4,7 +4,7 @@ Rotate the column label for one or more columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L512-L645)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_boxhead.py#L512-L659)
 
 ``` python
 GT.cols_label_rotate(
@@ -66,6 +66,31 @@ exibble_sm = exibble[["num", "fctr", "row", "group"]]
 | row_7 | 777000.0  | seven |
 | row_8 | 8880000.0 | eight |
 
+All three `dir` values can be compared side by side by assigning each direction to a different column and renaming the labels to the direction names.
+
+``` python
+(
+    GT(exibble[["num", "char", "fctr"]])
+    .cols_label(num="sideways-lr", char="sideways-rl", fctr="vertical-lr")
+    .cols_label_rotate(columns="num", dir="sideways-lr")
+    .cols_label_rotate(columns="char", dir="sideways-rl")
+    .cols_label_rotate(columns="fctr", dir="vertical-lr")
+)
+```
+
+| sideways-lr | sideways-rl | vertical-lr |
+|-------------|-------------|-------------|
+| 0.1111      | apricot     | one         |
+| 2.222       | banana      | two         |
+| 33.33       | coconut     | three       |
+| 444.4       | durian      | four        |
+| 5550.0      | None        | five        |
+| None        | fig         | six         |
+| 777000.0    | grapefruit  | seven       |
+| 8880000.0   | honeydew    | eight       |
+
+`"sideways-rl"` and `"vertical-lr"` look the same with Latin text. They differ with CJK characters, which `"vertical-lr"` keeps upright.
+
 Other styles you provide won't override the column label rotation directives. Here we set the text to the right.
 
 ``` python
@@ -119,12 +144,12 @@ The `dir` parameter uses the following keywords to alter the direction of the co
 
 ##### `"sideways-lr"`
 
-For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows vertically from top to bottom. Characters are set sideways toward the left. Overflow lines are appended to the right.
+For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows vertically from top to bottom. Characters are set sideways toward the left.
 
 ##### `"sideways-rl"`
 
-For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows vertically from bottom to top. Characters are set sideways toward the right. Overflow lines are appended to the left.
+For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows vertically from bottom to top. Characters are set sideways toward the right.
 
 ##### `"vertical-lr"`
 
-Identical to `"sideways-rl"`, but overflow lines are appended to the right.
+Like `"sideways-rl"`, but CJK characters are kept upright rather than set sideways.
