@@ -7,6 +7,9 @@ notebooks (packages/gti/e2e/hosts.spec.ts).
 
 from __future__ import annotations
 
+import ast
+import importlib.util
+import textwrap
 from copy import deepcopy
 from typing import Any
 
@@ -19,6 +22,7 @@ import great_tables.marimo as gt_marimo  # noqa: E402
 from great_tables import GT, GTI  # noqa: E402
 from great_tables._gti._widget import GTIWidget  # noqa: E402
 from great_tables.marimo import GTIElement, mo_gti  # noqa: E402
+from tests.utils import DEMOS, docs_code  # noqa: E402
 
 DATA = pd.DataFrame(
     {
@@ -153,3 +157,40 @@ def test_opt_interactive_table():
 def test_needs_an_interactive_table(table: Any):
     with pytest.raises(TypeError, match="interactive tables|`table` must be"):
         mo_gti(table)
+
+
+DEMO = DEMOS / "marimo" / "cars.py"
+
+
+def demo_cells() -> list[str]:
+    # (Each of the demo's cells, as its code is shown: without the `return` of what it defines)
+    source = DEMO.read_text(encoding="utf-8")
+    lines = source.splitlines(keepends=True)
+    cells = []
+    for node in ast.parse(source).body:
+        if isinstance(node, ast.FunctionDef):
+            body = node.body[:-1] if isinstance(node.body[-1], ast.Return) else node.body
+            code = "".join(lines[body[0].lineno - 1 : body[-1].end_lineno])
+            cells.append(textwrap.dedent(code))
+    return cells
+
+
+def test_demo_notebook():
+    # (The docs' demo, run as a script: with two cars selected, then sorted by the button)
+    spec = importlib.util.spec_from_file_location("cars", DEMO)
+    assert spec is not None and spec.loader is not None
+    notebook = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(notebook)
+    outputs, defs = notebook.app.run()
+    assert "0 of 47 cars selected" in outputs[-1].text
+    table = defs["table"]
+    show(table, rows=table.value["rows"], selection=[0, 2])
+    assert table.view(selected=True)["model"].tolist() == ["GT", "458 Spider"]
+    defs["fastest"](None)
+    assert [table.widget.sort, table.widget.selection] == [["-hp"], []]
+
+
+def test_demo_notebook_is_the_docs():
+    # (The code shown is the notebook that's run)
+    code = docs_code("27-gti-in-python-and-apps.qmd", "Using the table in a marimo notebook or app")
+    assert code == demo_cells()
