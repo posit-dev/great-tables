@@ -2,24 +2,32 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type BodyRow,
   type CodeSpec,
+  type ColorSpec,
   type ColumnSpec,
   type ControlsSpec,
+  type DataSource,
   type DisplaySpec,
   define,
   EXPORT_EVENT,
   type ExportEventDetail,
   type ExportFormat,
+  type FacetCounts,
   FILTER_EVENT,
   type FilterEventDetail,
   type FilterQuery,
   type FilterSpec,
   GtTable,
+  type PageAnswer,
+  type PageQuery,
   type LayoutSpec,
   PAGE_EVENT,
   type PageEventDetail,
   type PaginationSpec,
+  type ProfileSpec,
   type QueryColumnSpec,
   RESIZE_EVENT,
+  type RowAnswer,
+  type RowQuery,
   type ResizeEventDetail,
   SEARCH_EVENT,
   type SearchEventDetail,
@@ -35,6 +43,29 @@ import {
   type ViewEventDetail,
 } from "../src/index";
 import { TableBorders } from "../src/borders";
+import { ramp, textColor } from "../src/color";
+import { Profile } from "../src/profile";
+import widget, {
+  KernelSource,
+  type Model,
+  SELECT_EVENT as WIDGET_SELECT_EVENT,
+  VIEW_EVENT as WIDGET_VIEW_EVENT,
+  type WidgetView,
+} from "../src/widget";
+import type { HostView } from "../src/host";
+import {
+  ROWS_TYPE as SHINY_ROWS_TYPE,
+  MESSAGE as SHINY_MESSAGE,
+  VIEW_TYPE as SHINY_VIEW_TYPE,
+  outputOf,
+  ShinySource,
+  type ShinyLike,
+  start as startShiny,
+  tableIn,
+  type Update,
+} from "../src/shiny";
+import renderStreamlit, { type Data as StreamlitData, StreamlitSource } from "../src/streamlit";
+import { modelOf, type PanelModel, render as renderPanel } from "../src/panel";
 
 // Let mutation observers run.
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -93,15 +124,25 @@ interface TableOptions {
   queryColumns?: QueryColumnSpec[];
   queryRanks?: Record<string, (number | null)[]>;
   /** What readers can do with each column (by its id), if not everything, and where it's pinned. */
-  columns?: Record<string, Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable">>;
+  columns?: Record<
+    string,
+    Pick<ColumnSpec, "sortable" | "searchable" | "resizable" | "pin" | "hideable" | "reorderable" | "groupable" | "dtype" | "missing">
+  >;
+  /** The data rows' details (in templates after the table), by row. */
+  details?: Record<number, string>;
+  profiles?: ProfileSpec[];
+  link?: object | null;
+  colors?: ColorSpec[];
+  /** The inline style of each data row's `x` cell, by row. */
+  xStyles?: Record<number, string>;
 }
 
 /** A table shaped like GT's, and its spec. */
 function gtTable(body: BodyRow[], options: TableOptions = {}) {
   const striping = options.striping ?? { stub: false, body: false };
   const groupsAsColumn = options.groupsAsColumn ?? false;
-  const cell = (tag: string, classes: string, text: string) =>
-    `<${tag} class="${classes}">${text}</${tag}>`;
+  const cell = (tag: string, classes: string, text: string, style?: string) =>
+    `<${tag} class="${classes}"${style === undefined ? "" : ` style="${style}"`}>${text}</${tag}>`;
 
   let j = 0;
   let lead: string | null = null;
@@ -130,7 +171,7 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
       trs.push(
         `<tr${trClass}>${leading}` +
           cell("th", `gt_row gt_left gt_stub${striped(striping.stub)}`, `row_${entry + 1}`) +
-          cell("td", `gt_row gt_right${striped(striping.body)}`, X[entry] as string) +
+          cell("td", `gt_row gt_right${striped(striping.body)}`, X[entry] as string, options.xStyles?.[entry]) +
           cell("td", `gt_row gt_left${striped(striping.body)}`, Y[entry] as string) +
           "</tr>",
       );
@@ -155,9 +196,12 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
         `<th class="gt_col_heading gt_right" id="t-x">x</th>` +
         `<th class="gt_col_heading gt_left" id="t-y">${options.yLabel ?? "y"}</th></tr>`
     }</thead>`;
+  const templates = Object.entries(options.details ?? {}).map(
+    ([row, content]) => `<template data-gti-details="${row}">${content}</template>`,
+  );
   const html =
     `<div id="t"><table class="gt_table">${thead}` +
-    `<tbody class="gt_table_body">${trs.join("")}</tbody></table></div>`;
+    `<tbody class="gt_table_body">${trs.join("")}</tbody></table></div>${templates.join("")}`;
 
   const spec = {
     version: SPEC_VERSION,
@@ -192,6 +236,10 @@ function gtTable(body: BodyRow[], options: TableOptions = {}) {
     ...(options.view === undefined ? {} : { view: options.view }),
     ...(options.export === undefined ? {} : { export: { filename: "table", ...options.export } }),
     ...(options.viewState === undefined ? {} : { view_state: options.viewState }),
+    ...(options.details === undefined ? {} : { details: Object.keys(options.details).map(Number) }),
+    ...(options.profiles === undefined ? {} : { profiles: options.profiles }),
+    ...(options.link === undefined ? {} : { link: options.link }),
+    ...(options.colors === undefined ? {} : { colors: options.colors }),
   };
   return { html, spec };
 }
@@ -372,29 +420,61 @@ describe("<gt-table> with a spec", () => {
 });
 
 describe("sorting", () => {
-  it("makes the labels of sortable columns buttons", async () => {
+  it("adds a sort button under the labels of sortable columns", async () => {
     const el = await mountTable();
 
     expect(el.sortableColumns).toEqual(["row", "x", "y"]);
     // The stub has no label cell, so it's sortable through `sort` only
     expect(el.querySelectorAll("button.gt-i-sort")).toHaveLength(2);
     expect(button(el, "x").type).toBe("button");
-    expect(button(el, "x").textContent).toBe("x");
+    expect(button(el, "x").parentElement?.matches("th > .gt-i-head-controls")).toBe(true);
+    expect(button(el, "x").textContent).toBe("");
+    expect(button(el, "x").getAttribute("aria-label")).toBe("Sort by x");
     expect(button(el, "x").querySelector(".gt-i-sort-icon")?.getAttribute("aria-hidden")).toBe(
       "true",
     );
+    // (Both ways' arrows)
+    expect(Array.from(button(el, "x").querySelectorAll("path"), (path) => path.getAttribute("class"))).toEqual([
+      "gt-i-sort-up",
+      "gt-i-sort-down",
+    ]);
     expect(header(el, "x").hasAttribute("aria-sort")).toBe(false);
+    expect(header(el, "x").classList.contains("gt-i-sortable")).toBe(true);
   });
 
-  it("keeps the label's markup inside the button", async () => {
-    const el = await mountTable(GROUPED, { yLabel: "<em>y</em> (<span>units</span>)" });
-
-    expect(button(el, "y").querySelector("em")?.textContent).toBe("y");
-    expect(button(el, "y").querySelector("span:not(.gt-i-sort-icon)")?.textContent).toBe("units");
-    expect(header(el, "y").children).toHaveLength(1);
+  it("names each label by its text, not with its controls'", async () => {
+    const el = await mountTable(GROUPED, {
+      yLabel: 'y (<span>units</span>)<span class="gt_footnote_marks">1</span>',
+      columns: { x: { dtype: "f64" } },
+      filters: [{ column: "x", type: "range", values: [5, 10, 20] }],
+    });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(header(el, "y").getAttribute("aria-label")).toBe("y (units)");
+    // (A label without controls is named by its text already)
+    const plain = await mountTable(GROUPED, { controls: { sorting: false } });
+    expect(header(plain, "x").hasAttribute("aria-label")).toBe(false);
+    // (And the stubhead, with a resize handle, by its text too)
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 100, 20));
+    const stub = await mountTable(GROUPED, {
+      controls: { resizing: true },
+      thead:
+        `<tr class="gt_col_headings"><th class="gt_col_heading">Row</th>` +
+        `<th class="gt_col_heading gt_right" id="t-x">x</th><th class="gt_col_heading gt_left" id="t-y">y</th></tr>`,
+    });
+    expect(stub.querySelector("thead th:not([id])")?.getAttribute("aria-label")).toBe("Row");
   });
 
-  it("adds a separate button to a label with a link", async () => {
+  it("leaves the label's markup as it is", async () => {
+    const label = "<em>y</em> (<span>units</span>)";
+    const el = await mountTable(GROUPED, { yLabel: label });
+    const th = header(el, "y");
+
+    expect(th.innerHTML.startsWith(label)).toBe(true);
+    expect(Array.from(th.children, (child) => child.className)).toEqual(["", "", "gt-i-head-controls"]);
+    expect(button(el, "y").getAttribute("aria-label")).toBe("Sort by y (units)");
+  });
+
+  it("leaves a link in the label as it is", async () => {
     const el = await mountTable(GROUPED, { yLabel: `y<a href="#note">1</a>` });
     const th = header(el, "y");
 
@@ -409,8 +489,52 @@ describe("sorting", () => {
     });
     click(el, "y");
 
-    expect(button(el, "y").querySelector(".gt_footnote_marks")?.textContent).toBe("1");
+    expect(header(el, "y").querySelector(":scope > .gt_footnote_marks")?.textContent).toBe("1");
+    expect(button(el, "y").getAttribute("aria-label")).toBe("Sort by Long label");
     expect(el.querySelector(".gt-i-live")?.textContent).toBe("Sorted by Long label, ascending");
+  });
+
+  it("sorts on a click on the label, but not on a link in it", async () => {
+    const el = await mountTable(GROUPED, { yLabel: `<em>y</em><a href="#note">1</a>` });
+    const press = (target: Element, shiftKey = false) =>
+      target.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, shiftKey }));
+
+    press(header(el, "y").querySelector("em") as Element);
+    expect(el.sort).toEqual([{ column: "y", descending: false }]);
+    press(header(el, "x"), true);
+    expect(el.sort).toEqual([
+      { column: "y", descending: false },
+      { column: "x", descending: false },
+    ]);
+
+    const link = header(el, "y").querySelector("a") as HTMLAnchorElement;
+    link.addEventListener("click", (event) => event.preventDefault());
+    press(link);
+    press(header(el, "y").querySelector(".gt-i-head-controls") as Element);
+    expect(el.sort).toEqual([
+      { column: "y", descending: false },
+      { column: "x", descending: false },
+    ]);
+  });
+
+  it("doesn't sort on a click that ends a selection of the label's text", async () => {
+    const el = await mountTable();
+    const text = header(el, "x").firstChild as Text;
+    document.getSelection()?.setBaseAndExtent(text, 0, text, 1);
+    header(el, "x").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([]);
+
+    document.getSelection()?.removeAllRanges();
+    header(el, "x").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([{ column: "x", descending: false }]);
+  });
+
+  it("gives every label in the bottom row a row of controls, empty if it has none", async () => {
+    const el = await mountTable(GROUPED, { columns: { y: { sortable: false } } });
+
+    expect(header(el, "y").querySelector(":scope > .gt-i-head-controls")?.children).toHaveLength(0);
+    expect(header(el, "y").classList.contains("gt-i-sortable")).toBe(false);
+    expect(header(el, "x").querySelectorAll(".gt-i-head-controls")).toHaveLength(1);
   });
 
   it("cycles a column through ascending, descending and unsorted on clicks", async () => {
@@ -980,6 +1104,80 @@ describe("pagination", () => {
     expect(shown(el)).toEqual(["group:b", 3, 0, 4, "summary:Total", "group:a", 1, 2, "grand:Max"]);
   });
 
+  it("moves no rows for a change of page or a search, and only those of the blocks a sort reorders", async () => {
+    const el = await paged({ controls: { search: true } });
+    const tbody = el.querySelector("tbody") as HTMLTableSectionElement;
+    // (The data rows taken out of the body, or put in it; not the filler rows)
+    const observer = new MutationObserver(() => {});
+    observer.observe(tbody, { childList: true });
+    const moved = () => [
+      ...new Set(
+        observer
+          .takeRecords()
+          .flatMap((record) => [...record.addedNodes, ...record.removedNodes])
+          .map((node) => el.bodyRow(node as HTMLTableRowElement))
+          .filter((row) => typeof row === "number"),
+      ),
+    ];
+    // (But those shown with hidden rows after them, then a heading, a summary row or none, which
+    // are put back where they are, for WebKit)
+    const edges = () => {
+      const trs = Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"));
+      return trs.flatMap((tr, i) => {
+        const row = el.bodyRow(tr);
+        const next = trs.slice(i + 1).find((other) => !other.hidden);
+        const ends = next === undefined || typeof el.bodyRow(next) !== "number";
+        return !tr.hidden && typeof row === "number" && trs[i + 1]?.hidden === true && ends ? [row] : [];
+      });
+    };
+    const hides = vi.spyOn(HTMLElement.prototype, "hidden", "set");
+    for (const change of [() => (el.page = 2), () => (el.page = 3), () => (el.search = "row_2"), () => (el.search = "")]) {
+      change();
+      expect(moved()).toEqual(edges());
+    }
+    expect(edges()).toEqual([0]);
+    // (Of the body's rows, only those whose `hidden` changes, on going to page 2: rows 3 and 0
+    // hidden, and row 4, group b's summary, group a's heading and row 1 shown)
+    hides.mockClear();
+    el.page = 2;
+    const rows = hides.mock.contexts.filter((node) => el.bodyRow(node as HTMLTableRowElement) !== null);
+    expect(rows).toHaveLength(6);
+    el.page = 1;
+    moved();
+
+    // A sort by y moves group b's rows (3, 0, 4 to 3, 4, 0), not a's (1, 2)
+    click(el, "y");
+    expect(moved().sort()).toEqual([0, 3, 4]);
+    expect(shown(el)).toEqual(["group:b", 3, 4, 0, "summary:Total", "group:a", 1, 2, "grand:Max"]);
+    observer.disconnect();
+  });
+
+  it("leaves a row shown before hidden ones where it is while what has the focus is in it", async () => {
+    const el = await paged({ controls: { search: true } });
+    const tbody = el.querySelector("tbody") as HTMLTableSectionElement;
+    const tr = Array.from(tbody.querySelectorAll("tr")).find((row) => el.bodyRow(row) === 0) as HTMLTableRowElement;
+    const cell = tr.querySelector("td") as HTMLTableCellElement;
+    cell.tabIndex = -1;
+    cell.focus();
+    const observer = new MutationObserver(() => {});
+    observer.observe(tbody, { childList: true });
+    el.search = "row";
+    expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+    expect(observer.takeRecords()).toEqual([]);
+    expect(document.activeElement).toBe(cell);
+    observer.disconnect();
+  });
+
+  it("keeps the blocks in place as a sort reorders one before another (with groups as a column)", async () => {
+    const body: BodyRow[] = [{ group: "b" }, 3, 0, 4, { group: "a" }, 1, 2, { grand_summary: "Max", side: "bottom" }];
+    const el = await mountTable(body, { groupsAsColumn: true });
+    click(el, "y");
+    expect(shown(el)).toEqual([3, 4, 0, 1, 2, "grand:Max"]);
+    click(el, "y");
+    expect(shown(el)).toEqual([0, 3, 4, 2, 1, "grand:Max"]);
+    expect(el.querySelector(".gt_stub_row_group")?.parentElement).toBe(el.querySelector("tbody > tr"));
+  });
+
   it("repeats a group's heading on each of its pages, and the grand summary rows on every page", async () => {
     const el = await paged();
     el.page = 2;
@@ -1487,6 +1685,21 @@ describe("the control bar", () => {
     return { el, events };
   }
 
+  it("is close below the table, with the table's space below it instead", async () => {
+    const { html, spec } = gtTable(GROUPED, {
+      controls: { search: false, bar: true },
+      pagination: { enabled: true },
+      display: { dimensions: true },
+    });
+    const styled = html.replace('<div id="t">', '<div id="t" style="padding: 10px">');
+    const el = await mount(`<gt-table>${styled}${specScript(spec)}</gt-table>`);
+    const div = el.querySelector("#t") as HTMLElement;
+    // (GT's padding, around the table, is moved out past the status line and the bar)
+    expect([div.style.paddingTop, div.style.paddingBottom]).toEqual(["0px", "0px"]);
+    expect([el.style.paddingTop, el.style.paddingBottom]).toEqual(["10px", "10px"]);
+    expect(div.style.paddingLeft).toBe("10px");
+  });
+
   it("is one bar below the table, in the table's font, instead of a toolbar and pager", async () => {
     const { el } = await mountBar();
     expect(bar(el).previousElementSibling).toBe(el.querySelector("#t"));
@@ -1500,9 +1713,20 @@ describe("the control bar", () => {
     expect(nav.tagName).toBe("NAV");
     expect(nav.getAttribute("aria-label")).toBe("Table pages");
     expect(part(el, "search").getAttribute("aria-label")).toBe("Search the table");
-    expect(part(el, "search").title).toBe("Search (/)");
-    expect(part(el, "previous").title).toBe("Previous page (←)");
-    expect(part(el, "next").title).toBe("Next page (→)");
+    // (Their tooltips, which aren't the browser's)
+    expect(part(el, "search").dataset.gtiTip).toBe("Search (/)");
+    expect(part(el, "search").hasAttribute("title")).toBe(false);
+    expect(part(el, "first").dataset.gtiTip).toBe("First page (Home)");
+    expect(part(el, "previous").dataset.gtiTip).toBe("Previous page (←)");
+    expect(part(el, "next").dataset.gtiTip).toBe("Next page (→)");
+    expect(part(el, "last").dataset.gtiTip).toBe("Last page (End)");
+    expect(Array.from(nav.children, (child) => (child as HTMLElement).dataset.gtiBar ?? child.className)).toEqual([
+      "first",
+      "previous",
+      "gt-i-readout-box",
+      "next",
+      "last",
+    ]);
     expect(part(el, "search").querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
   });
 
@@ -1551,14 +1775,14 @@ describe("the control bar", () => {
     type(input, "a");
     press(input, "Enter");
     expect(part(el, "clear").getAttribute("aria-label")).toBe("Clear the search");
-    expect(part(el, "clear").title).toBe("Clear (Esc)");
+    expect(part(el, "clear").dataset.gtiTip).toBe("Clear (Esc)");
 
     expect(press(input, "Escape").defaultPrevented).toBe(true);
     expect([input.value, el.search]).toEqual(["", ""]);
     expect(field(el).hidden).toBe(false);
     expect(count(el).hidden).toBe(true);
     expect(part(el, "clear").getAttribute("aria-label")).toBe("Close the search");
-    expect(part(el, "clear").title).toBe("Close (Esc)");
+    expect(part(el, "clear").dataset.gtiTip).toBe("Close (Esc)");
 
     expect(press(input, "Escape").defaultPrevented).toBe(true);
     expect(field(el).hidden).toBe(true);
@@ -1664,11 +1888,42 @@ describe("the control bar", () => {
     const { el } = await mountBar();
     expect(readout(el).textContent).toBe("1/3");
     expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 3");
-    expect(readout(el).title).toBe("Go to a page");
+    expect(readout(el).dataset.gtiTip).toBe("Go to a page");
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("1");
 
     el.search = "a";
     expect(readout(el).textContent).toBe("1/2");
+  });
+
+  it("groups the digits of a large page count, as the page's language does", async () => {
+    const n = 2345;
+    const rows = Array.from({ length: n }, (_, i) => i);
+    const trs = rows.map((i) => `<tr><td class="gt_row gt_right">${i}</td></tr>`).join("");
+    const html =
+      `<div id="t"><table class="gt_table"><thead><tr class="gt_col_headings">` +
+      `<th class="gt_col_heading gt_right" id="t-x">x</th></tr></thead>` +
+      `<tbody class="gt_table_body">${trs}</tbody></table></div>`;
+    const { spec } = gtTable([0]);
+    const big = {
+      ...spec,
+      nrows: n,
+      columns: [{ id: "x", role: "data", kind: "number", align: "right", header: "t-x" }],
+      stub: { columns: [], groups_as_column: false },
+      groups: [],
+      body: rows,
+      ranks: { x: rows },
+      controls: { ...spec.controls, bar: true },
+      pagination: { ...spec.pagination, enabled: true, page_size: 1 },
+    };
+    const el = await mount(`<gt-table lang="en">${html}${specScript(big)}</gt-table>`);
+    expect(readout(el).textContent).toBe("1/2,345");
+    expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 2,345");
+    expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("5");
+    el.page = 1234;
+    expect(readout(el).textContent).toBe("1,234/2,345");
+    el.setAttribute("lang", "de");
+    el.page = 1235;
+    expect(readout(el).textContent).toBe("1.235/2.345");
   });
 
   it("changes the page with its arrows, with an event and an announcement", async () => {
@@ -1691,6 +1946,26 @@ describe("the control bar", () => {
     expect(el.page).toBe(2);
   });
 
+  it("goes to the first and last pages with their buttons, disabled there", async () => {
+    const { el, events } = await mountBar();
+    expect(part(el, "first").getAttribute("aria-label")).toBe("First page");
+    expect(part(el, "last").getAttribute("aria-label")).toBe("Last page");
+    expect(part(el, "first").getAttribute("aria-disabled")).toBe("true");
+    part(el, "first").click();
+    expect(events).toEqual([]);
+
+    part(el, "last").click();
+    expect(el.page).toBe(3);
+    expect(live(el)).toBe("Page 3 of 3");
+    expect(part(el, "last").getAttribute("aria-disabled")).toBe("true");
+    expect(part(el, "first").getAttribute("aria-disabled")).toBe("false");
+    part(el, "last").click();
+    expect(events).toHaveLength(1);
+    part(el, "first").click();
+    expect(el.page).toBe(1);
+    expect(events.map((event) => (event as PageEventDetail).page)).toEqual([3, 1]);
+  });
+
   it("pages with the arrow keys, Page Up and Down, and Home and End", async () => {
     const { el, events } = await mountBar();
     const next = part(el, "next");
@@ -1708,6 +1983,24 @@ describe("the control bar", () => {
     part(el, "search").click();
     expect(press(searchBox(el) as HTMLInputElement, "ArrowRight").defaultPrevented).toBe(false);
     expect(press(next, "Escape").defaultPrevented).toBe(false);
+    expect(el.page).toBe(1);
+  });
+
+  it("pages with the keys from anywhere in the table, as from a click in it", async () => {
+    const { el, events } = await mountBar();
+    expect(el.tabIndex).toBe(-1);
+    expect(press(el, "ArrowRight").defaultPrevented).toBe(true);
+    press(el.querySelector("tbody td") as HTMLElement, "End");
+    press(el.querySelector("thead th") as HTMLElement, "Home");
+    expect(events.map((event) => (event as PageEventDetail).page)).toEqual([2, 3, 1]);
+
+    // Not on a control that took the key, or in a panel
+    const handled = new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true });
+    handled.preventDefault();
+    el.querySelector("tbody td")?.dispatchEvent(handled);
+    part(el, "info").click();
+    const panel = el.querySelector(`#${part(el, "info").getAttribute("aria-controls")}`) as HTMLElement;
+    expect(press(panel, "End").defaultPrevented).toBe(false);
     expect(el.page).toBe(1);
   });
 
@@ -1848,10 +2141,63 @@ describe("the control bar", () => {
   });
 });
 
+describe("a table in a shadow root", () => {
+  // (As Panel shows one: there, the document's focused element is the shadow root's host)
+  async function mountShadow(options: TableOptions = {}) {
+    const { html, spec } = gtTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+    document.body.innerHTML = "<div></div>";
+    const root = (document.body.firstElementChild as HTMLElement).attachShadow({ mode: "open" });
+    root.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    await tick();
+    return { el: root.querySelector(TAG_NAME) as GtTable, root };
+  }
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+
+  it("keeps the bar's search open when `search` is emptied while it has focus", async () => {
+    const { el, root } = await mountShadow();
+    part(el, "search").click();
+    el.search = "a";
+    el.search = "";
+    expect((el.querySelector(".gt-i-search-field") as HTMLElement).hidden).toBe(false);
+    expect(root.activeElement).toBe(searchBox(el));
+  });
+
+  it("puts focus back on the readout after a jump to a page", async () => {
+    const { el, root } = await mountShadow();
+    const readout = el.querySelector(".gt-i-readout") as HTMLButtonElement;
+    readout.click();
+    const input = el.querySelector(".gt-i-readout-jump input") as HTMLInputElement;
+    expect(root.activeElement).toBe(input);
+    input.value = "3";
+    press(input, "Enter");
+    expect(el.page).toBe(3);
+    expect(root.activeElement).toBe(readout);
+  });
+
+  it("keeps focus on the current page number as the numbers change", async () => {
+    const { el, root } = await mountShadow({ controls: { search: false, bar: false } });
+    const page = (target: string) =>
+      el.querySelector(`.gt-i-pager button[data-gti-page="${target}"]`) as HTMLButtonElement;
+    page("2").focus();
+    page("2").click();
+    expect(el.page).toBe(2);
+    expect(root.activeElement).toBe(page("2"));
+    expect(root.activeElement?.getAttribute("aria-current")).toBe("page");
+  });
+});
+
 describe("the info panel", () => {
   const bar = (el: GtTable) => el.querySelector(".gt-i-bar") as HTMLElement;
   const toggle = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
-  const panel = (el: GtTable) => el.querySelector(".gt-i-info") as HTMLElement;
+  const panel = (el: GtTable) => el.querySelector(`#${toggle(el).getAttribute("aria-controls")}`) as HTMLElement;
+  const keysButton = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="keys"]') as HTMLButtonElement | null;
   const rows = (el: GtTable) => el.querySelector(".gt-i-info-rows") as HTMLElement;
   const item = (el: GtTable, name: string) => el.querySelector(`[data-gti-info="${name}"]`) as HTMLElement | null;
   const action = (el: GtTable, name: string) => item(el, name)?.querySelector("button") as HTMLButtonElement;
@@ -1885,8 +2231,12 @@ describe("the info panel", () => {
     const button = toggle(el);
     expect(button.getAttribute("aria-label")).toBe("Table info");
     expect(button.getAttribute("aria-expanded")).toBe("false");
-    expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
-    expect(button.previousElementSibling).toBe(el.querySelector(".gt-i-bar-pages"));
+    expect(panel(el).classList.contains("gt-i-info")).toBe(true);
+    // (After the reset, which is hidden while the view is the author's)
+    const reset = button.previousElementSibling as HTMLElement;
+    expect(reset.dataset.gtiBar).toBe("reset");
+    expect(reset.hidden).toBe(true);
+    expect(reset.previousElementSibling).toBe(el.querySelector(".gt-i-bar-pages"));
     // (Next to its button, so that Tab goes from one into the other)
     expect(button.nextElementSibling).toBe(panel(el));
     expect(panel(el).getAttribute("role")).toBe("group");
@@ -1971,36 +2321,26 @@ describe("the info panel", () => {
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(true);
     expect(item(el, "size")?.hidden).toBe(false);
     // (Nor are there keys for paging, without pages)
-    expect(keys(el)).toEqual(["Shift + click: Sort by more than one column"]);
+    expect(keys(el)).toEqual(["Shift + click: Sort by more than one column", "?: Name the table's parts"]);
 
     select(el).value = "2";
     select(el).dispatchEvent(new Event("change", { bubbles: true }));
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.hidden).toBe(false);
     expect(keys(el)).toEqual([
-      "← →: Previous or next page, in the bar",
-      "Home End: First or last page, in the bar",
+      "← →: Previous or next page",
+      "Home End: First or last page",
       "Shift + click: Sort by more than one column",
+      "?: Name the table's parts",
     ]);
   });
 
-  it("says how the table is sorted, and puts it back in its own order", async () => {
-    const { el, events } = await mountInfo();
-    expect(item(el, "sort")?.textContent).toBe("Not sortedReset");
-    expect(action(el, "sort").getAttribute("aria-label")).toBe("Reset the sort");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
-    action(el, "sort").click();
-    expect(events).toEqual([]);
-
+  it("says how the table is sorted", async () => {
+    const { el } = await mountInfo();
+    expect(item(el, "sort")?.textContent).toBe("Not sorted");
+    // (The bar's reset puts it back: see "the reset")
+    expect(item(el, "sort")?.querySelector("button")).toBeNull();
     el.sort = [{ column: "x", descending: true }, { column: "y" }];
-    expect(item(el, "sort")?.firstElementChild?.textContent).toBe("Sorted by x, descending, then y, ascending");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("false");
-    el.page = 2;
-    action(el, "sort").click();
-    expect(el.sort).toEqual([]);
-    expect(el.page).toBe(1);
-    expect(events).toEqual([{ sort: [] }]);
-    expect(live(el)).toBe("Not sorted");
-    expect(action(el, "sort").getAttribute("aria-disabled")).toBe("true");
+    expect(item(el, "sort")?.textContent).toBe("Sorted by x, descending, then y, ascending");
   });
 
   it("has no sort without sorting", async () => {
@@ -2036,12 +2376,13 @@ describe("the info panel", () => {
     expect(keys(el)).toEqual([
       "/: Search",
       "Esc: Clear the search, then close it",
-      "← →: Previous or next page, in the bar",
-      "Home End: First or last page, in the bar",
+      "← →: Previous or next page",
+      "Home End: First or last page",
       "Shift + click: Sort by more than one column",
       "Shift + click: Select a range of rows",
+      "?: Name the table's parts",
     ]);
-    expect(el.querySelectorAll(".gt-i-info-keys kbd")).toHaveLength(8);
+    expect(el.querySelectorAll(".gt-i-info-keys kbd")).toHaveLength(9);
   });
 
   it("has no shortcuts to list without any", async () => {
@@ -2049,14 +2390,25 @@ describe("the info panel", () => {
       controls: { search: false, sorting: false },
       pagination: { page_size: 5, page_sizes: [2], size_select: true },
     });
-    expect(el.querySelector<HTMLElement>(".gt-i-info-shortcuts")?.hidden).toBe(true);
+    // (Only the keys for paging, without pages)
+    expect(keysButton(el)?.hidden).toBe(true);
+    el.pageSize = 2;
+    expect(keysButton(el)?.hidden).toBe(false);
+    keysButton(el)?.click();
+    el.pageSize = 5;
+    expect(keysButton(el)?.hidden).toBe(true);
+    expect(keysButton(el)?.getAttribute("aria-expanded")).toBe("false");
+
+    const none = await mountInfo({ controls: { search: false, sorting: false }, pagination: { enabled: false } });
+    expect(keysButton(none.el)).toBeNull();
+    expect(none.el.hasAttribute("tabindex")).toBe(false);
   });
 
   it("closes on Escape, giving focus back to its button", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     toggle(el).click();
-    action(el, "sort").focus();
-    expect(press(action(el, "sort"), "Escape").defaultPrevented).toBe(true);
+    action(el, "selection").focus();
+    expect(press(action(el, "selection"), "Escape").defaultPrevented).toBe(true);
     expect(panel(el).hidden).toBe(true);
     expect(document.activeElement).toBe(toggle(el));
     // (Escape is the table's only while the panel is open)
@@ -2064,7 +2416,7 @@ describe("the info panel", () => {
   });
 
   it("closes on a press outside it, or when focus goes elsewhere", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     const outside = el.querySelector("tbody td") as HTMLElement;
     toggle(el).click();
     panel(el).dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, composed: true }));
@@ -2073,24 +2425,24 @@ describe("the info panel", () => {
     expect(panel(el).hidden).toBe(true);
 
     toggle(el).click();
-    action(el, "sort").focus();
+    action(el, "selection").focus();
     const leave = (from: Element, to: Element | null) =>
       from.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: to }));
-    leave(toggle(el), action(el, "sort"));
-    leave(action(el, "sort"), toggle(el));
+    leave(toggle(el), action(el, "selection"));
+    leave(action(el, "selection"), toggle(el));
     // (Not when the window loses focus)
-    leave(action(el, "sort"), null);
+    leave(action(el, "selection"), null);
     expect(panel(el).hidden).toBe(false);
-    leave(action(el, "sort"), outside);
+    leave(action(el, "selection"), outside);
     expect(panel(el).hidden).toBe(true);
     expect(document.activeElement).not.toBe(toggle(el));
   });
 
   it("doesn't page with the keys pressed in it", async () => {
-    const { el } = await mountInfo();
+    const { el } = await mountInfo({ controls: { selection: "multiple" } });
     toggle(el).click();
-    expect(press(action(el, "sort"), "ArrowRight").defaultPrevented).toBe(false);
-    expect(press(action(el, "sort"), "End").defaultPrevented).toBe(false);
+    expect(press(action(el, "selection"), "ArrowRight").defaultPrevented).toBe(false);
+    expect(press(action(el, "selection"), "End").defaultPrevented).toBe(false);
     expect(el.page).toBe(1);
     // (But does on its button, in the bar)
     expect(press(toggle(el), "ArrowRight").defaultPrevented).toBe(true);
@@ -2109,6 +2461,624 @@ describe("the info panel", () => {
     el.remove();
     expect(panel(el).hidden).toBe(true);
     expect((el as unknown as { outsidePress: unknown }).outsidePress).toBeNull();
+  });
+});
+
+describe("the bar's reset, shortcuts and tooltips", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const part = (el: GtTable, name: string) =>
+    el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+  const panelOf = (el: GtTable, name: string) =>
+    el.querySelector(`#${part(el, name).getAttribute("aria-controls")}`) as HTMLElement;
+  const tip = (el: GtTable) => el.querySelector(".gt-i-bar .gt-i-tip") as HTMLElement;
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType: "mouse", ...init }));
+
+  // A search, sorting, a facet on `y` and pages of 2 rows
+  const mountBar = (options: TableOptions = {}) =>
+    mountTable(GROUPED, {
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, ...options.pagination },
+    });
+
+  it("shows the reset while the view isn't the author's, but for its page and search", async () => {
+    const el = await mountBar();
+    const reset = part(el, "reset");
+    expect(reset.getAttribute("aria-label")).toBe("Reset the view");
+    expect(reset.dataset.gtiTip).toBe("Reset the view");
+    expect(reset.querySelector(".gt-i-bar-name")?.textContent).toBe("Reset");
+    expect(reset.nextElementSibling).toBe(part(el, "info"));
+    expect(reset.hidden).toBe(true);
+
+    el.page = 2;
+    el.search = "a";
+    expect(reset.hidden).toBe(true);
+    el.sort = [{ column: "x", descending: true }];
+    expect(reset.hidden).toBe(false);
+    el.sort = [];
+    expect(reset.hidden).toBe(true);
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    expect(reset.hidden).toBe(false);
+  });
+
+  it("puts back the author's view, with focus going on to the info button", async () => {
+    const el = await mountBar();
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail));
+    el.sort = [{ column: "x", descending: true }];
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    el.search = "c";
+    el.page = 2;
+    part(el, "reset").focus();
+    part(el, "reset").click();
+
+    expect(el.sort).toEqual([]);
+    expect(el.filter).toBeNull();
+    expect(el.search).toBe("");
+    expect(el.page).toBe(1);
+    expect(live(el)).toBe("The view is reset: 1–2 of 5 rows");
+    expect(views).toHaveLength(1);
+    expect(part(el, "reset").hidden).toBe(true);
+    expect(document.activeElement).toBe(part(el, "info"));
+  });
+
+  it("lists the shortcuts in a panel of their own, from a button after the search's", async () => {
+    const el = await mountBar();
+    const keys = part(el, "keys");
+    expect(keys.getAttribute("aria-label")).toBe("Keyboard shortcuts");
+    expect(keys.dataset.gtiTip).toBe("Keyboard shortcuts");
+    expect(keys.parentElement).toBe(el.querySelector(".gt-i-bar-search"));
+    expect(keys.previousElementSibling).toBe(el.querySelector(".gt-i-search-field"));
+    const panel = panelOf(el, "keys");
+    expect(keys.nextElementSibling).toBe(panel);
+    expect(panel.getAttribute("aria-label")).toBe("Keyboard shortcuts");
+    expect(panel.hasAttribute("data-gti-start")).toBe(true);
+    expect(panel.querySelector(".gt-i-info-keys")).not.toBeNull();
+    // (Not in the info panel)
+    expect(panelOf(el, "info").querySelector(".gt-i-info-keys")).toBeNull();
+
+    // One panel open at a time, and none while searching
+    keys.click();
+    expect(panel.hidden).toBe(false);
+    part(el, "info").click();
+    expect(panel.hidden).toBe(true);
+    expect(keys.getAttribute("aria-expanded")).toBe("false");
+    keys.click();
+    part(el, "search").click();
+    expect(panel.hidden).toBe(true);
+    expect(el.querySelector(".gt-i-bar")?.hasAttribute("data-gti-searching")).toBe(true);
+  });
+
+  it("opens the shortcuts from the info panel too, for a bar without room for their button", async () => {
+    const el = await mountBar();
+    const info = part(el, "info");
+    const open = panelOf(el, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement;
+    expect(open.textContent).toBe("Keyboard shortcuts");
+    info.click();
+    open.focus();
+    open.click();
+    const panel = panelOf(el, "keys");
+    expect(panel.hidden).toBe(false);
+    expect(panelOf(el, "info").hidden).toBe(true);
+    // (From the info button, which focus goes back to)
+    expect(info.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(info);
+    info.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    expect(panel.hidden).toBe(true);
+    expect(info.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(info);
+
+    // (Gone with the shortcuts, as their button is)
+    const paged = await mountTable(GROUPED, {
+      controls: { search: false, sorting: false, bar: true },
+      pagination: { enabled: true },
+    });
+    const pagedOpen = panelOf(paged, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement;
+    expect(pagedOpen.hidden).toBe(false);
+    paged.pageSize = 10;
+    expect(part(paged, "keys").hidden).toBe(true);
+    expect(pagedOpen.hidden).toBe(true);
+  });
+
+  it("closes the shortcuts opened from the info panel as their button would close them", async () => {
+    // (As the search opens)
+    const el = await mountBar();
+    const info = part(el, "info");
+    info.click();
+    (panelOf(el, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(el, "keys").hidden).toBe(false);
+    part(el, "search").click();
+    expect(panelOf(el, "keys").hidden).toBe(true);
+    expect(info.getAttribute("aria-expanded")).toBe("false");
+
+    // (As the shortcuts go)
+    const paged = await mountTable(GROUPED, {
+      controls: { search: false, sorting: false, bar: true },
+      pagination: { enabled: true },
+    });
+    const pagedInfo = part(paged, "info");
+    pagedInfo.click();
+    (panelOf(paged, "info").querySelector('[data-gti-info="keys"]') as HTMLButtonElement).click();
+    expect(panelOf(paged, "keys").hidden).toBe(false);
+    paged.pageSize = 10;
+    expect(panelOf(paged, "keys").hidden).toBe(true);
+    expect(pagedInfo.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("keeps a panel open as a press in it that focuses nothing there focuses the table", async () => {
+    const el = await mountBar();
+    const info = part(el, "info");
+    info.focus();
+    info.click();
+    el.focus();
+    expect(document.activeElement).toBe(el);
+    expect(panelOf(el, "info").hidden).toBe(false);
+    // (But not as focus goes elsewhere)
+    const outside = document.body.appendChild(document.createElement("button"));
+    info.focus();
+    outside.focus();
+    expect(panelOf(el, "info").hidden).toBe(true);
+  });
+
+  it("names its parts on `?` from within it, but not while typing, until `?` or Escape", async () => {
+    const el = await mountBar();
+    const layer = () => el.querySelector(".gt-i-parts");
+    const press = (target: Element, key: string) => {
+      const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      return event;
+    };
+    const cell = el.querySelector("tbody td") as HTMLElement;
+    expect(press(cell, "?").defaultPrevented).toBe(true);
+    expect(layer()?.getAttribute("aria-hidden")).toBe("true");
+    expect(live(el)).toBe("The table's parts are named, until Escape");
+    // (Over the table, which it's the last of)
+    expect(el.lastElementChild).toBe(layer());
+    press(cell, "?");
+    expect(layer()).toBeNull();
+
+    // (Not from the search, nor with Ctrl, Alt or ⌘)
+    part(el, "search").click();
+    const input = el.querySelector("input.gt-i-search") as HTMLInputElement;
+    expect(press(input, "?").defaultPrevented).toBe(false);
+    cell.dispatchEvent(new KeyboardEvent("keydown", { key: "?", ctrlKey: true, bubbles: true }));
+    expect(layer()).toBeNull();
+
+    // Escape, wherever focus is, stops it first (before the search would close)
+    press(cell, "?");
+    expect(press(input, "Escape").defaultPrevented).toBe(true);
+    expect(layer()).toBeNull();
+    expect(input.isConnected && !(el.querySelector(".gt-i-search-field") as HTMLElement).hidden).toBe(true);
+  });
+
+  it("names its parts from the info panel too, until a press outside it, or it's taken apart", async () => {
+    const el = await mountBar();
+    const button = el.querySelector('.gt-i-info > [data-gti-info="parts"]') as HTMLButtonElement;
+    expect(button.textContent).toBe("Name the table's parts");
+    part(el, "info").click();
+    button.click();
+    expect(panelOf(el, "info").hidden).toBe(true);
+    expect(el.querySelector(".gt-i-parts")).not.toBeNull();
+    expect(button.textContent).toBe("Stop naming the parts");
+    // (A press in the table leaves it)
+    pointer(el.querySelector("tbody td") as HTMLElement, "pointerdown");
+    expect(el.querySelector(".gt-i-parts")).not.toBeNull();
+    pointer(document.body, "pointerdown");
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
+    expect(button.textContent).toBe("Name the table's parts");
+
+    part(el, "info").click();
+    button.click();
+    el.remove();
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
+    document.body.append(el);
+    await tick();
+    expect(el.querySelector(".gt-i-parts")).toBeNull();
+  });
+
+  it("names its parts from the start, for good, with `display.parts` (as on a docs page)", async () => {
+    const el = await mountBar({ display: { parts: true } });
+    const layer = () => el.querySelector(".gt-i-parts");
+    expect(layer()?.getAttribute("aria-hidden")).toBe("true");
+    // (Marked, for the room its names take below it: see gti.css)
+    expect(el.hasAttribute("data-gti-parts")).toBe(true);
+    // (Without the button, or the key, that would name them, nor saying so)
+    expect(el.querySelector('[data-gti-info="parts"], [data-gti-key="parts"]')).toBeNull();
+    expect(live(el)).toBe("");
+    const cell = el.querySelector("tbody td") as HTMLElement;
+    for (const key of ["?", "Escape"]) {
+      cell.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+    }
+    pointer(document.body, "pointerdown");
+    expect(layer()).not.toBeNull();
+    // (And again, once moved)
+    el.remove();
+    expect(layer()).toBeNull();
+    document.body.append(el);
+    expect(layer()).not.toBeNull();
+  });
+
+  it("can be focused by a click in it, for its shortcuts, unless it has a tabindex of its own", async () => {
+    const el = await mountBar();
+    expect(el.getAttribute("tabindex")).toBe("-1");
+    // (Marked for the bar's outline to show the focus: see gti.css)
+    expect(el.hasAttribute("data-gti-keys")).toBe(true);
+    // (Gone with the shortcuts)
+    const { html, spec } = gtTable(GROUPED, { controls: { search: false, sorting: false } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    expect(el.hasAttribute("tabindex")).toBe(false);
+    expect(el.hasAttribute("data-gti-keys")).toBe(false);
+
+    const { html: own, spec: ownSpec } = gtTable(GROUPED, { controls: { search: true, bar: true } });
+    document.body.innerHTML = `<gt-table tabindex="0">${own}${specScript(ownSpec)}</gt-table>`;
+    await tick();
+    const other = document.querySelector(TAG_NAME) as GtTable;
+    expect(other.getAttribute("tabindex")).toBe("0");
+    expect(other.hasAttribute("data-gti-keys")).toBe(true);
+    other.remove();
+    other.innerHTML = html + specScript(spec);
+    document.body.append(other);
+    await tick();
+    expect(other.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("shows a button's tooltip a moment after the mouse goes onto it, and hides it when it leaves", async () => {
+    const el = await mountBar();
+    vi.useFakeTimers();
+    const next = part(el, "next");
+    expect(tip(el).getAttribute("role")).toBe("tooltip");
+    expect(tip(el).hidden).toBe(true);
+
+    pointer(next, "pointerover");
+    vi.advanceTimersByTime(400);
+    expect(tip(el).hidden).toBe(true);
+    vi.advanceTimersByTime(100);
+    expect(tip(el).hidden).toBe(false);
+    expect(tip(el).textContent).toBe("Next page (→)");
+    expect(next.getAttribute("aria-describedby")).toBe(tip(el).id);
+
+    // At once on the next button, just after
+    pointer(next, "pointerout", { relatedTarget: el.querySelector(".gt-i-bar") });
+    expect(tip(el).hidden).toBe(true);
+    expect(next.hasAttribute("aria-describedby")).toBe(false);
+    pointer(part(el, "last"), "pointerover");
+    expect(tip(el).hidden).toBe(false);
+    expect(tip(el).textContent).toBe("Last page (End)");
+
+    // Gone on a press, and on Escape
+    pointer(part(el, "last"), "pointerdown");
+    expect(tip(el).hidden).toBe(true);
+    pointer(next, "pointerover");
+    expect(tip(el).hidden).toBe(false);
+    next.click();
+    expect(tip(el).hidden).toBe(true);
+    pointer(part(el, "last"), "pointerout");
+    vi.advanceTimersByTime(1000);
+    pointer(next, "pointerover");
+    vi.advanceTimersByTime(500);
+    expect(tip(el).hidden).toBe(false);
+    next.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(tip(el).hidden).toBe(true);
+  });
+
+  it("shows no tooltip for a touch, nor over an open panel, nor after a click", async () => {
+    const el = await mountBar();
+    vi.useFakeTimers();
+    pointer(part(el, "next"), "pointerover", { pointerType: "touch" });
+    vi.advanceTimersByTime(1000);
+    expect(tip(el).hidden).toBe(true);
+
+    part(el, "info").click();
+    pointer(part(el, "info"), "pointerover");
+    vi.advanceTimersByTime(1000);
+    expect(tip(el).hidden).toBe(true);
+  });
+});
+
+describe("the handle under the rows", () => {
+  const handle = (el: GtTable) => el.querySelector(".gt-i-rows") as HTMLElement | null;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
+
+  // Pages of 2 rows (or 4), the size the reader's to choose, with a search
+  const mountRows = (options: TableOptions = {}, body: BodyRow[] = GROUPED) =>
+    mountTable(body, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: true, size_select: true, ...options.pagination },
+    });
+
+  it("is a separator after the table, before the bar, for the page's size", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    expect(rows.getAttribute("role")).toBe("separator");
+    expect(rows.getAttribute("aria-orientation")).toBe("horizontal");
+    expect(rows.getAttribute("aria-label")).toBe("Rows per page");
+    expect(rows.tabIndex).toBe(0);
+    expect([rows.getAttribute("aria-valuemin"), rows.getAttribute("aria-valuemax")]).toEqual(["1", "5"]);
+    expect(rows.getAttribute("aria-valuenow")).toBe("2");
+    expect(rows.getAttribute("aria-valuetext")).toBe("2 rows per page");
+    expect(rows.parentElement).toBe(el);
+    expect(rows.previousElementSibling?.contains(el.querySelector("table"))).toBe(true);
+    expect(rows.nextElementSibling).toBe(el.querySelector(".gt-i-bar"));
+  });
+
+  it("isn't there for a table without rows, a size the reader can't change, a body that scrolls, or no bar", async () => {
+    const { html, spec } = gtTable([{ grand_summary: "Max", side: "bottom" }], {
+      controls: { search: true, bar: true },
+      pagination: { enabled: true, size_select: true },
+      queryRanks: { row: [], x: [], y: [] },
+    });
+    const empty = await mount(`<gt-table>${html}${specScript({ ...spec, nrows: 0 })}</gt-table>`);
+    expect(empty.state).toBe("ready");
+    expect(handle(empty)).toBeNull();
+    expect(handle(await mountRows({ pagination: { size_select: false } }))).toBeNull();
+    expect(handle(await mountRows({ pagination: { enabled: false } }))).toBeNull();
+    expect(handle(await mountRows({ layout: { height: "300px" } }))).toBeNull();
+    expect(handle(await mountRows({ controls: { bar: false } }))).toBeNull();
+  });
+
+  it("takes a row more or fewer by the arrows, or ten by Page Down and Up, from 1 to every row", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    const fired: number[] = [];
+    el.addEventListener("gt-table-page", (event) => fired.push((event as CustomEvent).detail.pageSize));
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(3);
+    expect(visible(el).filter((row) => typeof row === "number")).toEqual([3, 0, 4]);
+    expect(rows.getAttribute("aria-valuenow")).toBe("3");
+    expect(live(el)).toBe("3 rows per page, page 1 of 2");
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(5);
+    expect(el.querySelector(".gt-i-bar .gt-i-bar-pages")?.closest("[hidden]")).not.toBeNull();
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(5);
+    press(rows, "PageUp");
+    expect(el.pageSize).toBe(1);
+    press(rows, "ArrowUp");
+    expect(el.pageSize).toBe(1);
+    expect(fired).toEqual([3, 5, 1]);
+  });
+
+  it("goes back to the table's own size on Enter or a double click, as the reset does", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    expect(reset(el).hidden).toBe(true);
+    press(rows, "ArrowDown");
+    expect(reset(el).hidden).toBe(false);
+    press(rows, "Enter");
+    expect(el.pageSize).toBe(2);
+    expect(reset(el).hidden).toBe(true);
+    press(rows, "ArrowUp");
+    rows.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(el.pageSize).toBe(2);
+
+    press(rows, "PageDown");
+    reset(el).click();
+    expect(el.pageSize).toBe(2);
+    expect(rows.getAttribute("aria-valuenow")).toBe("2");
+  });
+
+  it("is dragged a row for each row's height, keeping the page's first row, and changes the view once", async () => {
+    const el = await mountRows({ viewState: { url: false, storage: false, key: null, undo: true } });
+    const rows = handle(el) as HTMLElement;
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail));
+    el.page = 2;
+    views.length = 0;
+    // (Rows of no height, in jsdom, count as 24px)
+    pointer(rows, "pointerdown", { clientY: 100 });
+    expect(el.getAttribute("data-gti-resizing")).toBe("rows");
+    expect(rows.hasAttribute("data-gti-active")).toBe(true);
+    pointer(rows, "pointermove", { clientY: 130 });
+    expect(el.pageSize).toBe(3);
+    // (Row 2 of 5, its first, on the page of 3 it's in)
+    expect(el.page).toBe(1);
+    pointer(rows, "pointermove", { clientY: 1000 });
+    expect(el.pageSize).toBe(5);
+    pointer(rows, "pointermove", { clientY: -1000 });
+    expect(el.pageSize).toBe(1);
+    expect(el.page).toBe(3);
+    expect(views).toEqual([]);
+    pointer(rows, "pointerup", { clientY: -1000 });
+    expect(el.hasAttribute("data-gti-resizing")).toBe(false);
+    expect(rows.hasAttribute("data-gti-active")).toBe(false);
+    expect(views).toHaveLength(1);
+    expect(live(el)).toBe("1 row per page, page 3 of 5");
+    expect(el.undo()).toBe(true);
+    expect([el.pageSize, el.page]).toEqual([2, 2]);
+
+    // (Back where it started, no change)
+    const before = views.length;
+    pointer(rows, "pointerdown", { clientY: 100 });
+    pointer(rows, "pointermove", { clientY: 150 });
+    pointer(rows, "pointermove", { clientY: 100 });
+    pointer(rows, "pointerup", { clientY: 100 });
+    expect(views).toHaveLength(before);
+    expect(el.pageSize).toBe(2);
+  });
+
+  it("goes from the rows a search shows to one short of every row, past which its page isn't padded", async () => {
+    // (3 of the 5 rows match: on pages of 2, then 3 and 4, padded to them)
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    el.search = "a";
+    press(rows, "ArrowDown");
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    press(rows, "ArrowDown");
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(4);
+
+    // (On a page of every row, the foot is at the 3 shown)
+    el.pageSize = 5;
+    press(rows, "ArrowUp");
+    expect(el.pageSize).toBe(2);
+    el.pageSize = 5;
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(4);
+    el.pageSize = 5;
+    pointer(rows, "pointerdown", { clientY: 100 });
+    pointer(rows, "pointermove", { clientY: 105 });
+    expect(el.pageSize).toBe(5);
+    pointer(rows, "pointermove", { clientY: 76 });
+    expect(el.pageSize).toBe(2);
+    pointer(rows, "pointermove", { clientY: 1000 });
+    expect(el.pageSize).toBe(4);
+    pointer(rows, "pointerup", { clientY: 1000 });
+
+    // (Every row, with no search)
+    el.search = "";
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(5);
+  });
+
+  it("works on a search's rows, up to one short of every row of the table", async () => {
+    const el = await mountRows();
+    const rows = handle(el) as HTMLElement;
+    el.search = "row_1";
+    press(rows, "ArrowDown");
+    expect(el.pageSize).toBe(3);
+    press(rows, "PageDown");
+    expect(el.pageSize).toBe(4);
+  });
+
+  it("is a size a kept view can have", async () => {
+    history.replaceState(null, "", "/page?t1.size=3");
+    try {
+      const el = await mountRows({ viewState: { url: true, storage: false, key: "t1", undo: false } });
+      expect(el.pageSize).toBe(3);
+      expect(handle(el)?.getAttribute("aria-valuenow")).toBe("3");
+    } finally {
+      history.replaceState(null, "", "/");
+    }
+  });
+
+  it("goes with the table it's for, as the table's replaced", async () => {
+    const el = await mountRows();
+    const { html, spec } = gtTable(GROUPED, { pagination: { enabled: true } });
+    el.remove();
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(handle(el)).toBeNull();
+  });
+});
+
+describe("the handle under a body that scrolls", () => {
+  const handle = (el: GtTable) => el.querySelector(".gt-i-height") as HTMLElement | null;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
+  const press = (target: Element, key: string) =>
+    target.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
+  const height = (el: GtTable) => el.style.getPropertyValue("--gt-i-height");
+
+  // Every row, in a body that scrolls within 300px, with a search
+  const mountScroll = (options: TableOptions = {}) =>
+    mountTable(GROUPED, {
+      ...options,
+      controls: { search: true, bar: true, ...options.controls },
+      pagination: { enabled: false, ...options.pagination },
+      layout: { height: "300px", ...options.layout },
+    });
+
+  // (jsdom lays nothing out: the body as 300px tall, of 1000px of rows)
+  const laidOut = (el: GtTable) => {
+    const scroller = el.querySelector(".gt-i-scroller") as HTMLElement;
+    Object.defineProperty(scroller, "scrollHeight", { configurable: true, value: 1000 });
+    scroller.getBoundingClientRect = () => ({ height: 300 }) as DOMRect;
+  };
+
+  it("is a separator after the table, before the bar, for the body's height", async () => {
+    const el = await mountScroll();
+    const foot = handle(el) as HTMLElement;
+    expect(foot.getAttribute("role")).toBe("separator");
+    expect(foot.getAttribute("aria-label")).toBe("Table height");
+    expect(foot.hasAttribute("aria-valuemax")).toBe(false);
+    expect(foot.querySelector(".gt-i-rows-count")).toBeNull();
+    expect(foot.nextElementSibling).toBe(el.querySelector(".gt-i-bar"));
+    expect(el.querySelector(".gt-i-rows")).toBeNull();
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+  });
+
+  it("is the one handle with pages too, and isn't there without the bar or a height", async () => {
+    const paged = await mountScroll({ pagination: { enabled: true, size_select: true } });
+    expect(handle(paged)).not.toBeNull();
+    expect(paged.querySelector(".gt-i-rows")).toBeNull();
+    expect(handle(await mountScroll({ controls: { bar: false } }))).toBeNull();
+    expect(handle(await mountScroll({ layout: { height: null } }))).toBeNull();
+  });
+
+  it("takes a row's height more or less by the arrows, or ten by Page Down and Up, and Enter puts it back", async () => {
+    const el = await mountScroll({ viewState: { url: false, storage: false, key: null, undo: true } });
+    laidOut(el);
+    const foot = handle(el) as HTMLElement;
+    const views: unknown[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent).detail.height));
+    expect(reset(el).hidden).toBe(true);
+    // (Rows of no height, in jsdom, count as 24px)
+    press(foot, "ArrowDown");
+    expect(el.bodyMaxHeight).toBe(324);
+    expect(height(el)).toBe("324px");
+    expect(reset(el).hidden).toBe(false);
+    press(foot, "PageUp");
+    expect(el.bodyMaxHeight).toBe(60);
+    press(foot, "Enter");
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+    expect(reset(el).hidden).toBe(true);
+    expect(views).toEqual([324, 60, null]);
+
+    expect(el.undo()).toBe(true);
+    expect(el.bodyMaxHeight).toBe(60);
+    press(foot, "PageDown");
+    foot.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(el.bodyMaxHeight).toBeNull();
+  });
+
+  it("is set by `bodyMaxHeight`, which the reset puts back", async () => {
+    const el = await mountScroll();
+    el.bodyMaxHeight = 200;
+    expect(height(el)).toBe("200px");
+    expect(reset(el).hidden).toBe(false);
+    el.resetView();
+    expect(el.bodyMaxHeight).toBeNull();
+    expect(height(el)).toBe("300px");
+    expect(() => (el.bodyMaxHeight = 0)).toThrow(RangeError);
+    expect(() => (el.bodyMaxHeight = Number.NaN)).toThrow(RangeError);
+
+    // (Nothing, for a body that doesn't scroll)
+    const rows = await mountScroll({ layout: { height: null } });
+    rows.bodyMaxHeight = 200;
+    expect(rows.bodyMaxHeight).toBeNull();
+  });
+
+  it("is a height a kept view can have, and a view has, for a body that scrolls", async () => {
+    history.replaceState(null, "", "/page?t1.height=200");
+    try {
+      const el = await mountScroll({ viewState: { url: true, storage: false, key: "t1", undo: false } });
+      expect(el.bodyMaxHeight).toBe(200);
+      expect(height(el)).toBe("200px");
+      expect(reset(el).hidden).toBe(false);
+      el.bodyMaxHeight = 250;
+      expect(location.search).toBe("?t1.height=250");
+      el.resetView();
+      expect(location.search).toBe("");
+    } finally {
+      history.replaceState(null, "", "/");
+    }
   });
 });
 
@@ -2213,10 +3183,12 @@ describe("export", () => {
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(button.getAttribute("aria-controls")).toBe(panel(el).id);
     expect(button.nextElementSibling).toBe(panel(el));
-    expect(panel(el).nextElementSibling).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
+    // (Then the reset, hidden, and the info button)
+    const reset = panel(el).nextElementSibling as HTMLElement;
+    expect(reset.dataset.gtiBar).toBe("reset");
+    expect(reset.nextElementSibling).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
     expect(panel(el).getAttribute("role")).toBe("group");
     expect(panel(el).getAttribute("aria-label")).toBe("Export");
-    expect(panel(el).id).not.toBe(el.querySelector(".gt-i-info:not(.gt-i-export)")?.id);
     expect(panel(el).hidden).toBe(true);
 
     button.click();
@@ -2254,7 +3226,7 @@ describe("export", () => {
   it("is one panel open at a time with the info panel", async () => {
     const { el } = await mountExport();
     const info = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
-    const infoPanel = el.querySelector(".gt-i-info:not(.gt-i-export)") as HTMLElement;
+    const infoPanel = el.querySelector(`#${info.getAttribute("aria-controls")}`) as HTMLElement;
     toggle(el).click();
     info.click();
     expect(panel(el).hidden).toBe(true);
@@ -2480,7 +3452,7 @@ describe("export", () => {
       ["a", "row_3", "10", "c"],
     ]);
     expect(table.querySelectorAll("thead th")).toHaveLength(4);
-    expect(table.querySelectorAll("[class], [id], [rowspan], [headers]")).toHaveLength(0);
+    expect(table.querySelectorAll("[class], [id], [rowspan], [headers], [aria-label], [aria-describedby]")).toHaveLength(0);
     // (The stub's cells are still header cells)
     const row1 = table.rows[2] as HTMLTableRowElement;
     expect(Array.from(row1.cells, (cell) => cell.tagName)).toEqual(["TD", "TH", "TD", "TD"]);
@@ -3129,8 +4101,8 @@ describe("filters", () => {
 
   it("closes the info panel when it opens, and the other way round", async () => {
     const { el } = await mountFilters();
-    const info = el.querySelector(".gt-i-info") as HTMLElement;
     const toggle = el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement;
+    const info = el.querySelector(`#${toggle.getAttribute("aria-controls")}`) as HTMLElement;
     toggle.click();
     filterButton(el, "y").click();
     expect(info.hidden).toBe(true);
@@ -3141,15 +4113,12 @@ describe("filters", () => {
   });
 
   it("shows the bar for filters alone, whose info panel says how the table is filtered", async () => {
-    const { el, events } = await mountFilters();
+    const { el } = await mountFilters();
     const bar = el.querySelector(".gt-i-bar") as HTMLElement;
     const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
-    const clear = item.querySelector("button") as HTMLButtonElement;
     const rows = el.querySelector(".gt-i-info-rows") as HTMLElement;
     expect(bar.hidden).toBe(false);
-    expect(item.firstElementChild?.textContent).toBe("Not filtered");
-    expect(clear.getAttribute("aria-label")).toBe("Clear the filters");
-    expect(clear.getAttribute("aria-disabled")).toBe("true");
+    expect(item.textContent).toBe("Not filtered");
     // (Before the selection's and after the sort's)
     expect(item.previousElementSibling?.getAttribute("data-gti-info")).toBe("sort");
 
@@ -3159,14 +4128,10 @@ describe("filters", () => {
         { col: "y", op: "in", value: ["a"] },
       ],
     };
-    expect(item.firstElementChild?.textContent).toBe("Filtered by x, y");
+    expect(item.textContent).toBe("Filtered by x, y");
     expect(rows.textContent).toBe("1 row (filtered from 5)");
-    expect(clear.getAttribute("aria-disabled")).toBe("false");
-    clear.click();
-    expect(el.filter).toBeNull();
-    expect(events).toEqual([{ filter: null, count: 5 }]);
-    expect(live(el)).toBe("Showing all 5 rows");
-    expect(item.firstElementChild?.textContent).toBe("Not filtered");
+    el.filter = null;
+    expect(item.textContent).toBe("Not filtered");
     expect(header(el, "x").hasAttribute("data-gti-filtered")).toBe(false);
   });
 
@@ -3331,7 +4296,7 @@ describe("filter tokens", () => {
     // The last one goes to the info button
     press(token(el, 0), "Backspace");
     expect(el.filter).toBeNull();
-    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+    expect(document.activeElement).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
   });
 
   it("goes from token to token with the arrow keys, and removes one with Delete", async () => {
@@ -3369,7 +4334,7 @@ describe("filter tokens", () => {
     expect(panel(el)).toBeNull();
     expect(row(el).hidden).toBe(true);
     expect(clearAll(el)).toBeNull();
-    expect(document.activeElement).toBe(el.querySelector(".gt-i-bar [aria-controls^='gt-i-info']"));
+    expect(document.activeElement).toBe(el.querySelector('.gt-i-bar [data-gti-bar="info"]'));
   });
 
   it("shows the spec's view's filter", async () => {
@@ -3522,7 +4487,7 @@ describe("date filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const options = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const press = (key: string) =>
       input.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }));
     input.value = "x ";
@@ -3671,7 +4636,7 @@ describe("bool filters", () => {
     (el.querySelector('[data-gti-bar="query"]') as HTMLButtonElement).click();
     const input = el.querySelector(".gt-i-query input") as HTMLInputElement;
     const suggestions = () =>
-      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => (li.firstChild as Text).data);
+      Array.from(el.querySelectorAll('.gt-i-query [role="listbox"] li'), (li) => li.firstChild?.textContent);
     const type = (text: string) => {
       input.value = text;
       input.setSelectionRange(text.length, text.length);
@@ -3711,7 +4676,7 @@ describe("the query box", () => {
   const list = (el: GtTable) => root(el).querySelector('[role="listbox"]') as HTMLElement;
   const error = (el: GtTable) => root(el).querySelector(".gt-i-query-error") as HTMLElement;
   const options = (el: GtTable) =>
-    Array.from(list(el).querySelectorAll("li"), (li) => (li.firstChild as Text).data);
+    Array.from(list(el).querySelectorAll("li"), (li) => li.firstChild?.textContent);
   const press = (target: Element, key: string, init: KeyboardEventInit = {}) => {
     const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
     target.dispatchEvent(event);
@@ -3746,8 +4711,9 @@ describe("the query box", () => {
     expect(button.getAttribute("aria-label")).toBe("Edit the filters as text");
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(button.getAttribute("aria-controls")).toBe(root(el).id);
-    // (Before the info button)
-    expect(button.nextElementSibling?.getAttribute("data-gti-bar")).toBe("info");
+    // (Before the reset and the info button)
+    expect(button.nextElementSibling?.getAttribute("data-gti-bar")).toBe("reset");
+    expect(button.nextElementSibling?.nextElementSibling?.getAttribute("data-gti-bar")).toBe("info");
     expect(root(el).hidden).toBe(true);
 
     el.filter = { and: [{ col: "y", op: "in", value: ["b"] }, { col: "x", op: "gte", value: 10 }] };
@@ -3779,7 +4745,7 @@ describe("the query box", () => {
     expect(field.getAttribute("aria-controls")).toBe(list(el).id);
     expect(field.getAttribute("enterkeyhint")).toBe("go");
     expect(field.getAttribute("spellcheck")).toBe("false");
-    expect(field.placeholder).toBe("x >= …");
+    expect(field.placeholder).toBe("x >= … · Tab or ↓ for columns");
     expect(list(el).getAttribute("aria-label")).toBe("Suggestions");
     expect(root(el).querySelector('[aria-label="Apply the filters"]')).not.toBeNull();
   });
@@ -3885,13 +4851,13 @@ describe("the query box", () => {
   it("suggests columns, then their ops, then a facet's values, as text is typed", async () => {
     const { el } = await mountQuery();
     toggle(el).click();
-    input(el).value = "";
-    // (Not as it opens; with ArrowDown)
-    expect(list(el).hidden).toBe(true);
-    press(input(el), "ArrowDown");
+    // (As it opens empty, with none chosen until ArrowDown)
     expect(list(el).hidden).toBe(false);
     expect(options(el)).toEqual(["x", "y"]);
     expect(input(el).getAttribute("aria-expanded")).toBe("true");
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(input(el).hasAttribute("aria-activedescendant")).toBe(false);
+    press(input(el), "ArrowDown");
     const first = list(el).querySelector("li") as HTMLElement;
     expect(first.getAttribute("role")).toBe("option");
     expect(first.getAttribute("aria-selected")).toBe("true");
@@ -3954,6 +4920,106 @@ describe("the query box", () => {
     replace(el, "ki");
     expect(options(el)).toEqual(["y"]);
     expect(list(el).querySelector(".gt-i-query-detail")?.textContent).toBe("Kind");
+  });
+
+  it("puts a column's name in place of its label, as the label's typed, pasted or applied", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind of y" });
+    toggle(el).click();
+    // Type text at the end as a browser does, with what kind of input it is
+    const enter = (text: string, inputType = "insertText") => {
+      const field = input(el);
+      field.dispatchEvent(new InputEvent("beforeinput", { inputType, bubbles: true, cancelable: true }));
+      field.value += text;
+      field.setSelectionRange(field.value.length, field.value.length);
+      field.dispatchEvent(new InputEvent("input", { inputType, bubbles: true }));
+    };
+    // (Not as it's typed, but once it ends)
+    enter("kind_of");
+    enter("_y");
+    expect(input(el).value).toBe("kind_of_y");
+    enter(" ");
+    expect(input(el).value).toBe("y ");
+    expect(input(el).selectionStart).toBe(2);
+    expect(live(el)).toBe("Kind of y is y");
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+
+    // As it's pasted, as it is in backticks
+    replace(el, "");
+    enter('`Kind of y` in ("a") and x >= 5', "insertFromPaste");
+    expect(input(el).value).toBe('y in ("a") and x >= 5');
+    // (And not as it's taken out)
+    replace(el, "kind_of_y");
+    enter("", "deleteContentBackward");
+    expect(input(el).value).toBe("kind_of_y");
+
+    // And as it's applied
+    replace(el, 'x >= 5 and kind_of_y in ("b")');
+    press(input(el), "Enter");
+    expect(el.filter).toEqual({
+      and: [
+        { col: "x", op: "gte", value: 5 },
+        { col: "y", op: "in", value: ["b"] },
+      ],
+    });
+    toggle(el).click();
+    expect(input(el).value).toBe('x >= 5 and y in ("b")');
+  });
+
+  it("opens the columns on Tab where a column goes, and leaves on a second Tab", async () => {
+    const { el } = await mountQuery();
+    toggle(el).click();
+    press(input(el), "Escape");
+    expect(list(el).hidden).toBe(true);
+    expect(press(input(el), "Tab").defaultPrevented).toBe(true);
+    expect(options(el)).toEqual(["x", "y"]);
+    expect(list(el).querySelector('[aria-selected="true"]')).toBeNull();
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+
+    // (Not where a column doesn't go)
+    replace(el, "x >= 5 ");
+    press(input(el), "Escape");
+    expect(press(input(el), "Tab").defaultPrevented).toBe(false);
+    expect(list(el).hidden).toBe(true);
+  });
+
+  it("has the columns' names in code, and their labels in the table's font", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    toggle(el).click();
+    const items = Array.from(list(el).querySelectorAll("li"));
+    expect(items.map((li) => li.querySelector(".gt-i-query-code")?.textContent)).toEqual(["x", "y"]);
+    expect(items[1]?.querySelector(".gt-i-query-detail:not(.gt-i-query-code)")?.textContent).toBe("Kind");
+    // (And a facet's values, beside what they are)
+    replace(el, "y in (");
+    expect(list(el).querySelector(".gt-i-query-code")?.classList.contains("gt-i-query-detail")).toBe(true);
+  });
+
+  it("shows the columns' names over the table as it's open, to put in at the caret", async () => {
+    const { el } = await mountQuery({ yLabel: "Kind" });
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      const at = this.id === "t-x" ? 0 : this.id === "t-y" ? 100 : -1;
+      return at < 0 ? new DOMRect(0, 0, 400, 300) : new DOMRect(at, 50, 100, 20);
+    });
+    toggle(el).click();
+    const layer = el.querySelector(".gt-i-names") as HTMLElement;
+    expect(layer.getAttribute("aria-hidden")).toBe("true");
+    const names = Array.from(layer.querySelectorAll<HTMLElement>(".gt-i-names-name"));
+    expect(names.map((name) => name.textContent)).toEqual(["x", "y"]);
+    replace(el, "x >= 5 and");
+    names[1]?.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 and y ");
+    expect(input(el).selectionStart).toBe(13);
+    expect(document.activeElement).toBe(input(el));
+    expect(options(el)).toEqual(["in (…)", "not in (…)", "is null", "is not null"]);
+    // (In place of a column being typed)
+    replace(el, "x >= 5 or k");
+    input(el).setSelectionRange(11, 11);
+    names[1]?.click();
+    expect(input(el).value).toBe("x >= 5 or y ");
+
+    press(input(el), "Escape");
+    press(input(el), "Escape");
+    expect(el.querySelector(".gt-i-names")).toBeNull();
   });
 
   it("doesn't suggest as text is deleted, or for none", async () => {
@@ -4425,16 +5491,17 @@ describe("the query's groups", () => {
     expect(visible(el)).toEqual(["group:b", 3, "summary:Total", "group:a", 1, "grand:Max"]);
   });
 
-  it("are in the info panel's filters, which clear them", async () => {
+  it("are in the info panel's filters, and go with the bar's reset", async () => {
     const { el, events } = await mountGroups();
     const item = el.querySelector('[data-gti-info="filters"]') as HTMLElement;
-    const clear = item.querySelector("button") as HTMLButtonElement;
+    const reset = el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
     el.filter = { and: [{ not: { col: "x", op: "gte", value: 10 } }] };
     expect(item.firstElementChild?.textContent).toBe("Filtered by x");
-    expect(clear.getAttribute("aria-disabled")).toBe("false");
-    clear.click();
+    expect(reset.hidden).toBe(false);
+    reset.click();
     expect(el.filter).toBeNull();
-    expect(events).toEqual([{ filter: null, count: 5 }]);
+    // (A change to the view, rather than to the filters)
+    expect(events).toEqual([]);
     expect(item.firstElementChild?.textContent).toBe("Not filtered");
   });
 });
@@ -4515,7 +5582,7 @@ describe("the view kept", () => {
   const STORED = "gti:/page#t1";
   const at = (url: string) => history.replaceState(null, "", url);
   const item = (el: GtTable) => el.querySelector('[data-gti-info="view"]') as HTMLElement | null;
-  const reset = (el: GtTable) => item(el)?.querySelector("button") as HTMLButtonElement;
+  const reset = (el: GtTable) => el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement;
   const openInfo = (el: GtTable) => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
 
   // Table `t1`, kept in the URL (unless set otherwise), with a search, a filter on `x`, pages of 2
@@ -4617,12 +5684,12 @@ describe("the view kept", () => {
 
   it("leaves out a part of the view the table can't have, with a warning", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    at("/page?t1.filter=y+%3E%3D+1&t1.sort=w&t1.page=2&t1.size=3");
+    at("/page?t1.filter=y+%3E%3D+1&t1.sort=w&t1.page=2&t1.size=6");
     const { el } = await mountKept();
     expect(el.state).toBe("ready");
     expect([el.filter, el.sort, el.page, el.pageSize]).toEqual([null, AUTHOR_SORT, 2, 2]);
     expect(warn.mock.calls.map(([message]) => message)).toEqual([
-      `<gt-table>: the saved view's size is left out ("3" isn't a page size the table has).`,
+      `<gt-table>: the saved view's size is left out ("6" isn't a page size the table has).`,
       `<gt-table>: the saved view's sort is left out ("w" isn't a sortable column).`,
       expect.stringMatching(/^<gt-table>: the saved view's filter is left out \(.+\)\.$/),
     ]);
@@ -4630,27 +5697,23 @@ describe("the view kept", () => {
     expect(location.search).toBe("?t1.page=2");
   });
 
-  it("resets the view from the info panel", async () => {
+  it("resets the view from the bar, forgetting what was kept", async () => {
     at("/page?other=1&t1.sort=x&t1.page=2");
     const { el } = await mountKept({ storage: true });
     const fired: ViewEventDetail[] = [];
     el.addEventListener(VIEW_EVENT, (event) => fired.push((event as CustomEvent<ViewEventDetail>).detail));
     openInfo(el);
-    expect(item(el)?.textContent).toBe("View kept in the link and this browserReset");
-    expect(reset(el).getAttribute("aria-label")).toBe("Reset the view");
-    expect(reset(el).getAttribute("aria-disabled")).toBe("false");
+    expect(item(el)?.textContent).toBe("View kept in the link and this browser");
+    expect(reset(el).hidden).toBe(false);
     expect(localStorage.getItem(STORED)).toBe("sort=x&page=2");
 
     reset(el).click();
     expect([el.sort, el.page]).toEqual([AUTHOR_SORT, 1]);
     expect(location.search).toBe("?other=1");
     expect(localStorage.getItem(STORED)).toBeNull();
-    expect(reset(el).getAttribute("aria-disabled")).toBe("true");
+    expect(reset(el).hidden).toBe(true);
     expect(el.querySelector(".gt-i-live")?.textContent).toMatch(/^The view is reset: /);
     expect(fired).toEqual([{ filter: null, sort: AUTHOR_SORT, search: "", page: 1, pageSize: 2, hidden: [], order: [] }]);
-    // (Disabled, it does nothing)
-    reset(el).click();
-    expect(fired).toHaveLength(1);
   });
 
   it("says where the view is kept", async () => {
@@ -4798,13 +5861,13 @@ describe("undo", () => {
     const { el } = await mountUndo();
     const [undo, redo] = [barButton(el, "undo"), barButton(el, "redo")] as HTMLButtonElement[];
     expect(undo?.nextElementSibling).toBe(redo);
-    expect(redo?.nextElementSibling).toBe(barButton(el, "info"));
-    expect([undo?.getAttribute("aria-label"), undo?.title, undo?.getAttribute("aria-keyshortcuts")]).toEqual([
+    expect(redo?.nextElementSibling).toBe(barButton(el, "reset"));
+    expect([undo?.getAttribute("aria-label"), undo?.dataset.gtiTip, undo?.getAttribute("aria-keyshortcuts")]).toEqual([
       "Undo",
       "Undo (Ctrl+Z)",
       "Control+Z Meta+Z",
     ]);
-    expect([redo?.getAttribute("aria-label"), redo?.title]).toEqual(["Redo", "Redo (Ctrl+Y)"]);
+    expect([redo?.getAttribute("aria-label"), redo?.dataset.gtiTip]).toEqual(["Redo", "Redo (Ctrl+Y)"]);
     expect(disabled(el)).toEqual(["true", "true"]);
     // (Disabled, they do nothing)
     undo?.click();
@@ -4816,7 +5879,10 @@ describe("undo", () => {
     // (With a Mac's keys)
     vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel");
     const { el: mac } = await mountUndo();
-    expect([barButton(mac, "undo")?.title, barButton(mac, "redo")?.title]).toEqual(["Undo (⌘Z)", "Redo (⇧⌘Z)"]);
+    expect([barButton(mac, "undo")?.dataset.gtiTip, barButton(mac, "redo")?.dataset.gtiTip]).toEqual([
+      "Undo (⌘Z)",
+      "Redo (⇧⌘Z)",
+    ]);
     expect(Array.from(mac.querySelectorAll(".gt-i-info-keys dt"), (dt) => dt.textContent)).toContain("⇧ ⌘ Z");
   });
 
@@ -4949,25 +6015,19 @@ describe("undo", () => {
     expect([el.pageSize, el.page]).toEqual([2, 3]);
   });
 
-  it("undoes a reset, and the info panel's resets", async () => {
+  it("undoes the bar's reset", async () => {
     const { el } = await mountUndo({ viewState: { url: false, storage: true, key: "t1" } });
     click(el, "x");
     vi.advanceTimersByTime(STEP_MS);
     facet(el, 2);
-    barButton(el, "info")?.click();
-    (el.querySelector('[data-gti-info="view"] button') as HTMLButtonElement).click();
+    barButton(el, "reset")?.click();
     expect([el.filter, el.sort]).toEqual([null, []]);
     expect(localStorage.getItem("gti:/#t1")).toBeNull();
+    expect(barButton(el, "reset")?.hidden).toBe(true);
     el.undo();
     expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
     expect(localStorage.getItem("gti:/#t1")).toMatch(/^filter=.+&sort=x$/);
-
-    (el.querySelector('[data-gti-info="sort"] button') as HTMLButtonElement).click();
-    (el.querySelector('[data-gti-info="filters"] button') as HTMLButtonElement).click();
-    expect([el.filter, el.sort]).toEqual([null, []]);
-    el.undo();
-    el.undo();
-    expect([el.filter, el.sort]).toEqual([{ and: [{ col: "y", op: "in", value: ["c"] }] }, X_UP]);
+    expect(barButton(el, "reset")?.hidden).toBe(false);
   });
 
   it("answers to Ctrl+Z and Ctrl+Y (or Ctrl+Shift+Z, or ⌘), but not in what's for typing", async () => {
@@ -5106,6 +6166,16 @@ describe("row display", () => {
     expect(el.hasAttribute("data-gti-nowrap")).toBe(false);
   });
 
+  it("marks the element when the labels and cells are monospaced", async () => {
+    expect((await mountTable(GROUPED, { display: { monospace: true } })).hasAttribute("data-gti-monospace")).toBe(
+      true,
+    );
+    const { html, spec } = gtTable(GROUPED);
+    // (The spec decides, whatever the producer wrote)
+    const el = await mount(`<gt-table data-gti-monospace>${html}${specScript(spec)}</gt-table>`);
+    expect(el.hasAttribute("data-gti-monospace")).toBe(false);
+  });
+
   it("marks the data rows when rows are highlighted", async () => {
     const el = await mountTable(GROUPED, { display: { highlight: true } });
     expect(el.hasAttribute("data-gti-highlight")).toBe(true);
@@ -5196,10 +6266,26 @@ describe("column resizing", () => {
       expect(handle.getAttribute("aria-valuenow")).toBe("100");
       expect(handle.getAttribute("aria-valuetext")).toBe("100 pixels");
       expect(handle.tabIndex).toBe(0);
+      expect(handle.getAttribute("aria-valuemin")).toBe("32");
       // (Beside the sort button, not in it)
       expect(handle.parentElement?.classList.contains("gt-i-resizable")).toBe(true);
       expect(handle.closest("button")).toBeNull();
     }
+  });
+
+  it("says how narrow and how wide a column can be made", async () => {
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(600);
+    const el = await resizable();
+    const handle = handles(el)[1] as HTMLElement;
+    const range = () => ["aria-valuemin", "aria-valuenow", "aria-valuemax"].map((name) => handle.getAttribute(name));
+    // (From 2em to the table's width, and wider as it's made so)
+    expect(range()).toEqual(["32", "100", "600"]);
+    for (let i = 0; i < 60; i++) {
+      press(handle, "ArrowRight", true);
+    }
+    expect(range()).toEqual(["32", "3100", "3100"]);
+    press(handle, "Home");
+    expect(range()).toEqual(["32", "32", "600"]);
   });
 
   it("resizes a column with the arrow keys, fixing every column's width", async () => {
@@ -5903,6 +6989,172 @@ describe("row selection", () => {
   });
 });
 
+describe("inspecting the data", () => {
+  const numbered = (options: TableOptions = {}, body = GROUPED) =>
+    mountTable(body, { ...options, display: { row_numbers: true, ...options.display } });
+  const number = (el: GtTable, row: number) => el.rowElement(row)?.querySelector(":scope > .gt-i-select > .gt-i-rownum")?.textContent;
+  const dimensions = (el: GtTable) => el.querySelector(".gt-i-toolbar > .gt-i-dimensions")?.textContent;
+  const missing = (el: GtTable) =>
+    Array.from(el.querySelectorAll(".gt-i-missing"), (cell) => [
+      el.bodyRow(cell.closest("tr") as HTMLTableRowElement),
+      Array.from((cell.parentElement as HTMLElement).children)
+        .filter((other) => !other.matches(".gt_stub_row_group, .gt-i-select"))
+        .indexOf(cell),
+    ]);
+
+  it("isn't on unless the spec says so", async () => {
+    const el = await mountTable();
+    expect(el.querySelector(".gt-i-select, .gt-i-rownum, .gt-i-dtype, .gt-i-dimensions, .gt-i-missing")).toBeNull();
+  });
+
+  it("numbers each data row by its place in the data, in a column before the others", async () => {
+    const el = await numbered();
+    for (const row of [0, 1, 2, 3, 4]) {
+      const cell = el.rowElement(row)?.cells[0] as HTMLTableCellElement;
+      expect(cell.matches("td.gt_row.gt_right.gt-i-select.gt-i-unselectable")).toBe(true);
+      expect(number(el, row)).toBe(String(row + 1));
+      // (And no checkbox: the rows can't be selected)
+      expect(cell.querySelector("input")).toBeNull();
+    }
+    const th = el.querySelector("thead th.gt-i-select") as HTMLTableCellElement;
+    // (Not a chip in a stacked table, without a select-all checkbox)
+    expect(th.matches(".gt_right.gt-i-unselectable:not(.gt-i-select-all)")).toBe(true);
+    expect(th.querySelector(".gt-i-hidden")?.textContent).toBe("Row");
+    expect(el.querySelectorAll("td.gt-i-select:empty")).toHaveLength(2);
+    expect(Array.from(el.querySelectorAll(".gt_group_heading"), (cell) => cell.getAttribute("colspan"))).toEqual(["4", "4"]);
+    expect(() => {
+      el.selection = [0];
+    }).toThrow(/can't be selected/);
+  });
+
+  it("keeps each row's number with it as the rows are sorted", async () => {
+    const el = await numbered({}, [0, 1, 2, 3, 4]);
+    el.sort = [{ column: "y", descending: true }];
+    expect(shown(el)).toEqual([2, 0, 1, 3, 4]);
+    expect(Array.from(el.querySelectorAll("tbody .gt-i-rownum"), (span) => span.textContent)).toEqual(["3", "1", "2", "4", "5"]);
+  });
+
+  it("numbers the rows from 0 or 1, as the spec says (from 1 without it)", async () => {
+    const el = await numbered({ display: { row_numbers: true, row_start: 0 } });
+    expect([0, 1, 2, 3, 4].map((row) => number(el, row))).toEqual(["0", "1", "2", "3", "4"]);
+    const one = await numbered({ display: { row_numbers: true, row_start: 1 } });
+    expect(number(one, 0)).toBe("1");
+  });
+
+  it("puts the number before the checkbox when rows can be selected", async () => {
+    const el = await numbered({ controls: { selection: "multiple" } });
+    const cell = el.rowElement(2)?.cells[0] as HTMLTableCellElement;
+    expect(cell.matches(".gt-i-select:not(.gt-i-unselectable)")).toBe(true);
+    expect(Array.from(cell.children, (child) => child.tagName)).toEqual(["SPAN", "INPUT"]);
+    expect(number(el, 2)).toBe("3");
+    (cell.querySelector("input") as HTMLInputElement).click();
+    expect(el.selection).toEqual([2]);
+    expect(el.querySelector("thead th.gt-i-select.gt-i-select-all input")?.getAttribute("aria-label")).toBe("Select all rows");
+  });
+
+  it("makes the column as wide as the numbers", async () => {
+    const colgroup = `<colgroup><col style="width:100px"><col style="width:100px"><col style="width:100px"></colgroup>`;
+    const widths: string[] = [];
+    for (const selection of [null, "single"] as const) {
+      const { html, spec } = gtTable(GROUPED, { display: { row_numbers: true }, controls: { selection } });
+      const el = await mount(
+        `<gt-table>${html.replace('<table class="gt_table">', `<table class="gt_table">${colgroup}`)}${specScript(spec)}</gt-table>`,
+      );
+      widths.push((el.querySelector("colgroup > col.gt-i-select") as HTMLElement).style.width);
+    }
+    expect(widths).toEqual(["calc(1ch + 1em)", "calc(1ch + 2.4em)"]);
+  });
+
+  it("doesn't search or export the numbers", async () => {
+    const plain = await mountTable(GROUPED, { controls: { search: true } });
+    const csv = plain.toCSV();
+    plain.search = "1";
+    const found = shown(plain);
+    const el = await numbered({ controls: { search: true } });
+    expect(el.toCSV()).toBe(csv);
+    el.search = "1";
+    expect(shown(el)).toEqual(found);
+  });
+
+  it("shows each column's dtype first under its label, apart from the label's text", async () => {
+    const plain = await mountTable(GROUPED, { columns: { x: { hideable: true }, y: { hideable: true } } });
+    const csv = plain.toCSV();
+    const el = await mountTable(GROUPED, {
+      columns: { x: { dtype: "f64", hideable: true }, y: { dtype: "str", hideable: true }, row: { dtype: "str" } },
+    });
+    for (const [column, dtype] of [["x", "f64"], ["y", "str"]] as const) {
+      const badge = header(el, column).querySelector(".gt-i-dtype");
+      expect(badge?.textContent).toBe(dtype);
+      expect(badge?.parentElement?.firstElementChild).toBe(badge);
+    }
+    // (The stub's label cell has no id, so no dtype)
+    expect(el.querySelectorAll(".gt-i-dtype")).toHaveLength(2);
+    expect(el.toCSV()).toBe(csv);
+  });
+
+  it("says how many rows and columns there are, and how many are shown", async () => {
+    const el = await mountTable(GROUPED, {
+      controls: { search: true },
+      display: { dimensions: true },
+      columns: { y: { hideable: true } },
+      filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }],
+    });
+    const toolbar = el.querySelector(".gt-i-toolbar") as HTMLElement;
+    expect(toolbar.firstElementChild?.matches(".gt-i-dimensions")).toBe(true);
+    expect(toolbar.querySelector("input.gt-i-search")).not.toBeNull();
+    expect(dimensions(el)).toBe("5 rows × 3 columns");
+    el.search = "a";
+    expect(dimensions(el)).toBe("3 of 5 rows × 3 columns");
+    el.search = "";
+    el.filter = { and: [{ col: "y", op: "in", value: ["b"] }] };
+    expect(dimensions(el)).toBe("1 of 5 rows × 3 columns");
+    el.hiddenColumns = ["y"];
+    expect(dimensions(el)).toBe("1 of 5 rows × 2 of 3 columns");
+  });
+
+  it("starts with what the data is, where the producer knows", async () => {
+    const el = await mountTable(GROUPED, { display: { dimensions: true, data_kind: "Polars DataFrame" } });
+    expect(dimensions(el)).toBe("Polars DataFrame · 5 rows × 3 columns");
+    el.search = "a";
+    expect(dimensions(el)).toBe("Polars DataFrame · 3 of 5 rows × 3 columns");
+    const unknown = await mountTable(GROUPED, { display: { dimensions: true, data_kind: null } });
+    expect(dimensions(unknown)).toBe("5 rows × 3 columns");
+  });
+
+  it("says so in a toolbar of its own, without a search box there", async () => {
+    for (const controls of [{ search: false }, { search: true, bar: true }]) {
+      const el = await mountTable([0], { controls, display: { dimensions: true } });
+      expect(el.querySelector(".gt-i-toolbar")?.children).toHaveLength(1);
+      expect(dimensions(el)).toBe("5 rows × 3 columns");
+    }
+  });
+
+  it("tints the cells of missing values, which keep their tint as they move", async () => {
+    const el = await mountTable(GROUPED, { columns: { x: { missing: [3] }, row: { missing: [0] } } });
+    expect(missing(el)).toEqual([
+      [3, 1],
+      [0, 0],
+    ]);
+    expect(el.rowElement(3)?.querySelector(".gt-i-missing")?.textContent).toBe("");
+    el.sort = [{ column: "x" }];
+    expect(missing(el).sort()).toEqual([
+      [0, 0],
+      [3, 1],
+    ]);
+  });
+
+  it("tints the right cells beside a group's label and with row numbers", async () => {
+    const el = await mountTable(GROUPED, {
+      groupsAsColumn: true,
+      display: { row_numbers: true },
+      columns: { x: { missing: [3] }, y: { missing: [1] } },
+    });
+    expect(el.rowElement(3)?.querySelector(".gt-i-missing")?.textContent).toBe("");
+    expect(el.rowElement(1)?.querySelector(".gt-i-missing")?.textContent).toBe("a");
+    expect(el.querySelectorAll(".gt-i-missing")).toHaveLength(2);
+  });
+});
+
 describe("a body that scrolls", () => {
   const scrolling = (options: TableOptions = {}) => mountTable(GROUPED, { layout: { height: "200px" }, ...options });
   const scroller = (el: GtTable) => el.querySelector(".gt-i-scroller") as HTMLElement;
@@ -6343,16 +7595,19 @@ describe("a table that can be stacked", () => {
   });
 
   it("isn't stacked in a container as wide as what's in it", async () => {
-    // (Shown, and widened by a width for what's in it, as it would be in a table's cell)
+    // (Shown, and GT's <div> around the table, the container queried, widened by a width for
+    // what's in it, as it would be in a table's cell)
     vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(() => [{}] as unknown as DOMRectList);
     vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function (this: HTMLElement) {
-      return this.style.getPropertyValue("contain-intrinsic-inline-size") === "" ? 0 : 400;
+      const sized = this.style.getPropertyValue("contain-intrinsic-inline-size") !== "";
+      return sized && this.querySelector(":scope > table") !== null ? 400 : 0;
     });
     for (const responsive of ["stack", "auto"] as const) {
       const el = await stackable({ layout: { responsive }, columns: { y: { hideable: true } } });
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
       expect(el.hasAttribute("data-gti-stacked")).toBe(false);
-      expect(el.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
+      const div = el.querySelector("table")?.parentElement as HTMLElement;
+      expect(div.style.getPropertyValue("contain-intrinsic-inline-size")).toBe("");
       // (And still not, as it shows fewer columns)
       el.hiddenColumns = ["y"];
       expect(el.hasAttribute("data-gti-stack-off")).toBe(true);
@@ -6503,19 +7758,17 @@ describe("hiding columns", () => {
   it("says in the info panel how many are hidden", async () => {
     const { el } = await mountHide();
     const item = el.querySelector('[data-gti-info="columns"]') as HTMLElement;
-    const show = item.querySelector("button") as HTMLButtonElement;
     const open = () => (el.querySelector('.gt-i-bar [data-gti-bar="info"]') as HTMLButtonElement).click();
     open();
-    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
-    expect(show.getAttribute("aria-disabled")).toBe("true");
+    expect(item.textContent).toBe("No columns hidden");
     el.hiddenColumns = ["x"];
-    expect(item.firstElementChild?.textContent).toBe("1 column hidden");
+    expect(item.textContent).toBe("1 column hidden");
     el.hiddenColumns = ["x", "y"];
-    expect(item.firstElementChild?.textContent).toBe("2 columns hidden");
-    expect(show.getAttribute("aria-disabled")).toBe("false");
-    show.click();
+    expect(item.textContent).toBe("2 columns hidden");
+    // (The bar's reset shows them)
+    (el.querySelector('.gt-i-bar [data-gti-bar="reset"]') as HTMLButtonElement).click();
     expect(el.hiddenColumns).toEqual([]);
-    expect(item.firstElementChild?.textContent).toBe("No columns hidden");
+    expect(item.textContent).toBe("No columns hidden");
   });
 
   it("exports the columns shown, with code that drops the others", async () => {
@@ -6709,7 +7962,7 @@ describe("reordering columns", () => {
     expect(el.columnOrder).toEqual(["y", "x"]);
     press(earlier(el, "y"), "ArrowDown", { altKey: true });
     expect(el.columnOrder).toEqual(["x", "y"]);
-    expect(el.querySelector(".gt-i-info-shortcuts")?.textContent).toContain("Move a column, in the Columns panel");
+    expect(el.querySelector(".gt-i-info-keys")?.textContent).toContain("Move a column, in the Columns panel");
   });
 
   it("moves a column dragged by its handle, or puts it back on Escape", async () => {
@@ -7107,6 +8360,14 @@ describe("the filter & sort sheet", () => {
     expect(sheet(el).open).toBe(true);
   });
 
+  it("doesn't open on a long press of a column's profile, along which a finger reads its bars", async () => {
+    const el = await mountSheet({ profiles: [{ column: "y", plot: "top", values: null }] });
+    vi.useFakeTimers();
+    pointer(header(el, "y").querySelector(".gt-i-profile svg") as Element, "pointerdown", { clientX: 10, clientY: 10 });
+    vi.advanceTimersByTime(600);
+    expect(el.querySelector("dialog")).toBeNull();
+  });
+
   it("can't hide a column that's the only one shown", async () => {
     const el = await mountSheet({ columns: { x: { hideable: true } } });
     vi.useFakeTimers();
@@ -7124,5 +8385,2268 @@ describe("the filter & sort sheet", () => {
     opener(el)?.click();
     el.remove();
     expect(sheet(el).open).toBe(false);
+  });
+});
+
+describe("rows' details", () => {
+  // Details for rows 0 (a table), 3 and 4, not for 1 and 2
+  const DETAILS = {
+    0: '<style>.inner { color: red }</style><table class="inner"><tr><td>zero</td></tr></table>',
+    3: "<p>three</p>",
+    4: "four",
+  };
+  const mountDetails = (options: TableOptions = {}) => mountTable(GROUPED, { details: DETAILS, ...options });
+  const tr = (el: GtTable, row: number) => el.rowElement(row) as HTMLTableRowElement;
+  const expander = (el: GtTable, row: number) => tr(el, row).querySelector<HTMLButtonElement>(".gt-i-expand");
+  const under = (el: GtTable, row: number) => {
+    const next = tr(el, row).nextElementSibling as HTMLTableRowElement | null;
+    return next?.classList.contains("gt-i-details") ? next : null;
+  };
+  const content = (el: GtTable, row: number) => under(el, row)?.querySelector(".gt-i-details-content") ?? null;
+  const tap = (target: Element, pointerType = "touch") => {
+    target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerType }));
+    (target as HTMLElement).click();
+  };
+
+  it("gives each row with details a button that opens it, before its first cell's text", async () => {
+    const el = await mountDetails();
+    for (const row of [0, 3, 4]) {
+      const button = expander(el, row) as HTMLButtonElement;
+      expect(button.getAttribute("aria-label")).toBe(`Show more of row_${row + 1}`);
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(button.parentElement?.matches("th.gt_stub.gt-i-expands")).toBe(true);
+      expect(tr(el, row).classList.contains("gt-i-has-details")).toBe(true);
+    }
+    for (const row of [1, 2]) {
+      expect(expander(el, row)).toBeNull();
+      expect(tr(el, row).classList.contains("gt-i-has-details")).toBe(false);
+    }
+    // (Not the summary rows, nor the columns dropped, of which there are none)
+    expect(el.querySelectorAll(".gt-i-expand")).toHaveLength(3);
+    expect(el.hasAttribute("data-gti-dropped")).toBe(false);
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+  });
+
+  it("shows a row's details under it, in a shadow root, and hides them again", async () => {
+    const el = await mountDetails();
+    const button = expander(el, 0) as HTMLButtonElement;
+    button.click();
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(tr(el, 0).classList.contains("gt-i-open")).toBe(true);
+    const host = content(el, 0) as HTMLElement;
+    expect(host.shadowRoot?.querySelector("table.inner td")?.textContent).toBe("zero");
+    expect(host.shadowRoot?.querySelector("style")?.textContent).toContain(".inner");
+    // (Apart from the table's own: nothing of it is in the light DOM, and the template stays)
+    expect(el.querySelector("table.inner")).toBeNull();
+    expect(el.querySelectorAll(":scope > template[data-gti-details]")).toHaveLength(3);
+    // (Across the row, without the columns dropped, of which there are none)
+    const cell = under(el, 0)?.cells[0] as HTMLTableCellElement;
+    expect(cell.colSpan).toBe(3);
+    expect(under(el, 0)?.querySelector("dl")).toBeNull();
+
+    button.click();
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(tr(el, 0).classList.contains("gt-i-open")).toBe(false);
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+  });
+
+  it("keeps focus on the button", async () => {
+    const el = await mountDetails();
+    const button = expander(el, 3) as HTMLButtonElement;
+    button.focus();
+    button.click();
+    expect(document.activeElement).toBe(button);
+  });
+
+  it("keeps a row's details under it as the rows are sorted", async () => {
+    const el = await mountDetails();
+    expander(el, 0)?.click();
+    expander(el, 4)?.click();
+    el.sort = [{ column: "x" }];
+    for (const row of [0, 4]) {
+      expect(content(el, row)).not.toBeNull();
+    }
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(2);
+    el.sort = [{ column: "x", descending: true }];
+    expect(content(el, 0)).not.toBeNull();
+    expect(content(el, 4)).not.toBeNull();
+  });
+
+  it("hides a row's details with the row, and makes them only once it's shown", async () => {
+    const el = await mountDetails({ controls: { search: true }, pagination: { enabled: true } });
+    // Pages of 2 rows: [3, 0], [4, 1], [2]
+    expander(el, 0)?.click();
+    expect(under(el, 0)?.hidden).toBe(false);
+    el.search = "row_4";
+    expect(tr(el, 0).hidden).toBe(true);
+    expect(under(el, 0)?.hidden).toBe(true);
+    el.search = "";
+    expect(under(el, 0)?.hidden).toBe(false);
+    el.page = 2;
+    expect(under(el, 0)?.hidden).toBe(true);
+    el.page = 1;
+    expect(under(el, 0)?.hidden).toBe(false);
+  });
+
+  it("opens on a tap on the row on a touch screen, without selecting it, and not on a click", async () => {
+    const el = await mountDetails({ controls: { selection: "multiple" } });
+    const cell = tr(el, 3).querySelector("td:last-child") as HTMLElement;
+    tap(cell);
+    expect(content(el, 3)).not.toBeNull();
+    expect(el.selection).toEqual([]);
+    tap(cell);
+    expect(under(el, 3)).toBeNull();
+    // (A click selects it, as it does a row without details)
+    tap(cell, "mouse");
+    expect(under(el, 3)).toBeNull();
+    expect(el.selection).toEqual([3]);
+    // (A tap on its checkbox selects it, and one on a row without details too)
+    tap(tr(el, 3).querySelector("input") as HTMLElement);
+    expect(el.selection).toEqual([]);
+    expect(under(el, 3)).toBeNull();
+    tap(tr(el, 1).querySelector("td:last-child") as HTMLElement);
+    expect(el.selection).toEqual([1]);
+  });
+
+  it("opens and closes every row with details from the info panel", async () => {
+    const el = await mountDetails({ controls: { search: true, bar: true } });
+    const item = el.querySelector('[data-gti-info="details"]') as HTMLElement;
+    const [open, close] = Array.from(item.querySelectorAll("button"));
+    expect(item.textContent).toBe("Row detailsExpand allCollapse all");
+    expect(open?.getAttribute("aria-label")).toBe("Show every row's details");
+    expect(open?.getAttribute("aria-disabled")).toBe("false");
+    expect(close?.getAttribute("aria-disabled")).toBe("true");
+
+    open?.click();
+    expect([0, 3, 4].map((row) => content(el, row) !== null)).toEqual([true, true, true]);
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(3);
+    expect(open?.getAttribute("aria-disabled")).toBe("true");
+    expect(close?.getAttribute("aria-disabled")).toBe("false");
+    // (Disabled, it does nothing)
+    open?.click();
+    expect(el.querySelectorAll("tr.gt-i-details")).toHaveLength(3);
+
+    expander(el, 3)?.click();
+    expect(open?.getAttribute("aria-disabled")).toBe("false");
+    close?.click();
+    expect(el.querySelector("tr.gt-i-details")).toBeNull();
+    expect(close?.getAttribute("aria-disabled")).toBe("true");
+    expect(expander(el, 0)?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("has no info panel item without details, and a bar for them alone", async () => {
+    const plain = await mountTable(GROUPED, { controls: { search: true, bar: true } });
+    expect(plain.querySelector('[data-gti-info="details"]')).toBeNull();
+    const el = await mountDetails({ controls: { search: false, bar: true } });
+    expect(el.querySelector(".gt-i-bar")).not.toBeNull();
+    expect(el.querySelector('[data-gti-info="details"]')).not.toBeNull();
+  });
+
+  it("leaves out the details of a row without a template, with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { html, spec } = gtTable(GROUPED, { details: { 3: "three" } });
+    const el = await mount(`<gt-table>${html}${specScript({ ...spec, details: [3, 0] })}</gt-table>`);
+    expect(el.getAttribute("data-gti-state")).toBe("ready");
+    expect(expander(el, 3)).not.toBeNull();
+    expect(expander(el, 0)).toBeNull();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("row 0's details are left out"));
+  });
+
+  it("spans the selection column too", async () => {
+    const el = await mountDetails({ controls: { selection: "single" } });
+    expander(el, 0)?.click();
+    const details = under(el, 0) as HTMLTableRowElement;
+    expect(details.cells).toHaveLength(1);
+    expect((details.cells[0] as HTMLTableCellElement).colSpan).toBe(4);
+  });
+});
+
+describe("column profiles", () => {
+  // x's histogram (of 5, 10 and 20: a bin per whole number), and y's most common values
+  const PROFILES: ProfileSpec[] = [
+    { column: "x", plot: "histogram", values: [5, 10, 20] },
+    { column: "y", plot: "top", values: null },
+  ];
+  const mountProfiles = (options: TableOptions = {}) => mountTable(GROUPED, { profiles: PROFILES, ...options });
+  const profile = (th: Element) => th.querySelector<HTMLElement>(":scope > .gt-i-profile");
+  const caption = (el: GtTable, column: string) => profile(header(el, column))?.querySelector(".gt-i-profile-text")?.textContent;
+  const heights = (el: GtTable, column: string) =>
+    Array.from(profile(header(el, column))?.querySelectorAll("rect") ?? [], (rect) => Number(rect.getAttribute("height")));
+  const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
+    target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
+  const shownTip = (el: GtTable) => {
+    const tip = el.querySelector<HTMLElement>(":scope > .gt-i-profile-tip");
+    return tip === null || tip.hidden ? null : `${tip.firstChild?.textContent}: ${tip.lastChild?.textContent}`;
+  };
+  // (The mouse over a column's bar `i`, of a plot 10px a bar)
+  const hover = (el: GtTable, column: string, i: number, init: PointerEventInit = {}) => {
+    const svg = profile(header(el, column))?.querySelector("svg") as SVGSVGElement;
+    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 10 * svg.childElementCount, 10));
+    pointer(svg, "pointermove", { clientX: 10 * i + 5, ...init });
+    return shownTip(el);
+  };
+  // Each bar's tooltip
+  const titles = (el: GtTable, column: string) => heights(el, column).map((_, i) => hover(el, column, i));
+
+  it("draws a profile under each profiled column's label (after its controls), and room for one under the others", async () => {
+    const el = await mountProfiles();
+    for (const column of ["x", "y"]) {
+      const th = header(el, column);
+      expect(th.classList.contains("gt-i-profiled")).toBe(true);
+      expect(th.lastElementChild).toBe(profile(th));
+      expect(profile(th)?.previousElementSibling?.classList.contains("gt-i-head-controls")).toBe(true);
+      // (A button opening its larger view, whose plot and caption are hidden)
+      expect(profile(th)?.hasAttribute("aria-hidden")).toBe(false);
+      expect(profile(th)?.getAttribute("role")).toBe("button");
+      expect(profile(th)?.getAttribute("aria-label")).toBe(`Show the profile of ${column}`);
+      expect(profile(th)?.getAttribute("aria-expanded")).toBe("false");
+      expect(profile(th)?.tabIndex).toBe(0);
+      expect(profile(th)?.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector(".gt-i-profile-text")?.getAttribute("aria-hidden")).toBe("true");
+      expect(profile(th)?.querySelector("title")).toBeNull();
+    }
+    expect(profile(header(el, "x"))?.classList.contains("gt-i-profile-histogram")).toBe(true);
+    expect(profile(header(el, "y"))?.classList.contains("gt-i-profile-top")).toBe(true);
+    // (A bar per whole number from 5 to 20, and one per value of y)
+    expect(heights(el, "x")).toHaveLength(16);
+    expect(heights(el, "y")).toHaveLength(3);
+    const stubhead = el.querySelector("thead th:not([id])") as HTMLTableCellElement;
+    expect(profile(stubhead)?.childElementCount).toBe(0);
+    expect(profile(stubhead)?.getAttribute("aria-hidden")).toBe("true");
+    expect(stubhead.classList.contains("gt-i-profiled")).toBe(false);
+  });
+
+  it("doesn't draw profiles without any", async () => {
+    const el = await mountTable();
+    expect(el.querySelector(".gt-i-profile")).toBeNull();
+  });
+
+  it("names each bar's values and rows, and says the range shown and the share missing", async () => {
+    const el = await mountProfiles();
+    const x = titles(el, "x");
+    expect(x[0]).toBe("5: 1 row (20%)");
+    expect(x[1]).toBe("6: 0 rows");
+    expect(x[5]).toBe("10: 1 row (20%)");
+    expect(x[15]).toBe("20: 2 rows (40%)");
+    expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+    // (The bars go up to the most rows, a few rows' still seen)
+    expect(heights(el, "x")[15]).toBe(1);
+    expect(heights(el, "x")[0]).toBe(0.5);
+    expect(heights(el, "x")[1]).toBe(0);
+    // (y's values, as its cells show them, most rows' first)
+    expect(titles(el, "y")).toEqual(["a: 3 rows (60%)", "b: 1 row (20%)", "c: 1 row (20%)"]);
+    expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("names a histogram's bins of times in a time zone by its clock, as its cells show them", async () => {
+    // (x's values, in Tokyo: midnight, 5am and 10am, written as the cells show them)
+    const zoned = ["2015-06-15T00:00:00+09:00", "2015-06-15T05:00:00+09:00", "2015-06-15T10:00:00+09:00"];
+    const el = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "histogram", values: zoned }] });
+    const x = titles(el, "x");
+    expect(x).toHaveLength(20);
+    expect(x[0]).toBe("Jun 15, 2015, 12:00 AM – Jun 15, 2015, 12:30 AM: 1 row (20%)");
+    expect(x[19]).toBe("Jun 15, 2015, 9:30 AM – Jun 15, 2015, 10:00 AM: 2 rows (40%)");
+  });
+
+  it("counts the rows the search and filters keep, with the same bars", async () => {
+    const el = await mountProfiles();
+    el.search = "a";
+    // (Rows 1, 3 and 4: 5, a missing value and 20)
+    expect(caption(el, "x")).toBe("5 – 20 · 33% missing");
+    expect(titles(el, "x")[15]).toBe("20: 1 row (33%)");
+    expect(heights(el, "x")).toHaveLength(16);
+    expect(caption(el, "y")).toBe("1 value");
+    expect(heights(el, "y")).toEqual([1, 0, 0]);
+    el.search = "zzz";
+    expect(caption(el, "x")).toBe("No rows");
+    expect(heights(el, "y")).toEqual([0, 0, 0]);
+    el.search = "";
+    expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("describes each profiled label by its dtype and summary, which a screen reader reads", async () => {
+    const el = await mountProfiles({ columns: { x: { dtype: "f64" } }, export: { formats: ["csv"] } });
+    const about = (column: string) => {
+      const th = header(el, column);
+      const found = el.ownerDocument.getElementById(th.getAttribute("aria-describedby") ?? "");
+      expect(found?.parentElement).toBe(th);
+      expect(found?.hidden).toBe(true);
+      return found?.textContent;
+    };
+    expect(about("x")).toBe("f64, 5 to 20, 20% missing");
+    expect(about("y")).toBe("3 values");
+    el.search = "zzz";
+    expect(about("x")).toBe("f64, No rows");
+    el.search = "a";
+    expect(about("y")).toBe("1 value");
+    // (Not part of the label's text)
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+    // (And a dtype without a profile is described too)
+    const plain = await mountTable(GROUPED, { columns: { y: { dtype: "str" } } });
+    expect(plain.ownerDocument.getElementById(header(plain, "y").getAttribute("aria-describedby") ?? "")?.textContent).toBe("str");
+    expect(header(plain, "x").hasAttribute("aria-describedby")).toBe(false);
+  });
+
+  it("counts again only when other rows are kept, not when the table is sorted or paged", async () => {
+    const count = vi.spyOn(Profile.prototype, "count");
+    const el = await mountProfiles({ pagination: { enabled: true } });
+    expect(count).toHaveBeenCalledTimes(2);
+    click(el, "x");
+    el.page = 2;
+    expect(count).toHaveBeenCalledTimes(2);
+    el.search = "a";
+    expect(count).toHaveBeenCalledTimes(4);
+  });
+
+  it("isn't part of a label's text, and doesn't sort the column when clicked", async () => {
+    const el = await mountProfiles({ export: { formats: ["csv"] } });
+    expect(el.toCSV().split("\r\n")[0]).toBe(",row,x,y");
+    profile(header(el, "x"))?.querySelector("rect")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(el.sort).toEqual([]);
+  });
+
+  it("is drawn under a label without controls", async () => {
+    const el = await mountProfiles({ controls: { sorting: false } });
+    expect(el.querySelector(".gt-i-head-controls")).toBeNull();
+    expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
+  });
+
+  // (The element, x's label and its plot (16 bars of 5px), and the tooltip, where they are)
+  const place = (host: DOMRect, th: DOMRect) => {
+    vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      return this.matches("gt-table")
+        ? host
+        : this.matches("th")
+          ? th
+          : this.matches("svg")
+            ? new DOMRect(th.x + 5, th.bottom - 30, 80, 20)
+            : this.matches(".gt-i-profile-tip")
+              ? new DOMRect(0, 0, 60, 30)
+              : new DOMRect();
+    });
+  };
+  const tipBox = (el: GtTable) => {
+    const tip = el.querySelector(":scope > .gt-i-profile-tip") as HTMLElement;
+    const lead = el.querySelector(":scope > .gt-i-profile-lead") as HTMLElement;
+    const { left, top, width, transform } = lead.style;
+    return { tip: [tip.style.left, tip.style.top], lead: { left, top, width, transform }, hidden: tip.hidden || lead.hidden };
+  };
+
+  it("shows the tooltip of the bar nearest the pointer, over the label, with a line down to the bar", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(0, 0, 400, 300), new DOMRect(100, 50, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    // (Past the plot's end, the last bar's: 20, the bar of the most rows, its top at the plot's)
+    pointer(svg, "pointermove", { clientX: 199 });
+    expect(shownTip(el)).toBe("20: 2 rows (40%)");
+    expect(tipBox(el)).toEqual({
+      tip: ["152.5px", "14px"],
+      lead: { left: "182.5px", top: "44px", width: "36px", transform: `rotate(${Math.PI / 2}rad)` },
+      hidden: false,
+    });
+    expect(svg.querySelectorAll("rect")[15]?.classList.contains("gt-i-profile-on")).toBe(true);
+    expect(el.querySelector(".gt-i-profile-tip")?.getAttribute("aria-hidden")).toBe("true");
+    // (The mouse leaving, it goes)
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerleave");
+    expect(shownTip(el)).toBeNull();
+    expect(tipBox(el).hidden).toBe(true);
+    expect(svg.querySelector(".gt-i-profile-on")).toBeNull();
+  });
+
+  it("keeps the tooltip within the element, the line going aslant, and under the label without room over it", async () => {
+    const el = await mountProfiles();
+    place(new DOMRect(150, 20, 250, 300), new DOMRect(100, 20, 100, 60));
+    const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
+    pointer(svg, "pointermove", { clientX: 106 });
+    expect(shownTip(el)).toBe("5: 1 row (20%)");
+    const { tip, lead } = tipBox(el);
+    // (At the element's start, under the label; the line from near its corner up to the bar's foot)
+    expect(tip).toEqual(["0px", "66px"]);
+    expect([lead.left, lead.top]).toEqual(["6px", "66px"]);
+    const [dx, dy] = [107.5 - 156, 70 - 86];
+    expect(parseFloat(lead.width)).toBeCloseTo(Math.hypot(dx, dy), 4);
+    expect(lead.transform).toBe(`rotate(${Math.atan2(dy, dx)}rad)`);
+  });
+
+  it("shows a bar's tooltip as a finger slides along the profile, for a moment after it lifts", async () => {
+    const el = await mountProfiles();
+    vi.useFakeTimers();
+    try {
+      const root = profile(header(el, "x")) as HTMLElement;
+      const svg = root.querySelector("svg") as SVGSVGElement;
+      vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 10));
+      pointer(svg, "pointerdown", { pointerType: "touch", clientX: 2 });
+      expect(shownTip(el)).toBe("5: 1 row (20%)");
+      pointer(svg, "pointermove", { pointerType: "touch", clientX: 55 });
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      pointer(root, "pointerleave", { pointerType: "touch" });
+      vi.advanceTimersByTime(1000);
+      expect(shownTip(el)).toBe("10: 1 row (20%)");
+      vi.advanceTimersByTime(500);
+      expect(shownTip(el)).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("hides the tooltip on Escape, a scroll, a press elsewhere, or new counts, and not over the caption", async () => {
+    const el = await mountProfiles();
+    const outside = document.body.appendChild(document.createElement("button"));
+    for (const away of [
+      () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })),
+      () => outside.dispatchEvent(new Event("scroll")),
+      () => pointer(outside, "pointerdown"),
+      () => (el.search = "a"),
+    ]) {
+      el.search = "";
+      expect(hover(el, "x", 0)).not.toBeNull();
+      away();
+      expect(shownTip(el)).toBeNull();
+    }
+    // (Nor a press on its own profile)
+    expect(hover(el, "x", 0)).not.toBeNull();
+    pointer(profile(header(el, "x")) as HTMLElement, "pointerdown", { clientX: 5 });
+    expect(shownTip(el)).not.toBeNull();
+    // (By the mouse, the caption has its own tooltip)
+    pointer(profile(header(el, "x"))?.querySelector(".gt-i-profile-text") as Element, "pointermove");
+    expect(shownTip(el)).toBeNull();
+  });
+
+  const view = (el: GtTable) => el.querySelector<HTMLElement>(":scope > .gt-i-profile-panel");
+  const texts = (root: Element | null | undefined, selector: string) =>
+    Array.from(root?.querySelectorAll(selector) ?? [], (part) => part.textContent);
+
+  it("opens a larger view of a histogram on a double click: its whole caption, and its plot with axes", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    root.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el) as HTMLElement;
+    expect(panel.hidden).toBe(false);
+    expect(panel.getAttribute("role")).toBe("group");
+    expect(panel.getAttribute("aria-label")).toBe("Profile of x");
+    expect(root.getAttribute("aria-expanded")).toBe("true");
+    expect(root.getAttribute("aria-controls")).toBe(panel.id);
+    expect(panel.querySelector(".gt-i-filter-title")?.textContent).toBe("x");
+    expect(document.activeElement?.textContent).toBe("Close");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 5 – 20 · 20% missing");
+    // (The most rows a bar has, beside it, and the first and last bins' values under it)
+    expect(texts(panel, ".gt-i-profile-y > span")).toEqual(["2", "0"]);
+    expect(texts(panel, ".gt-i-profile-x > span")).toEqual(["5", "", "20"]);
+    const plot = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(plot.children).toHaveLength(16);
+    expect((plot.children[1] as HTMLElement).style.height).toBe("0px");
+    expect(plot.getAttribute("role")).toBe("img");
+    expect(plot.getAttribute("aria-label")).toBe("Histogram of x");
+    // (Its bins, for assistive technology)
+    const bins = texts(panel, "ul.gt-i-hidden > li");
+    expect(bins).toHaveLength(16);
+    expect([bins[0], bins[15]]).toEqual(["5: 1 row (20%)", "20: 2 rows (40%)"]);
+
+    // Its readout, of the bar the pointer is over, or the arrow keys move to
+    const readout = () => panel.querySelector(".gt-i-profile-read")?.textContent;
+    expect(readout()).toBe("");
+    vi.spyOn(plot, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 100));
+    pointer(plot, "pointermove", { clientX: 52 });
+    expect(readout()).toBe("10: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(true);
+    const key = (name: string) => {
+      const event = new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true });
+      plot.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    expect(key("ArrowRight")).toBe(true);
+    expect(readout()).toBe("11: 0 rows");
+    key("End");
+    key("ArrowRight");
+    expect(readout()).toBe("20: 2 rows (40%)");
+    key("Home");
+    key("ArrowLeft");
+    expect(readout()).toBe("5: 1 row (20%)");
+    expect(plot.children[5]?.classList.contains("gt-i-profile-on")).toBe(false);
+
+    // It's drawn again as the rows kept change, the plot keeping focus and its bar
+    plot.focus();
+    el.search = "a";
+    const again = panel.querySelector(".gt-i-profile-plot") as HTMLElement;
+    expect(document.activeElement).toBe(again);
+    expect(readout()).toBe("5: 1 row (33%)");
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("3 rows · 5 – 20 · 33% missing");
+    el.search = "zzz";
+    expect(panel.querySelector(".gt-i-profile-sum")?.textContent).toBe("No rows");
+  });
+
+  it("opens a larger view of the most common values, with their bars and rows", async () => {
+    const el = await mountProfiles();
+    profile(header(el, "y"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    const panel = view(el);
+    expect(panel?.querySelector(".gt-i-profile-sum")?.textContent).toBe("5 rows · 3 values");
+    expect(texts(panel, ".gt-i-profile-rows > *")).toEqual(["a", "", "3 rows (60%)", "b", "", "1 row (20%)", "c", "", "1 row (20%)"]);
+    const meters = Array.from(panel?.querySelectorAll<HTMLElement>(".gt-i-profile-meter > i") ?? [], (bar) => bar.style.width);
+    expect(meters.map((width) => Math.round(parseFloat(width)))).toEqual([100, 33, 33]);
+    expect(panel?.querySelector(".gt-i-profile-plot")).toBeNull();
+  });
+
+  it("opens the larger view on Enter or a double tap, and closes it on Escape, its button, or a press elsewhere", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    const key = (target: Element, name: string) => target.dispatchEvent(new KeyboardEvent("keydown", { key: name, bubbles: true, cancelable: true }));
+    root.focus();
+    key(root, "Enter");
+    expect(view(el)?.hidden).toBe(false);
+    key(document.activeElement as Element, "Escape");
+    expect(view(el)?.hidden).toBe(true);
+    expect(root.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(root);
+
+    key(root, " ");
+    expect(view(el)?.hidden).toBe(false);
+    (view(el)?.querySelector("button") as HTMLButtonElement).click();
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+
+    // (A tap doesn't, two do)
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 10 });
+    expect(view(el)?.hidden).toBe(true);
+    pointer(root, "pointerup", { pointerType: "touch", clientX: 14 });
+    expect(view(el)?.hidden).toBe(false);
+    // (A press in it or on its profile keeps it; elsewhere, even another profile, closes it)
+    pointer(view(el) as HTMLElement, "pointerdown");
+    pointer(root, "pointerdown");
+    expect(view(el)?.hidden).toBe(false);
+    pointer(profile(header(el, "y")) as HTMLElement, "pointerdown");
+    expect(view(el)?.hidden).toBe(true);
+    // (Tab out of either end closes it, back to its profile)
+    key(root, "Enter");
+    const stops = Array.from(view(el)?.querySelectorAll<HTMLElement>("button, [tabindex]") ?? []);
+    expect(stops.map((stop) => stop.className)).toEqual(["gt-i-info-button", "gt-i-profile-plot"]);
+    stops[1]?.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true }));
+    expect(view(el)?.hidden).toBe(true);
+    expect(document.activeElement).toBe(root);
+  });
+
+  it("closes the larger view as the table is made again, and names a label with a profile", async () => {
+    const el = await mountProfiles({ controls: { sorting: false } });
+    expect(header(el, "x").getAttribute("aria-label")).toBe("x");
+    profile(header(el, "x"))?.dispatchEvent(new MouseEvent("dblclick", { bubbles: true }));
+    expect(view(el)?.hidden).toBe(false);
+    el.remove();
+    expect(view(el)?.hidden).toBe(true);
+  });
+});
+
+describe("grouping rows", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const BOTH = { x: { groupable: true }, y: { groupable: true } };
+  const toggle = (el: GtTable) => el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="group"]');
+  const radios = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLInputElement>('.gt-i-bar [aria-label="Group rows by"] input[type=radio]'));
+  const headings = (el: GtTable) => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody tr.gt_group_heading_row"));
+  // The rows shown: each group's heading (its text) and each data row
+  const rows = (el: GtTable) =>
+    Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt-i-empty)"))
+      .filter((tr) => !tr.hidden)
+      .map((tr) => (tr.matches(".gt_group_heading_row") ? `# ${tr.textContent}` : el.bodyRow(tr)));
+
+  // FLAT, with a bar, `x` and `y` groupable (unless set otherwise), and the view events fired
+  async function mountGroup(options: TableOptions = {}) {
+    const el = await mountTable(FLAT, { columns: BOTH, ...options, controls: { bar: true, ...options.controls } });
+    const views: ViewEventDetail[] = [];
+    el.addEventListener(VIEW_EVENT, (event) => views.push((event as CustomEvent<ViewEventDetail>).detail));
+    return { el, views };
+  }
+
+  it("groups the rows by a column, under headings with their counts, the missing last", async () => {
+    const { el } = await mountGroup();
+    expect(el.groupableColumns).toEqual(["x", "y"]);
+    expect(el.groupBy).toBeNull();
+    el.groupBy = "y";
+    expect(rows(el)).toEqual(["# a (3)", 1, 3, 4, "# b (1)", 0, "# c (1)", 2]);
+    const th = headings(el)[0]?.cells[0] as HTMLTableCellElement;
+    expect([th.tagName, th.scope, th.colSpan]).toEqual(["TH", "colgroup", 3]);
+    expect(th.querySelector(".gt-i-group-count")?.textContent).toBe(" (3)");
+    el.groupBy = "x";
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 10 (1)", 2, "# 20 (2)", 0, 4, "# (Missing) (1)", 3]);
+    // (The old headings gone)
+    expect(headings(el)).toHaveLength(4);
+    el.groupBy = null;
+    expect(rows(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(headings(el)).toHaveLength(0);
+    expect(() => (el.groupBy = "row")).toThrow(RangeError);
+  });
+
+  it("puts each group's heading among its cells' headers, as GT does a row group's", async () => {
+    const { el } = await mountGroup();
+    const trs = () => Array.from(el.querySelectorAll<HTMLTableRowElement>("tbody.gt_table_body > tr:not(.gt_group_heading_row)"));
+    // (Each row's x cell with its label as its header, as GT has it; its y cell without)
+    for (const tr of trs()) {
+      tr.querySelector("td")?.setAttribute("headers", "t-x");
+    }
+    const headers = (row: number) =>
+      Array.from(trs().find((tr) => el.bodyRow(tr) === row)?.querySelectorAll("td") ?? [], (td) => td.getAttribute("headers"));
+    el.groupBy = "y";
+    const ids = headings(el).map((tr) => tr.cells[0]?.id ?? "");
+    expect(ids.every((id) => /^gt-i-group-\d+$/.test(id))).toBe(true);
+    expect(new Set(ids).size).toBe(3);
+    expect(headers(1)).toEqual([`${ids[0]} t-x`, null]);
+    expect(headers(0)).toEqual([`${ids[1]} t-x`, null]);
+    // (The old group's gone)
+    el.groupBy = "x";
+    expect(headers(1)).toEqual([`${headings(el)[0]?.cells[0]?.id} t-x`, null]);
+    el.groupBy = null;
+    expect(headers(1)).toEqual(["t-x", null]);
+  });
+
+  it("sorts the rows in their groups, and the groups as their column is sorted", async () => {
+    const { el } = await mountGroup();
+    el.groupBy = "y";
+    el.sort = [{ column: "x", descending: true }];
+    expect(rows(el)).toEqual(["# a (3)", 4, 1, 3, "# b (1)", 0, "# c (1)", 2]);
+    el.sort = [{ column: "y", descending: true }];
+    expect(rows(el)).toEqual(["# c (1)", 2, "# b (1)", 0, "# a (3)", 1, 3, 4]);
+    el.groupBy = "x";
+    el.sort = [{ column: "x", descending: true }];
+    // (The missing still last)
+    expect(rows(el)).toEqual(["# 20 (2)", 0, 4, "# 10 (1)", 2, "# 5 (1)", 1, "# (Missing) (1)", 3]);
+  });
+
+  it("writes the code with the rows in the order of the groups", async () => {
+    const code: CodeSpec = {
+      backend: "pandas",
+      columns: { x: { dtype: "float", nullable: false, literals: null }, y: { dtype: "string", nullable: false, literals: null } },
+    };
+    const { el } = await mountGroup({ export: { formats: ["code"], code } });
+    const sorted = (names: string, ascending: string) =>
+      `df.sort_values([${names}], ascending=[${ascending}], na_position="last", kind="stable")\n`;
+    el.sort = [{ column: "x", descending: true }];
+    expect(el.toCode()).toBe(sorted('"x"', "False"));
+    el.groupBy = "y";
+    expect(el.toCode()).toBe(sorted('"y", "x"', "True, False"));
+    el.sort = [{ column: "y", descending: true }];
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
+    el.groupBy = null;
+    expect(el.toCode()).toBe(sorted('"y"', "False"));
+  });
+
+  it("counts the rows that match, without the groups that have none, and a heading on each page", async () => {
+    const { el } = await mountGroup({ controls: { search: true } });
+    el.groupBy = "x";
+    el.search = "a";
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 20 (1)", 4, "# (Missing) (1)", 3]);
+    el.search = "";
+    // (Group 20 on pages 1 and 2)
+    el.pageSize = 3;
+    expect(rows(el)).toEqual(["# 5 (1)", 1, "# 10 (1)", 2, "# 20 (2)", 0]);
+    el.page = 2;
+    expect(rows(el)).toEqual(["# 20 (2)", 4, "# (Missing) (1)", 3]);
+  });
+
+  it("spans the headings across the columns shown", async () => {
+    const { el } = await mountGroup({ columns: { x: { hideable: true, groupable: true }, y: { groupable: true } } });
+    el.groupBy = "y";
+    el.hiddenColumns = ["x"];
+    expect(headings(el).map((tr) => tr.cells[0]?.colSpan)).toEqual([2, 2, 2]);
+    el.groupBy = "x";
+    expect(headings(el).map((tr) => tr.cells[0]?.colSpan)).toEqual([2, 2, 2, 2]);
+  });
+
+  it("groups from a panel in the bar, as a change to the view", async () => {
+    const { el, views } = await mountGroup({ viewState: { url: false, storage: false, key: null, undo: true } });
+    const button = toggle(el) as HTMLButtonElement;
+    expect(button.getAttribute("aria-label")).toBe("Group rows");
+    button.click();
+    expect(radios(el).map((radio) => [radio.nextElementSibling?.textContent, radio.checked])).toEqual([
+      ["None", true],
+      ["x", false],
+      ["y", false],
+    ]);
+    radios(el)[2]?.click();
+    expect(el.groupBy).toBe("y");
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("Rows grouped by y");
+    radios(el)[0]?.click();
+    expect(el.groupBy).toBeNull();
+    expect(el.querySelector(".gt-i-live")?.textContent).toBe("Rows not grouped");
+    expect(views.map((view) => view.groupBy)).toEqual(["y", null]);
+
+    el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="undo"]')?.click();
+    expect(el.groupBy).toBe("y");
+    expect(radios(el)[2]?.checked).toBe(true);
+  });
+
+  it("starts grouped as the spec's view has it, which the reset goes back to", async () => {
+    const { el } = await mountGroup({ view: { filter: null, sort: [], group_by: "y" } });
+    expect(el.groupBy).toBe("y");
+    expect(rows(el)[0]).toBe("# a (3)");
+    el.groupBy = null;
+    el.querySelector<HTMLButtonElement>('.gt-i-bar [data-gti-bar="reset"]')?.click();
+    expect(el.groupBy).toBe("y");
+  });
+
+  it("leaves out a grouping the spec's view has by a column it can't group by, with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el } = await mountGroup({ columns: { y: { groupable: true } }, view: { filter: null, sort: [], group_by: "x" } });
+    expect(el.groupBy).toBeNull();
+    expect(el.groupableColumns).toEqual(["y"]);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it("has no grouping for a table with row groups or without a column readers can group by", async () => {
+    const grouped = await mountTable(GROUPED, { columns: BOTH, controls: { bar: true } });
+    expect(grouped.groupableColumns).toEqual([]);
+    expect(toggle(grouped)).toBeNull();
+    const plain = await mountTable(FLAT, { controls: { bar: true } });
+    expect(plain.groupableColumns).toEqual([]);
+    expect(toggle(plain)).toBeNull();
+  });
+});
+
+describe("linked tables", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  // A table linked to the others in group "g" by `y` (unless set otherwise), with a bar
+  const linkedTable = (name: string | null, options: TableOptions = {}, link: object = {}) => {
+    const { html, spec } = gtTable(FLAT, {
+      ...options,
+      controls: { bar: true, ...options.controls },
+      link: { group: "g", on: "y", name, label: "Y", keys: Y, ...link },
+    });
+    return `<gt-table>${html}${specScript(spec)}</gt-table>`;
+  };
+  const mountLinked = async (...tables: string[]) => {
+    await mount(tables.join(""));
+    return Array.from(document.querySelectorAll<GtTable>(TAG_NAME));
+  };
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+  const token = (el: GtTable) => el.querySelector<HTMLElement>(".gt-i-token[data-gti-link]");
+  const linkInfo = (el: GtTable) => el.querySelector<HTMLElement>('.gt-i-info-item[data-gti-info="link"]') as HTMLElement;
+  const showAll = (el: GtTable) => linkInfo(el).querySelector("button") as HTMLButtonElement;
+  const MAKES = { controls: { selection: "multiple" as const } };
+
+  it("filters the other tables to the rows with the values of the rows selected in one", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    expect(token(cars)).toBeNull();
+    expect(linkInfo(cars).textContent).toBe("Linked to other tables by YShow all");
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("true");
+    box(makes, 1).click();
+    // ("a": rows 1, 3 and 4; the table selected in isn't filtered)
+    expect(visible(cars)).toEqual([1, 3, 4]);
+    expect(visible(makes)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)?.querySelector(".gt-i-token-open")?.textContent).toBe("Selected in Makes: a");
+    expect(token(cars)?.querySelector(".gt-i-token-remove")?.getAttribute("aria-label")).toBe("Show the rows not selected in Makes");
+    expect(linkInfo(cars).querySelector("span")?.textContent).toBe("Filtered by the selection in Makes");
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("false");
+    expect(live(cars)).toBe("Cars: Showing 3 of 5 rows");
+    box(makes, 0).click();
+    expect(visible(cars)).toEqual([0, 1, 3, 4]);
+    // (In the data's order)
+    expect(token(cars)?.textContent).toBe("Selected in Makes: b, a");
+    // (Set as a property, too)
+    makes.selection = [2];
+    expect(visible(cars)).toEqual([2]);
+    makes.selection = [];
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)).toBeNull();
+    expect(live(cars)).toBe("Cars: Showing all 5 rows");
+  });
+
+  it("lifts the filter from its token or the info panel, until the selection changes", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [1];
+    (token(cars)?.querySelector(".gt-i-token-remove") as HTMLButtonElement).click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(token(cars)).toBeNull();
+    expect(showAll(cars).getAttribute("aria-disabled")).toBe("true");
+    makes.selection = [1, 2];
+    expect(visible(cars)).toEqual([1, 2, 3, 4]);
+    // (With Delete, on the token)
+    token(cars)?.querySelector("button")?.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    makes.selection = [2];
+    showAll(cars).click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(linkInfo(cars).querySelector("span")?.textContent).toBe("Linked to other tables by Y");
+  });
+
+  it("is on top of the table's own filters, which Clear all clears with it", async () => {
+    const filters: FilterSpec[] = [{ column: "x", type: "range", values: [5, 10, 20], missing: [3] }];
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars", { filters }))) as [GtTable, GtTable];
+    cars.filter = { and: [{ col: "x", op: "gte", value: 10 }] };
+    makes.selection = [1];
+    expect(visible(cars)).toEqual([4]);
+    const clear = cars.querySelector(".gt-i-token-clear") as HTMLButtonElement;
+    clear.click();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(cars.filter).toBeNull();
+  });
+
+  it("filters each way between tables whose rows can both be selected", async () => {
+    const [a, b] = (await mountLinked(linkedTable("A", MAKES), linkedTable("B", MAKES))) as [GtTable, GtTable];
+    a.selection = [0];
+    b.selection = [2];
+    expect(visible(a)).toEqual([2]);
+    expect(visible(b)).toEqual([0]);
+  });
+
+  it("doesn't link rows with a missing value, or tables in other groups", async () => {
+    const keys = [null, "a", "c", "a", "a"];
+    const [makes, cars, other] = (await mountLinked(
+      linkedTable("Makes", MAKES, { keys }),
+      linkedTable("Cars"),
+      linkedTable("Other", {}, { group: "h" }),
+    )) as [GtTable, GtTable, GtTable];
+    makes.selection = [0];
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    makes.selection = [0, 2];
+    expect(visible(cars)).toEqual([2]);
+    expect(visible(other)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("names a table without a name as another table", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable(null, MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [1];
+    expect(token(cars)?.textContent).toBe("Selected in another table: a");
+  });
+
+  it("drops a table's filter when it's taken out, and filters a table added later", async () => {
+    const [makes, cars] = (await mountLinked(linkedTable("Makes", MAKES), linkedTable("Cars"))) as [GtTable, GtTable];
+    makes.selection = [2];
+    const holder = document.createElement("div");
+    holder.innerHTML = linkedTable("More");
+    document.body.append(holder);
+    await tick();
+    const more = holder.querySelector(TAG_NAME) as GtTable;
+    expect(visible(more)).toEqual([2]);
+    makes.remove();
+    expect(visible(cars)).toEqual([0, 1, 2, 3, 4]);
+    expect(visible(more)).toEqual([0, 1, 2, 3, 4]);
+    // (Back again, it shares its selection again)
+    document.body.prepend(makes);
+    expect(visible(cars)).toEqual([2]);
+  });
+
+  it("is checked in the spec", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const [el] = (await mountLinked(linkedTable("Makes", MAKES, { keys: ["a"] }))) as [GtTable];
+    expect(el.getAttribute("data-gti-state")).toBe("error");
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`link` must have/));
+  });
+});
+
+describe("colors made again from the rows kept", () => {
+  const BODY = [0, 1, 2, 3, 4];
+  // (The `x` cells' colors, from every row; row 3's value is missing)
+  const STYLE = "background-color: #ff0000; color: #00ff00";
+  const xStyles = Object.fromEntries(BODY.map((row) => [row, STYLE]));
+  const COLOR: ColorSpec = {
+    column: "x",
+    rows: [0, 1, 2, 4],
+    values: [20, 5, 10, 20],
+    levels: null,
+    palette: ["#000000", "#ffffff"],
+    alpha: "",
+    midpoint: null,
+    text: "apca",
+    fixed: [],
+  };
+  // (A color as the cell's style gives it)
+  const css = (color: string) => {
+    const div = document.createElement("div");
+    div.style.color = color;
+    return div.style.color;
+  };
+  const FIRST = [css("#ff0000"), css("#00ff00")];
+  const BLACK = [css("#000000"), css("#FFFFFF")];
+  const WHITE = [css("#ffffff"), css("#000000")];
+
+  const colorsOf = (el: GtTable) =>
+    BODY.map((row) => {
+      const td = el.rowElement(row)?.querySelector("td") as HTMLElement;
+      return [td.style.backgroundColor, td.style.color];
+    });
+  const mountColored = (color: Partial<ColorSpec> = {}, options: TableOptions = {}) =>
+    mountTable(BODY, { controls: { search: true }, colors: [{ ...COLOR, ...color }], xStyles, ...options });
+
+  it("colors the rows a search keeps from them alone, and gives back the first colors after", async () => {
+    const el = await mountColored();
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+    el.search = "a";
+    // (Rows 1 and 4 are kept, and row 3's value is missing)
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, FIRST, FIRST, WHITE]);
+    // (And the rows another search hides get their first colors back)
+    el.search = "c";
+    expect(colorsOf(el)).toEqual([FIRST, FIRST, BLACK, FIRST, FIRST]);
+    el.search = "";
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("colors the rows a filter keeps", async () => {
+    const el = await mountColored({}, { filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }] });
+    el.filter = { and: [{ col: "y", op: "in", value: ["a", "c"] }] };
+    const grey = ramp(COLOR.palette)(1 / 3);
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, [css(grey), css(textColor(grey, "apca"))], FIRST, WHITE]);
+    el.filter = null;
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("doesn't color the rows again for a sort or a page", async () => {
+    const el = await mountColored({}, { pagination: { enabled: true } });
+    el.sort = [{ column: "x", descending: true }];
+    el.page = 2;
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+    el.search = "a";
+    el.sort = [{ column: "x" }];
+    el.page = 2;
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, FIRST, FIRST, WHITE]);
+  });
+
+  it("leaves the cells another style colors, which still count", async () => {
+    const el = await mountColored({ fixed: [1] });
+    el.search = "a";
+    expect(colorsOf(el)).toEqual([FIRST, FIRST, FIRST, FIRST, WHITE]);
+  });
+
+  it("gives the colors its alpha, and the text the color that contrasts more over white", async () => {
+    const el = await mountColored({ alpha: "80" });
+    el.search = "a";
+    const [one, four] = [colorsOf(el)[1], colorsOf(el)[4]];
+    expect(one).toEqual([css("#00000080"), css(textColor("#00000080", "apca"))]);
+    expect(four).toEqual([css("#ffffff80"), css("#000000")]);
+  });
+
+  it("leaves the text's color without a contrast", async () => {
+    const el = await mountColored({ text: null });
+    el.search = "a";
+    expect(colorsOf(el)[1]).toEqual([css("#000000"), css("#00ff00")]);
+  });
+
+  it("forgets the colors when its table is replaced", async () => {
+    const el = await mountColored();
+    el.search = "a";
+    el.remove();
+    const { html, spec } = gtTable(BODY, { controls: { search: true }, xStyles });
+    el.innerHTML = html + specScript(spec);
+    document.body.append(el);
+    await tick();
+    el.search = "a";
+    expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
+  });
+
+  it("is checked in the spec", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = await mountColored({ column: "row" });
+    expect(el.getAttribute("data-gti-state")).toBe("error");
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/`colors\[0\]` must/));
+  });
+});
+
+describe("the rows kept", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+
+  it("are every data row, in the order shown, without a search or filters", async () => {
+    expect((await mountTable()).rows).toEqual([3, 0, 4, 1, 2]);
+  });
+
+  it("are those the search and filters keep, as sorted, on every page", async () => {
+    const el = await mountTable(FLAT, { controls: { search: true }, filters: [FACET], pagination: { enabled: true } });
+    el.sort = [{ column: "x", descending: true }];
+    expect(el.rows).toEqual([0, 4, 2, 1, 3]);
+    el.filter = { and: [{ col: "y", op: "in", value: ["a"] }] };
+    expect(el.rows).toEqual([4, 1, 3]);
+    el.search = "20";
+    expect(el.rows).toEqual([4]);
+  });
+
+  it("are none until hydrated", () => {
+    expect((document.createElement(TAG_NAME) as GtTable).rows).toEqual([]);
+  });
+});
+
+describe("a table shown as a widget", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+  const VIEW: WidgetView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+
+  // An anywidget model, as Backbone's (its changes' callbacks called as they're set), and what's
+  // saved and sent
+  function fakeModel(state: Record<string, unknown>) {
+    const callbacks = new Map<string, Set<() => void>>();
+    const saved: Record<string, unknown>[] = [];
+    const sent: unknown[] = [];
+    let changes: Record<string, unknown> = {};
+    const fire = (name: string) => {
+      for (const callback of callbacks.get(`change:${name}`) ?? []) {
+        callback();
+      }
+    };
+    const model: Model = {
+      get: (name) => state[name],
+      set: (name, value) => {
+        state[name] = value;
+        changes[name] = value;
+        fire(name);
+      },
+      save_changes: () => {
+        saved.push(changes);
+        changes = {};
+      },
+      send: (content) => sent.push(content),
+      on: (event, callback) => {
+        callbacks.set(event, (callbacks.get(event) ?? new Set()).add(callback));
+      },
+      off: (event, callback) => {
+        callbacks.get(event)?.delete(callback);
+      },
+    };
+    // (As from Python: set, then their callbacks called)
+    const update = (changed: Record<string, unknown>) => {
+      Object.assign(state, changed);
+      for (const name of Object.keys(changed)) {
+        fire(name);
+      }
+    };
+    return { model, state, saved, sent, update, callbacks };
+  }
+
+  async function show(options: TableOptions = {}, state: Record<string, unknown> = {}) {
+    const { html, spec } = gtTable(FLAT, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    const fake = fakeModel({ _html: `<gt-table>${html}${specScript(spec)}</gt-table>`, _view: null, _rows: null, _selection: [], ...state });
+    const el = document.createElement("div");
+    document.body.append(el);
+    const cleanup = widget.render({ model: fake.model, el });
+    await tick();
+    return { ...fake, table: el.querySelector(TAG_NAME) as GtTable, cleanup };
+  }
+
+  it("has the element's events' names", () => {
+    expect([WIDGET_VIEW_EVENT, WIDGET_SELECT_EVENT]).toEqual([VIEW_EVENT, SELECT_EVENT]);
+  });
+
+  it("gives the model the table's state once it's hydrated, without telling Python of a change", async () => {
+    const { table, state, saved, sent } = await show();
+    expect(table.state).toBe("ready");
+    expect(state._view).toEqual(VIEW);
+    expect(state._rows).toEqual([0, 1, 2, 3, 4]);
+    expect(saved).toEqual([{ _view: VIEW, _rows: [0, 1, 2, 3, 4] }]);
+    expect(sent).toEqual([]);
+  });
+
+  it("gives the model what the reader changes, and tells Python", async () => {
+    const { table, state, saved, sent } = await show();
+    click(table, "x");
+    expect(state._view).toEqual({ ...VIEW, sort: [{ column: "x", descending: false }] });
+    expect(state._rows).toEqual([1, 2, 0, 4, 3]);
+    expect(saved[saved.length - 1]).toEqual({ _view: state._view, _rows: state._rows });
+    expect(sent).toEqual([{ type: "change" }]);
+
+    box(table, 2).click();
+    expect(state._selection).toEqual([2]);
+    expect(saved[saved.length - 1]).toEqual({ _selection: [2] });
+    expect(sent).toHaveLength(2);
+  });
+
+  it("sets on the table what Python changes, and gives the model the rows", async () => {
+    const { table, state, saved, sent, update } = await show();
+    update({
+      _view: { ...VIEW, filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: [{ column: "x", descending: true }] },
+      _rows: null,
+    });
+    expect(table.filter).toEqual({ and: [{ col: "y", op: "in", value: ["a"] }] });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(state._rows).toEqual([4, 1, 3]);
+    update({ _view: { ...(state._view as WidgetView), search: "20" }, _rows: null });
+    expect(table.search).toBe("20");
+    expect(state._rows).toEqual([4]);
+    update({ _selection: [1, 3] });
+    expect(table.selection).toEqual([1, 3]);
+    expect(saved[saved.length - 1]).toEqual({ _rows: [4] });
+    expect(sent).toEqual([]);
+  });
+
+  it("gives the model the table's view back when what Python changes can't be set", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { table, state, update } = await show();
+    update({ _view: { ...VIEW, filter: { and: [{ col: "x", op: "in", value: ["a"] }] } }, _rows: null });
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/^<gt-table>: /));
+    expect(table.filter).toBeNull();
+    expect(state._view).toEqual(VIEW);
+    expect(state._rows).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("starts with the model's state, as when it's shown again", async () => {
+    const view = { ...VIEW, sort: [{ column: "x", descending: true }], search: "20" };
+    const { table, state, saved } = await show({}, { _view: view, _rows: [0, 4], _selection: [4] });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(table.search).toBe("20");
+    expect(table.selection).toEqual([4]);
+    expect(state._view).toEqual(view);
+    expect(saved).toEqual([]);
+  });
+
+  it("is told of a linked table's selection, which changes the rows it keeps", async () => {
+    const link = { group: "g", on: "y", keys: Y, name: "Table", label: "Y" };
+    const { table, state, sent } = await show({ link });
+    const { html, spec } = gtTable(FLAT, { controls: { selection: "multiple" }, link: { ...link, name: "Other" } });
+    const other = document.createElement("div");
+    other.innerHTML = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    document.body.append(other);
+    await tick();
+    box(other.querySelector(TAG_NAME) as GtTable, 2).click();
+    await tick();
+    expect(table.rows).toEqual([2]);
+    expect(state._rows).toEqual([2]);
+    expect(sent).toEqual([{ type: "change" }]);
+  });
+
+  it("stops following the model once it's taken down", async () => {
+    const { table, callbacks, update, cleanup } = await show();
+    cleanup();
+    expect([...callbacks.values()].every((set) => set.size === 0)).toBe(true);
+    update({ _view: { ...VIEW, search: "20" } });
+    expect(table.search).toBe("");
+  });
+
+  it("leaves a table that isn't interactive alone", async () => {
+    const fake = fakeModel({ _html: "<gt-table><table class='gt_table'><tbody></tbody></table></gt-table>", _view: null });
+    const el = document.createElement("div");
+    document.body.append(el);
+    widget.render({ model: fake.model, el });
+    await tick();
+    expect(el.querySelector<GtTable>(TAG_NAME)?.state).toBe("static");
+    expect(fake.saved).toEqual([]);
+  });
+
+  describe("in kernel mode", () => {
+    type Ask = { type: "ask"; id: string; kind: string; query: PageQuery; column?: string };
+    const answer = (fake: ReturnType<typeof fakeModel>, content: unknown) => {
+      for (const callback of fake.callbacks.get("msg:custom") ?? []) {
+        (callback as (content: unknown) => void)(content);
+      }
+    };
+    const asks = (sent: unknown[]) => sent.filter((content): content is Ask => (content as Ask).type === "ask");
+
+    // The first page of a remote table, whose source is Python's
+    async function showKernel() {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      const fake = fakeModel({
+        _html: `<gt-table>${html}${specScript(remote)}</gt-table>`,
+        _view: null,
+        _rows: null,
+        _selection: [],
+        _kernel: true,
+        _nrows: 5,
+      });
+      const el = document.createElement("div");
+      document.body.append(el);
+      const cleanup = widget.render({ model: fake.model, el });
+      await tick();
+      return { ...fake, table: el.querySelector(TAG_NAME) as GtTable, cleanup };
+    }
+
+    it("asks Python for a page, and shows its answer", async () => {
+      const fake = await showKernel();
+      const { table, sent, state } = fake;
+      expect(table.source).toBeInstanceOf(KernelSource);
+      expect(state._rows).toBeNull();
+      table.page = 2;
+      const [ask] = asks(sent);
+      expect(ask).toMatchObject({ kind: "page", query: { start: 2, size: 2, sort: [] } });
+      expect(table.loading).toBe(true);
+      const { html } = gtTable([2, 3]);
+      const trs = (html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+      answer(fake, { type: "answer", id: ask?.id, answer: { count: 5, start: 2, rows: [2, 3], html: trs } });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+      // (The rows aren't the model's: Python has them)
+      expect(state._rows).toBeNull();
+    });
+
+    it("stops listening for answers once it's taken down", async () => {
+      const fake = await showKernel();
+      fake.table.page = 2;
+      fake.cleanup();
+      expect(fake.callbacks.get("msg:custom")?.size ?? 0).toBe(0);
+    });
+  });
+
+  describe("KernelSource", () => {
+    function fakeKernel() {
+      const sent: { id: string; kind: string }[] = [];
+      const model = { send: (content: unknown) => sent.push(content as { id: string; kind: string }) } as unknown as Model;
+      return { sent, model };
+    }
+    const query = { search: "", hidden: [], filter: null, links: [] };
+
+    it("asks with an id of its own, and takes the answer with it", async () => {
+      const { sent, model } = fakeKernel();
+      const source = new KernelSource(model, 5);
+      const other = new KernelSource(model, 5);
+      const facet = source.facet(query, "y");
+      const rows = other.rows(query);
+      expect(sent.map((ask) => ask.kind)).toEqual(["facet", "rows"]);
+      expect(sent[0]?.id).not.toBe(sent[1]?.id);
+      // (Each source takes only its own answers)
+      for (const each of [source, other]) {
+        each.onMessage({ type: "answer", id: sent[1]?.id, answer: [1, 3] });
+        each.onMessage({ type: "answer", id: sent[0]?.id, answer: [[0, 2], [-1, 1]] });
+      }
+      expect(await facet).toEqual(new Map([[0, 2], [-1, 1]]));
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+    });
+
+    it("fails with Python's error, and when it's closed", async () => {
+      const { sent, model } = fakeKernel();
+      const source = new KernelSource(model, 5);
+      const page = source.page({ ...query, sort: [], start: 0, size: 2 });
+      source.onMessage({ type: "answer", id: sent[0]?.id, error: "no such column" });
+      await expect(page).rejects.toThrow("no such column");
+      const later = source.rows(query);
+      source.close();
+      await expect(later).rejects.toThrow("gone");
+      // (Other messages are left alone)
+      source.onMessage({ type: "change" });
+      source.onMessage(null);
+    });
+  });
+});
+
+describe("tables in a Shiny app", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const VIEW: HostView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+  const box = (el: GtTable, row: number) =>
+    el.rowElement(row)?.querySelector<HTMLInputElement>(":scope > .gt-i-select > input") as HTMLInputElement;
+
+  // Shiny's `window.Shiny`: the inputs' last values (by name, without their types), and the
+  // handler of the server's messages
+  function fakeShiny() {
+    const inputs: Record<string, unknown> = {};
+    const names: string[] = [];
+    const handlers: Record<string, (message: Update) => void> = {};
+    const shiny: ShinyLike = {
+      setInputValue: (name, value) => {
+        names.push(name);
+        inputs[name.split(":")[0] as string] = value;
+      },
+      addCustomMessageHandler: (type, handler) => {
+        handlers[type] = handler;
+      },
+    };
+    const send = (message: Update) => handlers[SHINY_MESSAGE]?.(message);
+    return { shiny, inputs, names, send };
+  }
+
+  const output = (id: string, options: TableOptions = {}, tables = 1) => {
+    const { html, spec } = gtTable(FLAT, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    const table = `<gt-table>${html}${specScript(spec)}</gt-table>`;
+    return `<div class="shiny-html-output" id="${id}">${table.repeat(tables)}</div>`;
+  };
+  const tableOf = (id: string) => document.querySelector<GtTable>(`#${id} > gt-table`) as GtTable;
+
+  // (Each test's glue stops after it)
+  const stops: (() => void)[] = [];
+  const start = (shiny: ShinyLike) => {
+    const stop = startShiny(shiny);
+    stops.push(stop);
+    return stop;
+  };
+  afterEach(() => {
+    for (const stop of stops.splice(0)) {
+      stop();
+    }
+  });
+
+  it("gives a table's state as the inputs of its output, once it's hydrated", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, names } = fakeShiny();
+    start(shiny);
+    expect(inputs).toEqual({ out_view: VIEW, out_rows: [0, 1, 2, 3, 4], out_selection: [] });
+    expect(names[0]).toBe(`out_view:${SHINY_VIEW_TYPE}`);
+
+    // (And a table hydrated after, as an output's rendered again)
+    const outputs = document.createElement("div");
+    outputs.innerHTML = output("later");
+    document.body.append(outputs);
+    await tick();
+    expect(inputs.later_rows).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("gives the reader's changes, and a linked table's selection's", async () => {
+    const link = { group: "g", on: "y", keys: Y, label: "Y" };
+    await mount(output("one", { link: { ...link, name: "One" } }) + output("two", { link: { ...link, name: "Two" } }));
+    const { shiny, inputs } = fakeShiny();
+    start(shiny);
+    click(tableOf("one"), "x");
+    expect(inputs.one_view).toEqual({ ...VIEW, sort: [{ column: "x", descending: false }] });
+    expect(inputs.one_rows).toEqual([1, 2, 0, 4, 3]);
+    box(tableOf("one"), 2).click();
+    await tick();
+    expect(inputs.one_selection).toEqual([2]);
+    expect(inputs.two_rows).toEqual([2]);
+  });
+
+  it("leaves out a table that isn't the only one in an output, or isn't in one", async () => {
+    const { html, spec } = gtTable(FLAT);
+    await mount(output("two", {}, 2) + `<gt-table>${html}${specScript(spec)}</gt-table>`);
+    expect(document.querySelectorAll<GtTable>("gt-table")[2]?.state).toBe("ready");
+    const { shiny, names } = fakeShiny();
+    start(shiny);
+    expect(names).toEqual([]);
+    expect(outputOf(document.querySelectorAll<GtTable>("gt-table")[2] as GtTable)).toBeNull();
+    expect(tableIn(document.getElementById("two"))).toBeNull();
+  });
+
+  it("sets what the server changes on the table, and gives its state", async () => {
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({
+      id: "out",
+      view: { filter: { and: [{ col: "y", op: "in", value: ["a"] }] }, sort: [{ column: "x", descending: true }] },
+      selection: [1, 3],
+    });
+    const table = tableOf("out");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(table.selection).toEqual([1, 3]);
+    expect(inputs.out_rows).toEqual([4, 1, 3]);
+    expect(inputs.out_selection).toEqual([1, 3]);
+    send({ id: "out", view: { search: "20" } });
+    expect(table.search).toBe("20");
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(inputs.out_rows).toEqual([4]);
+  });
+
+  it("keeps what the server changes until the table's hydrated", async () => {
+    document.body.innerHTML = `<div class="shiny-html-output" id="out"></div>`;
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { search: "20", sort: [{ column: "x", descending: false }] } });
+    send({ id: "out", view: { search: "10" }, selection: [1] });
+    expect(inputs).toEqual({});
+    (document.getElementById("out") as HTMLElement).outerHTML = output("out");
+    await tick();
+    const table = tableOf("out");
+    expect([table.search, table.sort, table.selection]).toEqual(["10", [{ column: "x", descending: false }], [1]]);
+    expect(inputs.out_rows).toEqual([2]);
+  });
+
+  it("gives the table's own view when what the server changes can't be set", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    await mount(output("out"));
+    const { shiny, inputs, send } = fakeShiny();
+    start(shiny);
+    send({ id: "out", view: { filter: { and: [{ col: "x", op: "in", value: ["a"] }] } } });
+    expect(error).toHaveBeenCalledWith(expect.stringMatching(/^<gt-table>: /));
+    expect(inputs.out_view).toEqual(VIEW);
+  });
+
+  it("stops following the page", async () => {
+    await mount(output("out"));
+    const { shiny, inputs } = fakeShiny();
+    const stop = start(shiny);
+    stop();
+    click(tableOf("out"), "x");
+    expect(inputs.out_view).toEqual(VIEW);
+  });
+
+  describe("in kernel mode", () => {
+    type Request = { method: string; args: unknown[]; onSuccess: (value: unknown) => void; onError: (err: string) => void };
+
+    // Shiny, with the requests made of the server
+    function fakeServer() {
+      const fake = fakeShiny();
+      const requests: Request[] = [];
+      fake.shiny.shinyapp = {
+        makeRequest: (method, args, onSuccess, onError) => requests.push({ method, args, onSuccess, onError }),
+      };
+      return { ...fake, requests };
+    }
+
+    // An output with the first page of a table whose rows are the server's
+    const served = (id: string) => {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      return `<div class="shiny-html-output" id="${id}"><gt-table data-gti-server="5">${html}${specScript(remote)}</gt-table></div>`;
+    };
+    const trsOf = (rows: number[]) => (gtTable(rows).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+
+    it("asks the output's handler for a page, and shows its answer", async () => {
+      await mount(served("out"));
+      const { shiny, requests } = fakeServer();
+      start(shiny);
+      const table = tableOf("out");
+      expect(table.source).toBeInstanceOf(ShinySource);
+      // (The first page, asked for again with the new source)
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [0, 1], html: trsOf([0, 1]) }));
+      await tick();
+      table.page = 2;
+      const [request] = requests;
+      expect(request?.method).toBe("out_gti");
+      expect(request?.args).toEqual([{ kind: "page", query: expect.objectContaining({ start: 2, size: 2, sort: [] }) }]);
+      expect(table.loading).toBe(true);
+      request?.onSuccess({ count: 5, start: 2, rows: [2, 3], html: trsOf([2, 3]) });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+    });
+
+    it("gives its view as its rows input, for the server to find them", async () => {
+      await mount(served("out"));
+      const { shiny, inputs, names, requests } = fakeServer();
+      start(shiny);
+      expect(names).toContain(`out_rows:${SHINY_ROWS_TYPE}`);
+      expect(inputs.out_rows).toEqual({ filter: null, sort: [], search: "", hidden: [] });
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [0, 1], html: trsOf([0, 1]) }));
+      await tick();
+      click(tableOf("out"), "x");
+      requests.splice(0).forEach((request) => request.onSuccess({ count: 5, start: 0, rows: [1, 2], html: trsOf([1, 2]) }));
+      await tick();
+      expect(inputs.out_rows).toEqual({ filter: null, sort: [{ column: "x", descending: false }], search: "", hidden: [] });
+    });
+
+    it("fails with the server's error, or without Shiny's requests", async () => {
+      const { shiny, requests } = fakeServer();
+      const source = new ShinySource(shiny, "out_gti", 5);
+      const query = { search: "", hidden: [], filter: null, links: [] };
+      const facet = source.facet(query, "y");
+      requests[0]?.onError("no such column");
+      await expect(facet).rejects.toThrow("no such column");
+      const rows = source.rows(query);
+      requests[1]?.onSuccess([1, 3]);
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+      const alone = new ShinySource(fakeShiny().shiny, "out_gti", 5);
+      await expect(alone.rows(query)).rejects.toThrow("Shiny");
+    });
+  });
+});
+
+describe("a table in a Streamlit app", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+  const VIEW: HostView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+  type Value = { token: number; report: string; state: { view: HostView; rows: number[] | null; selection: number[] } | null; asks: { id: string; kind: string }[] };
+
+  const element = (body: BodyRow[] = [0, 1, 2, 3, 4], options: TableOptions = {}) => {
+    const { html, spec } = gtTable(body, { controls: { search: true, selection: "multiple" }, filters: [FACET], ...options });
+    return `<gt-table>${html}${specScript(spec)}</gt-table>`;
+  };
+  const dataOf = (data: Partial<StreamlitData> = {}): StreamlitData => ({
+    html: element(),
+    token: 1,
+    kernel: false,
+    nrows: 5,
+    report: true,
+    view: null,
+    selection: null,
+    known: null,
+    update: null,
+    answers: null,
+    ...data,
+  });
+
+  // A component's element, run as Streamlit runs it: the component's function called with each
+  // run's data, and the state values it sets
+  function fakeApp() {
+    const root = document.createElement("div");
+    document.body.append(root);
+    const values: Value[] = [];
+    let cleanup = () => {};
+    const run = async (data: Partial<StreamlitData> = {}) => {
+      cleanup = renderStreamlit({ data: dataOf(data), parentElement: root, setStateValue: (_, value) => values.push(value as Value) });
+      await tick();
+    };
+    const table = () => root.querySelector(TAG_NAME) as GtTable;
+    return { root, values, run, table, cleanup: () => cleanup() };
+  }
+
+  it("reports the table's state once it's hydrated, and each change the reader makes", async () => {
+    const { values, run, table } = fakeApp();
+    await run();
+    expect(table().state).toBe("ready");
+    expect(values).toHaveLength(1);
+    expect(values[0]).toMatchObject({ token: 1, state: { view: VIEW, rows: [0, 1, 2, 3, 4], selection: [] }, asks: [] });
+    click(table(), "x");
+    await tick();
+    expect(values).toHaveLength(2);
+    expect(values[1]?.state?.rows).toEqual([1, 2, 0, 4, 3]);
+    expect(values[1]?.report).not.toBe(values[0]?.report);
+    // (Two changes made at once are reported together)
+    click(table(), "x");
+    click(table(), "x");
+    await tick();
+    expect(values).toHaveLength(3);
+  });
+
+  it("doesn't report what Python has, nor again what it reported while Python has the same", async () => {
+    const app = fakeApp();
+    await app.run();
+    const [first] = app.values;
+    // (Python's run, with what was reported)
+    await app.run({ known: first?.state });
+    await app.run({ known: first?.state });
+    expect(app.values).toHaveLength(1);
+    // (Nor with Python a run behind)
+    click(app.table(), "x");
+    await tick();
+    await app.run({ known: first?.state });
+    expect(app.values).toHaveLength(2);
+  });
+
+  it("reports nothing of a table whose changes are ignored", async () => {
+    const app = fakeApp();
+    await app.run({ report: false });
+    click(app.table(), "x");
+    await tick();
+    expect(app.values).toEqual([]);
+  });
+
+  it("starts with Python's view and selection", async () => {
+    const app = fakeApp();
+    await app.run({ view: { search: "20", sort: [{ column: "x", descending: true }] }, selection: [4] });
+    const table = app.table();
+    expect([table.search, table.sort, table.selection]).toEqual(["20", [{ column: "x", descending: true }], [4]]);
+    expect(app.values[0]?.state?.rows).toEqual([0, 4]);
+  });
+
+  it("sets Python's change on the table once, by its number", async () => {
+    const app = fakeApp();
+    await app.run();
+    const update = { nonce: 1, view: { search: "20" }, selection: [4] };
+    await app.run({ update });
+    const table = app.table();
+    expect([table.search, table.selection]).toEqual(["20", [4]]);
+    expect(app.values[1]?.state).toMatchObject({ view: { search: "20" }, rows: [0, 4], selection: [4] });
+    // (Given again, with the next run, it isn't set again)
+    table.search = "";
+    await tick();
+    await app.run({ update, known: app.values[2]?.state });
+    expect(table.search).toBe("");
+    await app.run({ update: { nonce: 2, view: { search: "10" } } });
+    expect(table.search).toBe("10");
+  });
+
+  it("shows a new table for a new element, or a new token, and takes it down", async () => {
+    const app = fakeApp();
+    await app.run();
+    const first = app.table();
+    await app.run();
+    expect(app.table()).toBe(first);
+    await app.run({ token: 2 });
+    const second = app.table();
+    expect(second).not.toBe(first);
+    expect(first.isConnected).toBe(false);
+    expect(app.values[app.values.length - 1]?.token).toBe(2);
+    await app.run({ token: 2, html: element([0, 1]) });
+    expect(app.table()).not.toBe(second);
+    expect(app.root.querySelectorAll(TAG_NAME)).toHaveLength(1);
+    app.cleanup();
+    expect(app.root.querySelector(TAG_NAME)).toBeNull();
+  });
+
+  describe("in kernel mode", () => {
+    // The first page of a remote table, whose rows are Python's
+    const remote = () => {
+      const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+      const served = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+      return `<gt-table>${html}${specScript(served)}</gt-table>`;
+    };
+    const trsOf = (rows: number[]) => (gtTable(rows).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+    const page = (rows: number[]) => ({ answer: { count: 5, start: rows[0], rows, html: trsOf(rows) } });
+
+    it("asks for pages in its state, and shows the answers in the data", async () => {
+      const app = fakeApp();
+      await app.run({ html: remote(), kernel: true });
+      const table = app.table();
+      expect(table.source).toBeInstanceOf(StreamlitSource);
+      // (Its first ask, made as it's shown, is sent)
+      const first = app.values[app.values.length - 1];
+      expect(first?.asks).toHaveLength(1);
+      expect(first?.state?.rows).toBeNull();
+      await app.run({ html: remote(), kernel: true, answers: { [first?.asks[0]?.id as string]: page([0, 1]) } });
+      table.page = 2;
+      await tick();
+      const asks = app.values[app.values.length - 1]?.asks ?? [];
+      expect(asks).toEqual([expect.objectContaining({ kind: "page", query: expect.objectContaining({ start: 2, size: 2 }) })]);
+      expect(table.loading).toBe(true);
+      await app.run({ html: remote(), kernel: true, answers: { [asks[0]?.id as string]: page([2, 3]) } });
+      await tick();
+      expect(visible(table)).toEqual([2, 3]);
+      expect(table.loading).toBe(false);
+    });
+  });
+
+  describe("StreamlitSource", () => {
+    const query = { search: "", hidden: [], filter: null, links: [] };
+
+    it("asks with ids of its own, and takes the answers to them", async () => {
+      const sends: number[] = [];
+      const source = new StreamlitSource(5, () => sends.push(source.asks.length));
+      const other = new StreamlitSource(5, () => {});
+      const facet = source.facet(query, "y");
+      const rows = source.rows(query);
+      const elsewhere = other.rows(query);
+      expect(sends).toEqual([1, 2]);
+      const [one, two] = source.asks;
+      expect([one?.kind, two?.kind]).toEqual(["facet", "rows"]);
+      expect(one?.id).not.toBe(two?.id);
+      expect(other.asks[0]?.id).not.toBe(two?.id);
+      source.answer({ [two?.id as string]: { answer: [1, 3] } });
+      expect(source.asks).toEqual([one]);
+      const { matched, count } = await rows;
+      expect([Array.from(matched ?? []), count]).toEqual([[0, 1, 0, 1, 0], 2]);
+      source.answer({ [one?.id as string]: { error: "no such column" } });
+      await expect(facet).rejects.toThrow("no such column");
+      other.close();
+      await expect(elsewhere).rejects.toThrow("gone");
+      expect(other.asks).toEqual([]);
+    });
+  });
+});
+
+describe("a source that answers later", () => {
+  const FLAT: BodyRow[] = [0, 1, 2, 3, 4];
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+
+  // A source that gives another's answers (or fails) only when told to, keeping what it's asked
+  class SlowSource implements DataSource {
+    asked: { query: RowQuery; answer: () => void; fail: (err: unknown) => void }[] = [];
+    facets: { query: RowQuery; column: string; answer: () => void }[] = [];
+
+    constructor(private readonly inner: DataSource) {}
+
+    rows(query: RowQuery): Promise<RowAnswer> {
+      return new Promise((resolve, reject) => {
+        this.asked.push({ query, answer: () => resolve(this.inner.rows(query) as RowAnswer), fail: reject });
+      });
+    }
+
+    facet(query: RowQuery, column: string): Promise<FacetCounts> {
+      return new Promise((resolve) => {
+        this.facets.push({ query, column, answer: () => resolve(this.inner.facet(query, column) as FacetCounts) });
+      });
+    }
+  }
+
+  // A table with a search box and a facet on `y`, its own source made slow
+  async function mountSlow(options: TableOptions = {}) {
+    const el = await mountTable(FLAT, { controls: { search: true }, filters: [FACET], ...options });
+    const slow = new SlowSource(el.source as DataSource);
+    el.source = slow;
+    const events: string[] = [];
+    el.addEventListener(SEARCH_EVENT, (event) => {
+      const { search, count } = (event as CustomEvent<SearchEventDetail>).detail;
+      events.push(`search ${search}: ${count}`);
+    });
+    el.addEventListener(FILTER_EVENT, (event) => events.push(`filter: ${(event as CustomEvent<FilterEventDetail>).detail.count}`));
+    el.addEventListener(VIEW_EVENT, (event) => events.push(`view ${(event as CustomEvent<ViewEventDetail>).detail.search}`));
+    el.addEventListener(PAGE_EVENT, (event) => events.push(`pages: ${(event as CustomEvent<PageEventDetail>).detail.pageCount}`));
+    return { el, slow, events };
+  }
+
+  const searchFor = (el: GtTable, value: string) => {
+    const input = searchBox(el) as HTMLInputElement;
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
+  };
+
+  it("is the table's own once hydrated, unless one is set", async () => {
+    expect((document.createElement(TAG_NAME) as GtTable).source).toBeNull();
+    const el = await mountTable(FLAT);
+    const own = el.source;
+    expect(own).not.toBeNull();
+    const other: DataSource = { rows: () => ({ matched: null, count: 5 }), facet: () => new Map() };
+    el.source = other;
+    expect(el.source).toBe(other);
+    el.source = null;
+    expect(el.source).toBe(own);
+  });
+
+  it("isn't asked for the rows without a search, filters or linked selections", async () => {
+    const { el, slow } = await mountSlow();
+    el.sort = [{ column: "x", descending: true }];
+    el.search = "  ";
+    expect(slow.asked).toEqual([]);
+    expect(el.loading).toBe(false);
+  });
+
+  it("keeps the rows shown until its answer comes, then shows them", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    expect(slow.asked.map((ask) => ask.query)).toEqual([{ search: "20", hidden: [], filter: null, links: [] }]);
+    expect(el.loading).toBe(true);
+    expect(el.getAttribute("aria-busy")).toBe("true");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(el.rows).toEqual([0, 1, 2, 3, 4]);
+    // (A sort waits for the rows, too)
+    el.sort = [{ column: "x", descending: false }];
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+
+    slow.asked[0]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
+    expect(el.hasAttribute("aria-busy")).toBe(false);
+    expect(visible(el)).toEqual([0, 4]);
+    expect(el.rows).toEqual([0, 4]);
+    expect(el.pageCount).toBe(1);
+  });
+
+  it("drops an answer to rows asked for again since", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    el.search = "a";
+    // (The later answer first: the earlier one then changes nothing)
+    slow.asked[1]?.answer();
+    await tick();
+    expect(visible(el)).toEqual([1, 3, 4]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(visible(el)).toEqual([1, 3, 4]);
+
+    // (The earlier answer first: the table waits for the later one)
+    el.search = "20";
+    el.search = "10";
+    slow.asked[2]?.answer();
+    await tick();
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([1, 3, 4]);
+    slow.asked[3]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([2]);
+  });
+
+  it("gives a change's events and says what's shown once its rows come, with their count", async () => {
+    const { el, slow, events } = await mountSlow({ pagination: { enabled: true } });
+    searchFor(el, "a");
+    expect(events).toEqual([]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["search a: 3", "view a"]);
+    expect(live(el)).toBe("Showing 3 of 5 rows");
+    expect(el.pageCount).toBe(2);
+
+    // (Each change's, once the last rows asked for come)
+    searchFor(el, "20");
+    searchFor(el, "row");
+    slow.asked[2]?.answer();
+    await tick();
+    expect(events.slice(2)).toEqual(["search 20: 5", "view row", "search row: 5", "view row"]);
+  });
+
+  it("gives a filter's events once its rows come", async () => {
+    const { el, slow, events } = await mountSlow({ controls: { bar: true } });
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    slow.facets[0]?.answer();
+    await tick();
+    el.querySelectorAll<HTMLInputElement>(".gt-i-filter-option input")[2]?.click();
+    expect(events).toEqual([]);
+    expect(slow.asked[0]?.query.filter).toEqual({ and: [{ col: "y", op: "in", value: ["c"] }] });
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["filter: 1", "view "]);
+    expect(live(el)).toBe("Showing 1 of 5 rows");
+    expect(visible(el)).toEqual([2]);
+  });
+
+  it("notes a change to undo at once, though its event waits", async () => {
+    const { el, slow, events } = await mountSlow({
+      viewState: { url: false, storage: false, key: null, undo: true },
+      controls: { bar: true, search: true },
+    });
+    const barButton = (name: string) => el.querySelector(`.gt-i-bar [data-gti-bar="${name}"]`) as HTMLButtonElement;
+    barButton("search").click();
+    searchFor(el, "a");
+    expect(barButton("undo").getAttribute("aria-disabled")).toBe("false");
+    expect(events).toEqual([]);
+    slow.asked[0]?.answer();
+    await tick();
+    expect(events).toEqual(["search a: 3", "view a"]);
+    expect(visible(el)).toEqual([1, 3, 4]);
+    barButton("undo").click();
+    expect(el.search).toBe("");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+  });
+
+  it("counts a facet's values when its answer comes, if the panel's still open", async () => {
+    const { el, slow } = await mountSlow({ controls: { bar: true, search: true } });
+    const counts = () => Array.from(el.querySelectorAll(".gt-i-filter-option .gt-i-filter-count"), (count) => count.textContent);
+    const filterButton = header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement;
+    filterButton.click();
+    expect(slow.facets.map((ask) => ask.column)).toEqual(["y"]);
+    slow.facets[0]?.answer();
+    await tick();
+    expect(counts()).toEqual(["3", "1", "1"]);
+
+    // (Within the search, once its rows come)
+    el.search = "20";
+    slow.asked[0]?.answer();
+    await tick();
+    expect(slow.facets[1]?.query).toEqual({ search: "20", hidden: [], filter: null, links: [] });
+    expect(counts()).toEqual(["3", "1", "1"]);
+    slow.facets[1]?.answer();
+    await tick();
+    expect(counts()).toEqual(["1", "1", "0"]);
+
+    // (An answer for a panel since closed changes nothing)
+    el.search = "";
+    filterButton.click();
+    slow.facets[2]?.answer();
+    await tick();
+    expect(counts()).toEqual(["1", "1", "0"]);
+  });
+
+  it("warns of rows that couldn't be had, keeping those shown", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el, slow, events } = await mountSlow();
+    searchFor(el, "a");
+    const err = new Error("no server");
+    slow.asked[0]?.fail(err);
+    await tick();
+    expect(warn).toHaveBeenCalledWith("<gt-table>: the rows couldn't be had:", err);
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    expect(events).toEqual(["search a: 5", "view a"]);
+  });
+
+  it("asks again when it's set", async () => {
+    const el = await mountTable(FLAT, { controls: { search: true } });
+    el.search = "a";
+    expect(visible(el)).toEqual([1, 3, 4]);
+    el.source = { rows: () => ({ matched: Uint8Array.from([0, 0, 1, 0, 0]), count: 1 }), facet: () => new Map() };
+    expect(visible(el)).toEqual([2]);
+    el.source = null;
+    expect(visible(el)).toEqual([1, 3, 4]);
+  });
+
+  it("is asked for the rows of a search set before hydration, the rows shown staying till then", async () => {
+    const answers: (() => void)[] = [];
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.search = "20";
+    el.source = {
+      rows: () => new Promise((resolve) => answers.push(() => resolve({ matched: Uint8Array.from([1, 0, 0, 0, 1]), count: 2 }))),
+      facet: () => new Map(),
+    };
+    const { html, spec } = gtTable(FLAT, { controls: { search: true } });
+    el.innerHTML = `${html}${specScript(spec)}`;
+    document.body.append(el);
+    await tick();
+    expect(el.state).toBe("ready");
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4]);
+    answers[0]?.();
+    await tick();
+    expect(visible(el)).toEqual([0, 4]);
+  });
+
+  it("drops an answer that comes after the table's spec is gone", async () => {
+    const { el, slow } = await mountSlow();
+    el.search = "20";
+    el.remove();
+    await tick();
+    slow.asked[0]?.answer();
+    await tick();
+    expect(el.loading).toBe(false);
+  });
+});
+
+describe("a remote table", () => {
+  const FACET: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"], missing: [], labels: ["A", "B", "C"] };
+
+  // The rows' HTML, as the table's own
+  const trsOf = (rows: number[]) => {
+    const { html } = gtTable(rows);
+    return (html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1] as string;
+  };
+
+  // A source with every row, which gives the page a query asks for (searching `y`), as Python does
+  function pageOf(query: PageQuery): PageAnswer {
+    const kept = [0, 1, 2, 3, 4].filter((row) => (Y[row] as string).includes(query.search));
+    const rank = (column: string, row: number) => RANKS[column as keyof typeof RANKS][row] ?? null;
+    kept.sort((a, b) => {
+      for (const { column, descending } of query.sort) {
+        const [ra, rb] = [rank(column, a), rank(column, b)];
+        if (ra !== rb) {
+          return ra === null ? 1 : rb === null ? -1 : (ra - rb) * (descending ? -1 : 1);
+        }
+      }
+      return a - b;
+    });
+    const size = query.size ?? kept.length;
+    const start = query.start >= kept.length ? Math.max(0, Math.floor((kept.length - 1) / size) * size) : query.start;
+    const rows = kept.slice(start, start + size);
+    return { count: kept.length, start, rows, html: trsOf(rows) };
+  }
+
+  // The first page of the author's view, with a source that answers at once (or with `slow`, when told to)
+  async function mountRemote(slow = false) {
+    const { html, spec } = gtTable([0, 1], { controls: { search: true, bar: true }, pagination: { enabled: true }, filters: [FACET] });
+    const remoteSpec = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+    const asked: PageQuery[] = [];
+    const answers: (() => void)[] = [];
+    const facets: string[] = [];
+    const el = document.createElement(TAG_NAME) as GtTable;
+    el.source = {
+      rows: () => ({ matched: null, count: 5 }),
+      facet: (_, column) => {
+        facets.push(column);
+        return new Map([[0, 3], [1, 1], [2, 1]]);
+      },
+      page: (query) => {
+        asked.push(query);
+        if (!slow) {
+          return pageOf(query);
+        }
+        return new Promise((resolve) => answers.push(() => resolve(pageOf(query))));
+      },
+    };
+    el.innerHTML = `${html}${specScript(remoteSpec)}`;
+    document.body.append(el);
+    await tick();
+    return { el, asked, answers, facets };
+  }
+
+  it("shows its first page, without asking for it", async () => {
+    const { el, asked } = await mountRemote();
+    expect(el.state).toBe("ready");
+    expect(asked).toEqual([]);
+    expect(visible(el)).toEqual([0, 1]);
+    expect(el.rows).toEqual([0, 1]);
+    expect(el.pageCount).toBe(3);
+  });
+
+  it("asks for each page, and shows it, keeping the rows it has", async () => {
+    const { el, asked } = await mountRemote();
+    el.page = 2;
+    expect(asked).toEqual([{ search: "", hidden: [], filter: null, links: [], sort: [], start: 2, size: 2 }]);
+    expect(visible(el)).toEqual([2, 3]);
+    expect(el.rows).toEqual([2, 3]);
+    el.page = 1;
+    expect(visible(el)).toEqual([0, 1]);
+    // (Each row once in the body)
+    expect(shown(el).sort()).toEqual([0, 1, 2, 3]);
+  });
+
+  it("asks for the sorted rows, and shows them in order", async () => {
+    const { el, asked } = await mountRemote();
+    click(el, "x");
+    expect(asked[asked.length - 1]?.sort).toEqual([{ column: "x", descending: false }]);
+    expect(visible(el)).toEqual([1, 2]);
+    el.page = 3;
+    expect(visible(el)).toEqual([3]);
+  });
+
+  it("asks for a search's rows, and pages them as the source counts them", async () => {
+    const { el, asked } = await mountRemote();
+    el.page = 3;
+    el.search = "a";
+    expect(asked[asked.length - 1]).toMatchObject({ search: "a", start: 0 });
+    expect(visible(el)).toEqual([1, 3]);
+    expect(el.pageCount).toBe(2);
+  });
+
+  it("takes the page the source gives, as when the one asked for is past the end", async () => {
+    const { el } = await mountRemote();
+    el.page = 3;
+    el.sort = [{ column: "y", descending: false }];
+    expect(el.page).toBe(1);
+    el.search = "c";
+    expect(visible(el)).toEqual([2]);
+    expect(el.page).toBe(1);
+  });
+
+  it("keeps its rows shown till a page comes", async () => {
+    const { el, asked, answers } = await mountRemote(true);
+    el.page = 2;
+    expect(el.loading).toBe(true);
+    expect(visible(el)).toEqual([0, 1]);
+    // (A page asked for again since: the first answer changes nothing)
+    el.page = 3;
+    expect(asked.map((query) => query.start)).toEqual([2, 4]);
+    answers[1]?.();
+    await tick();
+    expect(visible(el)).toEqual([4]);
+    answers[0]?.();
+    await tick();
+    expect(visible(el)).toEqual([4]);
+    expect(el.loading).toBe(false);
+  });
+
+  it("warns of a page that couldn't be had, keeping the rows shown", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { el } = await mountRemote();
+    const err = new Error("no kernel");
+    el.source = { rows: () => ({ matched: null, count: 5 }), facet: () => new Map(), page: () => Promise.reject(err) };
+    el.page = 2;
+    await tick();
+    expect(warn).toHaveBeenCalledWith("<gt-table>: the page couldn't be had:", err);
+    expect(el.loading).toBe(false);
+    expect(visible(el)).toEqual([0, 1]);
+  });
+
+  it("names a facet's values by their labels, counted by the source", async () => {
+    const { el, facets } = await mountRemote();
+    (header(el, "y").querySelector(".gt-i-filter-button") as HTMLButtonElement).click();
+    expect(facets).toEqual(["y"]);
+    const names = Array.from(el.querySelectorAll(".gt-i-filter-option"), (option) => option.textContent);
+    expect(names).toEqual(["A3", "B1", "C1"]);
+  });
+});
+
+describe("a table in a Panel app", () => {
+  const VIEW: WidgetView = {
+    filter: null,
+    sort: [],
+    search: "",
+    page: 1,
+    page_size: null,
+    hidden: [],
+    group_by: null,
+  };
+
+  // Panel's proxy of a component's model: its parameters, each synced as it's set (and its
+  // "change:" callbacks called), its messages, and its views' lifecycle
+  function fakeProxy(state: Record<string, unknown>) {
+    const callbacks = new Map<string, Set<(content?: unknown) => void>>();
+    const assigned: Record<string, unknown>[] = [];
+    const sent: unknown[] = [];
+    const fire = (event: string, content?: unknown) => {
+      for (const callback of [...(callbacks.get(event) ?? [])]) {
+        callback(content);
+      }
+    };
+    const methods = {
+      send_msg: (content: unknown) => sent.push(content),
+      on: (event: string, callback: (content?: unknown) => void) => {
+        callbacks.set(event, (callbacks.get(event) ?? new Set()).add(callback));
+      },
+      off: (event: string, callback: (content?: unknown) => void) => {
+        callbacks.get(event)?.delete(callback);
+      },
+    };
+    const model = new Proxy(state, {
+      get: (target, name: string) => (name in methods ? methods[name as keyof typeof methods] : target[name]),
+      set: (target, name: string, value) => {
+        target[name] = value;
+        assigned.push({ [name]: value });
+        fire(`change:${name}`);
+        return true;
+      },
+    }) as PanelModel;
+    // (As from Python: set, then their callbacks called)
+    const update = (changed: Record<string, unknown>) => {
+      Object.assign(state, changed);
+      for (const name of Object.keys(changed)) {
+        fire(`change:${name}`);
+      }
+    };
+    return { model, state, assigned, sent, update, fire, callbacks };
+  }
+
+  // (Python's first update: the state before the reader changes it)
+  const FIRST = { _view: null, _rows: null, _selection: [], n: 0 };
+
+  async function show(state: Record<string, unknown> = {}, views = 1) {
+    const facet: FilterSpec = { column: "y", type: "facet", values: ["a", "b", "c"] };
+    const { html, spec } = gtTable([0, 1, 2, 3, 4], {
+      controls: { search: true, selection: "multiple" },
+      filters: [facet],
+    });
+    const fake = fakeProxy({ _html: `<gt-table>${html}${specScript(spec)}</gt-table>`, _update: FIRST, _report: {}, ...state });
+    // (Its HTML without a `</`, as Python sends it)
+    fake.state._html = String(fake.state._html).split("</").join("<\0/");
+    const tables: GtTable[] = Array.from({ length: views }, () => {
+      const el = document.createElement("div");
+      document.body.append(el);
+      renderPanel({ model: fake.model, el });
+      return el.querySelector(TAG_NAME) as GtTable;
+    });
+    await tick();
+    return { ...fake, table: tables[0] as GtTable, tables };
+  }
+
+  it("is the widget's model, kept in step with Panel's proxy", () => {
+    const fake = fakeProxy({ _update: { ...FIRST, _view: VIEW }, _report: {}, _html: "<p>a<\0/p><p>b<\0/p>", _kernel: true });
+    const model = modelOf(fake.model);
+    expect([model.get("_view"), model.get("_rows"), model.get("_kernel")]).toEqual([VIEW, null, true]);
+    expect(model.get("_html")).toBe("<p>a</p><p>b</p>");
+    // (The changes saved together, as one report, with a count; and once only)
+    model.set("_rows", [1]);
+    model.set("_selection", [2]);
+    expect(fake.assigned).toEqual([]);
+    model.save_changes();
+    model.save_changes();
+    expect(fake.assigned).toEqual([{ _report: { _rows: [1], _selection: [2], n: 1, from: expect.any(String) } }]);
+    expect(model.get("_rows")).toEqual([1]);
+    // (Python needs no message of a change, but has the others)
+    model.send({ type: "change" });
+    model.send({ type: "ask" });
+    expect(fake.sent).toEqual([{ type: "ask" }]);
+    const callback = vi.fn();
+    model.on("change:_rows", callback);
+    fake.update({ _update: { _selection: [], n: 1 } });
+    expect(callback).not.toHaveBeenCalled();
+    fake.update({ _update: { _rows: [3], n: 2 } });
+    expect([callback.mock.calls.length, model.get("_rows")]).toEqual([1, [3]]);
+    // (And another view's report, but not its own)
+    fake.update({ _report: { _rows: [4], n: 1, from: "other" } });
+    expect([callback.mock.calls.length, model.get("_rows")]).toEqual([2, [4]]);
+    model.off("change:_rows", callback);
+    fake.update({ _update: { _rows: [5], n: 3 } });
+    expect(callback).toHaveBeenCalledTimes(2);
+    model.close();
+    fake.update({ _update: { _rows: [6], n: 4 } });
+    expect(model.get("_rows")).toEqual([5]);
+  });
+
+  it("reports the table's state, and what the reader changes", async () => {
+    const { table, state, sent } = await show();
+    expect(table.state).toBe("ready");
+    expect(state._report).toEqual({ _view: VIEW, _rows: [0, 1, 2, 3, 4], n: 1, from: expect.any(String) });
+    click(table, "x");
+    expect(state._report).toMatchObject({ _view: { ...VIEW, sort: [{ column: "x", descending: false }] }, _rows: [1, 2, 0, 4, 3], n: 2 });
+    (table.rowElement(2)?.querySelector(":scope > .gt-i-select > input") as HTMLInputElement).click();
+    expect(state._report).toEqual({ _selection: [2], n: 3, from: expect.any(String) });
+    expect(sent).toEqual([]);
+  });
+
+  it("sets on the table what Python changes", async () => {
+    const { table, state, update } = await show();
+    update({ _update: { _view: { ...VIEW, sort: [{ column: "x", descending: true }] }, _rows: null, n: 1 } });
+    expect(table.sort).toEqual([{ column: "x", descending: true }]);
+    expect(state._report).toMatchObject({ _rows: [0, 4, 2, 1, 3], n: 2 });
+    update({ _update: { _selection: [1, 3], n: 2 } });
+    expect(table.selection).toEqual([1, 3]);
+  });
+
+  it("keeps a table shown twice in step", async () => {
+    const [one, two] = (await show({}, 2)).tables as [GtTable, GtTable];
+    click(one, "x");
+    expect(two.sort).toEqual([{ column: "x", descending: false }]);
+    click(two, "x");
+    expect(one.sort).toEqual([{ column: "x", descending: true }]);
+  });
+
+  it("takes a change only if it's later than the last from where it's from", () => {
+    // (A notebook's Panel can send one again, after a later one)
+    const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    fake.update({ _update: { _rows: [1], n: 2 } });
+    fake.update({ _update: { _rows: [2], n: 1 } });
+    fake.update({ _update: { _rows: [3], n: 2 } });
+    expect(model.get("_rows")).toEqual([1]);
+    fake.update({ _report: { _rows: [4], n: 2, from: "other" } });
+    fake.update({ _report: { _rows: [5], n: 1, from: "other" } });
+    expect(model.get("_rows")).toEqual([4]);
+    // (Each view's reports, and Python's changes, counted on their own)
+    fake.update({ _report: { _rows: [6], n: 1, from: "third" } });
+    expect(model.get("_rows")).toEqual([6]);
+    fake.update({ _update: { _rows: [7], n: 3 } });
+    expect(model.get("_rows")).toEqual([7]);
+  });
+
+  it("has the state each way without a `</`, which would end a notebook's script", () => {
+    const fake = fakeProxy({ _update: { ...FIRST, _view: { ...VIEW, search: "<\0/script>" } }, _report: {}, _html: "" });
+    const model = modelOf(fake.model);
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</script>" });
+    // (Its reports, each of whose strings is written as Python's are)
+    model.set("_view", { ...VIEW, search: "a</b</c" });
+    model.set("_rows", [1]);
+    model.save_changes();
+    expect(fake.state._report).toEqual({ _view: { ...VIEW, search: "a<\0/b<\0/c" }, _rows: [1], n: 1, from: expect.any(String) });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "a</b</c" });
+    // (And another view's)
+    fake.update({ _report: { _view: { ...VIEW, search: "<\0/p>", hidden: ["<\0/x"] }, n: 1, from: "other" } });
+    expect(model.get("_view")).toEqual({ ...VIEW, search: "</p>", hidden: ["</x"] });
+  });
+
+  it("asks again what Python hasn't answered, until it's answered", () => {
+    // (A notebook's Panel can lose a message, either way)
+    vi.useFakeTimers();
+    try {
+      const fake = fakeProxy({ _update: FIRST, _report: {}, _html: "" });
+      const model = modelOf(fake.model);
+      const ask = { type: "ask", id: "v:1", kind: "page" };
+      model.send(ask);
+      vi.advanceTimersByTime(999);
+      expect(fake.sent).toEqual([ask]);
+      vi.advanceTimersByTime(1);
+      expect(fake.sent).toEqual([ask, ask]);
+      vi.advanceTimersByTime(2000);
+      expect(fake.sent).toHaveLength(3);
+      // (Another view's answer isn't its)
+      fake.fire("msg:custom", { type: "answer", id: "w:1", answer: {} });
+      fake.fire("msg:custom", { type: "answer", id: "v:1", answer: {} });
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(3);
+
+      // (After 1, 2, 4, 8 and 16 seconds, then no more)
+      fake.sent.length = 0;
+      model.send({ ...ask, id: "v:2" });
+      vi.advanceTimersByTime(31000);
+      expect(fake.sent).toHaveLength(6);
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(6);
+
+      // (Nor once the view's gone)
+      model.send({ ...ask, id: "v:3" });
+      model.close();
+      vi.advanceTimersByTime(60000);
+      expect(fake.sent).toHaveLength(7);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("asks Python for a page with Panel's messages, and shows its answer", async () => {
+    const { html, spec } = gtTable([0, 1], { controls: { search: true }, pagination: { enabled: true } });
+    const remote = { ...spec, ranks: { row: [], x: [], y: [] }, remote: { count: 5, rows: [0, 1] } };
+    const { table, sent, fire } = await show({ _html: `<gt-table>${html}${specScript(remote)}</gt-table>`, _kernel: true, _nrows: 5 });
+    expect(table.source).toBeInstanceOf(KernelSource);
+    table.page = 2;
+    const ask = sent.find((content) => (content as { type: string }).type === "ask") as { id: string };
+    expect(ask).toMatchObject({ kind: "page", query: { start: 2, size: 2, sort: [] } });
+    const trs = (gtTable([2, 3]).html.match(/<tbody class="gt_table_body">(.*)<\/tbody>/) as RegExpMatchArray)[1];
+    fire("msg:custom", { type: "answer", id: ask.id, answer: { count: 5, start: 2, rows: [2, 3], html: trs } });
+    await tick();
+    expect(visible(table)).toEqual([2, 3]);
+    expect(table.loading).toBe(false);
+  });
+
+  it("stops following the model once Panel removes the view", async () => {
+    const { table, callbacks, update, fire } = await show();
+    fire("remove");
+    expect([...callbacks.entries()].every(([event, set]) => event === "remove" || set.size === 0)).toBe(true);
+    update({ _update: { _view: { ...VIEW, search: "20" }, n: 1 } });
+    expect(table.search).toBe("");
   });
 });

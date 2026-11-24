@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import sys
 import importlib
-
+import sys
 from abc import ABCMeta
-from typing import List, Tuple
+from typing import ClassVar
 
 
 class MissingClass:
@@ -15,9 +14,9 @@ def _load_class(mod_name: str, cls_name: str, strict: bool):
     try:
         mod = importlib.import_module(mod_name)
         return getattr(mod, cls_name)
-    except AttributeError as e:
+    except AttributeError:
         if strict:
-            raise e
+            raise
         return MissingClass
 
 
@@ -28,7 +27,7 @@ class _AbstractBackendMeta(ABCMeta):
 
 
 class AbstractBackend(metaclass=_AbstractBackendMeta):
-    _backends: List[Tuple[str, str]]
+    _backends: ClassVar[list[tuple[str, str]]]
     _strict: bool = True
 
     @classmethod

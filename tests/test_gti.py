@@ -4,6 +4,8 @@ import datetime as dt
 import json
 import math
 import re
+import warnings
+from typing import Literal
 
 import pandas as pd
 import polars as pl
@@ -12,7 +14,14 @@ import pytest
 
 from great_tables import GT, GTI, exibble, loc, style
 from great_tables._gti import SPEC_VERSION, build_spec, render_gti_html, spec_to_script_json
-from great_tables._gti._render import _load_runtime
+from great_tables._gti import _render
+from great_tables._gti._render import (
+    MAX_ROWS,
+    MAX_SHOWN,
+    GTISizeWarning,
+    _load_runtime,
+)
+from great_tables._render_checks import RenderWarning
 from great_tables._tbl_data import _get_column_kind, _get_column_ranks
 from tests.utils import cast_to_categorical
 
@@ -266,7 +275,10 @@ def test_spec_stub_for_summary_labels_only():
         "pin": None,
         "hideable": False,
         "reorderable": False,
+        "groupable": False,
         "priority": None,
+        "dtype": None,
+        "missing": None,
     }
     assert spec["stub"]["columns"] == []
     assert None not in spec["ranks"]
@@ -385,6 +397,14 @@ def test_selection_mode_must_be_single_or_multiple(mode: str):
         GT(DF).tab_options(ihtml_selection_mode=mode)
 
 
+def test_opt_interactive_turns_selection_off():
+    # (As it sets every other option to the value given; `tab_options()` leaves one given as `None`)
+    gt = GT(DF).opt_interactive(selection_mode="multiple")
+    assert spec_of(gt.opt_interactive())["controls"]["selection"] is None
+    assert spec_of(gt.opt_interactive(selection_mode=None))["controls"]["selection"] is None
+    assert spec_of(gt.tab_options(ihtml_selection_mode=None))["controls"]["selection"] == "multiple"
+
+
 def test_spec_pagination_default():
     assert spec_of(GT(DF))["pagination"] == {
         "enabled": True,
@@ -421,24 +441,51 @@ def test_spec_pagination_types(pagination_type: str):
     assert spec_of(gt)["pagination"]["type"] == pagination_type
 
 
-def test_spec_pagination_unknown_type_is_numbers():
-    gt = GT(DF).opt_interactive(pagination_type="pages")
-    assert spec_of(gt)["pagination"]["type"] == "numbers"
+@pytest.mark.parametrize("pagination_type", ["pages", "Numbers", ""])
+def test_pagination_type_must_be_known(pagination_type: str):
+    with pytest.raises(ValueError, match="ihtml_pagination_type"):
+        GT(DF).opt_interactive(pagination_type=pagination_type)
+    with pytest.raises(ValueError, match="ihtml_pagination_type"):
+        GT(DF).tab_options(ihtml_pagination_type=pagination_type)
 
 
 def test_spec_display_default():
-    assert spec_of(GT(DF))["display"] == {"highlight": False, "compact": False, "wrap": True}
+    assert spec_of(GT(DF))["display"] == {
+        "highlight": False,
+        "compact": False,
+        "wrap": True,
+        "monospace": False,
+        "parts": False,
+        "row_numbers": False,
+        "row_start": 0,
+        "dimensions": False,
+        "data_kind": None,
+    }
 
 
 def test_spec_display_from_opt_interactive():
     gt = GT(DF).opt_interactive(use_highlight=True, use_compact_mode=True, use_text_wrapping=False)
-    assert spec_of(gt)["display"] == {"highlight": True, "compact": True, "wrap": False}
+    assert spec_of(gt)["display"] == {
+        "highlight": True,
+        "compact": True,
+        "wrap": False,
+        "monospace": False,
+        "parts": False,
+        "row_numbers": False,
+        "row_start": 0,
+        "dimensions": False,
+        "data_kind": None,
+    }
 
 
 def row_padding(html: str, selector: str) -> str:
     rule = re.search(rf"{selector} {{[^}}]*?padding-top: ([^;]+);", html)
     assert rule is not None
-    return rule.group(1)
+    # The rule reads `var(--gt-<option>, <default>)`: the declaration of that property, if any
+    var = re.fullmatch(r"var\((--[\w-]+), ([^)]+)\)", rule.group(1))
+    assert var is not None
+    declared = re.search(rf"{var.group(1)}: ([^;]+);", html)
+    return declared.group(1) if declared else var.group(2)
 
 
 def test_render_compact_halves_row_padding():
@@ -514,6 +561,28 @@ def test_render_height_marks_the_element():
     )
     scroll = render_gti_html(gt.opt_interactive(height="min(60vh, 600px)"), runtime="none")
     assert scroll.startswith('<gt-table data-gti-scroll style="--gt-i-height: min(60vh, 600px)">\n')
+
+
+def gt_table_tag(html: str) -> str:
+    return html[html.index("<gt-table") : html.index(">", html.index("<gt-table"))]
+
+
+def test_theme_accent_is_set_on_gt_table():
+    from great_tables import Theme
+
+    gt = GT(pd.DataFrame({"x": [1, 2]})).opt_theme(Theme(accent="#FF0000")).opt_interactive()
+    assert "--gt-i-accent: #FF0000" in gt_table_tag(gt.as_raw_html())
+
+    tall = gt.tab_options(ihtml_height="300px")
+    tag = gt_table_tag(tall.as_raw_html())
+    assert tag.count(" style=") == 1
+    assert "--gt-i-height: 300px" in tag and "--gt-i-accent: #FF0000" in tag
+    assert "data-gti-scroll" in tag
+
+
+def test_no_accent_without_theme():
+    gt = GT(pd.DataFrame({"x": [1, 2]})).opt_interactive()
+    assert "--gt-i-accent" not in gt_table_tag(gt.as_raw_html())
 
 
 # ranks ----
@@ -812,3 +881,102 @@ def test_render_runtime_inline():
 def test_render_runtime_invalid():
     with pytest.raises(ValueError, match="runtime="):
         render_gti_html(GT(exibble), runtime="cdn")  # type: ignore[arg-type]
+
+
+# size warnings ----
+
+
+def size_warnings(gt: GT, runtime: Literal["inline", "none"] = "none") -> list[str]:
+    """The size warnings rendering the table raises."""
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        render_gti_html(gt, runtime=runtime)
+    return [str(w.message) for w in caught if issubclass(w.category, GTISizeWarning)]
+
+
+def numbers(n: int) -> pl.DataFrame:
+    return pl.DataFrame({"x": range(n)})
+
+
+def test_size_warning_is_a_render_warning():
+    assert issubclass(GTISizeWarning, RenderWarning)
+
+
+def test_size_warning_rows():
+    assert size_warnings(GT(numbers(MAX_ROWS)).opt_interactive()) == []
+    [message] = size_warnings(GT(numbers(MAX_ROWS + 1)).opt_interactive())
+
+    assert "it has 3,001 rows (more than 3,000)." in message
+    assert "quicker to load with fewer rows" in message
+    assert "on a page" not in message and "one page" not in message
+
+
+def test_size_warning_rows_shown_on_one_page():
+    assert size_warnings(GT(numbers(MAX_SHOWN)).opt_interactive(use_pagination=False)) == []
+    [message] = size_warnings(GT(numbers(MAX_SHOWN + 1)).opt_interactive(use_pagination=False))
+
+    assert "it shows all 1,001 rows on one page (more than 1,000)." in message
+    assert "fewer rows on a page (`opt_interactive(use_pagination=True)`)" in message
+    assert "quicker to load" not in message
+
+
+def test_size_warning_rows_shown_on_a_page():
+    # (A page as large as the table is all of its rows)
+    big_page = GT(numbers(MAX_SHOWN)).opt_interactive(page_size_default=MAX_SHOWN + 1)
+    assert size_warnings(big_page) == []
+    [message] = size_warnings(GT(numbers(1500)).opt_interactive(page_size_default=MAX_SHOWN + 1))
+
+    assert "it shows 1,001 rows on a page (more than 1,000)." in message
+    assert "(a smaller `page_size_default=` in `opt_interactive()`)" in message
+
+
+def test_size_warning_gti_pagination():
+    [one_page] = size_warnings(GTI(numbers(MAX_SHOWN + 1)).i_pagination(False))
+    [big_page] = size_warnings(GTI(numbers(1500)).i_pagination(page_size=MAX_SHOWN + 1))
+
+    assert "fewer rows on a page (`i_pagination()`)" in one_page
+    assert "(a smaller `page_size=` in `i_pagination()`)" in big_page
+    assert "opt_interactive" not in one_page + big_page
+
+
+def test_size_warning_bytes(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(_render, "MAX_BYTES", 2**20)
+    [message] = size_warnings(GT(pl.DataFrame({"x": ["x" * 11_000] * 100})).opt_interactive())
+
+    assert re.search(r"it has \d\.\d MB of HTML \(more than 1 MB\)\.", message)
+    assert "quicker to load with fewer rows, or fewer columns" in message
+
+
+def test_size_warning_bytes_leave_out_the_runtime(monkeypatch: pytest.MonkeyPatch):
+    gt = GT(exibble).opt_interactive()
+    size = len(render_gti_html(gt, runtime="none").encode("utf-8"))
+
+    monkeypatch.setattr(_render, "MAX_BYTES", size)
+    assert size_warnings(gt, runtime="inline") == []
+    monkeypatch.setattr(_render, "MAX_BYTES", size - 1)
+    assert len(size_warnings(gt, runtime="inline")) == 1
+
+
+def test_size_warning_combined(monkeypatch: pytest.MonkeyPatch):
+    gt = GT(numbers(MAX_ROWS + 1)).opt_interactive(use_pagination=False)
+    [message] = size_warnings(gt)
+
+    assert (
+        "it has 3,001 rows (more than 3,000), and shows them all on one page (more than 1,000)."
+        in message
+    )
+    assert "quicker to load" in message and "fewer rows on a page" in message
+
+    monkeypatch.setattr(_render, "MAX_BYTES", 2**20 // 8)
+    [message] = size_warnings(gt)
+    assert re.search(
+        r"it has 3,001 rows \(more than 3,000\), has \d\.\d MB of HTML \(more than 0\.125 MB\), and "
+        r"shows them all on one page \(more than 1,000\)\.",
+        message,
+    )
+
+
+def test_size_warning_not_for_static_tables():
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", GTISizeWarning)
+        GT(numbers(MAX_ROWS + 1)).as_raw_html()

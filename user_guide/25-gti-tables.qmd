@@ -1,0 +1,823 @@
+---
+title: GTI Tables
+jupyter: python3
+html-table-processing: none
+guide-section: Interactive Tables
+---
+
+When readers need more than `~~GT.opt_interactive()` gives them (see
+[Making Tables Interactive](24-interactive-tables.qmd)), make the table a `GTI` table. Here, the
+`Make` column gets a list of its values to choose from and `HP` a range, the table is first shown
+with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
+
+```{python}
+#| include: false
+# (On this page, the tables scroll sideways in a narrow container, as if made with
+# `i_responsive("scroll")`, rather than being stacked as cards on a phone: the cards are shown
+# once, under "Narrow containers", where they're explained)
+import functools
+
+import great_tables.gti
+
+great_tables.gti.Settings = functools.partial(great_tables.gti.Settings, responsive="scroll")
+```
+
+```{python}
+import polars as pl
+from great_tables import GTI, data
+
+gtcars_pl = data.pl.gtcars.select(["mfr", "model", "year", "hp", "trq", "msrp"])
+
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: as a GTI table")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_filter(columns="hp")
+    .i_view(sort="-hp")
+    .i_export("csv")
+)
+```
+
+A table you've already made with `GT()`, including one with `opt_interactive()`, becomes a `GTI`
+table with `GTI.from_gt()`, keeping what `opt_interactive()` set. So does one started from a
+**Polars** DataFrame's `.style` property, which makes a `GT` table, and the `i_` methods follow:
+
+```{python}
+gt_tbl = (
+    gtcars_pl.style
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+)
+
+GTI.from_gt(gt_tbl).i_cols_filter(columns="mfr", type="facet")
+```
+
+Each of the `i_` methods has examples on its reference page (e.g., `~~GTI.i_cols_filter()`), and
+the [API Reference](/reference/index.qmd#interactive-table-controls) has them all.
+
+## The parts of a `GTI` table
+
+A `GTI` table is the table GT made, with a few parts added around it. Here they are in teal, on a
+table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
+
+![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="open" cells="Make|Model|HP|MSRP/Ferrari|F12|731|$320k/Ford|GT|647|$447k" cell-trick="export" intro='[["say", "Filter me, sort me, export me!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
+From the top:
+
+- The **status line**, just above the table, says what the data is and how much of it is shown
+  ("Polars DataFrame · 12 of 47 rows × 4 columns"). It's there with `~~GTI.i_inspect()` (and in an
+  explorer). In a table made with `opt_interactive(use_search=True)`, the search box is here too.
+- The **column controls**, under each column label: the column's dtype (with `i_inspect()`), its
+  sort arrows (with `~~GTI.i_sorting()`, on by default), and its filter button (with
+  `~~GTI.i_cols_filter()`).
+- The **column profiles**, under the labels of the columns `~~GTI.i_cols_profile()` chose: a small
+  plot of how their values are spread.
+- The **row numbers**, at the start of each row (with `i_inspect()`), which stay with the rows as
+  they're sorted and filtered. A DataFrame's rows are numbered from 0, as its index is, and a
+  DuckDB relation's or an Ibis table's from 1, as a database numbers them; `row_start=` in
+  `i_inspect()` sets either one.
+- The **height handle**, at the foot of a body that scrolls (with `~~GTI.i_scroll()`), dragged for
+  a taller or shorter body.
+- The **filter tokens**, one for each filter the rows are filtered by, which say what it keeps; a
+  token's ✕ removes its filter.
+- The **control bar**, just below the table, which brings together what readers can do with the
+  table as a whole. From its left, it has:
+  - the **search** (with `~~GTI.i_search()`, on by default) and the table's **keyboard
+    shortcuts**
+  - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a
+    page to go to
+  - the **filters as text** button (`{ }`, in a table with filters), which opens the filters as a
+    query to edit, in the form `~~GTI.i_view()` takes them (with `filter=`)
+  - the buttons that open the table's **panels**: its columns, grouping its rows and exporting them
+    (when the table has these), and its info
+  - **undo and redo** (with `~~GTI.i_view_state()`), and a **Reset** button once the view has
+    changed
+
+A table made with `opt_interactive()` has a **pager** below it instead of the control bar: its page
+buttons, and the number of rows shown.
+
+The status line and the control bar are close to the table, and the space that GT (or the page)
+leaves around the table is kept past them, so that they read as part of it rather than of the text
+around it.
+
+A table names its own parts too: press `?` with the table focused (click in it first), or use
+**Name the table's parts** in its info panel, and each part it has is outlined, with its name beside
+it. `?` again, Escape, or a click outside the table puts the names away.
+
+For a page that shows readers the parts, as this one does, `~~GTI.i_display()` with `parts=True`
+names them from the start, and for good. Here's the table above, live: it works as ever under the
+names, which follow its parts as you sort, filter, page or scroll it.
+
+```{python}
+(
+    GTI(gtcars_pl, id="gtcars-parts")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_inspect()
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns="hp")
+    .i_view(filter='mfr in ("Ferrari", "Lamborghini")', sort="-hp")
+    .i_view_state()
+    .i_scroll(260)
+    .i_display(parts=True)
+)
+```
+
+## Filtering the rows
+
+Each column given to `~~GTI.i_cols_filter()` gets a filter button under its label, which opens its
+filter. The filter's type goes by the column's values, unless `type=` names one:
+
+- `"text"` keeps the rows whose cell has what's typed, as the table shows it, ignoring case and
+  accents (as the search does)
+- `"facet"` is a checklist of the column's values, each with its number of rows (of those the other
+  filters and the search keep); it's what a categorical column gets, and a text column with only a
+  few values, each repeated
+- `"range"` keeps the numbers from one to another (at least one, at most the other), for a column of
+  numbers
+- `"date"` keeps the dates from one to another, picked in date fields (or date and time fields, for
+  a column of dates and times)
+- `"bool"` keeps the rows that are true, false or missing, each with its number of rows, for a
+  column of booleans
+
+Facets, ranges, dates and booleans go by the column's values, not by how they're formatted. Here
+are the half-hourly readings of May 2023 at Gibraltar's airport, with a column of dates and times
+made from the dataset's text, and one saying whether there were gusts. The conditions get a text
+filter (there are 22 of them, too many for a list), the times a date filter, the numbers ranges and
+the gusts a bool filter. The table starts with the rainy readings from the 20th on; open the `Time`
+filter to change the dates, or the `Gusts` filter for only the readings with gusts.
+
+```{python}
+weather = (
+    data.pl.gibraltar.with_columns(
+        when=pl.concat_str(["date", "time"], separator=" ").str.to_datetime("%Y-%m-%d %H:%M"),
+        gusts=pl.col("wind_gust") > 0,
+    )
+    .select(["when", "condition", "temp", "humidity", "wind_speed", "gusts"])
+)
+
+(
+    GTI(weather)
+    .tab_header(title="Gibraltar: the weather in May 2023")
+    .cols_label(
+        when="Time", condition="Condition", temp="Temp. (°C)", humidity="Humidity",
+        wind_speed="Wind (m/s)", gusts="Gusts"
+    )
+    .fmt_datetime(columns="when", date_style="day_m", time_style="Hm")
+    .fmt_percent(columns="humidity", decimals=0)
+    .fmt_tf(columns="gusts", tf_style="yes-no")
+    .i_cols_filter(columns="condition", type="text")
+    .i_cols_filter(columns=["when", "temp", "humidity", "wind_speed", "gusts"])
+    .i_view(filter='condition contains "rain" and when >= "2023-05-20"')
+)
+```
+
+A row is shown when it passes every filter, and the search. The tokens below the table show the
+filters that are on, and the `{ }` button in the control bar opens them as text, a query to edit
+(with suggestions as you type), as `~~GTI.i_view()` takes it with `filter=`. Its clauses are a
+column name and then:
+
+- `contains` and a string, for a text filter (`condition contains "rain"`), or `matches` and a
+  regular expression between slashes (`condition matches /^light/i`)
+- `in` and values in parentheses, for a facet or a bool filter (`gusts in (true)`)
+- `>=`, `<=`, `>` or `<` and a number, for a range (`temp >= 25`), or a date in double quotes, for a
+  date filter (`when < "2023-05-08"`); or `top` or `bottom` and a whole number, for the rows with
+  the largest or smallest values (`wind_speed top 10`)
+- `is null`, for the rows missing a value, whatever the filter
+
+The clauses are joined by `and`, and groups are written with `or`, `not` and parentheses
+(`temp >= 25 or (gusts in (true) and not condition contains "fair")`); `not in`, `not contains` and
+`is not null` can be written as such. A column name that isn't letters, digits and underscores goes
+in backticks. A query in `i_view()` is checked against the columns' filters when the table is
+shown, so a clause on a column without a filter, or with a filter of another type, is an error.
+
+While the query is open, each filtered column's name is shown under its label, and a click on one
+puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be
+typed in place of its name (unless another column has the same label): as its words joined by
+underscores, or as it is in backticks, so a column labelled `Country of origin` can be typed as
+`country_of_origin`. The name is put in its place as the word ends. The URL and `i_view()` take
+only names.
+
+## Sorting by several columns, and the keyboard
+
+A click on a column's sort arrows (or its label) sorts the table by it: once for ascending order,
+again for descending, and a third time for the table's own order. With Shift held, a click adds the
+column to the sort, so that it sorts the rows the columns before it leave tied, and the arrows are
+numbered in the order the columns sort the rows. Here, the cars are sorted by their make and then
+from the most powerful down; Shift-click `Year` to sort the cars that tie by year as well, or click
+`HP` alone to sort by it only. The info panel (from the (i) button) says how the table is sorted,
+and can put it back in its own order.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: sorted by make, then horsepower")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_view(sort=["mfr", "-hp"])
+)
+```
+
+`~~GTI.i_view()` takes the sort as a list of columns, the first sorting the rows and the next the
+rows that tie, each with a `-` before it for descending order. Missing values are last either way.
+
+The table's controls are buttons and fields, reached with Tab, and with the table clicked (or focus
+in it) these keys work too:
+
+- `/` opens the search, and Esc clears it, then closes it
+- `←` and `→` go to the previous or next page, and Home and End to the first or last
+- Shift and a click sorts by more than one column, and (with `~~GTI.i_selection()`) selects a range
+  of rows
+- Alt (⌥ on a Mac) with `↑` or `↓` moves a column, in the Columns panel
+- Ctrl+Z and Ctrl+Y (⌘Z and ⇧⌘Z on a Mac) undo and redo a change to the view, with
+  `~~GTI.i_view_state()`
+- `?` names the table's parts
+
+The keyboard button at the start of the control bar lists the keys the table has.
+
+## Selecting rows
+
+With `~~GTI.i_selection()`, readers can select rows, by clicking them or their checkboxes, in a
+column before the others. With `"multiple"` (the method's default), Shift and a click selects the
+rows from the last one clicked, and the checkbox in the column labels selects every row the search
+and filters keep (on every page, not only the one shown); with `"single"`, selecting a row clears
+the one selected before. The info panel says how many rows are selected, and its **Clear** button
+clears them. Here, select a few cars, then open the export panel: with **Selected rows only**
+checked, only they're exported.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: selecting rows")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_selection("multiple")
+    .i_export(["csv", "clipboard"], filename="gtcars")
+)
+```
+
+The selection stays as the rows are sorted, searched, filtered and paged. It's what links tables
+together (see [Linked tables](#linked-tables)), and Python can read it, with the table as a widget
+or in an app (see [GTI in Python and Apps](26-gti-in-python-and-apps.qmd)).
+
+## Keeping the view
+
+With `~~GTI.i_view_state()`, the reader's view of the table (its filters, sort, search, page, page
+size, hidden columns, the column its rows are grouped by, and the height of a body that scrolls) is
+kept as they change it: in the page's URL, by default, so that reloading the page, or sharing its
+link, opens the table as it was; and with `storage=True`, in the browser's storage too, so that the
+reader finds the table as they left it when they come back to the page. The view is kept by the
+table's ID, so the table needs one (from `GTI(id=)`, or `~~GT.with_id()`). Here, choose a make or
+two and sort the cars, then look at the page's address, and reload the page.
+
+```{python}
+(
+    GTI(gtcars_pl, id="gtcars-kept")
+    .tab_header(title="GT Cars: keeping the view")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_view_state()
+)
+```
+
+In the URL, each part of the view is in the query string, named after the table's ID (as in
+`?gtcars-kept.filter=mfr+in+(%22Ferrari%22)&gtcars-kept.sort=-hp`, the filter written as text),
+so tables with different IDs keep their own views, and the page's other parameters are left alone.
+A link with a table's view opens it with that view, rather than the one in the browser's storage. A
+part of a view the table can't have (say, a filter on a column that no longer has one) is left out,
+with a warning in the browser's console. The rows selected and the columns' widths aren't kept.
+
+The control bar has undo and redo buttons (and Ctrl+Z and Ctrl+Y, or ⌘Z and ⇧⌘Z on a Mac), and the
+info panel a button that goes back to the view the table is first shown with. Undo alone,
+`i_view_state(url=False)`, doesn't need an ID.
+
+## Scrolling in place
+
+With `~~GTI.i_scroll()`, the table takes up no more than a set height, and its body scrolls within
+it. The table's header and column labels stay in view, each group's heading sticks below them while
+its rows go by, and the grand summary rows at the bottom stick to the bottom. Footnotes and source
+notes scroll with the body. Here are all 47 cars, with pagination off, in a body 400 pixels high.
+
+```{python}
+from great_tables import vals
+
+gtcars_grouped = data.pl.gtcars.select(["ctry_origin", "mfr", "model", "year", "hp", "trq"])
+
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: scrolling in place")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .grand_summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .i_pagination(False)
+    .i_scroll(400)
+)
+```
+
+Drag the height handle at the foot of the body down or up for a taller or shorter one, from a row's
+height to all of the rows; a double click on it puts the set height back. The height can be a number
+of pixels, or a CSS length such as `"60vh"`. Pagination and scrolling go together too: with both,
+each page scrolls within the height.
+
+## Wide tables
+
+A table wider than its container scrolls sideways, with its stub (and the row group column, if row
+groups are shown as one) staying in view on the left. A **Scroll for more →** hint and a shade at
+the edge say there's more to the right, and the table's title, footnotes and source notes stay in
+view as it scrolls. Here's every column of the cars, with each cell's text on one line (with
+`~~GTI.i_display()`), which is more than this page has room for; scroll it with a trackpad, with
+Shift and the mouse wheel, or by dragging the scrollbar.
+
+```{python}
+gtcars_wide = (
+    GTI(data.pl.gtcars, rowname_col="model")
+    .tab_header(title="GT Cars: every column")
+    .tab_source_note("Source: the gtcars dataset.")
+    .cols_label(
+        mfr="Make", year="Year", trim="Trim", bdy_style="Body Style", hp="HP", hp_rpm="HP RPM",
+        trq="Torque", trq_rpm="Torque RPM", mpg_c="MPG City", mpg_h="MPG Highway",
+        drivetrain="Drivetrain", trsmn="Transmission", ctry_origin="Country", msrp="MSRP"
+    )
+    .fmt_integer(
+        columns=["year", "hp", "hp_rpm", "trq", "trq_rpm", "mpg_c", "mpg_h"], use_seps=False
+    )
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_display(wrap=False)
+)
+
+gtcars_wide
+```
+
+Scrolling is one of three ways `~~GTI.i_responsive()` fits a table to a narrow container; the
+others, stacking the rows as cards and dropping columns, are in
+[Narrow containers](#narrow-containers).
+
+## Pinned columns
+
+With `~~GTI.i_cols_pin()`, more columns stay in view as a wide table scrolls: pinned to the left,
+after the stub, or to the right. Here's the table above, with each car's make staying by its name,
+and its price at the other side.
+
+```{python}
+(
+    gtcars_wide
+    .tab_header(title="GT Cars: with pinned columns")
+    .i_cols_pin(columns="mfr")
+    .i_cols_pin(columns="msrp", side="right")
+)
+```
+
+Pinned columns have to be next to their side of the table, with only other pinned columns between
+them and it (as `mfr` is next to the stub, and `msrp` is the last column), so a column further in is
+moved there first, with `~~GT.cols_move_to_start()` or `~~GT.cols_move_to_end()`. Pinned columns
+can't take up more than half of the table's container; in a narrower one, only the stub stays
+pinned, until the container is wide enough again. The left is the stub's side, so in a page written
+right to left, the columns pinned to the "left" are on the right, by the stub.
+
+## Narrow containers
+
+A table wider than its container scrolls, as above, but `~~GTI.i_responsive()` has two other ways
+to fit it. With `"stack"`, in a container narrower than `stack_below=` pixels (420, by default, as
+on a phone), each row becomes a card, titled by its stub, with each column's label next to its
+value. Row groups become headings between the cards, and summary rows cards of their own. The
+column labels are shown above the cards as chips, which sort the table and open its filters as the
+labels do. Here, `stack_below=` is past this page's width, so the cards are shown whatever its
+width; sort by `HP` with its chip, or filter by `Make` with the filter button on its chip.
+
+```{python}
+(
+    GTI(gtcars_pl, rowname_col="model")
+    .tab_header(title="GT Cars: stacked as cards")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_pagination(page_size=3)
+    .i_responsive("stack", stack_below=2000)
+)
+```
+
+A table is stacked by its CSS alone, so it's stacked before its script runs (or without it). The
+column profiles aren't shown on the cards, and a table in a container only as wide as what's in it
+(a table's cell, or an inline block) isn't stacked, unless `~~GT.tab_options()`'s
+`container_width=` gives it a width of its own. That width is the one `stack_below=` is compared
+with: a table with `container_width="360px"` is stacked in a wide page.
+
+With `"collapse"`, the table drops columns until it fits: first those without a priority from
+`~~GTI.i_cols_priority()` (from the last), then those with the highest numbers. A column with
+priority 1 is never dropped, nor is the stub. Each row gets a button by its first cell that shows
+the columns dropped from it, under it, as labels and values, and the columns come back as the
+container widens. Here's the wide table of every column again, which keeps each car's make and
+price, and its year and horsepower for as long as it can; it drops what this page has no room for,
+and more as the window narrows. Click the arrow by a car's name to see what it dropped.
+
+```{python}
+(
+    gtcars_wide
+    .tab_header(title="GT Cars: dropping columns to fit")
+    .i_cols_priority(columns=["mfr", "msrp"])
+    .i_cols_priority(columns=["year", "hp"], priority=2)
+    .i_responsive("collapse")
+)
+```
+
+The dropped columns are still searched, filtered and exported. They're dropped by the table's
+script, so without it the table scrolls, as it does once only the columns that are never dropped are
+left. By default (`"auto"`), a table drops columns if any have a priority; otherwise it's stacked
+below `stack_below=` if it shows no more than six columns (not counting the stub), and scrolls if
+it shows more.
+
+## Summary rows
+
+A `GTI` table keeps the summary rows that `~~GT.summary_rows()` and `~~GT.grand_summary_rows()` add
+(see [Summary Rows](06-summary-rows.qmd)). The rows are sorted within their groups, and each
+group's summary rows stay with it: those at its bottom are on the page where the group ends (and
+those at its top, on the page where it starts). The grand summary rows are on every page. Here, the
+most powerful cars of each country come first; page through to see each country's averages, and the
+averages and highest values of all the cars under every page.
+
+```{python}
+(
+    GTI(gtcars_grouped, rowname_col="model", groupname_col="ctry_origin")
+    .tab_header(title="GT Cars: with summary rows")
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .summary_rows(fns={"Average": pl.col("hp", "trq").mean()}, fmt=vals.fmt_integer)
+    .grand_summary_rows(
+        fns={"Average": pl.col("hp", "trq").mean(), "Highest": pl.col("hp", "trq").max()},
+        fmt=vals.fmt_integer,
+    )
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_view(sort="-hp")
+)
+```
+
+The summary rows' values are those found in Python, from all of the data: they don't change as
+readers search or filter the rows. (Choose a make in the `Make` filter, and its country's averages
+are still those of all of its cars.) A group with no rows left is hidden, with its heading and
+summary rows.
+
+## Footnotes and source notes
+
+A table's footnotes and source notes are in its footer, as in a `GT` table, and the footnote marks
+stay with their cells as the rows are sorted, filtered and paged. Here, a footnote on the `HP`
+label says what it is, and another marks the cars of over 700 hp; sort by `HP` to bring them to the
+top.
+
+```{python}
+from great_tables import loc
+
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with footnotes and a source note")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .tab_footnote("Horsepower, at the engine's peak.", locations=loc.column_labels(columns="hp"))
+    .tab_footnote("Over 700 hp.", locations=loc.body(columns="hp", rows=pl.col("hp") > 700))
+    .tab_source_note("Source: the gtcars dataset.")
+)
+```
+
+The marks are numbered as the table was first made, so a sorted table can have them out of order.
+The search doesn't match them, and exports leave them out. A table of a lazy frame (a Polars
+LazyFrame, a DuckDB relation or an Ibis table), whose rows are collected as they're shown, can have
+footnotes on its title, column labels and the rest, but not on its body or stub.
+
+## Row details
+
+With `~~GTI.i_row_details()`, each row can have more to show under it, when the reader asks for it.
+A function makes a row's details from its values (including those of columns the table hides): as
+text, with `md()` or `html()`, or as a `GT` table of their own. Here, each car has a few lines about
+its engine. Click the arrow by a car's name to show them, or use **Expand all** in the table's info
+panel to show every car's.
+
+```{python}
+from great_tables import md
+
+
+def engine(row):
+    economy = (
+        "" if row["mpg_c"] is None else f" It gets {row['mpg_c']:.0f} mpg in the city, "
+        f"and {row['mpg_h']:.0f} on the highway."
+    )
+    return md(
+        f"The **{row['trim']}** ({row['bdy_style']}, {row['drivetrain'].upper()}) makes "
+        f"{row['hp']:.0f} hp at {row['hp_rpm']:,.0f} rpm, and {row['trq']:.0f} lb-ft of torque."
+        f"{economy}"
+    )
+
+
+(
+    GTI(data.pl.gtcars, rowname_col="model")
+    .tab_header(title="GT Cars: with row details")
+    .cols_hide(
+        columns=["trim", "bdy_style", "hp_rpm", "trq_rpm", "mpg_c", "mpg_h", "drivetrain", "trsmn"]
+    )
+    .cols_label(mfr="Make", year="Year", hp="HP", trq="Torque", ctry_origin="Country", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_row_details(engine)
+)
+```
+
+The details are in the table's HTML, made as it's rendered, but aren't searched, filtered or
+exported (and each `GT` table in them brings its own CSS, so many of them make a larger page). A
+column can hold them instead, with each row's details: `i_row_details()` takes its name, and the
+column is then left out of the table.
+
+## Column profiles
+
+With `~~GTI.i_cols_profile()`, columns get a small plot under their labels of how their values are
+spread: a histogram of numbers and dates, and bars for the most common values of the others, each
+with the share of rows that have a missing value. The plots follow the rows a search or filter
+keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch
+the horsepower and prices narrow; point at a bar (or slide a finger along the plot) to see its
+values and its number of rows. A double click or double tap on a profile (or Enter on it) opens a larger view of it, with axes, the whole caption, and each bar's rows.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: with column profiles")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_profile(columns=["mfr", "year", "hp", "msrp"])
+)
+```
+
+A profile's bars span the whole column, not just the rows that are left, so that they stay put as
+the reader filters (only their heights change). They aren't shown when the table is stacked as
+cards in a narrow container.
+
+## Choosing what readers can do with each column
+
+Readers can sort, search and resize every column, by default, and hide or move none. With
+`~~GTI.i_cols_controls()`, each of these is set for the columns it's given:
+
+- `sortable=False` takes away a column's sort arrows (though `~~GTI.i_view()` can still sort by it)
+- `searchable=False` leaves the column's cells out of the search (though its own filter still looks
+  in them)
+- `resizable=False` keeps the column at its width, without a handle on its label
+- `hideable=True` puts a **Columns** button in the control bar, whose panel has a checkbox for each
+  of the columns, to hide it or show it again
+- `reorderable=True` lists the columns in the same panel, in the order shown, where each can be
+  dragged to another place, or moved with its arrow buttons (or Alt+↑ and Alt+↓)
+
+Here, the search looks only at the cars' names and makes, the make can't be sorted by, and the
+numbers can be hidden and moved: open the **Columns** panel to show the city and highway mileage,
+or to put the price first.
+
+```{python}
+gtcars_cols = data.pl.gtcars.select(
+    ["mfr", "model", "year", "hp", "trq", "mpg_c", "mpg_h", "msrp", "ctry_origin"]
+)
+numbers = ["year", "hp", "trq", "mpg_c", "mpg_h", "msrp"]
+
+(
+    GTI(gtcars_cols, rowname_col="model")
+    .tab_header(title="GT Cars: choosing the columns")
+    .cols_label(
+        mfr="Make", year="Year", hp="HP", trq="Torque", mpg_c="MPG City", mpg_h="MPG Highway",
+        msrp="MSRP", ctry_origin="Country"
+    )
+    .fmt_integer(columns=["year", "hp", "trq", "mpg_c", "mpg_h"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_controls(columns="mfr", sortable=False)
+    .i_cols_controls(columns=numbers, searchable=False, hideable=True, reorderable=True)
+    .i_cols_controls(columns="ctry_origin", display=False)
+    .i_cols_filter(columns="ctry_origin")
+    .i_view(filter='ctry_origin in ("Italy", "Germany")', hidden=["mpg_c", "mpg_h"])
+)
+```
+
+A hidden column is hidden in every row, the search doesn't look in it, and exports leave it out,
+but a filter on it still keeps the rows it keeps. A column moves only among the movable columns next
+to it: it can't leave its spanner, or pass a column readers can't move. The table is first shown in
+the author's order, and resetting the view goes back to it.
+
+The country of origin here is in the data but not in the table, with `display=False`: it can't be
+shown, but it can be filtered by (from its token in the bar, or the `{ }` button), and the table can
+be sorted by it with `i_view()`, or by a view kept in the URL. The cars start filtered to those from
+Italy and Germany; remove the token to show them all. The search doesn't look in such a column and
+exports leave it out, but the code copied for the view filters by it. This is also how a column that
+`~~GT.cols_hide()` hid can be kept for querying.
+
+## Colors from the rows kept
+
+With `data_color="recompute"` in `~~GTI.i_cols_controls()`, a column's colors from `data_color()`
+are made again from the rows a search or filter keeps, as `data_color()` would make them from those
+rows alone, so that the whole palette is spread over them. Here, choose a make or two in the `Make`
+filter: its most powerful car takes the darkest orange, and its most expensive the darkest blue,
+however they compare to the rest of the cars. Show every row again and the first colors come back.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: colors from the rows kept")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .data_color(columns="hp", palette=["#fff7ec", "#ef6c00"])
+    .data_color(columns="msrp", palette="Blues")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_cols_controls(columns=["hp", "msrp"], data_color="recompute")
+)
+```
+
+Sorting the rows or turning the page doesn't change the colors. Only colors that depend on the
+rows can be made again: those `data_color()` made down a column from the values it found there (not
+with `domain=`, nor from an ordered categorical's levels), and without `fn=`. A cell that a later
+style colors keeps that style's colors.
+
+## Grouping rows
+
+With `groupable=True` in `~~GTI.i_cols_controls()`, readers can group the rows by any of the chosen
+columns, from the **Group rows** button in the table's control bar. Each group is under a heading
+with its value and its number of rows (of those a search or filter keeps), the groups in the order
+of their values (or the other way around, when the column is sorted descending) with any missing
+values last. The rows are sorted within their groups, and a group running over pages has its heading
+on each one. Here, the cars start grouped by their country of origin, the most powerful first in
+each; group them by make instead, or by none.
+
+```{python}
+by_country = data.pl.gtcars.select(["mfr", "model", "ctry_origin", "year", "hp", "msrp"])
+
+(
+    GTI(by_country)
+    .tab_header(title="GT Cars: grouped by country")
+    .cols_label(mfr="Make", model="Model", ctry_origin="Country", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_cols_controls(columns=["mfr", "ctry_origin"], groupable=True)
+    .i_view(sort="-hp", group_by="ctry_origin")
+)
+```
+
+The column the rows are grouped by is part of the table's view, which `~~GTI.i_view()` starts the
+table with (`group_by=`) and `~~GTI.i_view_state()` can keep. This grouping is the reader's: a
+table with row groups of its own (from `groupname_col=`) or with summary rows can't have columns
+to group by.
+
+## Linked tables
+
+With `~~GTI.i_link()`, tables on the same page work together: tables with the same group name are
+linked by a column they each have, so that the rows a reader selects in one filter the others to the
+rows with the same values. Here, select a make or two in the first table, and the second shows only
+their cars; clear the selection to show them all again.
+
+```{python}
+makes = (
+    gtcars_pl.group_by("mfr")
+    .agg(pl.len().alias("models"), pl.col("hp").max().alias("top_hp"))
+    .sort(pl.col("mfr").str.to_lowercase())
+)
+
+(
+    GTI(makes, rowname_col="mfr")
+    .tab_header(title="Makes")
+    .cols_label(mfr="Make", models="Models", top_hp="Top HP")
+    .fmt_integer(columns="top_hp", use_seps=False)
+    .i_selection("multiple")
+    .i_pagination(page_size=5)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+```{python}
+(
+    GTI(gtcars_pl.select(["mfr", "model", "year", "hp", "msrp"]), rowname_col="model")
+    .tab_header(title="Cars")
+    .cols_label(mfr="Make", year="Year", hp="HP", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp"], use_seps=False)
+    .fmt_currency(columns="msrp", decimals=0)
+    .i_link("gtcars", on="mfr")
+)
+```
+
+A filtered table says what it's filtered by with a token in its control bar ("Selected in Makes:
+Ferrari, Lamborghini"), which goes to the selection, and whose ✕ shows every row again (until the
+selection changes); its info panel says so too. The filter is on top of the table's own search and
+filters, but isn't part of its view, so it isn't kept by `~~GTI.i_view_state()`. The tables link in
+the browser, with no server, so this works in a Quarto document or an HTML page, and in a notebook
+whose cells' outputs share a page (in Jupyter, but not in Colab, which shows each cell's output in a
+frame of its own).
+
+## How the rows look
+
+`~~GTI.i_display()` sets how the table's rows look:
+
+- `highlight=` (on by default) highlights the row under the pointer, or the row tapped on a touch
+  screen
+- `compact=True` gives the rows half of their usual padding above and below, for more of them in
+  view
+- `wrap=False` keeps each cell's text on one line, cut short with an ellipsis if it doesn't fit, so
+  that every row is the same height
+- `monospace=True` puts the column labels and the cells in a monospaced font, for a table that's a
+  look at data more than a presentation of it (the title, the notes and the controls keep the
+  table's font)
+
+Here are the cars in compact rows, in a monospaced font, without the highlight:
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: compact and monospaced")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_display(highlight=False, compact=True, monospace=True)
+)
+```
+
+Each call sets all of these, so `i_display(compact=True)` also puts back the highlight and the
+wrapping, if an earlier call took them away. The compact rows' padding is only where the table
+hasn't set its own, as with `tab_options(data_row_padding=)`.
+
+## An explorer for looking through data
+
+`GTI(df, preset="explorer")` starts a table set up for looking through a DataFrame rather than
+presenting it:
+
+- every column can be filtered, has a profile, and can be hidden and moved
+- the rows are compact, each one line high (their text doesn't wrap), with the column labels and
+  the values in a monospaced font
+- the rows can be downloaded as CSV
+- with `~~GTI.i_inspect()`, the rows are numbered (by their place in the data, which stays with
+  them as they're sorted and filtered), each column's dtype is under its label (as Polars names it,
+  whatever the DataFrame library), missing values are tinted, and the status line says what the
+  data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a PyArrow Table, a DuckDB relation,
+  or an Ibis table) and how many of its rows and columns are left
+
+```{python}
+cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
+
+GTI(cars, preset="explorer")
+```
+
+A preset is only where the table starts: the `i_` methods change it as they'd change any table. Each
+sets all of its feature's settings, so `.i_display(wrap=True)` on an explorer lets its text wrap,
+but also makes its rows less compact and puts them in the table's own font, unless it's given
+`compact=True` and `monospace=True` too; and `.i_inspect(missing=False)` leaves the row numbers,
+dtypes and dimensions on. `i_inspect()` and `~~GTI.i_display()` work on their own as well, on any
+`GTI` table.
+
+## Exporting the rows
+
+With `~~GTI.i_export()`, an export button in the control bar opens a panel with a button for each
+way readers can take the rows away: downloaded as a CSV, TSV or JSON file (`"csv"`, `"tsv"`,
+`"json"`), copied (`"clipboard"`), or as code that gets them from the data (`"code"`). Here, filter
+the cars to a make or two and sort them, then export what's left; the files are named
+`gtcars.csv`, `gtcars.tsv` and `gtcars.json`.
+
+```{python}
+(
+    GTI(gtcars_pl)
+    .tab_header(title="GT Cars: exporting the rows")
+    .cols_label(mfr="Make", model="Model", year="Year", hp="HP", trq="Torque", msrp="MSRP")
+    .fmt_integer(columns=["year", "hp", "trq"], use_seps=False)
+    .fmt_currency(columns="msrp")
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_export(["csv", "tsv", "json", "clipboard", "code"], filename="gtcars")
+)
+```
+
+An export has the rows readers see: every row the search and filters keep (on every page, not only
+the one shown), in the order shown, with the columns' text as the table shows it (so the Ford GT's
+`MSRP` is exported as `$447,000.00`). Each format has them its own way:
+
+- a CSV or TSV file has the column labels as its first row (each after its spanners' labels, as in
+  "Revenue – gross"), and with row groups, the group's label as a column before the others; a cell
+  a spreadsheet would read as a formula starts with a `'`, so that it's read as text
+- a JSON file has an object for each row, with each cell's text under its column's name in the data
+  (and the row's group label first, under `"group"`)
+- a copy has the rows both as a table, with the cells' styles, for pasting into a document or a
+  spreadsheet, and as text, with tabs between the cells
+- the code filters and sorts the data (as `df`) as the reader's view does, for Polars, Pandas or
+  Narwhals (the data's library, at first); it works on the data's values, so it leaves out the
+  search
+
+The formats' buttons are in the order `i_export()` is given them. With `~~GTI.i_selection()`,
+readers can export the rows they've selected instead.
+
+## Using the table from Python and in apps
+
+Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
+widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app
+makes itself, with Flask, Django or FastHTML, can show it. See
+[GTI in Python and Apps](26-gti-in-python-and-apps.qmd).

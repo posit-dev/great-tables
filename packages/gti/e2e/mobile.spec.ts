@@ -79,6 +79,53 @@ test("a long press on a column's label opens its sheet; a tap sorts", async ({ p
   expect(errors).toEqual([]);
 });
 
+test("a finger along a column's profile reads its bars, without opening the sheet; a double tap opens its larger view", async ({
+  page,
+}) => {
+  const errors = await ready(page, "profile.html");
+  const profile = el(page).locator("thead th#f-num .gt-i-profile");
+  const tip = el(page).locator(":scope > .gt-i-profile-tip");
+  const box = await profile.locator("svg").boundingBox();
+  if (box === null) {
+    throw new Error("no plot");
+  }
+  const y = box.y + box.height / 2;
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type: "touchStart" | "touchMove" | "touchEnd", x?: number) =>
+    cdp.send("Input.dispatchTouchEvent", { type, touchPoints: x === undefined ? [] : [{ x, y }] });
+  await touch("touchStart", box.x + 1);
+  await expect(tip).toHaveText("0.111 – 444K5 rows (63%)");
+  for (const step of [0.25, 0.5, 0.75, 1]) {
+    await touch("touchMove", box.x + 1 + step * (box.width - 2));
+  }
+  await expect(tip).toHaveText("8.44M – 8.88M1 row (13%)");
+  // (Held past a long press)
+  await page.waitForTimeout(700);
+  await touch("touchEnd");
+  await expect(sheet(page)).toBeHidden();
+  // (It stays a moment after the finger lifts)
+  await expect(tip).toBeVisible();
+  await expect(tip).toBeHidden({ timeout: 3000 });
+  await cdp.detach();
+
+  const scale = () => page.evaluate(() => window.visualViewport?.scale);
+  const before = await scale();
+  await page.touchscreen.tap(box.x + box.width / 2, y);
+  await page.touchscreen.tap(box.x + box.width / 2, y);
+  const view = el(page).getByRole("group", { name: "Profile of num", exact: true });
+  await expect(view).toBeVisible();
+  // (In the page, which the double tap didn't zoom)
+  const inside = await view.evaluate((panel) => {
+    const { left, right } = panel.getBoundingClientRect();
+    return left >= 0 && right <= document.documentElement.clientWidth;
+  });
+  expect(inside).toBe(true);
+  expect(await scale()).toBe(before);
+  await view.getByRole("button", { name: "Close" }).tap();
+  await expect(view).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
 test("a table that can be stacked is cards on a phone, and fits the page", async ({ page }) => {
   const errors = await ready(page, "stack-phone.html");
   if (phone(page)) {

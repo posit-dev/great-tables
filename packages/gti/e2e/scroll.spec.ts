@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 import { CHROMIUM_TOUCH, open, ready } from "./helpers";
 
 // exibble three times over (24 rows, grp_b then grp_a, each with a summary row, then a grand
-// summary row), with a title, a spanner, a footnote and a source note, in a body 300px high:
+// summary row), with a title, a spanner, a footnote and a source note, in a body 340px high:
 // on one page, selectable, with a search box; with groups shown as a column; and 200px high, 10
 // rows to a page, with resizable columns and no text wrapping.
 
@@ -38,7 +38,7 @@ test.describe("a body that scrolls", () => {
   test("keeps the column labels, the group heading and the grand summary in view", async ({ page }) => {
     const errors = await ready(page, "scroll.html");
     const view = await port(page);
-    expect(view.bottom - view.top).toBeLessThanOrEqual(300);
+    expect(view.bottom - view.top).toBeLessThanOrEqual(340);
     await scrollTo(page, 400);
     await expect.poll(() => scrollTop(page)).toBe(400);
 
@@ -74,6 +74,10 @@ test.describe("a body that scrolls", () => {
   test("draws the table's borders as GT does", async ({ page }) => {
     for (const name of ["scroll-borders.html", "scroll-borders-column.html"]) {
       await open(page, name);
+      // (A window as tall as the page, so that no screenshot scrolls: to show an element taller than
+      // the window, Firefox centers it, at half a pixel when the heights differ by an odd number)
+      const { width } = page.viewportSize() ?? { width: 1280 };
+      await page.setViewportSize({ width, height: await page.evaluate(() => document.documentElement.scrollHeight) });
       // (A table as GT draws it, and one with a body that scrolls, taller than the table)
       const tables = el(page);
       await expect(tables.nth(0)).toHaveAttribute("data-gti-state", "ready");
@@ -139,6 +143,21 @@ test.describe("a body that scrolls", () => {
     expect(errors).toEqual([]);
   });
 
+  test("draws the guide along a column down to the bottom of the part in view", async ({ page }) => {
+    await ready(page, "scroll-pages.html");
+    await scrollTo(page, 60);
+    await expect.poll(() => scrollTop(page)).toBe(60);
+    const th = el(page).locator("thead th.gt-i-resizable").nth(1);
+    const box = await rect(th);
+    await page.mouse.move((box.left + box.right) / 2, box.bottom - 4);
+    const guide = el(page).locator(".gt-i-guide");
+    await expect(guide).toBeVisible();
+    const view = await port(page);
+    // (From the label, in the column labels stuck at the top)
+    expect((await rect(guide)).top).toBeCloseTo((await rect(th)).top, 0);
+    expect((await rect(guide)).bottom).toBeCloseTo(view.bottom, 0);
+  });
+
   test("keeps the select-all checkbox in view, and what has focus clear of the sticky rows", async ({ page }) => {
     await ready(page, "scroll.html");
     await scrollTo(page, 400);
@@ -162,6 +181,62 @@ test.describe("a body that scrolls", () => {
     await expect(el(page).locator('.gt-i-shade[data-gti-edge="bottom"]')).not.toHaveAttribute("data-gti-shown");
     await page.getByRole("searchbox").fill("");
     await expect(el(page).locator("tr.gt-i-empty")).toHaveCount(0);
+    expect(errors).toEqual([]);
+  });
+});
+
+test.describe("a body that scrolls, on a page that scrolls", () => {
+  test("keeps the column labels where they are from the start, with nothing showing above them", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    // (The container's padding and the table's margin are above the labels, as GT has them, to
+    // a whole pixel)
+    const start = (await rect(el(page).locator("thead"))).top;
+    expect(Math.abs(start - (await rect(scroller(page))).top - 18.5)).toBeLessThanOrEqual(0.5);
+    const max = await rect(el(page).locator("tr.gt-i-stuck-bottom > *").first());
+    const x = (max.left + max.right) / 2;
+    for (const top of [1, 5, 30, 400]) {
+      await scrollTo(page, top);
+      await expect.poll(() => scrollTop(page)).toBe(top);
+      expect((await rect(el(page).locator("thead"))).top).toBeCloseTo(start, 0);
+      expect(await rowAt(page, x, start - 2)).toBeNull();
+      // (And the grand summary row, stuck at the bottom, where it is too, with nothing below it)
+      expect((await rect(el(page).locator("tr.gt-i-stuck-bottom > *").first())).bottom).toBeCloseTo(max.bottom, 0);
+      expect(await rowAt(page, x, max.bottom + 2)).toBeNull();
+    }
+    expect(errors).toEqual([]);
+  });
+
+  test("scrolling past the end of the rows doesn't scroll the page", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    const view = await port(page);
+    await page.mouse.move(view.left + 20, view.bottom - 60);
+    // (Firefox scrolls by a few lines for each, whatever its size)
+    const atEnd = () => scroller(page).evaluate((div) => div.scrollTop + div.clientHeight >= div.scrollHeight - 1);
+    for (let i = 0; i < 40 && !(await atEnd()); i++) {
+      await page.mouse.wheel(0, 400);
+    }
+    // (And past the end)
+    for (let i = 0; i < 4; i++) {
+      await page.mouse.wheel(0, 400);
+    }
+    await expect.poll(atEnd).toBe(true);
+    // (Wheel events done with, and none more to come)
+    await page.waitForTimeout(300);
+    expect(await page.evaluate(() => window.scrollY)).toBe(500);
+    expect(errors).toEqual([]);
+  });
+
+  test("lets the page scroll while its rows are all in view", async ({ page }) => {
+    const errors = await ready(page, "scroll-page.html");
+    await page.evaluate(() => window.scrollTo(0, 500));
+    await page.getByRole("searchbox").fill("zzz");
+    await expect(el(page).locator("tr.gt-i-empty")).toBeVisible();
+    const empty = await rect(el(page).locator("tr.gt-i-empty"));
+    await page.mouse.move(empty.left + 20, (empty.top + empty.bottom) / 2);
+    await page.mouse.wheel(0, 200);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
     expect(errors).toEqual([]);
   });
 });

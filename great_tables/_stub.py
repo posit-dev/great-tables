@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from ._gt_data import Stub
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ._gt_data import Stub
 
 
 def reorder_stub_df(stub_df: Stub) -> Stub:

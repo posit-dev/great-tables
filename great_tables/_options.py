@@ -4,12 +4,13 @@ import re
 import warnings
 from collections.abc import Iterable
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, ClassVar, cast
+from typing import TYPE_CHECKING, Any, ClassVar, cast
 
 from . import _utils
 from ._helpers import FontStackName, GoogleFont, _scaled_px, px
 
 if TYPE_CHECKING:
+    from ._gt_data import Options
     from ._locations import LocColumnLabels, LocRowGroups, LocStub
     from ._types import GTSelf
 
@@ -196,7 +197,7 @@ def tab_options(
     ihtml_page_size_default: int | None = None,
     ihtml_page_size_values: list[int] | None = None,
     ihtml_pagination_type: str | None = None,
-    ihtml_height: str | int | float | None = None,
+    ihtml_height: str | float | None = None,
     ihtml_selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -589,7 +590,29 @@ def tab_options(
 
     del saved_args["self"]
 
-    modified_args = {k: v for k, v in saved_args.items() if v is not None}
+    validated = validate_option_values(self._options, saved_args)
+
+    new_options_info = {
+        k: replace(getattr(self._options, k), value=v, is_set=True) for k, v in validated.items()
+    }
+
+    new_options = replace(self._options, **new_options_info)
+
+    return self._replace(_options=new_options)
+
+
+def validate_option_values(options: Options, args: dict[str, Any]) -> dict[str, Any]:
+    """Validate and coerce `tab_options()` values, returning option name to validated value.
+
+    Entries that are `None` are treated as not given and left out.
+    """
+
+    known = {f.name for f in fields(options)}
+    unknown = [k for k in args if k not in known]
+    if unknown:
+        raise ValueError(f"Unknown table option(s): {', '.join(unknown)}")
+
+    modified_args = {k: v for k, v in args.items() if v is not None}
 
     # Intercept modified args and modify before replacing options:
     # - `table_font_names` should be a list but if given as a string, ensure it is list
@@ -612,6 +635,14 @@ def tab_options(
             'Use either "single" or "multiple".'
         )
 
+    # - `ihtml_pagination_type` is "numbers", "jump", "simple" or "full"
+    pagination_type = modified_args.get("ihtml_pagination_type")
+    if pagination_type is not None and pagination_type not in _PAGINATION_TYPES:
+        raise ValueError(
+            f"The chosen option for `ihtml_pagination_type` ({pagination_type!r}) is invalid. "
+            'Use "numbers", "jump", "simple", or "full".'
+        )
+
     # - `ihtml_height` is "auto", a CSS length, or a number of pixels
     height = modified_args.get("ihtml_height")
     if height is not None and not _is_height(height):
@@ -621,15 +652,13 @@ def tab_options(
         )
 
     # Validate and coerce option values based on their declared types
-    new_options_info = {}
-    for k, v in modified_args.items():
-        opt_info = getattr(self._options, k)
-        validated_value = opt_info._validate_value(v, option_name=k)
-        new_options_info[k] = replace(opt_info, value=validated_value)
+    return {
+        k: getattr(options, k)._validate_value(v, option_name=k) for k, v in modified_args.items()
+    }
 
-    new_options = replace(self._options, **new_options_info)
 
-    return self._replace(_options=new_options)
+# (R gt's, and "full", which GTI draws as first/previous/next/last)
+_PAGINATION_TYPES = ("numbers", "jump", "simple", "full")
 
 
 def _is_height(value: object) -> bool:
@@ -682,7 +711,7 @@ def opt_footnote_marks(self: GTSelf, marks: str | list[str] = "numbers") -> GTSe
     # Validate the marks keyword passed in as a string
     if marks is str:
         marks = _utils._match_arg(
-            x=cast(str, marks),
+            x=cast("str", marks),
             lst=["numbers", "letters", "LETTERS", "standard", "extended"],
         )
 
@@ -1262,7 +1291,7 @@ def opt_all_caps(
         "row_groups": LocRowGroups,
     }
 
-    if any([isinstance(x, str) for x in locations]):
+    if any(isinstance(x, str) for x in locations):
         warnings.warn(
             "Using string-based locations in `opt_all_caps()` is deprecated and support will be "
             "removed in a future release. Please use the location classes from `great_tables.loc` "
@@ -1499,10 +1528,9 @@ def opt_table_font(
 
     ```{python}
     import polars as pl
-    from great_tables import GT
-    from great_tables.data import sp500
+    from great_tables import GT, data
 
-    sp500_mini = pl.from_pandas(sp500).slice(0, 10).drop(["volume", "adj_close"])
+    sp500_mini = data.pl.sp500.slice(0, 10).drop(["volume", "adj_close"])
 
     (
         GT(sp500_mini, rowname_col="date")
@@ -1523,10 +1551,10 @@ def opt_table_font(
     computing environments.
 
     ```{python}
-    from great_tables.data import sza
+    from great_tables import data
 
     sza_mini = (
-        pl.from_pandas(sza)
+        data.pl.sza
         .filter((pl.col("latitude") == "20") & (pl.col("month") == "jan"))
         .drop_nulls()
         .drop(["latitude", "month"])
@@ -1791,10 +1819,10 @@ def opt_css(
     value of `"one"`, setting it up with `GT(id=)`).
 
     ```{python}
-    from great_tables import GT, exibble
+    from great_tables import GT, data
     import polars as pl
 
-    exibble_mini = pl.from_pandas(exibble).select(["num", "currency"])
+    exibble_mini = data.pl.exibble.select(["num", "currency"])
 
     (
         GT(exibble_mini, id="one")
@@ -1834,7 +1862,7 @@ def opt_css(
         return self
     else:
         # Add the new CSS to the existing CSS
-        additional_css = existing_additional_css + [css]
+        additional_css = [*existing_additional_css, css]
 
     # Use tab_options() to set the additional CSS
     res = tab_options(self, table_additional_css=additional_css)
@@ -1858,7 +1886,7 @@ def opt_interactive(
     page_size_default: int = 10,
     page_size_values: list[int] | None = None,
     pagination_type: str = "numbers",
-    height: str | int | float = "auto",
+    height: str | float = "auto",
     selection_mode: str | None = None,
 ) -> GTSelf:
     """
@@ -1953,7 +1981,7 @@ def opt_interactive(
     if page_size_values is None:
         page_size_values = [10, 25, 50, 100]
 
-    return tab_options(
+    res = tab_options(
         self,
         ihtml_active=active,
         ihtml_use_pagination=use_pagination,
@@ -1972,6 +2000,15 @@ def opt_interactive(
         ihtml_height=height,
         ihtml_selection_mode=selection_mode,
     )
+
+    # (`tab_options()` leaves an option given as `None` as it was, but `selection_mode=None` turns
+    # selection off, as every other option here is set to the value given)
+    if selection_mode is None:
+        options = res._options
+        selection = replace(options.ihtml_selection_mode, value=None, is_set=True)
+        res = res._replace(_options=replace(options, ihtml_selection_mode=selection))
+
+    return res
 
 
 @dataclass

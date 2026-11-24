@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Concatenate
 
-from typing_extensions import Concatenate, ParamSpec
+from typing_extensions import ParamSpec
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .gt import GT
 
 
 P = ParamSpec("P")
 
 
-def pipe(
-    self: "GT", func: Callable[Concatenate["GT", P], "GT"], *args: P.args, **kwargs: P.kwargs
-) -> "GT":
+def pipe(self: GT, func: Callable[Concatenate[GT, P], GT], *args: P.args, **kwargs: P.kwargs) -> GT:
     """
     Provide a structured way to chain a function for a GT object.
 
@@ -47,11 +47,10 @@ def pipe(
 
     ```{python}
     import polars as pl
-    from great_tables import GT, loc, style
-    from great_tables.data import towny
+    from great_tables import GT, data, loc, style
 
 
-    towny_mini = pl.from_pandas(towny).head(10)
+    towny_mini = data.pl.towny.head(10)
 
     (
         GT(

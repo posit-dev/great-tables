@@ -12,12 +12,18 @@ markup into its HTML output for you, following the patterns in the W3C's
 [Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). This page describes what's covered,
 what isn't, and what you can do to make your tables easier for everyone to read.
 
-## Row and column headers
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="happy" arms="open rest" cells="|GDP|pop|area/Japan|4.2|124M|378k/France|3.1|68M|551k" cell-trick="read" intro='[["say", "I’ll read you any cell!"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
+
+## Row and Column Headers
 
 Every header in a **Great Tables** table is a header cell (`<th>`) with a `scope` that says what it
 labels:
 
-- column labels and spanners are column headers (`scope="col"`, or `"colgroup"` over several columns)
+- column labels and spanners are column headers (`scope="col"`, or `"colgroup"` over several
+  columns)
 - stub cells (the row labels) are row headers (`scope="row"`)
 - an outer level of a hierarchical stub that's merged across rows, and the row group label when
   `row_group_as_column=True`, head the group of rows they span (`scope="rowgroup"`)
@@ -29,11 +35,10 @@ attribute. Here's a table with all of these parts:
 
 ```{python}
 import polars as pl
-from great_tables import GT
-from great_tables.data import towny
+from great_tables import GT, data, loc, style
 
 towny_mini = (
-    pl.from_pandas(towny)
+    data.pl.towny
     .filter(pl.col("csd_type").is_in(["city", "town"]))
     .sort("population_2021", descending=True)
     .group_by("csd_type", maintain_order=True)
@@ -53,7 +58,7 @@ gt_tbl
 ```
 
 The first data cell's `headers` attribute refers to the row group heading, the row label, the
-spanner and the column label above it:
+spanner, and the column label above it:
 
 ```{python}
 import re
@@ -66,7 +71,7 @@ There's nothing to set up for any of this. Placing identifying columns in the st
 `rowname_col=` (rather than leaving them as ordinary columns) is what makes them row headers, so do
 that whenever the first column says what a row is about.
 
-## Naming the table
+## Naming the Table
 
 A table with a title, added with `~~GT.tab_header()`, is named after it: `<table>` refers to the
 title with `aria-labelledby` (and to the subtitle with `aria-describedby`), so a screen reader
@@ -76,7 +81,7 @@ title, even when the surrounding text describes them.
 If a page shows several tables, give each one an id with `GT(id=)`. Header ids are then prefixed by
 the table's id, which keeps them unique across all of the tables on the page.
 
-## Color and contrast
+## Color and Contrast
 
 When `~~GT.data_color()` fills cells with color, it also picks a text color (light or dark) that
 contrasts with each fill, using the APCA contrast algorithm by default (`contrast_algo="wcag"`
@@ -90,19 +95,17 @@ with another cue such as bold text, and prefer palettes that work for color-blin
 the viridis family:
 
 ```{python}
-from great_tables import style, loc
-
 (
     gt_tbl
     .data_color(columns="population_2021", palette="cividis")
     .tab_style(
         style=style.text(weight="bold"),
-        locations=loc.body(columns="population_2021", rows=pl.col("population_2021") > 500000),
+        locations=loc.body(columns="population_2021", rows=pl.col("population_2021") > 500_000),
     )
 )
 ```
 
-## Images, icons, flags and nanoplots
+## Images, Icons, Flags, and Nanoplots
 
 Some cell contents are graphics, which screen readers can't see, so they need a text alternative:
 
@@ -119,8 +122,6 @@ Give images alternative text whenever they carry information, and keep a label b
 that means something, since the icon itself isn't announced.
 
 ```{python}
-from great_tables import from_column
-
 flags_df = pl.DataFrame(
     {
         "flag": ["CA", "GB", "JP"],
@@ -135,11 +136,11 @@ flags_df = pl.DataFrame(
 )
 ```
 
-## Other kinds of output
+## Other Kinds of Output
 
 Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto
-documents and web pages, and to interactive tables made with `~~GT.opt_interactive()` too: the
-interactivity is added to the same table markup, so its header, stub, column labels and spanners
+documents, and web pages, and to interactive tables made with `~~GT.opt_interactive()` too: the
+interactivity is added to the same table markup, so its header, stub, column labels, and spanners
 are kept as they are. Its controls are labelled buttons and inputs that can be used with the
 keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting,
 searching, filtering, or turning the page) are announced to screen readers.
@@ -148,7 +149,7 @@ LaTeX output and images saved with `~~GT.gtsave()` have no equivalent markup, so
 table image in a document, describe the table in that image's alternative text or in the text
 around it.
 
-## A short checklist
+## A Short Checklist
 
 - Put the identifying column in the stub (`rowname_col=`), and group rows with `groupname_col=`
 - Give the table a title with `~~GT.tab_header()`

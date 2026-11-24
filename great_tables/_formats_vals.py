@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Callable
 from contextvars import ContextVar
 from functools import partial, wraps
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, Concatenate, TypeAlias, overload
 
 from typing_extensions import ParamSpec
@@ -22,8 +20,10 @@ from ._tbl_data import PlExpr, SeriesLike, to_frame
 from .gt import GT, _get_column_of_values
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+    from pathlib import Path
+
     from ._formats import DateStyle, NumberSystem, TimeStyle
-    from ._tbl_data import SeriesLike
 
 
 X: TypeAlias = "Any | list[Any] | SeriesLike | PlExpr"

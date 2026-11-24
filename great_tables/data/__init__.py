@@ -10,7 +10,7 @@ from importlib_resources import files
 # only; in particular they don't bring in the `pd` and `pl` backend namespaces, which would replace
 # the conventional `pandas`/`polars` aliases. `islands` and `airquality` are left out as they aren't
 # official datasets (they aren't in R's gt and are planned for removal)
-__all__ = [
+__all__ = [  # noqa: RUF022 (same order as _DatasetNames)
     "countrypops",
     "sza",
     "gtcars",
@@ -32,10 +32,18 @@ __all__ = [
 
 
 def _read_csv_pandas(fname: Any, dtype: dict[str, str] | None = None) -> Any:
-    """Read a CSV file as a pandas DataFrame."""
+    """Read a CSV file as a pandas DataFrame.
+
+    As in polars, only an empty field is missing, so text like `"NA"` (Namibia's country code) is
+    kept.
+    """
     import pandas as pd
 
-    return pd.read_csv(fname, dtype=dtype)
+    # (Except in `airquality`, from R, which writes a missing value as "NA")
+    if fname == _airquality_fname:
+        return pd.read_csv(fname, dtype=dtype)
+
+    return pd.read_csv(fname, dtype=dtype, keep_default_na=False, na_values=[""])
 
 
 def _read_csv_polars(fname: Any, dtype: dict[str, str] | None = None) -> Any:

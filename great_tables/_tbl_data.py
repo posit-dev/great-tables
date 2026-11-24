@@ -4,12 +4,12 @@ import math
 import numbers
 import re
 import warnings
-from contextlib import suppress
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import datetime, time
 from decimal import Decimal
 from functools import singledispatch
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeAlias
 
 from ._databackend import AbstractBackend
 
@@ -47,8 +47,8 @@ if TYPE_CHECKING:
     NpInteger = np.integer
     NpBool = np.bool_
 
-    DataFrameLike = Union[PdDataFrame, PlDataFrame, PyArrowTable]
-    SeriesLike = Union[PdSeries, PlSeries, PyArrowArray, PyArrowChunkedArray]
+    DataFrameLike = PdDataFrame | PlDataFrame | PyArrowTable
+    SeriesLike = PdSeries | PlSeries | PyArrowArray | PyArrowChunkedArray
     TblData = DataFrameLike
 
 else:
@@ -59,44 +59,47 @@ else:
     from typing import Any as Selector
 
     class PdDataFrame(AbstractBackend):
-        _backends = [("pandas", "DataFrame")]
+        _backends: ClassVar = [("pandas", "DataFrame")]
 
     class PlDataFrame(AbstractBackend):
-        _backends = [("polars", "DataFrame")]
+        _backends: ClassVar = [("polars", "DataFrame")]
 
     class PyArrowTable(AbstractBackend):
-        _backends = [("pyarrow", "Table")]
+        _backends: ClassVar = [("pyarrow", "Table")]
 
     class PlSelectExpr(AbstractBackend):
-        _backends = [("polars.selectors", "_selector_proxy_"), ("polars.selectors", "Selector")]
+        _backends: ClassVar = [
+            ("polars.selectors", "_selector_proxy_"),
+            ("polars.selectors", "Selector"),
+        ]
         _strict = False
 
     class PlExpr(AbstractBackend):
-        _backends = [("polars", "Expr")]
+        _backends: ClassVar = [("polars", "Expr")]
 
     class PdSeries(AbstractBackend):
-        _backends = [("pandas", "Series")]
+        _backends: ClassVar = [("pandas", "Series")]
 
     class PlSeries(AbstractBackend):
-        _backends = [("polars", "Series")]
+        _backends: ClassVar = [("polars", "Series")]
 
     class PyArrowArray(AbstractBackend):
-        _backends = [("pyarrow", "Array")]
+        _backends: ClassVar = [("pyarrow", "Array")]
 
     class PyArrowChunkedArray(AbstractBackend):
-        _backends = [("pyarrow", "ChunkedArray")]
+        _backends: ClassVar = [("pyarrow", "ChunkedArray")]
 
     class PdNA(AbstractBackend):
-        _backends = [("pandas", "NA")]
+        _backends: ClassVar = [("pandas", "NA")]
 
     class PlNull(AbstractBackend):
-        _backends = [("polars", "Null")]
+        _backends: ClassVar = [("polars", "Null")]
 
     class NpInteger(AbstractBackend):
-        _backends = [("numpy", "integer")]
+        _backends: ClassVar = [("numpy", "integer")]
 
     class NpBool(AbstractBackend):
-        _backends = [("numpy", "bool_")]
+        _backends: ClassVar = [("numpy", "bool_")]
 
     # TODO: these types are imported throughout gt, so we need to either put
     # those imports under TYPE_CHECKING, or continue to make available dynamically here.
@@ -336,7 +339,10 @@ def _(data, column: str, values: dict[int, Any]):
         return _set_cells_one_by_one(data, column, values)
 
     series = data.to_series(col_indx).clone()
-    series.scatter(list(values), pl.Series(list(values.values()), dtype=pl.String))
+    # (Polars before 1.37 raises for indices that aren't sorted, as they aren't when a later
+    # formatter covers earlier rows)
+    rows = sorted(values)
+    series.scatter(rows, pl.Series([values[row] for row in rows], dtype=pl.String))
     data.replace_column(col_indx, series)
     return data
 
@@ -383,7 +389,7 @@ def _is_numeric_dtype(data: DataFrameLike, column: str) -> bool:
     """Check whether a column in the original data has a numeric dtype."""
     try:
         dtype = _get_column_dtype(data, column)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return False
     return _NUMERIC_DTYPE_PREFIX.match(str(dtype).lower()) is not None
 
@@ -724,6 +730,122 @@ def _(data: PyArrowTable, column: str) -> list[int]:
     return [i for i, is_missing in enumerate(missing) if is_missing]
 
 
+# _get_column_dtype_name ----
+
+# The short names of dtypes, as Polars prints them (without their parameters): the same for every
+# backend, so that a column of 64-bit floats is "f64" in each
+_POLARS_DTYPES = {
+    "Int8": "i8",
+    "Int16": "i16",
+    "Int32": "i32",
+    "Int64": "i64",
+    "Int128": "i128",
+    "UInt8": "u8",
+    "UInt16": "u16",
+    "UInt32": "u32",
+    "UInt64": "u64",
+    "UInt128": "u128",
+    "Float16": "f16",
+    "Float32": "f32",
+    "Float64": "f64",
+    "Decimal": "decimal",
+    "Boolean": "bool",
+    "String": "str",
+    "Utf8": "str",
+    "Categorical": "cat",
+    "Enum": "enum",
+    "Date": "date",
+    "Time": "time",
+    "Datetime": "datetime",
+    "Duration": "duration",
+    "List": "list",
+    "Array": "array",
+    "Struct": "struct",
+    "Binary": "binary",
+    "Null": "null",
+    "Object": "object",
+}
+
+
+def _arrow_dtype(dtype: Any) -> str:
+    import pyarrow as pa
+
+    if pa.types.is_integer(dtype):
+        return f"{'i' if pa.types.is_signed_integer(dtype) else 'u'}{dtype.bit_width}"
+    if pa.types.is_floating(dtype):
+        return f"f{dtype.bit_width}"
+    if pa.types.is_fixed_size_list(dtype):
+        return "array"
+    if pa.types.is_large_list(dtype) or pa.types.is_list(dtype):
+        return "list"
+    checks = [
+        (pa.types.is_decimal, "decimal"),
+        (pa.types.is_boolean, "bool"),
+        (pa.types.is_string, "str"),
+        (pa.types.is_large_string, "str"),
+        (_is_arrow_string_view, "str"),
+        (pa.types.is_dictionary, "cat"),
+        (pa.types.is_date, "date"),
+        (pa.types.is_time, "time"),
+        (pa.types.is_timestamp, "datetime"),
+        (pa.types.is_duration, "duration"),
+        (pa.types.is_struct, "struct"),
+        (pa.types.is_binary, "binary"),
+        (pa.types.is_large_binary, "binary"),
+        (pa.types.is_null, "null"),
+    ]
+    for check, name in checks:
+        if check(dtype):
+            return name
+    # (Another, by its name without its parameters, as in "map")
+    return str(dtype).split("<")[0].split("[")[0].split("(")[0]
+
+
+@singledispatch
+def _get_column_dtype_name(data: DataFrameLike, column: str) -> str:
+    """Get the short name of a column's dtype, as Polars prints it (`"f64"`, `"str"`, `"date"`,
+    `"datetime"`...), for any backend: an object column of strings is `"str"`, and a column of
+    another dtype has its name, without its parameters."""
+    _raise_not_implemented(data)  # pragma: no cover
+
+
+@_get_column_dtype_name.register
+def _(data: PdDataFrame, column: str) -> str:
+    import pandas as pd
+
+    dtype = data[column].dtype
+    if isinstance(dtype, pd.ArrowDtype):
+        return _arrow_dtype(dtype.pyarrow_dtype)
+    if isinstance(dtype, pd.CategoricalDtype):
+        return "cat"
+    if isinstance(dtype, pd.StringDtype):
+        return "str"
+    # (NumPy's dtypes and pandas' nullable ones, by their kind and size)
+    kind = getattr(dtype, "kind", None)
+    if kind in ("i", "u", "f"):
+        return f"{kind}{dtype.itemsize * 8}"
+    if kind == "b":
+        return "bool"
+    if kind == "M":
+        return "datetime"
+    if kind == "m":
+        return "duration"
+    if kind == "O" and dtype.name == "object":
+        return "str" if _get_column_kind(data, column) == "string" else "object"
+    return str(dtype).split("[")[0]
+
+
+@_get_column_dtype_name.register
+def _(data: PlDataFrame, column: str) -> str:
+    base = data[column].dtype.base_type()
+    return _POLARS_DTYPES.get(base.__name__, base.__name__.lower())
+
+
+@_get_column_dtype_name.register
+def _(data: PyArrowTable, column: str) -> str:
+    return _arrow_dtype(data.column(column).type)
+
+
 # reorder ----
 
 
@@ -800,14 +922,17 @@ def _(data: PyArrowTable, group_key: str) -> dict[Any, list[int]]:
         # NOTE: If a column is already dictionary-typed, dictionary_encode() returns it unchanged and
         # ignores null_encoding so its nulls would stay null indices and their rows would be dropped
         group_col = _decode_arrow_dictionary(group_col)
+    if _is_arrow_string_view(group_col.type):
+        # (PyArrow encodes a string_view's null as "", which would merge it with an empty string)
+        group_col = group_col.cast(pa.large_string())
 
     # The default null_encoding="mask" drops the rows with a null key; polars groups them under None
     encoded = group_col.dictionary_encode(null_encoding="encode").combine_chunks()
 
     d = {}
-    for idx, group_key in enumerate(encoded.dictionary):
+    for idx, key in enumerate(encoded.dictionary):
         mask = pc.equal(encoded.indices, idx)
-        d[group_key.as_py()] = pc.indices_nonzero(mask).to_pylist()
+        d[key.as_py()] = pc.indices_nonzero(mask).to_pylist()
     return d
 
 
@@ -873,6 +998,8 @@ def _(
         expr = [expr]
 
     if isinstance(expr, list):
+        _check_names_are_columns(data.columns, expr)
+
         # convert str and int entries to selectors ----
         all_selectors = [
             cs.by_name(x) if isinstance(x, str) else cs.by_index(x) if isinstance(x, int) else x
@@ -932,16 +1059,24 @@ def _validate_selector_list(selectors: list, strict=True):
             raise TypeError(f"Expected a list of selectors, but entry {ii} is type: {type(sel)}.")
 
 
+def _check_names_are_columns(columns: list[str], expr: list) -> None:
+    # (So that every backend raises on a name that isn't a column, as polars would)
+    names = set(columns)
+    missing = [x for x in expr if isinstance(x, str) and x not in names]
+    if missing:
+        raise ValueError(f"The table has no column named {', '.join(map(repr, missing))}.")
+
+
 def _eval_select_from_list(columns: list[str], expr: list[str | int]) -> list[tuple[str, int]]:
     col_pos = {k: ii for ii, k in enumerate(columns)}
+    _check_names_are_columns(columns, expr)
 
     # TODO: should prohibit duplicate names in expr?
     res: list[tuple[str, int]] = []
     n_cols = len(columns)
     for col in expr:
         if isinstance(col, str):
-            if col in col_pos:
-                res.append((col, col_pos[col]))
+            res.append((col, col_pos[col]))
         elif isinstance(col, int):
             _pos = col if col >= 0 else n_cols + col
             res.append((columns[col], _pos))
@@ -1266,9 +1401,7 @@ def _(df: PdDataFrame, x: Any) -> bool:
 def _(df: PlDataFrame, x: Any) -> bool:
     from math import isnan
 
-    import polars as pl
-
-    return x is None or isinstance(x, pl.Null) or (isinstance(x, float) and isnan(x))
+    return x is None or isinstance(x, PlNull) or (isinstance(x, float) and isnan(x))
 
 
 @is_na.register
@@ -1332,8 +1465,6 @@ def _(df: PlDataFrame) -> PlDataFrame:
 
 @validate_frame.register
 def _(df: PyArrowTable) -> PyArrowTable:
-    warnings.warn("PyArrow Table support is currently experimental.")
-
     if len(set(df.column_names)) != len(df.column_names):
         raise ValueError("Column names must be unique.")
 
@@ -1570,4 +1701,7 @@ def _(ser: PlSeries, indexes: list[int]) -> PlSeries:
 def _(ser: Any, indexes: list[int]) -> PyArrowArray | PyArrowChunkedArray:
     import pyarrow as pa
 
+    if _is_arrow_string_view(ser.type):
+        # (PyArrow has no `take` for a string_view)
+        ser = ser.cast(pa.large_string())
     return ser.take(pa.array(indexes, type=pa.int64()))

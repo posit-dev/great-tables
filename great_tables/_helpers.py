@@ -4,11 +4,14 @@ import random
 import re
 import string
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from ._text import BaseText, Html, Md, _latex_escape, _md_html, _md_latex
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 FontStackName: TypeAlias = Literal[
     "system-ui",
@@ -161,10 +164,10 @@ class _StubSentinel:
     single level of a hierarchical stub, counted from the right.
     """
 
-    _instance: "_StubSentinel | None" = None
+    _instance: _StubSentinel | None = None
     _level: int | None = None
 
-    def __new__(cls, level: int | None = None) -> "_StubSentinel":
+    def __new__(cls, level: int | None = None) -> Self:
         if level is not None:
             obj = super().__new__(cls)
             obj._level = level
@@ -175,7 +178,7 @@ class _StubSentinel:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __call__(self, n: int | None = None) -> "_StubSentinel":
+    def __call__(self, n: int | None = None) -> _StubSentinel:
         if self._level is not None:
             raise TypeError(f"`{self!r}` refers to a single stub column and can't be called.")
         if n is None:
@@ -223,7 +226,7 @@ GT(df, rowname_col=["group", "row"]).cols_width(cases={stub(1): "70px", stub(2):
 """
 
 
-def px(x: int | float) -> str:
+def px(x: float) -> str:
     """
     Helper for providing a CSS length value in pixels.
 
@@ -248,7 +251,7 @@ def px(x: int | float) -> str:
     return f"{x}px"
 
 
-def pct(x: int | float) -> str:
+def pct(x: float) -> str:
     """
     Helper for providing a CSS length value as a percentage.
 
@@ -431,7 +434,7 @@ def google_font(name: str) -> GoogleFont:
 class GoogleFontImports:
     imports: frozenset[str] = field(default_factory=frozenset)
 
-    def add(self, import_stmt: str) -> "GoogleFontImports":
+    def add(self, import_stmt: str) -> GoogleFontImports:
         return GoogleFontImports(self.imports | frozenset([import_stmt]))
 
     def to_css(self) -> str:
@@ -1486,9 +1489,8 @@ def _normalize_listable_nanoplot_options(nano_opt: Any, option_type: Any) -> lis
         raise ValueError(f"Nanoplot option must be a {option_type} or a list of {option_type}s")
 
     # If it is a list, check that the values are same as `option_type`
-    if isinstance(nano_opt, list):
-        if not all(isinstance(x, option_type) for x in nano_opt):
-            raise ValueError(f"Nanoplot option must be a list of {option_type}s")
+    if isinstance(nano_opt, list) and not all(isinstance(x, option_type) for x in nano_opt):
+        raise ValueError(f"Nanoplot option must be a list of {option_type}s")
 
     # If it is a single value, convert it to a list
     if not isinstance(nano_opt, list):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Literal
 
 from ._gt_data import Stub
 from ._locations import RowSelectExpr, resolve_rows_i
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 def tab_stub_indent(
     self: GTSelf,
     rows: RowSelectExpr,
-    indent: Union[int, Literal["increase", "decrease"]] = "increase",
+    indent: int | Literal["increase", "decrease"] = "increase",
 ) -> GTSelf:
     """
     Control indentation of row labels in the stub.
@@ -64,12 +64,11 @@ def tab_stub_indent(
     and indents them by 4 levels.
 
     ```{python}
-    from great_tables import GT, stub
-    from great_tables.data import constants
+    from great_tables import GT, data, stub
     import polars as pl
 
     constants_mini = (
-        pl.from_pandas(constants)
+        data.pl.constants
         .select(["name", "value", "uncert", "units"])
         .filter(
             pl.col("name").str.starts_with("atomic mass constant")

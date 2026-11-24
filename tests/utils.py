@@ -152,9 +152,9 @@ def assert_parity(
     for name, reason in divergent.items():
         # pandas < 2 has no nullable or pyarrow-backed constructor
         if name in outputs:
-            assert (
-                outputs[name] != reference
-            ), f"{name} now matches: drop it from divergent ({reason})"
+            assert outputs[name] != reference, (
+                f"{name} now matches: drop it from divergent ({reason})"
+            )
             assert snapshot(name=name) == outputs[name]
 
 

@@ -1,4 +1,3 @@
-import builtins
 import math
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
@@ -20,6 +19,7 @@ from great_tables._tbl_data import (
     SeriesLike,
     _get_cell,
     _get_column_dtype,
+    _get_column_dtype_name,
     _get_column_levels,
     _is_numeric_dtype,
     _is_same_value,
@@ -110,6 +110,7 @@ IS_NA_SCALARS: dict[str, Any] = {
 params_set_cells_values: list[dict[int, str | None]] = [
     {1: "x"},
     {2: "z", 0: "x", 1: "y"},
+    {2: "z", 0: "x"},
     {0: None, 2: "z"},
     {},
 ]
@@ -222,6 +223,82 @@ def test_n_rows(frame_constructor: DataFrameConstructor, data: DataLike, expecte
 def test_get_column_dtypes(df: DataFrameLike):
     col1 = df["col1"]
     assert _get_column_dtype(df, "col1") == getattr(col1, "dtype", getattr(col1, "type", None))
+
+
+def test_get_column_dtype_name_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
+    # `i_inspect()` shows each column's dtype by its short name, as Polars prints it
+    assert snapshot == {col: _get_column_dtype_name(matrix_df, col) for col in MATRIX_COLUMNS}
+
+
+@pytest.mark.parametrize(
+    "dtype, name",
+    [
+        (pa.int8(), "i8"),
+        (pa.uint16(), "u16"),
+        (pa.float16(), "f16"),
+        (pa.float32(), "f32"),
+        (pa.large_string(), "str"),
+        (pa.dictionary(pa.int32(), pa.string()), "cat"),
+        (pa.time64("us"), "time"),
+        (pa.timestamp("ns", tz="UTC"), "datetime"),
+        (pa.large_list(pa.int64()), "list"),
+        (pa.list_(pa.int64(), 2), "array"),
+        (pa.struct([("a", pa.int64())]), "struct"),
+        (pa.binary(), "binary"),
+        (pa.null(), "null"),
+        (pa.map_(pa.string(), pa.int64()), "map"),
+    ],
+)
+def test_get_column_dtype_name_arrow(dtype: pa.DataType, name: str):
+    data = pa.table({"x": pa.array([None], type=dtype)})
+    assert _get_column_dtype_name(data, "x") == name
+    # (The same for a pandas column backed by the Arrow type)
+    assert _get_column_dtype_name(data.to_pandas(types_mapper=pd.ArrowDtype), "x") == name
+
+
+@pytest.mark.parametrize(
+    "dtype, name",
+    [
+        (pl.Int8, "i8"),
+        (pl.UInt32, "u32"),
+        (pl.Float32, "f32"),
+        (pl.Time, "time"),
+        (pl.Enum(["a"]), "enum"),
+        (pl.Array(pl.Int64, 2), "array"),
+        (pl.Struct({"a": pl.Int64}), "struct"),
+        (pl.Binary, "binary"),
+        (pl.Null, "null"),
+        (pl.Object, "object"),
+    ],
+)
+def test_get_column_dtype_name_polars(dtype: Any, name: str):
+    assert _get_column_dtype_name(pl.DataFrame({"x": pl.Series([None], dtype=dtype)}), "x") == name
+
+
+def test_get_column_dtype_name_pandas():
+    df = pd.DataFrame(
+        {
+            "i": np.array([1], dtype="int16"),
+            "u": np.array([1], dtype="uint8"),
+            "f": np.array([1.5], dtype="float32"),
+            "nullable": pd.array([1], dtype="UInt64"),
+            "text": pd.array(["a"], dtype="string"),
+            "objects": [object()],
+            "dates": [date(2024, 1, 1)],
+            "period": pd.period_range("2024-01", periods=1, freq="M"),
+        }
+    )
+    assert {col: _get_column_dtype_name(df, col) for col in df.columns} == {
+        "i": "i16",
+        "u": "u8",
+        "f": "f32",
+        "nullable": "u64",
+        "text": "str",
+        # (Other objects than strings, even dates, are objects)
+        "objects": "object",
+        "dates": "object",
+        "period": "period",
+    }
 
 
 def test_is_numeric_dtype_dtype_matrix(matrix_df: DataFrameLike, snapshot: SnapshotAssertion):
@@ -451,6 +528,19 @@ def test_set_cells(df: DataFrameLike, values: dict[int, str | None]):
     ]
 
 
+def test_set_cells_rows_formatted_out_of_order(frame_constructor: DataFrameConstructor):
+    # A later formatter covers an earlier row, so the formatted rows come unsorted (Polars before
+    # 1.37 can't `scatter()` to unsorted rows)
+    gt = (
+        GT(frame_constructor({"x": ["a", "b", "c"]}))
+        .fmt(str.upper, columns="x", rows=[2])
+        .fmt(str.upper, columns="x", rows=[0])
+    )
+    body = gt._render_formats("html")._body.body
+
+    assert _column_cells(body, "x") == ["A", "b", "C"]
+
+
 @pytest.mark.parametrize("values", params_set_cells_values)
 def test_set_cells_offset_index(offset_index_df: pd.DataFrame, values: dict[int, str | None]):
     expected = _set_cells_with_set_cell(create_empty_frame(offset_index_df), "col2", values)
@@ -532,16 +622,21 @@ def test_eval_select_negative_int(
     assert eval_select(df, expr) == expected
 
 
-@pytest.mark.parametrize(("expr", "expected"), [("x", []), (["col1", "x"], [("col1", 0)])])
-def test_eval_select_unknown_name(
-    df: DataFrameLike, expr: str | list[str], expected: list[tuple[str, int]]
-):
-    # pandas and pyarrow skip names that aren't columns, polars raises
-    if native_backend(df) == "polars":
-        with pytest.raises(pl.exceptions.ColumnNotFoundError):
-            eval_select(df, expr)
-    else:
-        assert eval_select(df, expr) == expected
+@pytest.mark.parametrize(
+    ("expr", "message"),
+    [("x", "'x'"), (["col1", "x"], "'x'"), (["y", "col2", "x"], "'y', 'x'")],
+)
+def test_eval_select_unknown_name(df: DataFrameLike, expr: str | list[str], message: str):
+    # (Every backend raises, naming the names that aren't columns)
+    with pytest.raises(ValueError, match=f"^The table has no column named {message}\\.$"):
+        eval_select(df, expr)
+
+
+def test_unknown_column_raises_in_public_api(df: DataFrameLike):
+    with pytest.raises(ValueError, match="no column named 'colx'"):
+        GT(df).fmt_number(columns=["col1", "colx"])
+    with pytest.raises(ValueError, match="no column named 'colx'"):
+        GT(df).cols_hide("colx")
 
 
 def test_polars_columns_callable_in_public_api():
@@ -705,6 +800,23 @@ def test_render_pyarrow_string_view_dictionary(groupname_col: str | None):
     assert html_view == html_string
 
 
+@pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16")
+@pytest.mark.parametrize("groupname_col", [None, "g"])
+def test_render_pyarrow_string_view_null_and_empty_keys(groupname_col: str | None):
+    # (PyArrow encodes a string_view's null as "", so their rows were taken as one group)
+    keys = ["b", None, "a", ""]
+    x = [1, 2, 3, 4]
+    df_view = pa.table({"g": pa.array(keys, pa.string_view()), "x": x})
+    df_string = pa.table({"g": pa.array(keys, pa.string()), "x": x})
+
+    assert sorted(group_splits(df_view, "g").items(), key=str) == sorted(
+        {"b": [0], None: [1], "a": [2], "": [3]}.items(), key=str
+    )
+    html_view = GT(df_view, groupname_col=groupname_col, id="t").as_raw_html()
+    html_string = GT(df_string, groupname_col=groupname_col, id="t").as_raw_html()
+    assert html_view == html_string
+
+
 def test_group_splits_offset_index(offset_index_df: pd.DataFrame):
     # Rows are positions, not index labels
     assert group_splits(offset_index_df, "col2") == {"a": [0], "b": [1], "c": [2]}
@@ -809,12 +921,8 @@ def test_validate_frame_non_str_cols_result():
     assert list(res.columns) == ["x", "55", "y", "99"]
 
 
-def test_validate_frame_passthrough(df: DataFrameLike, recwarn: pytest.WarningsRecorder):
+def test_validate_frame_passthrough(df: DataFrameLike):
     assert validate_frame(df) is df
-
-    is_pyarrow = native_backend(df) == "pyarrow"
-    expected = ["PyArrow Table support is currently experimental."] if is_pyarrow else []
-    assert [str(w.message) for w in recwarn] == expected
 
 
 def test_is_series(ser: SeriesLike):
@@ -852,6 +960,19 @@ def test_to_frame_dtype_matrix(
 def test_get_rows(series_constructor: SeriesConstructor, indexes: list[int], expected: list[float]):
     ser = series_constructor([1.5, 2.5, 3.5])
     assert to_list(get_rows(ser, indexes)) == expected
+
+
+@pytest.mark.skipif(not hasattr(pa, "string_view"), reason="requires pyarrow>=16")
+def test_get_rows_pyarrow_string_view():
+    # (PyArrow has no `take` for a string_view)
+    for ser in [
+        pa.array(["a", None, "c"], pa.string_view()),
+        pa.chunked_array([["a", None], ["c"]], pa.string_view()),
+    ]:
+        assert to_list(get_rows(ser, [2, 1])) == ["c", None]
+    tbl = pa.table({"x": pa.array(["a", "b", "a"], pa.string_view())})
+    html = GT(tbl).data_color(palette=["red", "blue"]).as_raw_html()
+    assert html.count("background-color: #ff0000;") == 2
 
 
 def test_get_rows_offset_index(offset_index_df: pd.DataFrame):
@@ -1245,19 +1366,6 @@ def test_to_frame_list_keeps_values_polars(vals):
     assert isinstance(df, pl.DataFrame)
     assert df.schema["x"] == pl.Object
     assert df["x"].to_list() == vals
-
-
-@pytest.fixture
-def no_polars_import(monkeypatch: pytest.MonkeyPatch):
-    # polars stays loaded for the data backends; only `import polars` in `to_frame()` fails
-    real_import = builtins.__import__
-
-    def fake_import(name, *args, **kwargs):
-        if name == "polars":
-            raise ImportError(name)
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", fake_import)
 
 
 @pytest.mark.parametrize(

@@ -403,19 +403,27 @@ class TestFmtDurationGTMethod:
 
 
 class TestFmtDurationSubUnitRemainder:
-    """Tests for values smaller than the smallest output unit."""
+    """Tests for values below the smallest output unit (`vals` give HTML, so `<` is escaped)."""
+
+    def test_sub_unit_is_escaped_in_html(self):
+        df = pd.DataFrame({"dur": [0.1, -0.4, 61.0]})
+        gt = GT(df).fmt_duration(columns="dur", input_units="seconds", output_units="minutes")
+        html = gt.as_raw_html()
+        assert ">&lt;1m</td>" in html and ">−&lt;1m</td>" in html and ">1m</td>" in html
+        assert "<1m" not in html
+        assert "\\textless{}1m" in gt.as_latex()
 
     def test_sub_unit_narrow(self):
         # 30 seconds when output is only days — less than 1 day
         result = vals.fmt_duration([30], input_units="seconds", output_units=["days"])
-        assert result == ["<1d"]
+        assert result == ["&lt;1d"]
 
     def test_sub_unit_wide(self):
         # 30 seconds when output is only hours — less than 1 hour
         result = vals.fmt_duration(
             [30], input_units="seconds", output_units=["hours"], duration_style="wide"
         )
-        assert result == ["<1 hour"]
+        assert result == ["&lt;1 hour"]
 
     def test_sub_unit_not_triggered_when_zero(self):
         # Exact zero should not get the "<" prefix
@@ -495,7 +503,7 @@ class TestFmtDurationEdgeCases:
     def test_very_small_fractional_seconds(self):
         # 0.5 seconds with output_units=["minutes"] → less than 1 minute
         result = vals.fmt_duration([0.5], input_units="seconds", output_units=["minutes"])
-        assert result == ["<1m"]
+        assert result == ["&lt;1m"]
 
     def test_non_numeric_non_timedelta_passthrough(self):
         # Non-numeric values should be passed through as strings
@@ -656,7 +664,7 @@ class TestFmtDurationLocale:
         result = vals.fmt_duration(
             [30], input_units="seconds", locale="fr", output_units=["minutes"]
         )
-        assert "<1" in result[0]
+        assert "&lt;1" in result[0]
         assert "min" in result[0]
 
     def test_locale_sub_unit_remainder_wide(self):
@@ -667,7 +675,7 @@ class TestFmtDurationLocale:
             locale="de",
             output_units=["minutes"],
         )
-        assert "<1" in result[0]
+        assert "&lt;1" in result[0]
         assert "Minute" in result[0]
 
 

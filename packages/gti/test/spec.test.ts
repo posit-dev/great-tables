@@ -31,6 +31,28 @@ const exports = (value: unknown) => JSON.stringify({ ...valid, export: value });
 
 const viewState = (value: unknown) => JSON.stringify({ ...valid, view_state: value });
 
+const details = (value: unknown) => JSON.stringify({ ...valid, details: value });
+
+const profiles = (list: unknown) => JSON.stringify({ ...valid, profiles: list });
+
+const LINK = { group: "cars", on: "mfr", name: "Makes", label: "Maker", keys: ["Ford", null] };
+
+const link = (fields: object) => JSON.stringify({ ...valid, link: { ...LINK, ...fields } });
+
+const COLOR = {
+  column: "x",
+  rows: [0, 1],
+  values: [1.5, "Infinity"],
+  levels: null,
+  palette: ["#000000", "#FFFFFF"],
+  alpha: "",
+  midpoint: null,
+  text: "apca",
+  fixed: [],
+};
+
+const color = (fields: object) => JSON.stringify({ ...valid, colors: [{ ...COLOR, ...fields }] });
+
 describe("parseSpec()", () => {
   it("returns a valid spec as it is", () => {
     expect(parse(valid)).toEqual(valid);
@@ -56,7 +78,7 @@ describe("parseSpec()", () => {
   });
 
   it("takes what readers can do with a column, or its absence", () => {
-    const column = { ...valid.columns[0], sortable: false, searchable: true, resizable: false };
+    const column = { ...valid.columns[0], sortable: false, searchable: true, resizable: false, groupable: true };
     expect(parse({ ...valid, columns: [column] }).columns).toEqual([column]);
     expect(parse(valid).columns[0]?.sortable).toBeUndefined();
   });
@@ -73,6 +95,43 @@ describe("parseSpec()", () => {
       expect(parse({ ...valid, columns: [{ ...valid.columns[0], priority }] }).columns[0]?.priority).toBe(priority);
     }
     expect(parse(valid).columns[0]?.priority).toBeUndefined();
+  });
+
+  it("takes a column's dtype and rows with missing values, or their absence", () => {
+    const column = { ...valid.columns[0], dtype: "f64", missing: [0, 1] };
+    expect(parse({ ...valid, columns: [column] }).columns).toEqual([column]);
+    const none = { ...valid.columns[0], dtype: null, missing: null };
+    expect(parse({ ...valid, columns: [none] }).columns).toEqual([none]);
+    expect(parse(valid).columns[0]?.dtype).toBeUndefined();
+  });
+
+  it("takes row numbers and dimensions, or their absence", () => {
+    const display = { ...valid.display, row_numbers: true, dimensions: false };
+    expect(parse({ ...valid, display }).display).toEqual(display);
+    expect(parse(valid).display.row_numbers).toBeUndefined();
+  });
+
+  it("takes a monospace flag and what the data is, or their absence", () => {
+    for (const data_kind of ["Polars DataFrame", null]) {
+      const display = { ...valid.display, monospace: true, data_kind };
+      expect(parse({ ...valid, display }).display).toEqual(display);
+    }
+    expect(parse(valid).display.monospace).toBeUndefined();
+    expect(parse(valid).display.data_kind).toBeUndefined();
+  });
+
+  it("takes a flag for naming the parts, or its absence", () => {
+    const display = { ...valid.display, parts: true };
+    expect(parse({ ...valid, display }).display).toEqual(display);
+    expect(parse(valid).display.parts).toBeUndefined();
+  });
+
+  it("takes where the rows' numbers start, or its absence", () => {
+    for (const row_start of [0, 1]) {
+      const display = { ...valid.display, row_numbers: true, row_start };
+      expect(parse({ ...valid, display }).display).toEqual(display);
+    }
+    expect(parse(valid).display.row_start).toBeUndefined();
   });
 
   it("takes the control bar, or its absence", () => {
@@ -92,6 +151,33 @@ describe("parseSpec()", () => {
     expect(parse({ ...valid, filters: [{ column: "x", type: "facet", values: [true, "b"] }] }).filters).toHaveLength(1);
     expect(parse({ ...valid, filters: [{ column: "x", type: "date", values: ["2015-06-15", "2015-06-15T09:30:00.123456789"] }] }).filters).toHaveLength(1);
     expect(parse(valid).filters).toBeUndefined();
+  });
+
+  it("takes a remote table, whose ranks have no rows", () => {
+    const remote = { ...valid, ranks: { x: [] }, remote: { count: 2, rows: [1, 0] } };
+    expect(parse(remote).remote).toEqual({ count: 2, rows: [1, 0] });
+    expect(parse({ ...remote, remote: { count: 0, rows: [] } }).remote?.count).toBe(0);
+    // (Not without `remote`)
+    expect(() => parse({ ...valid, ranks: { x: [] } })).toThrow(/ranks\.x/);
+  });
+
+  it.each([
+    ["no count", { rows: [0] }],
+    ["a count over the rows", { count: 3, rows: [0] }],
+    ["a row not in the body", { count: 2, rows: [5] }],
+    ["a row twice", { count: 2, rows: [0, 0] }],
+    ["rows that aren't a list", { count: 2, rows: 0 }],
+  ])("rejects a remote table with %s", (_, remote) => {
+    expect(() => parse({ ...valid, remote })).toThrow(/`remote`/);
+  });
+
+  it("takes a filter's labels, one per value, and rejects others", () => {
+    const facet = { column: "x", type: "facet", values: ["a", "b"], labels: ["A", "B"] };
+    expect(parse({ ...valid, filters: [facet] }).filters?.[0]?.labels).toEqual(["A", "B"]);
+    for (const labels of [["A"], ["A", 2], "AB"]) {
+      expect(() => parse({ ...valid, filters: [{ ...facet, labels }] })).toThrow(/labels/);
+    }
+    expect(() => parse({ ...valid, filters: [{ column: "x", type: "text", values: null, labels: [] }] })).toThrow(/labels/);
   });
 
   it("rejects a date filter with values that aren't dates", () => {
@@ -120,6 +206,9 @@ describe("parseSpec()", () => {
     const view = { filter: { and: [{ col: "x", op: "gte", value: 1 }] }, sort: [{ column: "x", descending: true }] };
     expect(parse({ ...valid, view }).view).toEqual(view);
     expect(parse({ ...valid, view: { filter: null, sort: [] } }).view).toEqual({ filter: null, sort: [] });
+    // (With the column the rows are grouped by, or none)
+    expect(parse({ ...valid, view: { ...view, group_by: "x" } }).view?.group_by).toBe("x");
+    expect(parse({ ...valid, view: { ...view, group_by: null } }).view?.group_by).toBeNull();
     expect(parse(valid).view).toBeUndefined();
   });
 
@@ -141,6 +230,38 @@ describe("parseSpec()", () => {
     // (Without a key, kept nowhere)
     expect(parse({ ...valid, view_state: { url: false, storage: false, key: null, undo: true } }).view_state?.key).toBeNull();
     expect(parse(valid).view_state).toBeUndefined();
+  });
+
+  it("takes the rows with details, or their absence", () => {
+    expect(parse({ ...valid, details: [1, 0] }).details).toEqual([1, 0]);
+    expect(parse({ ...valid, details: [] }).details).toEqual([]);
+    expect(parse(valid).details).toBeUndefined();
+  });
+
+  it("takes the tables it's linked to, or their absence", () => {
+    expect(parse({ ...valid, link: LINK }).link).toEqual(LINK);
+    expect(parse({ ...valid, link: { ...LINK, name: null, keys: [1, true] } }).link?.name).toBeNull();
+    expect(parse({ ...valid, link: null }).link).toBeNull();
+    expect(parse(valid).link).toBeUndefined();
+  });
+
+  it("takes the columns colored from the rows kept, or their absence", () => {
+    const text = { ...COLOR, values: [1, 0], levels: ["a", "b"], alpha: "7F", midpoint: 0, text: null, fixed: [1] };
+    expect(parse({ ...valid, colors: [COLOR, text] }).colors).toEqual([COLOR, text]);
+    expect(parse({ ...valid, colors: [] }).colors).toEqual([]);
+    expect(parse(valid).colors).toBeUndefined();
+  });
+
+  it("takes the columns' profiles, or their absence", () => {
+    const list = [
+      { column: "x", plot: "histogram", values: [1.5, 3] },
+      { column: "x", plot: "top", values: null },
+    ];
+    expect(parse({ ...valid, profiles: list }).profiles).toEqual(list);
+    // (A histogram's dates and times are ISO 8601 text, and its values JSON can't hold, null)
+    const dates = [{ column: "x", plot: "histogram", values: ["2015-06-15", null] }];
+    expect(parse({ ...valid, profiles: dates }).profiles).toEqual(dates);
+    expect(parse(valid).profiles).toBeUndefined();
   });
 
   it("ignores fields it doesn't know", () => {
@@ -208,6 +329,12 @@ describe("parseSpec()", () => {
     ["has no display", JSON.stringify({ ...valid, display: undefined }), /`display`/],
     ["has a bad display flag", JSON.stringify({ ...valid, display: { ...valid.display, wrap: 0 } }), /`display`/],
     ["has no highlight flag", JSON.stringify({ ...valid, display: { compact: false, wrap: true } }), /`display`/],
+    ["has a row numbers flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, row_numbers: 1 } }), /`display`/],
+    ["has a dimensions flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, dimensions: "yes" } }), /`display`/],
+    ["has a monospace flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, monospace: 1 } }), /`display`/],
+    ["has a parts flag that isn't one", JSON.stringify({ ...valid, display: { ...valid.display, parts: "yes" } }), /`display`/],
+    ["starts the rows' numbers other than at 0 or 1", JSON.stringify({ ...valid, display: { ...valid.display, row_start: 2 } }), /`display`/],
+    ["says what the data is with something other than text", JSON.stringify({ ...valid, display: { ...valid.display, data_kind: 3 } }), /`display`/],
     ["has no layout", JSON.stringify({ ...valid, layout: undefined }), /`layout`/],
     ["has no height", JSON.stringify({ ...valid, layout: { responsive: null } }), /`layout`/],
     ["has a height that isn't a string", JSON.stringify({ ...valid, layout: { height: 400, responsive: null } }), /`layout`/],
@@ -241,6 +368,7 @@ describe("parseSpec()", () => {
     ["has a view without sort keys", view({ filter: null }), /`view`/],
     ["has a view with a bad sort key", view({ filter: null, sort: [{ column: "x" }] }), /`view`/],
     ["has a view with a sort key that's a name", view({ filter: null, sort: ["x"] }), /`view`/],
+    ["has a view grouped by a column that isn't a name", view({ filter: null, sort: [], group_by: 1 }), /`view`/],
     ["has an export that isn't an object", exports(["csv"]), /`export`/],
     ["has an export without formats", exports({ filename: "table" }), /`export`/],
     ["has an export with a format it doesn't know", exports({ formats: ["xlsx"], filename: "table" }), /`export`/],
@@ -268,6 +396,11 @@ describe("parseSpec()", () => {
       /`columns\[1\]`/,
     ],
     [
+      "has a column that's groupable with a string",
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], groupable: "yes" }] }),
+      /`columns\[0\]`.*groupable/,
+    ],
+    [
       "has a column pinned to a physical side",
       JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], pin: "left" }] }),
       /`columns\[0\]`.*pinned/,
@@ -276,6 +409,16 @@ describe("parseSpec()", () => {
       `has a column with priority ${JSON.stringify(priority)}`,
       JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], priority }] }),
       /`columns\[0\]`.*priority/,
+    ]),
+    ...[1, true, ["f64"]].map((dtype): [string, string, RegExp] => [
+      `has a column with dtype ${JSON.stringify(dtype)}`,
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], dtype }] }),
+      /`columns\[0\]`.*dtype/,
+    ]),
+    ...[1, [2], [-1], [0.5], ["0"]].map((missing): [string, string, RegExp] => [
+      `has a column with missing values in rows ${JSON.stringify(missing)}`,
+      JSON.stringify({ ...valid, columns: [{ ...valid.columns[0], missing }] }),
+      /`columns\[0\]`.*missing/,
     ]),
     [
       "has a column pinned with a boolean",
@@ -289,6 +432,35 @@ describe("parseSpec()", () => {
     ["has a view state with a key that isn't text", viewState({ url: true, storage: false, key: 1, undo: false }), /`view_state`/],
     ["has a view state without undo", viewState({ url: true, storage: false, key: "t" }), /`view_state`/],
     ["has a view state with an undo that isn't a boolean", viewState({ url: false, storage: false, key: null, undo: 1 }), /`view_state`/],
+    ["has details that aren't a list", details(1), /`details`/],
+    ["has details for a row it doesn't have", details([0, 2]), /`details`/],
+    ["has details for a row that isn't an index", details(["0"]), /`details`/],
+    ["has profiles that aren't a list", profiles({}), /`profiles`/],
+    ["has a profile of an unknown plot", profiles([{ column: "x", plot: "pie", values: null }]), /`profiles\[0\]`/],
+    ["has a profile of a column without ranks", profiles([{ column: "y", plot: "top", values: null }]), /`profiles\[0\]`/],
+    ["has a histogram without values", profiles([{ column: "x", plot: "histogram", values: null }]), /`profiles\[0\]`/],
+    ["has a histogram without a value for every rank", profiles([{ column: "x", plot: "histogram", values: [1] }]), /`profiles\[0\]`/],
+    ["has a histogram of booleans", profiles([{ column: "x", plot: "histogram", values: [true, false] }]), /`profiles\[0\]`/],
+    ["has a profile of the most common values with values", profiles([{ column: "x", plot: "top", values: [1, 2] }]), /`profiles\[0\]`/],
+    ["has a link that isn't an object", JSON.stringify({ ...valid, link: "cars" }), /`link`/],
+    ["has a link without a group", link({ group: "" }), /`link`/],
+    ["has a link without a column", link({ on: null }), /`link`/],
+    ["has a link with a name that isn't text", link({ name: 1 }), /`link`/],
+    ["has a link without a label", link({ label: undefined }), /`link`/],
+    ["has a link without a key for every row", link({ keys: ["Ford"] }), /`link`/],
+    ["has a link with a key that isn't a value", link({ keys: ["Ford", {}] }), /`link`/],
+    ["has colors that aren't a list", JSON.stringify({ ...valid, colors: COLOR }), /`colors`/],
+    ["has colors of a column it doesn't have", color({ column: "y" }), /`colors\[0\]`/],
+    ["has colors of a row it doesn't have", color({ rows: [0, 2] }), /`colors\[0\]`/],
+    ["has colors without a value for every row", color({ values: [1.5] }), /`colors\[0\]`/],
+    ["has colors of a value that isn't a number", color({ values: [1.5, "NaN"] }), /`colors\[0\]`/],
+    ["has colors of a value that isn't one of its levels", color({ values: [0, 2], levels: ["a", "b"] }), /`colors\[0\]`/],
+    ["has colors with a palette of one color", color({ palette: ["#000000"] }), /`colors\[0\]`/],
+    ["has colors with a palette that isn't hex", color({ palette: ["#000000", "red"] }), /`colors\[0\]`/],
+    ["has colors with an alpha that isn't hex", color({ alpha: "0.5" }), /`colors\[0\]`/],
+    ["has colors with a midpoint that isn't a number", color({ midpoint: "0" }), /`colors\[0\]`/],
+    ["has colors with an unknown contrast", color({ text: "auto" }), /`colors\[0\]`/],
+    ["has colors fixed for a row it doesn't have", color({ fixed: [5] }), /`colors\[0\]`/],
   ])("rejects a spec that %s", (_, text, message) => {
     expect(() => parseSpec(text)).toThrow(SpecError);
     expect(() => parseSpec(text)).toThrow(message);

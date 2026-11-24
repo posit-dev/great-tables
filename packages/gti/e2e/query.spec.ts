@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
-import { ready } from "./helpers";
+import { ready, tab } from "./helpers";
 
 // The query box, in the control bar of a GTI table (the filters' table, 24 rows) whose view is
 // filtered by every column (keeping 3 rows); and the same in a container 300px wide.
@@ -20,15 +20,17 @@ const box = (locator: Locator) =>
     const { left, right, top, bottom, width, height } = node.getBoundingClientRect();
     return { left, right, top, bottom, width, height };
   });
-// The text each of the query's highlights has
-const highlighted = (page: Page) =>
-  page.evaluate(() =>
-    Object.fromEntries(
-      ["keyword", "string", "number", "error"].map((name) => [
-        name,
-        Array.from(CSS.highlights.get(`gt-i-query-${name}`) ?? [], (range) => range.toString()),
-      ]),
-    ),
+// The text each of the query's highlights (or those named) has
+const highlighted = (page: Page, names = ["keyword", "string", "number", "error"]) =>
+  page.evaluate(
+    (names) =>
+      Object.fromEntries(
+        names.map((name) => [
+          name,
+          Array.from(CSS.highlights.get(`gt-i-query-${name}`) ?? [], (range) => range.toString()),
+        ]),
+      ),
+    names,
   );
 
 test("edits the filters as text, applied on Enter", async ({ page }) => {
@@ -213,7 +215,7 @@ test("applies > and <, from the ops it suggests after a range's column, as token
   await expect(options(page)).toHaveText([">= …at least"]);
   await page.keyboard.type(" 33.33 and num < 777000");
   expect(await highlighted(page)).toEqual({
-    keyword: [">", "and", "<"],
+    keyword: [">", "<"],
     string: [],
     number: ["33.33", "777000"],
     error: [],
@@ -281,12 +283,38 @@ test("applies top and bottom, from the ops it suggests after a range's column, r
 test("highlights the text by what each part is, over the input's own", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await toggle(page).click();
-  expect(await highlighted(page)).toEqual({
-    keyword: [">=", "and", "contains", "and", "in"],
+  const roles = ["column", "keyword", "logic", "string", "number", "literal", "punct", "error"];
+  expect(await highlighted(page, roles)).toEqual({
+    column: ["num", "char", "fctr"],
+    keyword: [">=", "contains", "in"],
+    logic: ["and", "and"],
     string: ['"a"', '"eight"', '"one"', '"seven"', '"two"'],
     number: ["1000"],
+    literal: [],
+    punct: ["(", ",", ",", ",", ")"],
     error: [],
   });
+  // (In a monospaced font, and in colours of their own)
+  await expect(el(page).locator(".gt-i-query-text")).toHaveCSS("font-family", /monospace/);
+  const colors = await el(page)
+    .locator(".gt-i-query-mirror")
+    .evaluate((node, roles) => {
+      const style = getComputedStyle(node.closest(".gt-i-query") as Element);
+      return roles.map((role) => style.getPropertyValue(`--gt-i-${role}`).trim());
+    }, roles);
+  expect(new Set(colors).size).toBe(roles.length);
+  await query(page).fill('not fctr is null or num top 3 and char matches /a/i and fctr in (true, "x")');
+  expect(await highlighted(page, ["logic", "keyword", "string", "literal", "punct"])).toEqual({
+    logic: ["not", "or", "and", "and"],
+    keyword: ["is", "top", "matches", "in"],
+    string: ["/a/", '"x"'],
+    literal: ["null", "true"],
+    punct: ["i", "(", ",", ")"],
+  });
+  // (A column that isn't one, once it's typed)
+  await query(page).fill("nope >= 1");
+  expect((await highlighted(page)).error).toEqual(["nope"]);
+  await query(page).fill(VIEW);
   // (The input's text is drawn by its copy, under it, but not its caret)
   await expect(query(page)).toHaveCSS("-webkit-text-fill-color", "rgba(0, 0, 0, 0)");
   const color = await query(page).evaluate((node) => getComputedStyle(node).color);
@@ -436,7 +464,10 @@ test("uses lighter colours on a dark background", async ({ page }) => {
 test("fits a narrow container, with long text scrolled under the input's", async ({ page }) => {
   const errors = await ready(page, "tokens-container.html");
   const container = await box(page.locator("body > div"));
-  await toggle(page).click();
+  // (The bar is narrow enough to fold: the filters as text are in the sheet)
+  await expect(toggle(page)).toBeHidden();
+  await el(page).getByRole("button", { name: "Filter & sort" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Filters as text" }).click();
   const root = await box(el(page).locator(".gt-i-query"));
   expect(root.left).toBeGreaterThanOrEqual(container.left - 0.5);
   expect(root.right).toBeLessThanOrEqual(container.right + 0.5);
@@ -453,18 +484,124 @@ test("fits a narrow container, with long text scrolled under the input's", async
   // (On a Mac, Home and End move the text's caret only in Chromium)
   const mac = process.platform === "darwin";
   await page.keyboard.press(mac ? "Meta+ArrowLeft" : "Home");
-  expect(await scroll()).toEqual([0, 0]);
+  // (Once the input has scrolled, which Firefox can do a frame or more later)
+  await expect.poll(scroll).toEqual([0, 0]);
   await page.keyboard.press(mac ? "Meta+ArrowRight" : "End");
   await page.keyboard.type(" and ");
-  const [after, copy] = await scroll();
-  expect(after).toBeGreaterThan(input);
-  expect(copy).toBe(after);
+  // (Back to the caret)
+  await expect.poll(async () => (await scroll())[0]).toBeGreaterThan(input);
+  await expect.poll(async () => new Set(await scroll()).size).toBe(1);
 
   // (The suggestions too, as wide as they need)
   await expect(list(page)).toBeVisible();
   const shown = await box(list(page));
   expect(shown.left).toBeGreaterThanOrEqual(container.left - 0.5);
   expect(shown.right).toBeLessThanOrEqual(container.right + 0.5);
+  expect(errors).toEqual([]);
+});
+
+// (In a table whose columns are labelled other than their names: num "Amount (€)", char "Café",
+// and fctr and currency both "Kind", currency only for querying)
+test("puts a column's name in place of its label as it's typed, which undo takes out", async ({ page, browserName }) => {
+  const errors = await ready(page, "labels.html");
+  await toggle(page).click();
+  await query(page).fill("");
+  await page.keyboard.type("amount");
+  await expect(query(page)).toHaveValue("amount");
+  await page.keyboard.type(" ");
+  await expect(query(page)).toHaveValue("num ");
+  await expect(live(page)).toHaveText("Amount (€) is num");
+  expect(await highlighted(page, ["fixed", "column"])).toEqual({ fixed: ["num"], column: ["num"] });
+  await expect.poll(async () => (await highlighted(page, ["fixed"])).fixed).toEqual([]);
+  await expect(options(page).first()).toHaveText(">= …at least");
+
+  // (Undo puts the label back, as it was typed, and leaves it; in WebKit, with what was typed)
+  await page.keyboard.press("ControlOrMeta+z");
+  const undone = browserName === "webkit" ? "" : "amount ";
+  await expect(query(page)).toHaveValue(undone);
+  await page.keyboard.press(process.platform === "darwin" ? "Meta+ArrowRight" : "End");
+  await page.keyboard.type(">= 1");
+  await expect(query(page)).toHaveValue(`${undone}>= 1`);
+
+  // A label typed at once, in backticks as it is, and on Enter
+  await query(page).fill("");
+  await page.keyboard.insertText('`Café` contains "a" and ');
+  await expect(query(page)).toHaveValue('char contains "a" and ');
+  await page.keyboard.type("amount >= 1");
+  await page.keyboard.press("Enter");
+  await expect(query(page)).toBeHidden();
+  expect(await el(page).evaluate((node) => (node as any).filter)).toEqual({
+    and: [
+      { col: "num", op: "gte", value: 1 },
+      { col: "char", op: "contains", value: "a" },
+    ],
+  });
+
+  // (Not a label two columns have, which is said)
+  await toggle(page).click();
+  await query(page).fill("kind is null");
+  await page.keyboard.press("Enter");
+  await expect(error(page)).toHaveText("Kind is the label of fctr and currency: use one of their names");
+  expect(errors).toEqual([]);
+});
+
+test("suggests the columns as it opens, and on Tab where a column goes", async ({ page }) => {
+  const errors = await ready(page, "labels.html");
+  await toggle(page).click();
+  await expect(query(page)).toHaveAttribute("placeholder", "num >= … · Tab or ↓ for columns");
+  // (Their names in code, and their labels as the table has them)
+  await expect(options(page)).toHaveText(["numAmount (€)", "charCafé", "fctrKind", "currencyKind"]);
+  const code = options(page).first().locator(".gt-i-query-code");
+  await expect(code).toHaveText("num");
+  await expect(code).toHaveCSS("font-family", /monospace/);
+  await expect(options(page).first().locator(".gt-i-query-detail")).not.toHaveCSS("font-family", /monospace/);
+  await expect(options(page).locator('[aria-selected="true"]')).toHaveCount(0);
+
+  await page.keyboard.press("Escape");
+  await expect(list(page)).toBeHidden();
+  await page.keyboard.type("num >= 1 and ");
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Tab");
+  await expect(list(page)).toBeVisible();
+  await expect(query(page)).toBeFocused();
+  await expect(options(page)).toHaveCount(4);
+  // (A second Tab leaves)
+  await tab(page);
+  await expect(query(page)).not.toBeFocused();
+  expect(errors).toEqual([]);
+});
+
+test("shows the columns' names under their labels as it's open, put in at the caret", async ({ page }) => {
+  const errors = await ready(page, "labels.html");
+  const names = el(page).locator(".gt-i-names-name");
+  await expect(names).toHaveCount(0);
+  await toggle(page).click();
+  // (Those shown: not currency, only for querying)
+  await expect(names).toHaveText(["num", "char", "fctr"]);
+  await expect(names.first()).toHaveCSS("font-family", /monospace/);
+  await expect(names.first()).toHaveCSS("background-color", "rgb(15, 118, 110)");
+  // (Under the label, over the column's controls, at their end, as the label's right-aligned)
+  const header = el(page).getByRole("columnheader", { name: "Amount (€)" });
+  const [name, controls] = [await box(names.first()), await box(header.locator(".gt-i-head-controls"))];
+  expect(name.top).toBeGreaterThanOrEqual(controls.top - 0.5);
+  expect(name.bottom).toBeLessThanOrEqual(controls.bottom + 0.5);
+  expect(name.left).toBeGreaterThanOrEqual(controls.left - 0.5);
+  expect(name.right).toBeGreaterThanOrEqual(controls.right - 5);
+  expect(name.right).toBeLessThanOrEqual(controls.right + 0.5);
+
+  await page.keyboard.type("ca");
+  await names.nth(1).click();
+  await expect(query(page)).toBeFocused();
+  await expect(query(page)).toHaveValue("char ");
+  await expect(options(page).first()).toHaveText(/^contains "…"/);
+  await page.keyboard.type('contains "a" and');
+  await names.nth(0).click();
+  await expect(query(page)).toHaveValue('char contains "a" and num ');
+
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+  await expect(query(page)).toBeHidden();
+  await expect(names).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

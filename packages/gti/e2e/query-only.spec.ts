@@ -135,6 +135,6 @@ test("sorts by them from the URL, by their labels", async ({ page }) => {
   await bar(page).getByRole("button", { name: "Table info", exact: true }).click();
   await expect(info(page)).toContainText("Sorted by Price, descending");
   // (No button to sort by them)
-  await expect(el(page).locator("button.gt-i-sort", { hasText: "Price" })).toHaveCount(0);
+  await expect(el(page).getByRole("button", { name: "Sort by Price", exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });

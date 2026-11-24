@@ -939,6 +939,86 @@
     ]),
   })
 # ---
+# name: test_get_column_dtype_name_dtype_matrix[pandas_constructor]
+  dict({
+    'bool': 'object',
+    'categorical': 'cat',
+    'categorical_ordered': 'cat',
+    'date': 'object',
+    'datetime': 'datetime',
+    'datetime_tz': 'datetime',
+    'decimal': 'object',
+    'duration': 'duration',
+    'float': 'f64',
+    'int': 'f64',
+    'list': 'object',
+    'str': 'str',
+  })
+# ---
+# name: test_get_column_dtype_name_dtype_matrix[pandas_nullable_constructor]
+  dict({
+    'bool': 'bool',
+    'categorical': 'cat',
+    'categorical_ordered': 'cat',
+    'date': 'object',
+    'datetime': 'datetime',
+    'datetime_tz': 'datetime',
+    'decimal': 'object',
+    'duration': 'duration',
+    'float': 'f64',
+    'int': 'i64',
+    'list': 'object',
+    'str': 'str',
+  })
+# ---
+# name: test_get_column_dtype_name_dtype_matrix[pandas_pyarrow_constructor]
+  dict({
+    'bool': 'bool',
+    'categorical': 'cat',
+    'categorical_ordered': 'cat',
+    'date': 'object',
+    'datetime': 'datetime',
+    'datetime_tz': 'datetime',
+    'decimal': 'object',
+    'duration': 'duration',
+    'float': 'f64',
+    'int': 'i64',
+    'list': 'object',
+    'str': 'str',
+  })
+# ---
+# name: test_get_column_dtype_name_dtype_matrix[polars_constructor]
+  dict({
+    'bool': 'bool',
+    'categorical': 'cat',
+    'categorical_ordered': 'enum',
+    'date': 'date',
+    'datetime': 'datetime',
+    'datetime_tz': 'datetime',
+    'decimal': 'decimal',
+    'duration': 'duration',
+    'float': 'f64',
+    'int': 'i64',
+    'list': 'list',
+    'str': 'str',
+  })
+# ---
+# name: test_get_column_dtype_name_dtype_matrix[pyarrow_table_constructor]
+  dict({
+    'bool': 'bool',
+    'categorical': 'cat',
+    'categorical_ordered': 'cat',
+    'date': 'date',
+    'datetime': 'datetime',
+    'datetime_tz': 'datetime',
+    'decimal': 'decimal',
+    'duration': 'duration',
+    'float': 'f64',
+    'int': 'i64',
+    'list': 'list',
+    'str': 'str',
+  })
+# ---
 # name: test_is_na_agnostic
   dict({
     '0': False,

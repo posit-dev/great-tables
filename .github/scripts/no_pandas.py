@@ -1,13 +1,13 @@
 # %%
-from ast import NodeVisitor, Import, ImportFrom, parse
-from pathlib import Path
+from ast import Import, ImportFrom, NodeVisitor, parse
 from os import walk
+from pathlib import Path
 
 
 # %%
 class NaughtyImportChecker(NodeVisitor):
     def __init__(self):
-        self.import_crimes: list["Import | ImportFrom"] = []
+        self.import_crimes: list[Import | ImportFrom] = []
 
     def visit_Import(self, node: Import):
         for el in node.names:
@@ -30,7 +30,7 @@ class NaughtyImportChecker(NodeVisitor):
 
     @classmethod
     def validate_folder(cls, folder: str) -> dict[Path, list["ImportFrom | Import"]]:
-        all_crimes: dict[Path, list["ImportFrom | Import"]] = {}
+        all_crimes: dict[Path, list[ImportFrom | Import]] = {}
         for dirpath, _, filenames in walk(folder):
             for fname in filenames:
                 if fname.endswith(".py"):
@@ -58,7 +58,7 @@ def report(results: dict[str, list["ImportFrom | Import"]], forgiveable: "list[s
         lines.append(f"{path}: {report_details(crimes)}")
 
     if lines:
-        raise Exception("Pandas imports detected.\n\n" + "\n".join(lines))
+        raise RuntimeError("Pandas imports detected.\n\n" + "\n".join(lines))
 
 
 # %%

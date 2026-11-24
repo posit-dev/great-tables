@@ -2,3 +2,5 @@ node_modules/
 e2e/.fixtures/
 test-results/
 playwright-report/
+bench/.pages/
+bench/results/

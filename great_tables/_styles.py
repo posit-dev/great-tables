@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
-from typing import TYPE_CHECKING, Any, Callable, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from ._helpers import GoogleFont, px
 from ._tbl_data import PlExpr, TblData, _get_cell, eval_transform
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._locations import Loc
 
 
@@ -333,6 +335,12 @@ class CellStyleFill(CellStyle):
 
     def _to_html_style(self) -> str:
         return f"background-color: {self.color};"
+
+
+@dataclass
+class _FillWithoutContrastText(CellStyleFill):
+    """A fill from `data_color(autocolor_text=False)`: the table gives a cell with it no contrast
+    text color, as it does other fills without a text color."""
 
 
 @dataclass

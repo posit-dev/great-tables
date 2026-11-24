@@ -10,6 +10,11 @@ title and optional subtitle, the **Table Footer** anchors it with source notes o
 information, and the **Stub** provides a left-hand column of row identifiers. All three are added
 using the `tab_*()` family of methods.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="wink" arms="point rest" cells='[[{"text": "CN", "color": "#f900c3"}, "1.26", "1.34", "1.41"], [{"text": "IN", "color": "#f900c3"}, "1.06", "1.24", "1.42"], [{"text": "US", "color": "#f900c3"}, "0.28", "0.31", "0.33"]]' cell-trick="frame" intro='[["say", "Header, stub, footer: I’ve got all three!"], ["mood", "grin"], ["hop", 1], ["mood", "wink"]]'></gt-tabblen>
+```
+
 A well-structured frame transforms a bare data grid into something self-explanatory. Without these
 components, your reader has to look outside the table for context: what is this data? Where did it
 come from? What do the rows represent? Adding a header, footer, and stub answers those questions
@@ -21,14 +26,15 @@ A **Table Header** is easy to add with the `~~GT.tab_header()` method. Let's see
 looks with a *title* and a *subtitle*:
 
 ```{python}
-from great_tables import GT, md, html
-from great_tables.data import countrypops
+import polars as pl
+from great_tables import GT, data, md
 
 # Get the ten most populous countries in 2022
 countries_mini = (
-    countrypops[countrypops["year"] == 2022]
-    .sort_values("population", ascending=False)
-    .head(10)[["country_name", "population"]]
+    data.pl.countrypops.filter(pl.col("year") == 2022)
+    .sort("population", descending=True)
+    .head(10)
+    .select("country_name", "population")
 )
 
 # Make a display table with the `countries_mini` table and
@@ -36,8 +42,8 @@ countries_mini = (
 (
     GT(countries_mini)
     .tab_header(
-        title = "The World's Most Populous Countries",
-        subtitle = "The top ten in 2022 are presented"
+        title="The World's Most Populous Countries",
+        subtitle="The top ten in 2022 are presented"
     )
 )
 ```
@@ -57,8 +63,8 @@ an example with the table data truncated for brevity:
 gt_tbl = (
     GT(countries_mini.head(2))
     .tab_header(
-        title = md("The *World's* Most Populous Countries &#x1F310;"),
-        subtitle = md("The top **ten** in 2022 are presented")
+        title=md("The *World's* Most Populous Countries &#x1F310;"),
+        subtitle=md("The top **ten** in 2022 are presented")
     )
 )
 
@@ -79,10 +85,10 @@ it can be called multiple times. Each invocation results in the addition of a so
 (
     gt_tbl
     .tab_source_note(
-        source_note = "Total population counts all residents regardless of legal status or citizenship."
+        source_note="Total population counts all residents regardless of legal status or citizenship."
     )
     .tab_source_note(
-        source_note = md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
     )
 )
 ```
@@ -109,10 +115,10 @@ also contain *row group labels*. Those subparts can be grouped in a sequence of 
 describe the column labels). The **Stub** is optional since there are cases where it wouldn't be
 useful (the display tables presented earlier looked just fine without one).
 
-An easy way to generate a **Stub** part is by specifying a stub column in the `GT()` class with the
-`rowname_col=` argument. This will signal to **Great Tables** that the named column should be used
-as the stub, using the contents of that column to make *row labels*. Let's add a stub with our
-`countries_mini` table by using `rowname_col=` in the call to `GT`:
+An easy way to generate a **Stub** part is by naming a stub column with the `rowname_col=` argument
+of the `~~GT.tab_stub()` method. This will signal to **Great Tables** that the named column should
+be used as the stub, using the contents of that column to make *row labels*. Let's add a stub to our
+`countries_mini` table:
 
 ```{python}
 GT(countries_mini).tab_stub(rowname_col="country_name")
@@ -141,9 +147,9 @@ compare within and across categories. Rather than forcing the reader to mentally
 groups do that work up front.
 
 Let's incorporate row groups into the display table. This divides rows into groups, creating
-*row groups*, and results in a display of a *row group labels* right above each group. This can be
+*row groups*, and results in a display of *row group labels* right above each group. This can be
 easily done with a table containing row labels and the key is to use the `groupname_col=` argument
-of the `GT` class. Here we will create four row groups (with row group labels `"Asia"`,
+of `~~GT.tab_stub()`. Here we will create four row groups (with row group labels `"Asia"`,
 `"Americas"`, `"Africa"`, and `"Europe"`) to have a grouping of rows.
 
 ```{python}
@@ -153,7 +159,9 @@ regions = {
     "Mexico": "Americas", "Nigeria": "Africa", "Russian Federation": "Europe",
 }
 
-country_groups = countries_mini.assign(region = countries_mini["country_name"].map(regions))
+country_groups = countries_mini.with_columns(
+    region=pl.col("country_name").replace_strict(regions)
+)
 
 (
     GT(country_groups)
@@ -162,7 +170,8 @@ country_groups = countries_mini.assign(region = countries_mini["country_name"].m
 )
 ```
 
-The table now groups its rows by region, with labels appearing above each group. Row groups make it much easier for readers to scan and compare related entries.
+The table now groups its rows by region, with labels appearing above each group. Row groups make it
+much easier for readers to scan and compare related entries.
 
 ## GT Convenience Arguments
 

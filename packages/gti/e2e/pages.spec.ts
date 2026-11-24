@@ -141,7 +141,7 @@ test("pages the rows that match a search, from the first page", async ({ page })
   expect(await visible(page)).toEqual(["group:grp_a", 3, "summary:Total", "grand:Max"]);
 
   // A new sort goes back to the first page too
-  await page.locator("th#p-char > button.gt-i-sort").click();
+  await page.locator("th#p-char button.gt-i-sort").click();
   await expect(pageButton(page, "Page 1")).toHaveAttribute("aria-current", "page");
   expect(errors).toEqual([]);
 });

@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
+from functools import cache
 from html import escape, unescape
-from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from .._gt_data import ColInfoTypeEnum, Options
+from .._render_checks import RenderWarning
 from .._text import _process_text
+from .._theme import color_scheme_style_attr
 from .._utils_render_html import _get_header_ids
+from ._details import details_template, leave_out_details_column, render_details
 from ._query import js_trim, label_text
 from ._settings import settings_of
 from ._spec import Spec, build_spec
@@ -35,8 +39,24 @@ STACK_COLUMNS = 6
 STACK_ROOT = "#gt-i-table"
 STACK_WIDTH = "(width < 420px)"
 
+# The most data rows, bytes of HTML (the `<gt-table>` element's), and rows shown at once (on a
+# page, or all of them, on one) a table has before it's warned about, as it may be slow in the
+# browser (see the Phase 1 benchmarks, in packages/gti/bench)
+MAX_ROWS = 3_000
+MAX_BYTES = 10 * 2**20
+MAX_SHOWN = 1_000
 
-@lru_cache(maxsize=None)
+
+class GTISizeWarning(RenderWarning):
+    """A warning that an interactive table may be slow in the browser, for its size."""
+
+
+class GTIEngineWarning(RenderWarning):
+    """A warning that an interactive table's rows aren't kept in Python (see `i_scale()`), or
+    that some of what it does is left out, as they are."""
+
+
+@cache
 def _load_runtime() -> tuple[str, str]:
     """The built `<gt-table>` runtime (see packages/gti): its JS and CSS."""
     js = (JS_DIR / "gti.js").read_text(encoding="utf-8")
@@ -44,7 +64,7 @@ def _load_runtime() -> tuple[str, str]:
     return js, css
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_stack_css() -> str:
     """The template of a stacked table's own CSS (see packages/gti/src/stack.css)."""
     return (JS_DIR / "gti-stack.css").read_text(encoding="utf-8")
@@ -70,18 +90,78 @@ def render_gti_html(
     page must provide them. With `all_important=True`, the table's CSS (not the runtime's) is
     marked `!important`, as with `as_raw_html()`.
     """
+    html, _ = render_gti_html_spec(gt, runtime=runtime, all_important=all_important)
+    return html
+
+
+def render_gti_html_spec(
+    gt: GT, runtime: Literal["inline", "none"] = "inline", all_important: bool = False
+) -> tuple[str, Spec]:
+    """A table's HTML, as `render_gti_html()` renders it, and its spec."""
+    if runtime not in ("inline", "none"):
+        raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
+    html, spec = render_gti_element(gt, all_important=all_important)
+    return (inline_runtime(html) if runtime == "inline" else html), spec
+
+
+def inline_runtime(html: str) -> str:
+    """A table's `<gt-table>` element, with the runtime after it."""
+    js, css = _load_runtime()
+    return f"{html}<style>\n{css}</style>\n<script>\n{js}</script>\n"
+
+
+def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -> tuple[str, Spec]:
+    """A table's `<gt-table>` element (without the runtime), and its spec.
+
+    (With `warn=False`, there's no warning about its size: see `_warn_size()`.)
+    """
+    from ..gti import GTI
+
+    if isinstance(gt, GTI) and settings_of(gt).engine == "kernel":
+        # (A widget or a Shiny app, which can keep the rows in Python, renders the table itself:
+        # see `_kernel.py`)
+        warnings.warn(
+            "This table's rows can be kept in Python (`i_scale(engine=\"kernel\")`) only when it's "
+            "shown as a widget (with `i_as_widget()`) or in a Shiny app (with `render_gt()`), so "
+            "here they're in the browser.",
+            GTIEngineWarning,
+            stacklevel=3,
+        )
+    from ._lazy import collected, lazy_of
+
+    lazy = lazy_of(gt) is not None
+    if lazy:
+        gt = collected(gt)  # type: ignore[arg-type]
     built = _build(gt)
     table_html = built._render_as_html(all_important=all_important)
-    spec = build_spec(built)
+    details = render_details(built)
+    spec = build_spec(built, details=sorted(details))
+    html = gti_element(built, table_html, spec, details)
+    if warn:
+        from ._kernel import kernel_reasons
+
+        _warn_size(gt, spec, html, kernel=not kernel_reasons(built), lazy=lazy)
+    return html, spec
+
+
+def gti_element(
+    data: GTData, table_html: str, spec: Spec, details: dict[int, str], attrs: str = ""
+) -> str:
+    """The `<gt-table>` element of a built table, from its static HTML, its spec, and its rows'
+    details (as `render_details()` makes them), with `attrs` (a host's)."""
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
     # what's below it, so the control bar's room is kept until it's there)
-    attrs = " data-gti-bar" if _has_bar(spec) else ""
-    if attrs and _has_tokens(spec):
+    attrs += " data-gti-bar" if _has_bar(spec) else ""
+    if _has_bar(spec) and _has_tokens(spec):
         attrs += " data-gti-tokens"
     if not spec["display"]["wrap"]:
         attrs += " data-gti-nowrap"
+    if spec["display"]["monospace"]:
+        attrs += " data-gti-monospace"
+    if spec["display"]["parts"]:
+        attrs += " data-gti-parts"
     height = spec["layout"]["height"]
     responsive = spec["layout"]["responsive"]
     # (An "auto" table whose columns have priorities drops them, rather than being stacked)
@@ -92,36 +172,104 @@ def render_gti_html(
         # (Until the runtime counts the columns shown, as the reader hides them)
         if responsive == "auto" and _shown_columns(spec) > STACK_COLUMNS:
             attrs += " data-gti-stack-off"
-        table_html += f"<style>\n{stack_css(built, spec, table_html)}</style>\n"
+        table_html += f"<style>\n{stack_css(data, spec, table_html)}</style>\n"
+    # (Each row's details, inert until the reader opens them, and not shown without the runtime)
+    table_html += "".join(details_template(row, html) for row, html in details.items())
+    # (The controls are outside the table's own element, so the theme's accent is set here)
+    style = []
     if height is not None:
-        attrs += f' data-gti-scroll style="--gt-i-height: {escape(height)}"'
-    html = (
+        attrs += " data-gti-scroll"
+        style.append(f"--gt-i-height: {escape(height)}")
+    accent = data._theme.tokens.get("accent") if data._theme is not None else None
+    if accent is not None:
+        style.append(f"--gt-i-accent: {escape(accent)}")
+    if style:
+        attrs += f' style="{"; ".join(style)}"'
+    return (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
         "</gt-table>\n"
     )
 
-    if runtime == "inline":
-        js, css = _load_runtime()
-        html += f"<style>\n{css}</style>\n<script>\n{js}</script>\n"
-    elif runtime != "none":
-        raise ValueError(f'`runtime=` must be "inline" or "none", not {runtime!r}.')
 
-    return html
-
-
-def page_html(fragment: str) -> str:
-    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body."""
+def page_html(fragment: str, data: GTData) -> str:
+    """A whole page, with a table's HTML (as `render_gti_html()` makes it) as its body, and the
+    table's color scheme declared."""
     return (
-        '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>\n'
+        f'<!DOCTYPE html>\n<html lang="en"{color_scheme_style_attr(data)}>\n<head>\n'
+        '<meta charset="utf-8"/>\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1"/>\n'
         f"</head>\n<body>\n{fragment}</body>\n</html>\n"
     )
 
 
+def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool = False) -> None:
+    """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
+    bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
+    more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
+    searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
+    widget or in a Shiny app, is told so; with `lazy`, that its rows were collected, from its
+    lazy frame.)
+    """
+    from ..gti import GTI
+
+    nrows, pagination = spec["nrows"], spec["pagination"]
+    shown = min(nrows, pagination["page_size"]) if pagination["enabled"] else nrows
+    size = len(html.encode("utf-8"))
+
+    reasons: list[str] = []
+    if nrows > MAX_ROWS:
+        reasons.append(f"has {nrows:,} rows (more than {MAX_ROWS:,})")
+    if size > MAX_BYTES:
+        reasons.append(f"has {size / 2**20:.1f} MB of HTML (more than {MAX_BYTES / 2**20:g} MB)")
+    if shown > MAX_SHOWN:
+        if pagination["enabled"]:
+            shows = f"shows {shown:,} rows on a page"
+        else:
+            shows = "shows them all" if nrows > MAX_ROWS else f"shows all {nrows:,} rows"
+            shows += " on one page"
+        reasons.append(f"{shows} (more than {MAX_SHOWN:,})")
+    if not reasons:
+        return
+
+    reason = reasons[-1] if len(reasons) == 1 else f"{', '.join(reasons[:-1])}, and {reasons[-1]}"
+    message = (
+        f"This interactive table may be slow in the browser, especially on phones: it {reason}."
+    )
+    if nrows > MAX_ROWS or size > MAX_BYTES:
+        if lazy:
+            message += " Its rows were all collected from its lazy frame, to be shown here."
+        message += (
+            " It's quicker to load with fewer rows, or fewer columns (or less in them), e.g., by "
+            "filtering the data first."
+        )
+        if kernel and isinstance(gt, GTI):
+            message += (
+                " Shown as a widget (with `i_as_widget()`) or in a Shiny app (with `render_gt()`), "
+                "it can keep its rows in Python, which sends the browser a page at a time (see "
+                '`i_scale(engine="kernel")`).'
+            )
+    if shown > MAX_SHOWN:
+        if isinstance(gt, GTI):
+            how = "`i_pagination()`"
+            if pagination["enabled"]:
+                how = f"a smaller `page_size=` in {how}"
+        elif pagination["enabled"]:
+            how = "a smaller `page_size_default=` in `opt_interactive()`"
+        else:
+            how = "`opt_interactive(use_pagination=True)`"
+        message += (
+            f" Sorting, searching and filtering are quicker with fewer rows on a page ({how})."
+        )
+    # (For the caller of `render_gti_html()`)
+    warnings.warn(message, GTISizeWarning, stacklevel=3)
+
+
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
     """A table's static HTML (its `<div>`) and its spec."""
-    built = _build(gt)
+    from ._lazy import eager
+
+    built = _build(eager(gt))
     return built._render_as_html(all_important=all_important), build_spec(built)
 
 
@@ -130,6 +278,7 @@ def _build(gt: GT) -> GTData:
     if settings.compact:
         gt = _compact(gt)
     gt = _leave_out(gt, settings.query_only)
+    gt = leave_out_details_column(gt)
     return gt._build_data(context="html")
 
 
@@ -160,7 +309,8 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
         if header is None:
             continue
         spanners = [spanner_labels.get(id, "") for id in header_ids.column_spanners[info.var]]
-        prefix = "".join(f"{label} · " for label in spanners if label)
+        # (After its spanners' labels, as the runtime has them: "Revenue – gross")
+        prefix = "".join(f"{label} – " for label in spanners if label)
         label = prefix + (_label(info.column_label) or info.var)
         rules.append(
             f"{root} [headers~={_css_string(header)}]{{--gt-i-label:{_css_string(label)}}}"
@@ -173,7 +323,32 @@ def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
 
 
 def _label(label: object) -> str:
-    return label_text(str(_process_text(label)))  # type: ignore[arg-type]
+    """A label's text for a card, with its superscripts and subscripts (as `km<sup>2</sup>`) in
+    Unicode's (`km²`), as a CSS string can't have markup."""
+    html = str(_process_text(label))  # type: ignore[arg-type]
+    return label_text(_SCRIPT.sub(_scripted, html))
+
+
+# The characters with a superscript or subscript form, and the elements whose text may be in them
+_SCRIPTS = {
+    "sup": dict(zip("0123456789+-−=()in", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁻⁼⁽⁾ⁱⁿ", strict=True)),
+    "sub": dict(
+        zip("0123456789+-−=()aehijklmnoprstuvx", "₀₁₂₃₄₅₆₇₈₉₊₋₋₌₍₎ₐₑₕᵢⱼₖₗₘₙₒₚᵣₛₜᵤᵥₓ", strict=True)
+    ),
+}
+_SCRIPT = re.compile(
+    r"<(sup|sub)\b[^>]*>((?:(?!</?su[pb]\b).)*)</\1\s*>", re.IGNORECASE | re.DOTALL
+)
+
+
+def _scripted(found: re.Match[str]) -> str:
+    """A `<sup>` or `<sub>` as its text in superscript or subscript characters, if each of them has
+    one (otherwise as it is, its text run into the text before it)."""
+    forms = _SCRIPTS[found.group(1).lower()]
+    text = label_text(found.group(2))
+    if text and all(char in forms for char in text):
+        return "".join(forms[char] for char in text)
+    return found.group(0)
 
 
 def _shown_columns(spec: Spec) -> int:
@@ -224,8 +399,9 @@ def _css_string(text: str) -> str:
 
 
 def _has_bar(spec: Spec) -> bool:
-    """Whether the runtime draws a control bar below the table: for a search, filters, pages, or
-    an export.
+    """Whether the runtime draws a control bar below the table: for a search, filters, pages, an
+    export, rows' details (whose buttons opening and closing them all are in its info panel), or a
+    link to other tables (whose selections filter it, as its tokens and info panel say).
 
     (Or pages there could be: the page sizes readers can choose from, in the bar's info panel,
     include the table's own. With filters, the bar's info panel says how many rows they leave.)
@@ -236,7 +412,12 @@ def _has_bar(spec: Spec) -> bool:
         sizes += pagination["page_sizes"]
     paged = pagination["enabled"] and spec["nrows"] > min(sizes)
     return controls["bar"] and (
-        controls["search"] or bool(spec["filters"]) or bool(spec["export"]["formats"]) or paged
+        controls["search"]
+        or bool(spec["filters"])
+        or bool(spec["export"]["formats"])
+        or paged
+        or bool(spec["details"])
+        or spec.get("link") is not None
     )
 
 
@@ -274,7 +455,7 @@ def _leave_out(gt: GT, columns: tuple[str, ...]) -> GT:
     boxhead = boxhead.set_cols_hidden(list(columns))
     if not boxhead._get_default_columns() and not boxhead._get_stub_columns():
         raise ValueError(
-            "A table without a stub can't have every column left out of it with " "`display=False`."
+            "A table without a stub can't have every column left out of it with `display=False`."
         )
     return gt._replace(_boxhead=boxhead)
 

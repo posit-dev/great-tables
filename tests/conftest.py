@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 from importlib.util import find_spec
 from typing import Any
 
@@ -7,6 +8,19 @@ import pytest
 
 from great_tables._tbl_data import DataFrameLike, SeriesLike, _re_version
 from tests.utils import DataFrameConstructor, DataLike, SeriesConstructor
+
+
+@pytest.fixture
+def no_polars_import(monkeypatch: pytest.MonkeyPatch):
+    """Make imports of polars fail while keeping already-imported backend types available."""
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "polars":
+            raise ImportError(name)
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
 
 
 def pandas_constructor(obj: DataLike) -> DataFrameLike:

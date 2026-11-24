@@ -145,7 +145,7 @@ test("closes on a click outside it, but not in it", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test("is cleared, with the other filters, from the info panel", async ({ page }) => {
+test("is cleared, with the other filters, by the bar's reset", async ({ page }) => {
   const errors = await ready(page, "filters.html");
   await el(page).evaluate((node) => {
     (node as any).filter = {
@@ -159,10 +159,11 @@ test("is cleared, with the other filters, from the info panel", async ({ page })
   await el(page).getByRole("button", { name: "Table info", exact: true }).click();
   await expect(info).toContainText("Filtered by num, char");
   await expect(infoRows(page)).toHaveText(/of \d+ rows \(filtered from 24\)$/);
-  await info.getByRole("button", { name: "Clear the filters" }).click();
+  await el(page).getByRole("button", { name: "Reset the view", exact: true }).click();
+  await expect(el(page).getByRole("button", { name: "Reset the view", exact: true })).toBeHidden();
+  await el(page).getByRole("button", { name: "Table info", exact: true }).click();
   await expect(info).toContainText("Not filtered");
   await expect(infoRows(page)).toHaveText("1–5 of 24 rows");
-  await expect(info.getByRole("button", { name: "Clear the filters" })).toBeFocused();
   expect(errors).toEqual([]);
 });
 

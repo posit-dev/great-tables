@@ -9,11 +9,10 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeAlias, TypeVar, ov
 
 from typing_extensions import Self
 
-from ._cols_merge import ColMergeInfo, ColMerges  # noqa: F401 (re-exported)
+from ._cols_merge import ColMergeInfo  # noqa: F401 (re-exported)
 from ._helpers import GoogleFontImports
 
 # TODO: move this class somewhere else (even gt_data could work)
-from ._styles import CellStyle
 from ._tbl_data import (
     Agnostic,
     DataFrameLike,
@@ -33,12 +32,15 @@ from ._tbl_data_align import (
     classify_dtype_for_alignment,
     is_number_like_column,
 )
-from ._text import BaseText
 from ._utils import OrderedSet
 
 if TYPE_CHECKING:
+    from ._cols_merge import ColMerges
     from ._helpers import UnitStr
     from ._locations import Loc
+    from ._styles import CellStyle
+    from ._text import BaseText
+    from ._theme import Theme
 
 T = TypeVar("T")
 
@@ -126,7 +128,10 @@ class GTData:
     _transforms: list  # list[TextTransformInfo]
     _options: Options
     _google_font_imports: GoogleFontImports = field(default_factory=GoogleFontImports)
+    _data_colors: list = field(default_factory=list)  # list[DataColorInfo]
     _has_built: bool = False
+    _theme: Theme | None = None
+    _theme_mode: str = "auto"
 
     def _replace(self, **kwargs: Any) -> Self:
         new_obj = copy.copy(self)
@@ -153,7 +158,7 @@ class GTData:
         stub, boxhead = _prep_gt(data, rowname_col, groupname_col, auto_align)
 
         if id is not None:
-            options = Options(table_id=OptionsInfo(True, "table", "value", id))
+            options = Options()._set_option_value("table_id", id)
         else:
             options = Options()
 
@@ -177,6 +182,7 @@ class GTData:
             _transforms=[],
             _options=options,
             _google_font_imports=GoogleFontImports(),
+            _data_colors=[],
         )
 
 
@@ -240,7 +246,7 @@ class Body:
         for fmt in formats:
             eval_func = getattr(fmt.func, context, fmt.func.default)
             if eval_func is None:  # pragma: no cover
-                raise Exception("Internal Error")
+                raise RuntimeError("Internal Error")
             for col, row in fmt.cells.resolve():
                 result = eval_func(_get_cell(data_tbl, row, col))
                 if isinstance(result, FormatterSkipElement):
@@ -288,6 +294,8 @@ class ColInfo:
     column_label: str | BaseText | None = None
     column_align: ColumnAlignment | None = None
     column_width: str | None = None
+    # The `writing-mode` of a label rotated by `cols_label_rotate()`
+    column_label_rotate: str | None = None
     # Position of the column within the stub (0 = outermost level); only set for columns given in
     # `rowname_col`, and kept when the column is hidden so that it can be restored as a stub column
     stub_level: int | None = None
@@ -498,6 +506,15 @@ class Boxhead(_Sequence[ColInfo]):
         set_cols = set(columns)
         out_cols: list[ColInfo] = [
             replace(x, column_align=align) if x.var in set_cols else x for x in self._d
+        ]
+
+        return self.__class__(out_cols)
+
+    # Set the direction of rotated column labels
+    def _set_column_label_rotate(self, columns: list[str], dir: str) -> Self:
+        set_cols = set(columns)
+        out_cols: list[ColInfo] = [
+            replace(x, column_label_rotate=dir) if x.var in set_cols else x for x in self._d
         ]
 
         return self.__class__(out_cols)
@@ -759,6 +776,11 @@ class Stub:
     def group_indices_map(self) -> list[tuple[int, GroupRowInfo | None]]:
         return self.group_rows.indices_map(len(self.rows))
 
+    def row_number(self, index: int) -> int:
+        """The number of a data row, by its index, in its stub cell's id (its place in the data,
+        from 1)."""
+        return index + 1
+
     def __iter__(self):
         return iter(self.rows)
 
@@ -813,10 +835,7 @@ class Stub:
         if n_stub_cols == 0:
             # If summary rows are present, we will use the `rowname` column
             # for the summary row labels
-            if has_summary_rows:
-                stub_layout = ["rowname"]
-            else:
-                stub_layout = []
+            stub_layout = ["rowname"] if has_summary_rows else []
 
         else:
             stub_layout = [
@@ -973,7 +992,7 @@ class Spanners(_Sequence[SpannerInfo]):
         return max(overlapping_levels, default=-1) + 1
 
     def append_entry(self, span: SpannerInfo) -> Self:
-        return self.__class__(self._d + [span])
+        return self.__class__([*self._d, span])
 
     def remove_column(self, column: str) -> Self:
         return self.__class__([span.drop_var(column) for span in self])
@@ -1116,6 +1135,30 @@ class TextTransformInfo:
     # `cols_align_decimal()`)
     fn: Callable[[str], str] | Callable[[list[str]], list[str]]
     per_column: bool = False
+
+
+# Data Colors ----
+
+
+@dataclass(frozen=True)
+class DataColorInfo:
+    """A `data_color()` call whose colors depend on the values colored.
+
+    Its colors are made from the values of the rows it colored in each of its columns (a domain
+    inferred from them, with no `fn=`, down each column), so an interactive table can make them
+    again from the rows a reader's search and filters keep. Static tables don't use it.
+    """
+
+    columns: list[str]
+    rows: list[int]
+    # (The palette's colors, as #RRGGBB; the alpha appended to each color made, as hex (or "");
+    # the palette's midpoint, if any; and the contrast algorithm for the text, if it's colored)
+    palette: list[str]
+    alpha: str
+    midpoint: int | float | None
+    contrast_algo: Literal["apca", "wcag"] | None
+    # (The last of the styles it added to `_styles`, after which a style of the same cell wins)
+    last: StyleInfo
 
 
 # Column Merge ----
@@ -1310,6 +1353,7 @@ class OptionsInfo:
     category: str
     type: str
     value: Any
+    is_set: bool = False
 
     def _validate_value(self, value: Any, option_name: str) -> Any:
         """Validate and coerce an option value based on its type.
@@ -1371,6 +1415,19 @@ class OptionsInfo:
             return value
         else:
             return value
+
+
+@dataclass(frozen=True)
+class _ThemeOptionsInfo(OptionsInfo):
+    """An option value that `resolve_options()` derived from a theme, rather than one the user set."""
+
+
+def is_user_set(info: OptionsInfo, default: OptionsInfo) -> bool:
+    """
+    Whether the user set an option: it is marked as set, or it has a value other than its default
+    that a theme didn't give it (as when code outside Great Tables replaced the value).
+    """
+    return info.is_set or (not isinstance(info, _ThemeOptionsInfo) and info.value != default.value)
 
 
 @dataclass(frozen=True)
@@ -1612,6 +1669,6 @@ class Options:
     def _set_option_value(self, option: str, value: Any):
         old_info = getattr(self, option)
         validated_value = old_info._validate_value(value, option_name=option)
-        new_info = replace(old_info, value=validated_value)
+        new_info = replace(old_info, value=validated_value, is_set=True)
 
         return replace(self, **{option: new_info})

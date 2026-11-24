@@ -1032,3 +1032,13 @@ def test_rows_starting_with_bracket_are_protected(use_longtable: bool):
         "{}[2] second",
     ]:
         assert any(line.lstrip().startswith(row_start) for line in lines), row_start
+
+
+def test_render_latex_null_group_key_has_empty_heading():
+    # A missing group key has no label, so its heading row renders empty
+    gt = GT(pl.DataFrame({"g": ["a", None], "x": [1, 2]}), groupname_col="g")
+
+    lines = gt.as_latex().splitlines()
+
+    assert "\\multicolumn{1}{l}{a} \\\\[2.5pt] " in lines
+    assert "\\multicolumn{1}{l}{} \\\\[2.5pt] " in lines

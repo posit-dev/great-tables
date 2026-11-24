@@ -3025,6 +3025,6 @@ _FRACTIONS_TABLE: dict[str, tuple[str, ...]] = {
 
 
 def _lookup_fraction(fractional_part: float, accuracy: str) -> str:
-    idx = int(round(fractional_part * 1000))
+    idx = round(fractional_part * 1000)
     idx = max(0, min(idx, 1000))
     return _FRACTIONS_TABLE[accuracy][idx]

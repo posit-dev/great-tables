@@ -75,6 +75,14 @@ describe("viewParams", () => {
   it("leaves out every row on one page", () => {
     expect(viewParams({ ...BASE, pageSize: null }, BASE)).toEqual([]);
   });
+
+  it("has a body's height, or the author's as an empty one", () => {
+    const base = { ...BASE, height: null };
+    expect(viewParams({ ...base, height: 420 }, base)).toEqual([["height", "420"]]);
+    expect(viewParams(base, { ...base, height: 420 })).toEqual([["height", ""]]);
+    expect(viewParams(base, base)).toEqual([]);
+    expect(viewParams(BASE, base)).toEqual([]);
+  });
 });
 
 describe("parameters", () => {
@@ -146,6 +154,25 @@ describe("readView", () => {
     expect(readView([["page", "2"]], BASE, LIMITS, () => {})).toEqual({ ...BASE, page: 2 });
   });
 
+  it("reads a body's height, if it scrolls within one, with a warning otherwise", () => {
+    const base = { ...BASE, height: null };
+    const limits = { ...LIMITS, height: true };
+    const { query, view, warnings } = roundTrip({ ...base, height: 420 }, { base, limits });
+    expect(query).toBe("?towny.height=420");
+    expect(view.height).toBe(420);
+    expect(warnings).toEqual([]);
+    expect(readView([["height", ""]], { ...base, height: 420 }, limits, () => {}).height).toBeNull();
+
+    const left: string[] = [];
+    expect(readView([["height", "0"], ["height", "12.5"]], base, limits, (message) => left.push(message)).height).toBeNull();
+    expect(readView([["height", "420"]], base, LIMITS, (message) => left.push(message)).height).toBeNull();
+    expect(left).toEqual([
+      'the saved view\'s height is left out ("0" isn\'t a height in px)',
+      'the saved view\'s height is left out ("12.5" isn\'t a height in px)',
+      "the saved view's height is left out (the table's body doesn't scroll within a height)",
+    ]);
+  });
+
   it("reads the hidden columns, in column order", () => {
     const { query, view } = roundTrip({ ...BASE, hidden: ["status", "a b&c"] });
     expect(query).toBe("?towny.hidden=status&towny.hidden=a+b%26c");
@@ -191,6 +218,32 @@ describe("readView", () => {
     expect(readView(params, BASE, LIMITS, (message) => warnings.push(message)).order).toEqual(["c", "a", "b", "d", "e f"]);
     expect(warnings).toEqual([
       'the saved view\'s column "status" is left out of its order (it isn\'t one the reader can move)',
+    ]);
+  });
+
+  it("reads the column the rows are grouped by, or none, over the author's", () => {
+    const base = { ...BASE, groupBy: null };
+    const limits = { ...LIMITS, groupable: ["status", "a b&c"] };
+    const { query, view, warnings } = roundTrip({ ...base, groupBy: "a b&c" }, { base, limits });
+    expect(query).toBe("?towny.group=a+b%26c");
+    expect(view.groupBy).toBe("a b&c");
+    expect(warnings).toEqual([]);
+    // (Once empty, for none, over the author's; and only when it isn't the author's)
+    const grouped = { ...BASE, groupBy: "status" };
+    expect(roundTrip(base, { base: grouped, limits })).toMatchObject({ query: "?towny.group=", view: { groupBy: null } });
+    expect(roundTrip(grouped, { base: grouped, limits }).query).toBe("");
+    expect(readView([["page", "2"]], grouped, limits, () => {}).groupBy).toBe("status");
+  });
+
+  it("leaves out a grouping by a column the rows can't be grouped by, with a warning", () => {
+    const warnings: string[] = [];
+    const base = { ...BASE, groupBy: null };
+    const read = (limits: ViewLimits) => readView([["group", "name"]], base, limits, (message) => warnings.push(message)).groupBy;
+    expect(read({ ...LIMITS, groupable: ["status"] })).toBeNull();
+    expect(read(LIMITS)).toBeNull();
+    expect(warnings).toEqual([
+      'the saved view\'s grouping by "name" is left out (it isn\'t a column the reader can group the rows by)',
+      'the saved view\'s grouping by "name" is left out (it isn\'t a column the reader can group the rows by)',
     ]);
   });
 

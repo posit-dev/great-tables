@@ -49,11 +49,20 @@ export interface ColumnSpec {
    */
   reorderable?: boolean;
   /**
+   * Whether readers can group the rows by a data column (one with ranks, in a table without row
+   * groups or summary rows). Without it, they can't.
+   */
+  groupable?: boolean;
+  /**
    * A data column's priority, for a table that drops columns to fit its container: those without
    * one drop first (from the last), then those with the highest (from the last, among equals);
    * those with 1 never do. Without it, it has none.
    */
   priority?: number | null;
+  /** The short name of the column's dtype (as Polars prints it: `"f64"`), shown under its label. Without it, none. */
+  dtype?: string | null;
+  /** The data rows whose value is missing, whose cells are tinted. Without it, none are. */
+  missing?: number[] | null;
 }
 
 /**
@@ -117,7 +126,7 @@ export type SelectionMode = "single" | "multiple";
 const SELECTION_MODES: readonly unknown[] = ["single", "multiple", null];
 
 export interface ControlsSpec {
-  /** Whether column labels are buttons that sort by their column. */
+  /** Whether column labels have a button that sorts by their column (and sort on a click). */
   sorting: boolean;
   /** Whether there's a search box. */
   search: boolean;
@@ -157,6 +166,21 @@ export interface DisplaySpec {
   compact: boolean;
   /** Whether cell text wraps; if not, text cut off by a column's width ends in an ellipsis. */
   wrap: boolean;
+  /** Whether the column labels and cells are in a monospaced font. Without it, not. */
+  monospace?: boolean;
+  /**
+   * Whether the parts GTI adds (its status line, column controls, bar, and so on) are named over
+   * the table from the start, for good, as on a docs page (rather than on `?`). Without it, not.
+   */
+  parts?: boolean;
+  /** Whether each data row has its number (its place in the data, from `row_start`) before its cells. Without it, not. */
+  row_numbers?: boolean;
+  /** The first row's number: 0 (as a DataFrame's index has it) or 1 (as a database's). Without it, 1. */
+  row_start?: 0 | 1;
+  /** Whether the number of rows and columns (and of those shown) is above the table. Without it, not. */
+  dimensions?: boolean;
+  /** What the data is, which the dimensions start with ("Polars DataFrame"); `null` (or without it) to say nothing of it. */
+  data_kind?: string | null;
 }
 
 export interface LayoutSpec {
@@ -208,9 +232,31 @@ export interface FilterSpec {
   values: FilterValue[] | null;
   /**
    * The data rows whose value is missing, in order: `null`, or NaN in a column of floats (as an
-   * `is_null` clause has them). Without it, the rows whose rank is `null`.
+   * `is_null` clause has them). Without it, the rows whose rank is `null`. A remote table's has
+   * its first one only, if there's any (so that a facet has a missing value to choose).
    */
   missing?: number[];
+  /**
+   * The text a row with each of the values shows (with its whitespace collapsed), in the order of
+   * `values`, for a facet or a bool filter's choices. Without it, the text the table's rows with
+   * them show (or the values themselves, without any).
+   */
+  labels?: string[];
+}
+
+/** A column's profile: a histogram of its numbers or dates, or bars for its most common values. */
+export type ProfilePlot = "histogram" | "top";
+
+const PROFILE_PLOTS: readonly unknown[] = ["histogram", "top"];
+
+export interface ProfileSpec {
+  column: string;
+  plot: ProfilePlot;
+  /**
+   * A histogram's distinct values, in the order of the column's ranks (numbers, or dates and times
+   * as ISO 8601 text); `null` for "top".
+   */
+  values: FilterValue[] | null;
 }
 
 /** A column to sort by, as a spec's view has it. */
@@ -221,13 +267,15 @@ export interface ViewSortSpec {
 
 /**
  * How the table is shown to start with: its filter (a query, as the `filter` property takes), its
- * sort keys, and the hideable columns hidden (in column order; without them, none). Applied as the
- * table is made ready, without events.
+ * sort keys, the hideable columns hidden (in column order; without them, none), and the groupable
+ * column the rows are grouped by (without it, or with `null`, none). Applied as the table is made
+ * ready, without events.
  */
 export interface ViewSpec {
   filter: { and: unknown[] } | null;
   sort: ViewSortSpec[];
   hidden?: string[];
+  group_by?: string | null;
 }
 
 /**
@@ -245,8 +293,8 @@ export const CODE_BACKENDS: readonly unknown[] = ["polars", "pandas", "narwhals"
 
 /** What the code goes by, of a column the view can filter or sort by. */
 export interface CodeColumnSpec {
-  /** Its type: of strings, of floats, of categories, of dates, of dates and times, or another. */
-  dtype: "string" | "float" | "categorical" | "date" | "datetime" | "other";
+  /** Its type: of strings, of floats, of integers, of categories, of dates, of dates and times, or another. */
+  dtype: "string" | "float" | "integer" | "categorical" | "date" | "datetime" | "other";
   /** Whether it's of a pandas nullable dtype (whose comparisons can be missing). */
   nullable: boolean;
   /** A facet's values (as its filter's `values` are), as Python; `null` for one that can't be. */
@@ -270,7 +318,7 @@ export interface ExportSpec {
 }
 
 /**
- * Where the reader's view (filters, sort, search, page, page size and hidden columns) is kept, so
+ * Where the reader's view (filters, sort, search, page, page size, hidden columns and grouping) is kept, so
  * that it's there when the page is opened again: in the page's URL, as parameters named after
  * `key` (the table's ID), and in the browser's storage; and whether the reader's changes to it can
  * be undone.
@@ -280,6 +328,50 @@ export interface ViewStateSpec {
   storage: boolean;
   key: string | null;
   undo: boolean;
+}
+
+/**
+ * The tables on the page this one is linked to (those with the same `group`), and the column whose
+ * values (`keys`, one per data row; `null` where it's missing) link their rows: the rows selected
+ * in one filter the others to those with the same values. The table's `name` (its title, or ID)
+ * and the text of the column's `label` are what the others say they're filtered by.
+ */
+export interface LinkSpec {
+  group: string;
+  on: string;
+  name: string | null;
+  label: string;
+  keys: FilterValue[];
+}
+
+/**
+ * A column whose `data_color()` fill is made again from the rows the search and filters keep: its
+ * data rows colored (`rows`, with a value) and their `values` (numbers, `"Infinity"` or
+ * `"-Infinity"`; or for text, indexes of its `levels`, in the order they first come). The fill is
+ * the `palette`'s color (mixed in CIELAB) at the value's place in the range of those of the rows
+ * kept (made even around the `midpoint`, if there is one), or at its level's among theirs, with
+ * `alpha` (hex) after it; and the text is black or white, by `text`'s contrast (unless it's
+ * `null`). The `fixed` rows keep their colors, but count for the range.
+ */
+export interface ColorSpec {
+  column: string;
+  rows: number[];
+  values: (number | string)[];
+  levels: string[] | null;
+  palette: string[];
+  alpha: string;
+  midpoint: number | null;
+  text: "apca" | "wcag" | null;
+  fixed: number[];
+}
+
+/**
+ * What a remote table's body has to start with: the rows of the first page of the view (`rows`,
+ * in order), of the `count` rows it keeps. Its other rows come from its source's `page()`.
+ */
+export interface RemoteSpec {
+  count: number;
+  rows: number[];
 }
 
 /** One `<tr>` of the table body: a data row's index, or a structural row. */
@@ -296,7 +388,10 @@ export interface Spec {
   stub: StubSpec;
   groups: GroupSpec[];
   body: BodyRow[];
-  /** Per sortable column, each data row's dense sort rank (`null` for a missing value). */
+  /**
+   * Per sortable column, each data row's dense sort rank (`null` for a missing value); a remote
+   * table's are empty (its source sorts the rows).
+   */
   ranks: Record<string, (number | null)[]>;
   striping: StripingSpec;
   controls: ControlsSpec;
@@ -305,12 +400,29 @@ export interface Spec {
   layout: LayoutSpec;
   /** The columns readers can filter by, in column order. Without it, none. */
   filters?: FilterSpec[];
+  /** The columns with a profile under their label, in column order. Without it, none. */
+  profiles?: ProfileSpec[];
   /** How the table is shown to start with. Without it, unfiltered and in its rows' order. */
   view?: ViewSpec;
   /** How readers can export the rows (from GTI's control bar). Without it (or any formats), they can't. */
   export?: ExportSpec;
   /** Where the reader's view is kept, and whether it can be undone. Without it, it isn't, and can't be. */
   view_state?: ViewStateSpec;
+  /**
+   * The data rows with details, which readers can show under them: each row's are the contents of
+   * a `<template data-gti-details="row">` in the element. Without it, none.
+   */
+  details?: number[];
+  /** The tables this one is linked to. Without it (or with `null`), none. */
+  link?: LinkSpec | null;
+  /** The columns whose `data_color()` colors are made again from the rows kept. Without it, none. */
+  colors?: ColorSpec[];
+  /**
+   * For a table whose body has only some of its data rows (a page of them), what it has to start
+   * with; its source (see `DataSource.page()`) has the others, and does the sorting and querying.
+   * Without it, the body has every row.
+   */
+  remote?: RemoteSpec;
 }
 
 export class SpecError extends Error {
@@ -369,13 +481,15 @@ export function parseSpec(text: string): Spec {
   const column = (raw.columns as unknown[]).findIndex(
     (column) =>
       !isObject(column) ||
-      !["sortable", "searchable", "resizable", "hideable", "reorderable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
+      !["sortable", "searchable", "resizable", "hideable", "reorderable", "groupable"].every((key) => column[key] === undefined || typeof column[key] === "boolean") ||
       ![undefined, null, "start", "end"].includes(column.pin as string) ||
-      !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)),
+      !(column.priority == null || (Number.isInteger(column.priority) && (column.priority as number) > 0)) ||
+      !(column.dtype == null || typeof column.dtype === "string") ||
+      !(column.missing == null || (Array.isArray(column.missing) && column.missing.every((row) => isIndex(row, nrows as number)))),
   );
   if (column >= 0) {
     throw new SpecError(
-      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable and reorderable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, and its priority (a positive integer), if it has one`,
+      `\`columns[${column}]\` must be an object, saying whether it's sortable, searchable, resizable, hideable, reorderable and groupable with \`true\` or \`false\`, the side it's pinned to (\`"start"\` or \`"end"\`), if it is, its priority (a positive integer), its dtype (text) and its rows with missing values (data rows' indexes), if it has them`,
     );
   }
   const queries = raw.query_columns;
@@ -439,9 +553,14 @@ export function parseSpec(text: string): Spec {
     !isObject(display) ||
     typeof display.highlight !== "boolean" ||
     typeof display.compact !== "boolean" ||
-    typeof display.wrap !== "boolean"
+    typeof display.wrap !== "boolean" ||
+    !["monospace", "parts", "row_numbers", "dimensions"].every((key) => display[key] === undefined || typeof display[key] === "boolean") ||
+    !(display.data_kind === undefined || display.data_kind === null || typeof display.data_kind === "string") ||
+    !(display.row_start === undefined || display.row_start === 0 || display.row_start === 1)
   ) {
-    throw new SpecError("`display` must say whether rows are highlighted and compact, and text wraps");
+    throw new SpecError(
+      "`display` must say whether rows are highlighted and compact, and text wraps (and whether text is monospaced, the parts named, rows are numbered and from 0 or 1, and the dimensions shown, and what the data is, if given)",
+    );
   }
   const layout = raw.layout;
   if (
@@ -467,8 +586,23 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(`\`body[${bad}]\` isn't a data row index or a structural row`);
   }
 
+  const remote = raw.remote;
+  if (remote !== undefined) {
+    const rows = isObject(remote) ? remote.rows : undefined;
+    const inBody = new Set(body);
+    if (
+      !isObject(remote) ||
+      !(Number.isInteger(remote.count) && (remote.count as number) >= 0 && (remote.count as number) <= (nrows as number)) ||
+      !Array.isArray(rows) ||
+      !rows.every((row) => typeof row === "number" && inBody.has(row)) ||
+      new Set(rows).size !== rows.length
+    ) {
+      throw new SpecError("`remote` must have the `count` of rows the view keeps, and the `rows` of its first page (data rows of the body's), if given");
+    }
+  }
+
   for (const [column, ranks] of Object.entries(raw.ranks)) {
-    if (!Array.isArray(ranks) || ranks.length !== nrows) {
+    if (!Array.isArray(ranks) || (ranks.length !== nrows && !(remote !== undefined && ranks.length === 0))) {
       throw new SpecError(`\`ranks.${column}\` must have one entry per data row`);
     }
   }
@@ -503,9 +637,43 @@ export function parseSpec(text: string): Spec {
           `\`filters[${i}]\` must name a column and a known \`type\`, with \`values\` for every rank of a facet, range, date or bool filter (a date filter's as ISO 8601 text, a bool filter's booleans)`,
         );
       }
-      const { missing } = filter;
+      const { missing, labels } = filter;
       if (missing !== undefined && !(Array.isArray(missing) && missing.every((row) => isIndex(row, nrows as number)))) {
         throw new SpecError(`\`filters[${i}].missing\` must be data rows' indexes, if given`);
+      }
+      if (labels !== undefined && !(Array.isArray(labels) && labels.length === (values as unknown[] | null)?.length && labels.every((label) => typeof label === "string"))) {
+        throw new SpecError(`\`filters[${i}].labels\` must be text, one per value, if given`);
+      }
+    });
+  }
+
+  const profiles = raw.profiles;
+  if (profiles !== undefined) {
+    if (!Array.isArray(profiles)) {
+      throw new SpecError("`profiles` must be an array, if given");
+    }
+    const allRanks = raw.ranks as Record<string, unknown>;
+    profiles.forEach((profile: unknown, i) => {
+      const column = isObject(profile) ? profile.column : undefined;
+      const ranks =
+        typeof column === "string" && Object.prototype.hasOwnProperty.call(allRanks, column)
+          ? allRanks[column]
+          : undefined;
+      const values = isObject(profile) ? profile.values : undefined;
+      if (
+        !isObject(profile) ||
+        typeof column !== "string" ||
+        !PROFILE_PLOTS.includes(profile.plot) ||
+        !Array.isArray(ranks) ||
+        (profile.plot === "top"
+          ? values != null
+          : !Array.isArray(values) ||
+            !values.every((value) => value === null || typeof value === "number" || typeof value === "string") ||
+            !ranks.every((rank) => rank === null || isIndex(rank, values.length)))
+      ) {
+        throw new SpecError(
+          `\`profiles[${i}]\` must name a column with ranks and a known \`plot\`, with \`values\` for every rank of a histogram (numbers, or ISO 8601 text)`,
+        );
       }
     });
   }
@@ -518,10 +686,11 @@ export function parseSpec(text: string): Spec {
       !(filter === null || (isObject(filter) && Array.isArray(filter.and))) ||
       !Array.isArray(view.sort) ||
       !view.sort.every((key) => isObject(key) && typeof key.column === "string" && typeof key.descending === "boolean") ||
-      !(view.hidden === undefined || (Array.isArray(view.hidden) && view.hidden.every((id) => typeof id === "string")))
+      !(view.hidden === undefined || (Array.isArray(view.hidden) && view.hidden.every((id) => typeof id === "string"))) ||
+      !(view.group_by == null || typeof view.group_by === "string")
     ) {
       throw new SpecError(
-        "`view` must have a `filter` (`{and: [...]}`, or `null`), `sort` keys with a `column` and `descending`, and `hidden` column names, if given",
+        "`view` must have a `filter` (`{and: [...]}`, or `null`), `sort` keys with a `column` and `descending`, `hidden` column names, and a `group_by` column name (or `null`), if given",
       );
     }
   }
@@ -555,6 +724,67 @@ export function parseSpec(text: string): Spec {
     throw new SpecError(
       "`view_state` must say whether the view is kept in the URL and in storage (with a `key` for either), and whether it can be undone, if given",
     );
+  }
+
+  const details = raw.details;
+  if (details !== undefined && !(Array.isArray(details) && details.every((row) => isIndex(row, nrows as number)))) {
+    throw new SpecError("`details` must be data rows' indexes, if given");
+  }
+
+  const link = raw.link;
+  if (
+    link != null &&
+    !(
+      isObject(link) &&
+      typeof link.group === "string" &&
+      link.group !== "" &&
+      typeof link.on === "string" &&
+      (link.name === null || typeof link.name === "string") &&
+      typeof link.label === "string" &&
+      Array.isArray(link.keys) &&
+      link.keys.length === nrows &&
+      link.keys.every(isFilterValue)
+    )
+  ) {
+    throw new SpecError("`link` must have a `group`, an `on` column with its `label`, a `name`, and a key per data row, if given");
+  }
+
+  const colors = raw.colors;
+  if (colors !== undefined) {
+    if (!Array.isArray(colors)) {
+      throw new SpecError("`colors` must be a list, if given");
+    }
+    colors.forEach((color: unknown, i) => {
+      const levels = isObject(color) ? color.levels : undefined;
+      const rows = isObject(color) ? color.rows : undefined;
+      if (
+        !isObject(color) ||
+        !(raw.columns as Record<string, unknown>[]).some((column) => column.id === color.column && column.role === "data") ||
+        !Array.isArray(rows) ||
+        !rows.every((row) => isIndex(row, nrows as number)) ||
+        !Array.isArray(color.values) ||
+        color.values.length !== rows.length ||
+        !(levels === null || (Array.isArray(levels) && levels.every((level) => typeof level === "string"))) ||
+        !color.values.every((value) =>
+          levels === null
+            ? (typeof value === "number" && Number.isFinite(value)) || value === "Infinity" || value === "-Infinity"
+            : isIndex(value, levels.length),
+        ) ||
+        !Array.isArray(color.palette) ||
+        color.palette.length < 2 ||
+        !color.palette.every((hex) => typeof hex === "string" && /^#[0-9a-f]{6}$/i.test(hex)) ||
+        typeof color.alpha !== "string" ||
+        !/^([0-9a-f]{2})?$/i.test(color.alpha) ||
+        !(color.midpoint === null || (typeof color.midpoint === "number" && Number.isFinite(color.midpoint))) ||
+        !(color.text === null || color.text === "apca" || color.text === "wcag") ||
+        !Array.isArray(color.fixed) ||
+        !color.fixed.every((row) => isIndex(row, nrows as number))
+      ) {
+        throw new SpecError(
+          `\`colors[${i}]\` must name a data column, with its \`rows\` and their \`values\` (numbers, or indexes of its \`levels\`), a \`palette\` of two or more #RRGGBB colors, an \`alpha\`, a \`midpoint\`, a \`text\` contrast, and the rows \`fixed\``,
+        );
+      }
+    });
   }
 
   return raw as unknown as Spec;

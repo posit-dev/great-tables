@@ -1,6 +1,7 @@
 ---
 title: Location Selection
 jupyter: python3
+html-table-processing: none
 guide-section: Advanced Topics
 ---
 
@@ -8,6 +9,11 @@ The `loc` module is what connects your styling intentions to specific parts of t
 location specifier identifies a region of the table (such as the header, body, stub, or footer) and
 many of them also support targeting specific columns or rows within that region. This page provides
 a comprehensive overview of all available location specifiers and how to use them effectively.
+
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" mood="thinking" arms="point rest" cells="|temp|hum|wind/GIB|18.9|68%|6.7/MAD|24.1|41%|3.2" cell-trick="locations" intro='[["say", "Which part should we style?"], ["mood", "grin"], ["wait", 400], ["mood", "happy"]]'></gt-tabblen>
+```
 
 Understanding the `loc` module is valuable because it provides a single, consistent vocabulary for
 addressing any part of the table. Rather than learning separate APIs for styling the header vs. the
@@ -17,7 +23,7 @@ immediately familiar.
 
 ## Overview
 
-Great Tables uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some
+**Great Tables** uses the `loc` module to specify locations for styling in `~~GT.tab_style()`. Some
 location specifiers also allow selecting specific columns and rows of data.
 
 For example, you might style a particular row name, group, column, or spanner label.
@@ -26,37 +32,39 @@ The table below shows the different location specifiers, along with the types of
 selection they allow.
 
 ```{python}
-# | echo: false
+#| echo: false
 import polars as pl
 from great_tables import GT
 
-data = [
+loc_rows = [
     ["header", "loc.header()", "composite"],
     ["", "loc.title()", ""],
     ["", "loc.subtitle()", ""],
+    ["stubhead", "loc.stubhead()", ""],
     ["boxhead", "loc.column_header()", "composite"],
     ["", "loc.spanner_labels()", "columns"],
     ["", "loc.column_labels()", "columns"],
     ["row stub", "loc.stub()", "rows"],
     ["", "loc.row_groups()", "rows"],
-    # ["", "loc.summary_stub()", "rows"],
+    ["", "loc.summary_stub()", "groups and rows"],
     ["", "loc.grand_summary_stub()", "rows"],
-    ["table body", "loc.body()", "columns and rows"],
-    # ["", "loc.summary_rows()", "columns and rows"],
-    ["", "loc.grand_summary_rows()", "columns and rows"],
+    ["table body", "loc.body()", "columns, rows, and mask"],
+    ["", "loc.summary()", "groups, columns, and rows"],
+    ["", "loc.grand_summary()", "columns, rows, and mask"],
     ["footer", "loc.footer()", "composite"],
+    ["", "loc.footnotes()", ""],
     ["", "loc.source_notes()", ""],
 ]
 
-df = pl.DataFrame(data, schema=["table part", "name", "selection"], orient="row")
+loc_df = pl.DataFrame(loc_rows, schema=["table part", "name", "selection"], orient="row")
 
-GT(df)
+GT(loc_df)
 ```
 
 Note that composite specifiers are ones that target multiple locations. For example, `loc.header()`
 specifies both `loc.title()` and `loc.subtitle()`.
 
-## Setting up data
+## Setting Up the Data
 
 The examples below will use this small dataset to show selecting different locations, as well as
 specific rows and columns within a location (where supported).
@@ -65,9 +73,9 @@ specific rows and columns within a location (where supported).
 import polars as pl
 import polars.selectors as cs
 
-from great_tables import GT, loc, style, exibble
+from great_tables import GT, data, loc, style
 
-pl_exibble = pl.from_pandas(exibble)[[0, 1, 4], ["num", "char", "group"]]
+pl_exibble = data.pl.exibble[[0, 1, 4], ["num", "char", "group"]]
 
 pl_exibble
 ```
@@ -75,7 +83,7 @@ pl_exibble
 This small three-row, three-column dataset gives us enough structure to demonstrate row and column
 targeting without cluttering the output.
 
-## Simple locations
+## Simple Locations
 
 Simple locations don't take any arguments.
 
@@ -95,7 +103,7 @@ For example, styling the title uses `loc.title()`.
 Only the title receives the yellow fill; the subtitle and the rest of the table remain unstyled.
 Simple locations are useful when you want precise control over a single element.
 
-## Composite locations
+## Composite Locations
 
 Composite locations target multiple simple locations.
 
@@ -116,9 +124,10 @@ Both the title and subtitle are filled with yellow because `loc.header()` target
 region. Composite locations are a convenient shorthand when you want the same style on all
 sub-parts.
 
-## Body columns, rows and mask
+## Body Columns, Rows, and Mask
 
 Use `columns=` and `rows=` in `loc.body()` to style specific cells in the table body.
+
 ```{python}
 (
     GT(pl_exibble).tab_style(
@@ -133,6 +142,7 @@ Use `columns=` and `rows=` in `loc.body()` to style specific cells in the table 
 
 Alternatively, use `mask=` in `loc.body()` to apply conditional styling to rows on a per-column
 basis.
+
 ```{python}
 (
     GT(pl_exibble).tab_style(
@@ -144,12 +154,12 @@ basis.
 
 This is discussed in detail in [Styling the Table Body](./12-styling-the-table-body.qmd).
 
-## Column labels
+## Column Labels
 
 Locations like `loc.spanner_labels()` and `loc.column_labels()` can select specific column and
 spanner labels.
 
-You can use name strings, index position, or polars selectors.
+You can use name strings, index positions, or Polars selectors.
 
 ```{python}
 GT(pl_exibble).tab_style(
@@ -160,40 +170,40 @@ GT(pl_exibble).tab_style(
 )
 ```
 
-However, note that `loc.spanner_labels()` currently only accepts list of string names.
+However, note that `loc.spanner_labels()` currently only accepts a list of spanner IDs.
 
-## Row and group names
+## Row and Group Names
 
 Row and group names in `loc.stub()` and `loc.row_groups()` may be specified three ways:
 
 * by name
 * by index
-* by polars expression
+* by Polars expression
 
 ```{python}
-gt = GT(pl_exibble).tab_stub(
+gt_stub = GT(pl_exibble).tab_stub(
     rowname_col="char",
     groupname_col="group",
 )
 
-gt.tab_style(style.fill("yellow"), loc.stub())
+gt_stub.tab_style(style.fill("yellow"), loc.stub())
 ```
 
 All row labels in the stub are highlighted in yellow.
 
 ```{python}
-gt.tab_style(style.fill("yellow"), loc.stub("banana"))
+gt_stub.tab_style(style.fill("yellow"), loc.stub("banana"))
 ```
 
 Only the `"banana"` row label is styled, demonstrating name-based targeting.
 
 ```{python}
-gt.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
+gt_stub.tab_style(style.fill("yellow"), loc.stub(["apricot", 2]))
 ```
 
 You can mix names and integer indices in a list to target multiple specific rows at once.
 
-### Groups by name and position
+### Groups by Name and Position
 
 Note that for specifying row groups, the group corresponding to the group name or row number in the
 original data is used.
@@ -202,7 +212,7 @@ For example, the code below styles the group corresponding to the row at index 1
 row) in the data.
 
 ```{python}
-gt.tab_style(
+gt_stub.tab_style(
     style.fill("yellow"),
     loc.row_groups(1),
 )
@@ -210,10 +220,10 @@ gt.tab_style(
 
 Since the second row (starting with "banana") is in "grp_a", that is the group that gets styled.
 
-This means you can use a polars expression to select groups:
+This means you can use a Polars expression to select groups:
 
 ```{python}
-gt.tab_style(
+gt_stub.tab_style(
     style.fill("yellow"),
     loc.row_groups(pl.col("group") == "grp_b"),
 )
@@ -222,7 +232,7 @@ gt.tab_style(
 You can also specify group names using a string (or list of strings).
 
 ```{python}
-gt.tab_style(
+gt_stub.tab_style(
     style.fill("yellow"),
     loc.row_groups("grp_b"),
 )

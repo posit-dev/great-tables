@@ -10,6 +10,11 @@ adjacent to the data they summarize. **Great Tables** supports two types: group-
 appear next to each row group, and grand summaries that aggregate across the entire table. Both
 types let you define multiple aggregation functions at once and control where the summary appears.
 
+```{=html}
+<script src="../assets/tabblen.js" defer></script>
+<gt-tabblen float="right" cells="45|230|180|65/120|95|60|85" cell-trick="totals" intro='[["say", "Let’s add it all up!"], ["cellTrick", 2, 1]]'></gt-tabblen>
+```
+
 Embedding aggregations directly in the table keeps the reader's eye on the data. When a total or
 average lives in a separate paragraph or a footnote, the reader has to scan back and forth between
 the table and the surrounding text to compare a group's summary to its individual rows. Summary rows
@@ -34,7 +39,7 @@ sales_df = pl.DataFrame({
 gt_sales = (
     GT(sales_df, rowname_col="product", groupname_col="category")
     .tab_header(title="Q4 Product Sales", subtitle="By category")
-    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+    .fmt_number(columns="revenue", decimals=0)
 )
 
 gt_sales
@@ -81,6 +86,29 @@ group.
 ```
 
 Both a `"Total"` and an `"Average"` row now appear at the bottom of each group.
+
+### Formatting Summary Values
+
+Summary values aren't touched by the `fmt_*()` methods used on the table body, so the averages above
+show all of their decimal places. The `fmt=` argument takes a formatting function from the
+`vals.fmt_*()` family and applies it to every value in the summary rows.
+
+```{python}
+from great_tables import vals
+
+(
+    gt_sales
+    .summary_rows(
+        fns={
+            "Total": pl.col("units_sold", "revenue").sum(),
+            "Average": pl.col("units_sold", "revenue").mean(),
+        },
+        fmt=vals.fmt_integer,
+    )
+)
+```
+
+Now the summary values are rounded to integers and get the same digit grouping as the body.
 
 ### Placing Summaries at the Top
 
@@ -184,7 +212,7 @@ sales_pd = pd.DataFrame({
 
 (
     GT(sales_pd, rowname_col="product", groupname_col="category")
-    .fmt_number(columns="revenue", decimals=0, use_seps=True)
+    .fmt_number(columns="revenue", decimals=0)
     .grand_summary_rows(
         fns={"Total": lambda df: df.sum(numeric_only=True)}
     )

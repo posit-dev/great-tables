@@ -66,6 +66,11 @@ def test_val_fmt_integer():
     assert vals.fmt_integer([0, -5, 1000]) == ["0", "−5", "1,000"]
 
 
+@pytest.mark.usefixtures("no_polars_import")
+def test_val_fmt_integer_without_polars():
+    assert vals.fmt_integer([2.4, None]) == ["2", None]
+
+
 def test_val_fmt_scientific():
     result = vals.fmt_scientific(12345.678, decimals=3)
     assert len(result) == 1

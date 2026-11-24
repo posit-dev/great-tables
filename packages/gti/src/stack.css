@@ -13,11 +13,13 @@
  * `data-gti-stack-off` while it isn't stacked whatever its width (an "auto" table showing many
  * columns, or, as the runtime finds, one in a container as wide as what's in it, as a table's cell
  * or an inline block is: as the container its width is queried in, the table would have no width
- * of its own, so it's only that while it can be stacked). The ID beats GT's own rules for the table, which go by it too; borders the runtime
+ * of its own, so it's only that while it can be stacked). The width queried is GT's `<div>`'s, the
+ * box the table is in (as narrow as `tab_options(container_width=)` makes it, in a wider
+ * `<gt-table>`). The ID beats GT's own rules for the table, which go by it too; borders the runtime
  * draws on cells (inline) are beaten with `!important`.
  */
 
-gt-table[data-gti-stack]:not([data-gti-stack-off]) {
+gt-table[data-gti-stack]:not([data-gti-stack-off]) #gt-i-table {
   container: gt-i-stack / inline-size;
 }
 
@@ -83,6 +85,11 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     display: none;
   }
 
+  /* (On the stub's line, as its text is) */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt-i-select input {
+    display: inline-block;
+  }
+
   /* A column's label, then its value, side by side */
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr > td.gt_row:not(.gt-i-select) {
     display: table;
@@ -110,12 +117,34 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     overflow-wrap: anywhere;
   }
 
+  /* A row open, and what's under it (in a row of its own), are one card: that row is a block, without a label */
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-open {
+    margin-bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details {
+    margin-top: 0;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details > td.gt_row {
+    display: block;
+  }
+
+  gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-details > td.gt-i-select {
+    display: none;
+  }
+
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt_group_heading_row {
     margin-top: 16px;
   }
 
   gt-table:not([data-gti-stack-off]) #gt-i-table tbody > tr.gt-i-filler,
-  gt-table:not([data-gti-stack-off]) #gt-i-table .gt-i-resizer {
+  gt-table:not([data-gti-stack-off]) #gt-i-table :is(.gt-i-resizer, .gt-i-resizer-start) {
     display: none !important;
   }
 
@@ -137,7 +166,7 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     flex-wrap: wrap;
     align-items: center;
     gap: 6px;
-    padding-bottom: 6px;
+    padding: 6px 0;
     background-color: inherit;
   }
 
@@ -163,8 +192,36 @@ gt-table[data-gti-stack]:not([data-gti-stack-off]) {
     content: var(--gt-i-spanner);
   }
 
-  /* (Not the spanners, which prefix their columns' labels, nor a stubhead without a label) */
-  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select)) {
+  /* (A chip's controls follow its label, without the line under the labels; and an empty row goes) */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls {
+    display: inline;
+    margin: 0;
+    margin-inline-start: 0.3em;
+    padding: 0;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls::before {
+    content: none;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-head-controls:empty {
+    display: none;
+  }
+
+  /* (Nor the profiles, which a chip has no room for) */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table .gt-i-profile {
+    display: none;
+  }
+
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table th.gt-i-profiled {
+    min-width: 0;
+  }
+
+  /*
+   * (Not the spanners, which prefix their columns' labels, nor a stubhead without a label, nor the
+   * label of the column of row numbers and checkboxes, but for its select-all checkbox)
+   */
+  gt-table[data-gti-state="ready"]:not([data-gti-stack-off]) #gt-i-table tr.gt_col_headings > :is(th[scope="colgroup"], th:not([id], .gt-i-select-all)) {
     display: none;
   }
 }

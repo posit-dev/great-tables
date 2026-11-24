@@ -9,8 +9,10 @@
  *
  * `filter` is the filters' query as text (see `query.ts`), empty for none; `sort`, a column (with
  * `-` before it, for descending), once per sort key, or once empty for none; `search`, the search;
- * `page` and `size`, numbers; `hidden`, a hidden column, once per column, or once empty for none
- * (as `sort` is); and `order`, a column readers can move, once per column, in the order shown. In
+ * `page` and `size`, numbers; `height`, the height (in px) a body that scrolls is dragged to, or
+ * empty for the author's; `hidden`, a hidden column, once per column, or once empty for none (as
+ * `sort` is); `order`, a column readers can move, once per column, in the order shown; and
+ * `group`, the column the rows are grouped by, or empty for none. In
  * the URL, each is named after the table's key (`towny.`), so that
  * tables keep views of their own, and the page's other parameters are left as they are; in
  * storage, they're without the key.
@@ -34,11 +36,15 @@ export interface View {
   hidden: string[];
   /** The columns readers can move, in the order shown. */
   order: string[];
+  /** For a body that scrolls within a height: the height (in px) it's dragged to, or `null` for the author's. */
+  height?: number | null;
+  /** For a table with columns readers can group the rows by: the one they're grouped by, or `null`. */
+  groupBy?: string | null;
 }
 
-export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "hidden" | "order";
+export type ViewPart = "filter" | "sort" | "search" | "page" | "size" | "height" | "hidden" | "order" | "group";
 
-const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "hidden", "order"];
+const PARTS: readonly string[] = ["filter", "sort", "search", "page", "size", "height", "hidden", "order", "group"];
 
 /** A view as parameters: each part, and its text (`sort` once per sort key, `hidden` and `order` per column). */
 export type ViewParams = [ViewPart, string][];
@@ -50,10 +56,16 @@ export interface ViewLimits {
   search: boolean;
   /** The page sizes the reader can choose from; none, without pages. */
   sizes: number[];
+  /** With pages, the largest of any page size the reader can choose too (dragging for it). */
+  maxSize?: number;
+  /** Whether the body scrolls within a height, which the reader can change. */
+  height?: boolean;
   /** The columns the reader can hide, in column order. */
   hideable: string[];
   /** The runs of columns the reader can move (see `order.ts`), each in the author's order. */
   runs: string[][];
+  /** The columns the reader can group the rows by; none, without it. */
+  groupable?: string[];
 }
 
 const sortText = (key: SortKey) => (key.descending ? "-" : "") + key.column;
@@ -85,11 +97,18 @@ export function viewParams(view: View, base: View): ViewParams {
   if (view.pageSize !== base.pageSize && view.pageSize !== null) {
     params.push(["size", String(view.pageSize)]);
   }
+  // (Empty for the author's, which only differs from another than the author's view)
+  if ((view.height ?? null) !== (base.height ?? null)) {
+    params.push(["height", view.height == null ? "" : String(view.height)]);
+  }
   if (JSON.stringify(view.hidden) !== JSON.stringify(base.hidden)) {
     params.push(...repeated("hidden", view.hidden));
   }
   if (JSON.stringify(view.order) !== JSON.stringify(base.order)) {
     params.push(...repeated("order", view.order));
+  }
+  if ((view.groupBy ?? null) !== (base.groupBy ?? null)) {
+    params.push(["group", view.groupBy ?? ""]);
   }
   return params;
 }
@@ -186,6 +205,15 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
       } else if (text !== "") {
         warn(`the saved view's column ${JSON.stringify(text)} is left out of its order (it isn't one the reader can move)`);
       }
+    } else if (part === "group") {
+      // (Empty for none)
+      if (text === "") {
+        view.groupBy = null;
+      } else if (limits.groupable?.includes(text)) {
+        view.groupBy = text;
+      } else {
+        warn(`the saved view's grouping by ${JSON.stringify(text)} is left out (it isn't a column the reader can group the rows by)`);
+      }
     } else if (part === "search") {
       if (limits.search) {
         view.search = text;
@@ -194,7 +222,17 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
       }
     } else {
       const n = /^[1-9]\d{0,8}$/.test(text) ? Number(text) : 0;
-      if (limits.sizes.length === 0) {
+      if (part === "height") {
+        if (!limits.height) {
+          leftOut(part, "the table's body doesn't scroll within a height");
+        } else if (text === "") {
+          view.height = null;
+        } else if (n === 0) {
+          leftOut(part, `${JSON.stringify(text)} isn't a height in px`);
+        } else {
+          view.height = n;
+        }
+      } else if (limits.sizes.length === 0) {
         leftOut(part, "the table has no pages");
       } else if (part === "page") {
         if (n === 0) {
@@ -202,7 +240,7 @@ export function readView(params: ViewParams, base: View, limits: ViewLimits, war
         } else {
           view.page = n;
         }
-      } else if (!limits.sizes.includes(n)) {
+      } else if (n === 0 || (!limits.sizes.includes(n) && n > (limits.maxSize ?? 0))) {
         leftOut(part, `${JSON.stringify(text)} isn't a page size the table has`);
       } else {
         view.pageSize = n;

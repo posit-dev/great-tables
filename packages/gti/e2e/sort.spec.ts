@@ -9,7 +9,7 @@ const UNSORTED = [
   "grand:Max",
 ];
 
-const sortButton = (page: Page, column: string) => page.locator(`th#s-${column} > button.gt-i-sort`);
+const sortButton = (page: Page, column: string) => page.locator(`th#s-${column} button.gt-i-sort`);
 
 test("sorts within groups when a column label is clicked", async ({ page }) => {
   const errors = await ready(page, "sort.html");
@@ -146,37 +146,115 @@ test("keeps groups shown as a column apart when nothing is between them", async 
   expect(errors).toEqual([]);
 });
 
-test("column labels look the same as buttons", async ({ page }) => {
+test("column labels stay as GT has them, with their controls lined up under them", async ({ page }) => {
   const errors = await ready(page, "sort.html");
-  const styles = await page.locator("th#s-num").evaluate((th) => {
-    const button = th.querySelector("button") as HTMLElement;
-    const pick = (style: CSSStyleDeclaration) => ({
-      color: style.color,
-      font: `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
-    });
-    const b = getComputedStyle(button);
-    return {
-      th: pick(getComputedStyle(th)),
-      button: pick(b),
-      background: b.backgroundColor,
-      border: b.borderTopWidth,
-      cursor: b.cursor,
-    };
-  });
-  expect(styles.button).toEqual(styles.th);
-  expect(styles.background).toBe("rgba(0, 0, 0, 0)");
-  expect(styles.border).toBe("0px");
-  expect(styles.cursor).toBe("pointer");
+  const th = page.locator("th#s-num");
+  // The label isn't in a button, and the row of controls is under it, as wide as the cell
+  expect(await th.evaluate((th) => th.querySelector("button")?.closest(".gt-i-head-controls") !== null)).toBe(true);
+  await expect(th).toHaveCSS("cursor", "pointer");
+  const rows = await page.locator("thead .gt-i-head-controls").evaluateAll((rows) =>
+    rows.map((row) => {
+      const box = row.getBoundingClientRect();
+      return { top: box.top, height: box.height };
+    }),
+  );
+  expect(rows.length).toBeGreaterThan(1);
+  expect(new Set(rows.map((row) => row.top)).size).toBe(1);
+  expect(new Set(rows.map((row) => row.height)).size).toBe(1);
 
-  const icon = page.locator("th#s-num .gt-i-sort-icon");
-  await expect(icon).toHaveCSS("opacity", "0");
+  const button = await sortButton(page, "num").evaluate((button) => {
+    const b = getComputedStyle(button);
+    return { background: b.backgroundColor, border: b.borderTopWidth, cursor: b.cursor };
+  });
+  expect(button).toEqual({ background: "rgba(0, 0, 0, 0)", border: "0px", cursor: "pointer" });
+
+  // Both arrows faint while it isn't sorted; the way it's sorted, dark, hovered or not
+  const up = th.locator(".gt-i-sort-up");
+  const down = th.locator(".gt-i-sort-down");
+  await expect(up).toHaveCSS("opacity", "0.35");
+  await expect(down).toHaveCSS("opacity", "0.35");
   await sortButton(page, "num").hover();
-  await expect(icon).toHaveCSS("opacity", "0.4");
-  // A sorted column shows its direction fully, hovered or not
+  await expect(up).toHaveCSS("opacity", "0.6");
   await sortButton(page, "num").click();
-  await expect(icon).toHaveCSS("opacity", "1");
+  await expect(up).toHaveCSS("opacity", "1");
+  await expect(down).toHaveCSS("opacity", "0.2");
   await page.mouse.move(0, 0);
-  await expect(icon).toHaveCSS("opacity", "1");
+  await expect(up).toHaveCSS("opacity", "1");
+  await sortButton(page, "num").click();
+  await expect(up).toHaveCSS("opacity", "0.2");
+  await expect(down).toHaveCSS("opacity", "1");
+  expect(errors).toEqual([]);
+});
+
+test("a sort button stays on its controls' one line in a table wider than its container", async ({ page }) => {
+  // (pin.spec.ts's table, its text wrapping, in a container 480px wide: none of its labels'
+  // buttons wraps under it, as wide as some of them are)
+  const errors = await ready(page, "pin.html");
+  await expect(page.locator("gt-table")).toHaveAttribute("data-gti-wide", "");
+  const buttons = await page.locator("thead th.gt-i-sortable").evaluateAll((ths) =>
+    ths.map((th) => {
+      const button = (th.querySelector(".gt-i-sort") as HTMLElement).getBoundingClientRect();
+      const row = (th.querySelector(".gt-i-head-controls") as HTMLElement).getBoundingClientRect();
+      return { top: button.top, within: button.top >= row.top && button.bottom <= row.bottom, oneLine: row.height < 2 * button.height };
+    }),
+  );
+  expect(buttons.length).toBeGreaterThan(4);
+  expect(new Set(buttons.map((button) => button.top)).size).toBe(1);
+  expect(buttons.every((button) => button.within && button.oneLine)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test("the line over the labels' controls is one, on a page that sizes boxes, which has no more to scroll", async ({
+  page,
+}) => {
+  const errors = await ready(page, "sort-page-styles.html");
+  // Each label's row (the stubhead's empty one too) as tall as the others, so that their lines,
+  // solid and as wide as their cells, are at one height and join
+  const rows = await page.locator("thead .gt-i-head-controls").evaluateAll((rows) =>
+    rows.map((row) => {
+      const box = row.getBoundingClientRect();
+      const cell = row.parentElement!.getBoundingClientRect();
+      const line = getComputedStyle(row, "::before");
+      return {
+        empty: row.childElementCount === 0,
+        top: box.top,
+        height: box.height,
+        style: line.borderTopStyle,
+        left: cell.left,
+        right: cell.right,
+      };
+    }),
+  );
+  expect(rows.some((row) => row.empty)).toBe(true);
+  expect(new Set(rows.map((row) => row.top)).size).toBe(1);
+  expect(new Set(rows.map((row) => row.height)).size).toBe(1);
+  expect(new Set(rows.map((row) => row.style))).toEqual(new Set(["solid"]));
+  for (let i = 1; i < rows.length; i++) {
+    expect(rows[i]!.left).toBeCloseTo(rows[i - 1]!.right, 0);
+  }
+  // The container around the table has nothing to scroll (not the announcements' box, under it)
+  const container = await page.locator("body > div").evaluate((div) => ({
+    scroll: div.scrollHeight,
+    client: div.clientHeight,
+  }));
+  expect(container.scroll).toBe(container.client);
+  expect(errors).toEqual([]);
+});
+
+test("sorts when the label itself is clicked, but not when its text is selected", async ({ page }) => {
+  const errors = await ready(page, "sort.html");
+  const th = page.locator("th#s-num");
+  const box = (await th.boundingBox())!;
+  // (A drag across the label's text selects it)
+  await page.mouse.move(box.x + 4, box.y + 6);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width - 4, box.y + 6, { steps: 4 });
+  await page.mouse.up();
+  await expect(th).not.toHaveAttribute("aria-sort");
+
+  await page.evaluate(() => document.getSelection()?.removeAllRanges());
+  await th.click({ position: { x: 6, y: 6 } });
+  await expect(th).toHaveAttribute("aria-sort", "ascending");
   expect(errors).toEqual([]);
 });
 
@@ -191,8 +269,8 @@ test.describe("on a touch screen", () => {
     });
     expect(target.width).toBeGreaterThanOrEqual(44);
     expect(target.height).toBeGreaterThanOrEqual(44);
-    // The sort hint shows without hovering
-    await expect(page.locator("th#s-num .gt-i-sort-icon")).toHaveCSS("opacity", "0.4");
+    // The sort's arrows show without hovering
+    await expect(page.locator("th#s-num .gt-i-sort-up")).toHaveCSS("opacity", "0.35");
 
     await sortButton(page, "num").tap();
     await expect(page.locator("th#s-num")).toHaveAttribute("aria-sort", "ascending");

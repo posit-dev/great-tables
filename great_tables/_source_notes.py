@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._text import Text
-
 if TYPE_CHECKING:
+    from ._text import Text
     from ._types import GTSelf
 
 
@@ -51,4 +50,4 @@ def tab_source_note(self: GTSelf, source_note: str | Text) -> GTSelf:
     ```
     """
 
-    return self._replace(_source_notes=self._source_notes + [source_note])
+    return self._replace(_source_notes=[*self._source_notes, source_note])

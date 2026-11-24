@@ -465,7 +465,7 @@ def test_loc_stub_columns_merged_cell_style_applied_once():
     )
 
     assert re.findall(r'<th style="([^"]*)"[^>]*>Ferrari', gt.as_raw_html()) == [
-        "background-color: gray;"
+        "color: var(--_gt-text-dark); background-color: gray;"
     ]
 
 

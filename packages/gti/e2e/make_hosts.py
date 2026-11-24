@@ -5,6 +5,19 @@ interactive with `opt_interactive()`, and a static `GT` table. The hosts are Jup
 for nbconvert and JupyterLab, with a kernel spec of this Python's own), Quarto (a document),
 Shiny (an app), marimo (an app), and VS Code (a page showing the tables' output as its notebooks
 do, in a sandboxed frame). Run by e2e/global-setup.ts.
+
+There's also a notebook with a `GTI` table as a widget (`i_as_widget()`), shown twice, for
+JupyterLab, whose kernel the test asks what the widget has, and tells what to change; one with a
+widget whose rows are in the kernel (`i_scale(engine="kernel")`), which sends its pages; and a Shiny
+app (in a module) showing what a `GTI` table's inputs have, with buttons that change it with
+`update_gti()`; and one (also in a module) with a `GTI` table whose rows are the server's, which
+sends its pages, showing the rows the server finds. And the same two as Streamlit apps (with
+`st_gti()`), the first also showing how many times it's been run; and as Panel apps (with
+`GTIPane`), showing its parameters, and two notebooks with one, for JupyterLab (the second's rows
+the kernel's, and shown twice); and as Solara apps (with `GTITable`), showing its values, and a
+notebook with one, for JupyterLab; and as marimo notebooks (with `mo_gti()`), showing its value.
+And the three tables in pages a Flask app makes with a template (each with its runtime, or with the
+runtime once, from its files or with a nonce, under a Content Security Policy) and a FastHTML app.
 """
 
 from __future__ import annotations
@@ -27,7 +40,33 @@ TABLES = [
 ]
 
 
-def notebook() -> str:
+# (The widget, and what it's told of each change the reader makes)
+WIDGET = """\
+widget = (
+    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple").i_as_widget()
+)
+changes = []
+widget.on_change(lambda w: changes.append([w.rows, w.selection]))
+widget"""
+
+# (A widget whose rows are the kernel's)
+KERNEL_WIDGET = """\
+import pandas as pd
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+widget = GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel").i_as_widget()
+widget"""
+
+# (And one of a LazyFrame, whose rows are too many for the browser, so are the kernel's)
+LAZY_WIDGET = """\
+import polars as pl
+
+big = pl.LazyFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+widget = GTI(big).i_cols_filter(columns="kind", type="facet").i_as_widget()
+widget"""
+
+
+def notebook(sources: list[str] | None = None) -> str:
     cells = [
         {
             "cell_type": "code",
@@ -37,7 +76,7 @@ def notebook() -> str:
             "outputs": [],
             "source": source,
         }
-        for i, source in enumerate([SETUP, *TABLES])
+        for i, source in enumerate(sources or [SETUP, *TABLES])
     ]
     kernel = {"display_name": "Python 3", "language": "python", "name": "python3"}
     return json.dumps(
@@ -57,9 +96,13 @@ def kernel_spec() -> str:
     return json.dumps({"argv": argv, "display_name": "Python 3", "language": "python"})
 
 
-def quarto_doc() -> str:
-    cells = "\n\n".join(f"```{{python}}\n{source}\n```" for source in [SETUP, *TABLES])
-    return f"---\ntitle: Hosts\njupyter: python3\n---\n\n{cells}\n"
+def quarto_doc(sources: list[str] | None = None, header: str = "") -> str:
+    cells = "\n\n".join(f"```{{python}}\n{source}\n```" for source in sources or [SETUP, *TABLES])
+    return f"---\ntitle: Hosts\njupyter: python3\n{header}---\n\n{cells}\n"
+
+
+# (A document with a light and a dark theme, which the reader switches between)
+QUARTO_THEMES = "format:\n  html:\n    theme:\n      light: flatly\n      dark: darkly\n"
 
 
 # (The first two re-rendered as the input changes: as `render_gt()` and as `ui.HTML()`)
@@ -93,6 +136,547 @@ def server(input, output, session):
 
 app = App(app_ui, server)
 """
+
+# (In a module, as its ids are namespaced. "Again" renders the table again and searches it, in the
+# same flush)
+SHINY_STATE_APP = f"""\
+import json
+
+from shiny import App, module, reactive, render, ui
+
+from great_tables.shiny import output_gt, render_gt, update_gti
+
+{SETUP}
+
+
+@module.ui
+def table_ui():
+    return ui.div(
+        ui.input_action_button("update", "Update"),
+        ui.input_action_button("again", "Again"),
+        output_gt("table"),
+        ui.output_code("state"),
+    )
+
+
+@module.server
+def table_server(input, output, session):
+    @render_gt
+    def table():
+        input.again()
+        return GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple")
+
+    @render.code
+    def state():
+        view = input.table_view()
+        return json.dumps(
+            [view["query"], view["search"], view["sort"], input.table_rows(), input.table_selection()]
+        )
+
+    @reactive.effect
+    @reactive.event(input.update)
+    def _():
+        update_gti("table", query='fctr in ("one", "two")', sort="-num", selection=[0])
+
+    @reactive.effect
+    @reactive.event(input.again)
+    def _():
+        update_gti("table", search="an")
+
+
+app_ui = ui.page_fluid(table_ui("m"))
+
+
+def server(input, output, session):
+    table_server("m")
+
+
+app = App(app_ui, server)
+"""
+
+# (A table whose rows are the server's, in a module, with the rows it finds from the table's view)
+SHINY_KERNEL_APP = f"""\
+import json
+
+import pandas as pd
+from shiny import App, module, reactive, render, ui
+
+from great_tables.shiny import output_gt, render_gt, update_gti
+
+{SETUP}
+
+big = pd.DataFrame({{"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]}})
+<big>
+
+@module.ui
+def table_ui():
+    return ui.div(
+        ui.input_action_button("update", "Update"),
+        output_gt("table"),
+        ui.output_code("state"),
+    )
+
+
+@module.server
+def table_server(input, output, session):
+    @render_gt
+    def table():
+        return GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
+
+    @render.code
+    def state():
+        rows = input.table_rows()
+        return json.dumps([len(rows), rows[:3], input.table_view()["search"]])
+
+    @reactive.effect
+    @reactive.event(input.update)
+    def _():
+        update_gti("table", search="", query='kind in ("odd")', sort="n")
+
+
+app_ui = ui.page_fluid(table_ui("m"))
+
+
+def server(input, output, session):
+    table_server("m")
+
+
+app = App(app_ui, server)
+"""
+
+# (As a LazyFrame, whose rows are too many for the browser, so are the server's)
+LAZY_BIG = """
+import polars as pl
+
+big = pl.from_pandas(big).lazy()
+"""
+
+
+def shiny_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return SHINY_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
+# (A Streamlit app showing a `GTI` table's state, as `st_gti()` gives it, and how many times it's
+# been run; with a button that changes it with `update_gti()`, and a checkbox that shows another
+# table in its place)
+STREAMLIT_STATE_APP = f"""\
+import json
+
+import streamlit as st
+
+from great_tables.streamlit import st_gti, update_gti
+
+{SETUP}
+
+st.session_state.setdefault("runs", 0)
+st.session_state.runs += 1
+st.button(
+    "Update",
+    on_click=update_gti,
+    args=("table",),
+    kwargs={{"query": 'fctr in ("one", "two")', "sort": "-num", "selection": [0]}},
+)
+head = st.checkbox("Head")
+table = GTI(small.head(4) if head else small).i_cols_filter(columns="fctr", type="facet")
+state = st_gti(table.i_selection("multiple"), key="table")
+with st.container(key="state"):
+    st.text(json.dumps([state.query, state.search, state.sort, state.rows, state.selection]))
+with st.container(key="runs"):
+    st.text(str(st.session_state.runs))
+"""
+
+# (And one with a `GTI` table whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+STREAMLIT_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import streamlit as st
+
+from great_tables import GTI
+from great_tables.streamlit import st_gti, update_gti
+
+
+@st.cache_resource
+def table():
+    big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+    <big>
+    return GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
+
+
+st.button(
+    "Update",
+    on_click=update_gti,
+    args=("table",),
+    kwargs={"search": "", "query": 'kind in ("odd")', "sort": "n"},
+)
+state = st_gti(table(), key="table")
+with st.container(key="state"):
+    st.text(json.dumps([len(state.rows), state.rows[:3], state.search]))
+"""
+
+
+def streamlit_kernel_app(lazy: bool = False) -> str:
+    big, scale = (
+        ("import polars as pl; big = pl.from_pandas(big).lazy()", "")
+        if lazy
+        else ("", '.i_scale(engine="kernel")')
+    )
+    return STREAMLIT_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
+# (A Panel app showing a `GTIPane`'s parameters, with a button that sets them. Panel sizes each
+# pane to what's in it, and the panes here are given room, so that their control bars aren't
+# folded, as they are in a pane as narrow as a small table: see sheet.spec.ts)
+PANEL_STATE_APP = f"""\
+import json
+
+import panel as pn
+
+from great_tables.panel import GTIPane
+
+{SETUP}
+
+pn.extension()
+
+table = GTIPane(
+    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"), width=600
+)
+
+
+def state(query, search, sort, rows, selection):
+    return pn.pane.Str(json.dumps([query, search, sort, rows, selection]))
+
+
+def update(_):
+    table.param.update(query='fctr in ("one", "two")', sort=["-num"], selection=[0])
+
+
+button = pn.widgets.Button(name="Update")
+button.on_click(update)
+pn.Column(
+    button,
+    table,
+    pn.bind(state, *(table.param[name] for name in ["query", "search", "sort", "rows", "selection"])),
+).servable()
+"""
+
+# (And one with a `GTIPane` whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+PANEL_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import panel as pn
+
+from great_tables import GTI
+from great_tables.panel import GTIPane
+
+pn.extension()
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+<big>
+table = GTIPane(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>, width=600)
+
+
+def state(rows, search):
+    return pn.pane.Str(json.dumps([len(rows), rows[:3], search]))
+
+
+button = pn.widgets.Button(name="Update")
+button.on_click(lambda _: table.param.update(search="", query='kind in ("odd")', sort=["n"]))
+pn.Column(button, table, pn.bind(state, table.param.rows, table.param.search)).servable()
+"""
+
+
+# (A `GTIPane` in a notebook)
+PANEL_NOTEBOOK = [
+    "import panel as pn\n\nfrom great_tables.panel import GTIPane\n\npn.extension()",
+    (
+        "pane = GTIPane(\n"
+        '    GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple"),\n'
+        "    width=600,\n)"
+        "\npane"
+    ),
+]
+
+# (And one whose rows are the kernel's, shown twice)
+PANEL_KERNEL_NOTEBOOK = [
+    PANEL_NOTEBOOK[0],
+    """\
+import pandas as pd
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+pane = GTIPane(
+    GTI(big).i_cols_filter(columns="kind", type="facet").i_scale(engine="kernel"), width=600
+)
+pane""",
+    "pane",
+]
+
+
+def panel_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return PANEL_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
+# (A Solara app showing a `GTITable`'s values, with a button that sets them: its table is made
+# again on each render, and another one with "Head")
+SOLARA_STATE_APP = f"""\
+import json
+
+import solara
+
+from great_tables.solara import GTITable
+
+{SETUP}
+
+query = solara.reactive("")
+search = solara.reactive("")
+sort = solara.reactive([])
+selection = solara.reactive([])
+rows = solara.reactive(None)
+head = solara.reactive(False)
+
+
+def update():
+    query.set('fctr in ("one", "two")')
+    sort.set(["-num"])
+    selection.set([0])
+
+
+@solara.component
+def Page():
+    solara.Button("Update", on_click=update)
+    solara.Checkbox(label="Head", value=head)
+    table = GTI(small.head(4) if head.value else small).i_cols_filter(columns="fctr", type="facet")
+    GTITable(
+        table.i_selection("multiple"),
+        query=query,
+        search=search,
+        sort=sort,
+        selection=selection,
+        on_rows=rows.set,
+    )
+    state = [query.value, search.value, sort.value, rows.value, selection.value]
+    solara.Text(json.dumps(state), classes=["state"])
+"""
+
+# (And one with a `GTITable` whose rows are the app's, which sends its pages, showing the rows it
+# finds)
+SOLARA_KERNEL_APP = """\
+import json
+
+import pandas as pd
+import solara
+
+from great_tables import GTI
+from great_tables.solara import GTITable
+
+big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+<big>
+table = GTI(big).i_cols_filter(columns="kind", type="facet")<scale>
+query = solara.reactive("")
+search = solara.reactive("")
+sort = solara.reactive([])
+rows = solara.reactive(None)
+
+
+def update():
+    search.set("")
+    query.set('kind in ("odd")')
+    sort.set(["n"])
+
+
+@solara.component
+def Page():
+    solara.Button("Update", on_click=update)
+    GTITable(table, query=query, search=search, sort=sort, on_rows=rows.set)
+    state = [len(rows.value or []), (rows.value or [])[:3], search.value]
+    solara.Text(json.dumps(state), classes=["state"])
+"""
+
+
+# (A `GTITable` in a notebook, with its values in reactive variables)
+SOLARA_NOTEBOOK = [
+    "import solara\n\nfrom great_tables.solara import GTITable",
+    """\
+query = solara.reactive("")
+sort = solara.reactive([])
+selection = solara.reactive([])
+rows = solara.reactive(None)
+
+
+@solara.component
+def Table():
+    table = GTI(small).i_cols_filter(columns="fctr", type="facet").i_selection("multiple")
+    GTITable(table, query=query, sort=sort, selection=selection, on_rows=rows.set)
+
+
+Table()""",
+]
+
+
+def solara_kernel_app(lazy: bool = False) -> str:
+    big, scale = (LAZY_BIG, "") if lazy else ("", '.i_scale(engine="kernel")')
+    return SOLARA_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
+# (A marimo notebook showing a `mo_gti()` element's value, in a cell that reads it, with buttons
+# that set the table, one only its selection; and a checkbox that makes another table, in the
+# table's cell)
+MARIMO_STATE_APP = f"""\
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    import html
+    import json
+
+    import marimo as mo
+
+    from great_tables.marimo import mo_gti
+
+    {SETUP.replace(chr(10), chr(10) + "    ")}
+    return GTI, html, json, mo, mo_gti, small
+
+
+@app.cell
+def _(mo):
+    head = mo.ui.checkbox(label="Head")
+    head
+    return (head,)
+
+
+@app.cell
+def _(GTI, head, mo_gti, small):
+    table = mo_gti(
+        GTI(small.head(4) if head.value else small)
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_selection("multiple")
+    )
+    table
+    return (table,)
+
+
+@app.cell
+def _(mo, table):
+    def update(_):
+        table.query = 'fctr in ("one", "two")'
+        table.sort = "-num"
+        table.selection = [0]
+
+    def select(_):
+        table.selection = [0, 1]
+
+    update_button = mo.ui.button(label="Update", on_click=update)
+    select_button = mo.ui.button(label="Select", on_click=select)
+    mo.hstack([update_button, select_button])
+    return select_button, update_button
+
+
+@app.cell
+def _(html, json, mo, table):
+    state = [table.value[part] for part in ["query", "search", "sort", "rows", "selection"]]
+    mo.Html(f'<pre class="state">{{html.escape(json.dumps(state))}}</pre>')
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+# (And one with a table whose rows are the notebook's, which sends its pages, showing the rows it
+# finds)
+MARIMO_KERNEL_APP = """\
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    import html
+    import json
+
+    import marimo as mo
+    import pandas as pd
+
+    from great_tables import GTI
+    from great_tables.marimo import mo_gti
+
+    big = pd.DataFrame({"n": range(5000), "kind": ["odd" if i % 2 else "even" for i in range(5000)]})
+    <big>
+    table = mo_gti(GTI(big).i_cols_filter(columns="kind", type="facet")<scale>)
+    table
+    return html, json, mo, table
+
+
+@app.cell
+def _(mo, table):
+    def update(_):
+        table.search = ""
+        table.query = 'kind in ("odd")'
+        table.sort = "n"
+
+    mo.ui.button(label="Update", on_click=update)
+    return
+
+
+@app.cell
+def _(html, json, mo, table):
+    rows = table.value["rows"] or []
+    state = [len(rows), rows[:3], table.value["search"]]
+    mo.Html(f'<pre class="state">{html.escape(json.dumps(state))}</pre>')
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
+
+def marimo_kernel_app(lazy: bool = False) -> str:
+    big, scale = (
+        ("import polars as pl\n\n    big = pl.from_pandas(big).lazy()", "")
+        if lazy
+        else ("", '.i_scale(engine="kernel")')
+    )
+    return MARIMO_KERNEL_APP.replace("<big>", big).replace("<scale>", scale)
+
+
+# (A static table as a cell's output, in an app whose display settings, in its script header, give
+# marimo's theme)
+MARIMO_THEME_APP = f"""\
+# /// script
+# [tool.marimo.display]
+# theme = "<theme>"
+# ///
+import marimo
+
+app = marimo.App()
+
+
+@app.cell
+def _():
+    {SETUP.replace(chr(10), chr(10) + "    ")}
+    return GT, small
+
+
+@app.cell
+def _(GT, small):
+    {TABLES[2]}
+    return
+
+
+if __name__ == "__main__":
+    app.run()
+"""
+
 
 # (The tables as cells' outputs, and the second also as `mo.Html()`)
 MARIMO_APP = f"""\
@@ -137,6 +721,87 @@ if __name__ == "__main__":
 """
 
 
+# (Pages of the tables: at "/", each put in the template as it is, with its runtime; at "/files",
+# the runtime once, from its files, in a page whose policy allows no inline script; at "/nonce",
+# the runtime once, inline, allowed by the policy's nonce)
+FLASK_APP = f"""\
+from flask import Flask, make_response, render_template_string
+from markupsafe import Markup
+
+from great_tables.web import runtime_tags, write_runtime
+
+{SETUP}
+
+write_runtime("static/gti")
+app = Flask(__name__)
+
+PAGE = (
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>{{{{ runtime }}}}</head>'
+    "<body>{{% for table in tables %}}{{{{ table }}}}{{% endfor %}}</body></html>"
+)
+
+
+def tables():
+    return [{", ".join(TABLES)}]
+
+
+@app.route("/")
+def index():
+    return render_template_string(PAGE, runtime="", tables=tables())
+
+
+@app.route("/files")
+def files():
+    page = render_template_string(
+        PAGE,
+        runtime=runtime_tags(url="/static/gti/"),
+        tables=[Markup(table.as_raw_html(runtime="none")) for table in tables()],
+    )
+    return policy(page, "script-src 'self'")
+
+
+@app.route("/nonce")
+def nonce():
+    page = render_template_string(
+        PAGE,
+        runtime=runtime_tags(nonce="gti-nonce"),
+        tables=[Markup(table.as_raw_html(runtime="none")) for table in tables()],
+    )
+    return policy(page, "script-src 'nonce-gti-nonce'")
+
+
+def policy(page, scripts):
+    response = make_response(page)
+    response.headers["Content-Security-Policy"] = (
+        f"default-src 'self'; {{scripts}}; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    )
+    return response
+"""
+
+# (The first table as a component's child, as it is, with its runtime; the others' HTML without
+# it, given the runtime once, in the page's head)
+FASTHTML_APP = f"""\
+from fasthtml.common import Div, NotStr, Titled, fast_app
+
+from great_tables.web import runtime_tags
+
+{SETUP}
+
+app, rt = fast_app(default_hdrs=False, hdrs=(runtime_tags(),))
+
+
+@rt("/")
+def get():
+    one, two, three = {", ".join(TABLES)}
+    return Titled(
+        "Tables",
+        Div(one),
+        Div(NotStr(two.as_raw_html(runtime="none"))),
+        Div(NotStr(three.as_raw_html())),
+    )
+"""
+
+
 def vscode_page() -> str:
     # The tables' output in VS Code (whose notebooks have their CSS marked `!important`), shown
     # as its notebooks show HTML output: set as an element's HTML, with each script then made
@@ -144,7 +809,7 @@ def vscode_page() -> str:
     # again, by `show()`. The frame is sandboxed more strictly than VS Code's (it's not of the
     # same origin as anything, so its storage throws), and the first table keeps its view there.
     namespace: dict[str, object] = {}
-    exec(SETUP, namespace)
+    exec(SETUP, namespace)  # noqa: S102 (runs the fixture's own setup code)
     sources = [TABLES[0] + '.with_id("one").i_view_state(storage=True)', *TABLES[1:]]
     os.environ["VSCODE_PID"] = "1"
     try:
@@ -187,10 +852,37 @@ def main() -> None:
     (OUT / "jupyter" / "kernels" / "python3").mkdir(parents=True, exist_ok=True)
     files = {
         "notebook.ipynb": notebook(),
+        "widget.ipynb": notebook([SETUP, WIDGET, "widget"]),
+        "kernel_widget.ipynb": notebook([SETUP, KERNEL_WIDGET]),
+        "lazy_widget.ipynb": notebook([SETUP, LAZY_WIDGET]),
         "jupyter/kernels/python3/kernel.json": kernel_spec(),
         "doc.qmd": quarto_doc(),
+        "theme.ipynb": notebook([SETUP, TABLES[2]]),
+        "theme.qmd": quarto_doc([SETUP, TABLES[2]], QUARTO_THEMES),
         "shiny_app.py": SHINY_APP,
+        "shiny_state_app.py": SHINY_STATE_APP,
+        "shiny_kernel_app.py": shiny_kernel_app(),
+        "shiny_lazy_app.py": shiny_kernel_app(lazy=True),
+        "streamlit_state_app.py": STREAMLIT_STATE_APP,
+        "streamlit_kernel_app.py": streamlit_kernel_app(),
+        "streamlit_lazy_app.py": streamlit_kernel_app(lazy=True),
+        "panel.ipynb": notebook([SETUP, *PANEL_NOTEBOOK]),
+        "panel_kernel.ipynb": notebook([SETUP, *PANEL_KERNEL_NOTEBOOK]),
+        "panel_state_app.py": PANEL_STATE_APP,
+        "panel_kernel_app.py": panel_kernel_app(),
+        "panel_lazy_app.py": panel_kernel_app(lazy=True),
+        "solara.ipynb": notebook([SETUP, *SOLARA_NOTEBOOK]),
+        "solara_state_app.py": SOLARA_STATE_APP,
+        "solara_kernel_app.py": solara_kernel_app(),
+        "solara_lazy_app.py": solara_kernel_app(lazy=True),
         "marimo_app.py": MARIMO_APP,
+        "marimo_state_app.py": MARIMO_STATE_APP,
+        "marimo_kernel_app.py": marimo_kernel_app(),
+        "marimo_lazy_app.py": marimo_kernel_app(lazy=True),
+        "marimo_dark_theme_app.py": MARIMO_THEME_APP.replace("<theme>", "dark"),
+        "marimo_light_theme_app.py": MARIMO_THEME_APP.replace("<theme>", "light"),
+        "flask_app.py": FLASK_APP,
+        "fasthtml_app.py": FASTHTML_APP,
         "vscode.html": vscode_page(),
     }
     for name, text in files.items():

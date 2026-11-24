@@ -188,7 +188,7 @@ test.describe("a table that drops columns", () => {
     const errors = await ready(page, "collapse.html");
     await button(page, "row_5").click();
     // (Sorted by num, descending: row_8, row_7, row_5 in grp_b)
-    const sort = el(page).locator("th#c-num > button.gt-i-sort");
+    const sort = el(page).locator("th#c-num button.gt-i-sort");
     await sort.click();
     await sort.click();
     await expect(el(page).locator("th#c-num")).toHaveAttribute("aria-sort", "descending");
@@ -198,12 +198,41 @@ test.describe("a table that drops columns", () => {
     await expect(el(page).locator("tr.gt-i-details")).toBeHidden();
     await el(page).getByRole("navigation", { name: "Table pages" }).getByRole("button", { name: "Previous page" }).click();
     await expect(details(page, "row_5")).toBeVisible();
-    // (And the search finds text in the columns dropped)
-    await el(page).locator(".gt-i-bar").getByRole("button", { name: "Search" }).click();
-    await el(page).getByRole("searchbox").fill("honeydew");
+    // (And the search finds text in the columns dropped: in the "Filter & sort" sheet, which the
+    // narrow bar folds the search into)
+    await el(page).locator(".gt-i-bar").getByRole("button", { name: "Filter & sort" }).click();
+    await page.getByRole("dialog").getByRole("searchbox").fill("honeydew");
+    await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
     await expect(row(page, "row_8")).toBeVisible();
     await expect(row(page, "row_5")).toBeHidden();
     await expect(el(page).locator("tr.gt-i-details")).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test("highlights the search's matches in the columns dropped, under a row open", async ({ page }) => {
+    const errors = await ready(page, "collapse.html");
+    // (Each highlight's text, and whether it's in a row under a row open)
+    const highlights = () =>
+      page.evaluate(() =>
+        Array.from(CSS.highlights.get("gt-i-search") ?? [], (range) => {
+          const node = (range as Range).startContainer.parentElement;
+          return [(range as Range).toString(), node?.closest("tr.gt-i-details") !== null];
+        }).filter(([, under]) => under),
+      );
+    await el(page).evaluate((node) => ((node as any).search = "honeydew"));
+    await expect(row(page, "row_8")).toBeVisible();
+    // (Made as the row opens)
+    await button(page, "row_8").click();
+    await expect(details(page, "row_8")).toBeVisible();
+    await expect.poll(highlights).toEqual([["honeydew", true]]);
+    // (And again as the search changes)
+    await el(page).evaluate((node) => ((node as any).search = "dew 2015"));
+    await expect.poll(highlights).toEqual([
+      ["dew", true],
+      ["2015", true],
+    ]);
+    await el(page).evaluate((node) => ((node as any).search = ""));
+    await expect.poll(highlights).toEqual([]);
     expect(errors).toEqual([]);
   });
 

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from bisect import bisect_right
-from collections.abc import Callable
 from decimal import Decimal
 from math import isinf, isnan
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
+from great_tables._gt_data import DataColorInfo
 from great_tables._locations import RowSelectExpr, resolve_cols_c, resolve_rows_i
+from great_tables._styles import _FillWithoutContrastText
 from great_tables._tab_create_modify import tab_style
 from great_tables._tbl_data import (
     DataFrameLike,
@@ -22,6 +23,8 @@ from great_tables.style import fill, text
 from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from great_tables._types import GTSelf
 
 
@@ -54,7 +57,7 @@ def data_color(
     rows: RowSelectExpr = None,
     palette: str | list[str] | None = None,
     domain: list[str] | list[int] | list[float] | None = None,
-    midpoint: int | float | None = None,
+    midpoint: float | None = None,
     na_color: str | None = None,
     alpha: float | None = None,
     reverse: bool = False,
@@ -466,10 +469,7 @@ def data_color(
         raise ValueError(f'`direction=` must be either "column" or "row", not {direction!r}.')
 
     # If no color is provided to `na_color`, use a light gray color as a default
-    if na_color is None:
-        na_color = "#808080"
-    else:
-        na_color = _html_color(colors=[na_color], alpha=alpha)[0]
+    na_color = "#808080" if na_color is None else _html_color(colors=[na_color], alpha=alpha)[0]
 
     # Resolve the palette to a list of hexadecimal color values
     palette = _resolve_palette(palette=palette, reverse=reverse, alpha=alpha)
@@ -539,6 +539,20 @@ def data_color(
                 contrast_algo=contrast_algo,
             )
 
+    # Keep how the columns were colored where their colors depend on the rows colored, so that an
+    # interactive table can color them again from the rows it shows
+    if direction == "column" and domain is None and fn is None and columns_resolved and row_pos:
+        info = DataColorInfo(
+            columns=list(columns_resolved),
+            rows=row_pos,
+            palette=[color[:7] for color in palette],
+            alpha="" if alpha is None else _float_to_hex(float(alpha)),
+            midpoint=midpoint,
+            contrast_algo=contrast_algo if autocolor_text else None,
+            last=gt_obj._styles[-1],
+        )
+        gt_obj = gt_obj._replace(_data_colors=[*gt_obj._data_colors, info])
+
     return gt_obj
 
 
@@ -547,7 +561,7 @@ def _map_data_colors(
     data_table: DataFrameLike,
     palette: list[str],
     domain: list[str] | list[int] | list[float] | None,
-    midpoint: int | float | None,
+    midpoint: float | None,
     na_color: str,
     alpha: float | None,
     truncate: bool,
@@ -584,7 +598,7 @@ def _map_data_colors(
     # The methodology for domain calculation and rescaling depends on the values being:
     # (1) numeric (integers or floats), then the method should be 'numeric'
     # (2) strings, then the method should be 'factor'
-    if len(filtered_vals) and all(isinstance(x, (int, float)) for x in filtered_vals):
+    if filtered_vals and all(isinstance(x, (int, float)) for x in filtered_vals):
         if midpoint is not None:
             # Pin the midpoint to the center of the palette (an inferred domain is made
             # symmetric around the midpoint, a supplied one is scaled separately on each side)
@@ -713,7 +727,9 @@ def _apply_data_color_styles(
 
         else:
             gt_obj = tab_style(
-                gt_obj, style=fill(color=color_val), locations=body(columns=col, rows=[i])
+                gt_obj,
+                style=_FillWithoutContrastText(color=color_val),
+                locations=body(columns=col, rows=[i]),
             )
 
     return gt_obj
@@ -1006,10 +1022,7 @@ def _srgb(x: int) -> float:
 
     x_frac = x / 255
 
-    if x_frac <= 0.03928:
-        x_frac = x_frac / 12.92
-    else:
-        x_frac = ((x_frac + 0.055) / 1.055) ** 2.4
+    x_frac = x_frac / 12.92 if x_frac <= 0.03928 else ((x_frac + 0.055) / 1.055) ** 2.4
 
     return x_frac
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from functools import partial
-from typing import Callable, TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal
 
 from ._locations import LocBody, LocColumnLabels, resolve_cols_c
 from ._styles import CellStyleCss
@@ -11,6 +11,8 @@ from ._text import BaseText
 from ._utils import _assert_list_is_subset
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._types import GTSelf
 
 
@@ -96,12 +98,11 @@ def cols_label(
     `{{cm^3 molecules^-1 s^-1}}` for part of the label for the `OH_k298` column.
 
     ```{python}
-    from great_tables import GT
-    from great_tables.data import reactions
+    from great_tables import GT, data
     import polars as pl
 
     reactions_mini = (
-        pl.from_pandas(reactions)
+        data.pl.reactions
         .filter(pl.col("cmpd_type") == "mercaptan")
         .select(["cmpd_name", "OH_k298"])
     )
@@ -384,7 +385,7 @@ def cols_align_decimal(
         fn=partial(_align_to_char, align_at=dec_mark),
         per_column=True,
     )
-    return res._replace(_transforms=res._transforms + [transform])
+    return res._replace(_transforms=[*res._transforms, transform])
 
 
 FIGURE_SPACE = "\u2007"
@@ -523,6 +524,9 @@ def cols_label_rotate(
     `"vertical-lr"`, and the `columns` argument can be used to specify which columns to apply the
     alignment to. If `columns` is not specified, the alignment is applied to all columns.
 
+    A rotated label is kept on one line and centered across its column. Line breaks in a label made
+    with `html()` aren't supported, since Safari shows only the first line.
+
     Parameters
     ----------
     columns
@@ -532,8 +536,10 @@ def cols_label_rotate(
         A string that gives the direction of the text. Options: `"sideways-lr"`, `"sideways-rl"`,
         `"vertical-lr"`. See note for information on text layout.
     align
-        The alignment to apply. Must be one of `"left"`, `"center"`, `"right"`, or `"none"`. If text
-        is laid out vertically, this affects alignment along the vertical axis.
+        The alignment to apply along the height of the column labels row. Must be one of `"left"`,
+        `"center"`, `"right"`, or `None`. `"left"` places the label where its text starts (the
+        bottom for `"sideways-lr"`, the top otherwise), `"right"` where it ends, and `"center"` in
+        the middle. With `None`, the label is placed at the bottom.
     padding
         The vertical padding to apply to the column labels.
 
@@ -585,17 +591,16 @@ def cols_label_rotate(
     )
     ```
 
-    Labels that are restricted by the height of the stub head will wrap horizontally.
+    A long label makes the column labels row taller, since a rotated label isn't wrapped. The
+    `align=` argument places a shorter label along that height. Here `"center"` puts the `num`
+    label in the middle.
 
     ```{python}
     (
         GT(exibble_sm, rowname_col="row", groupname_col="group")
-        .cols_label({"fctr": "A longer description of the values in the column below"})
-        .cols_label_rotate(columns=["num", "fctr"], dir="sideways-lr")
-        .tab_style(
-            style=[style.text(weight="bold"), style.css(rule="height: 200px;")],
-            locations=loc.column_labels(["fctr"])
-        )
+        .cols_label({"fctr": "A longer description of the values"})
+        .cols_label_rotate(columns="fctr")
+        .cols_label_rotate(columns="num", align="center")
     )
     ```
 
@@ -629,14 +634,25 @@ def cols_label_rotate(
     # If user doesn't set an align value then align to the bottom, which is left in the case of
     # "sideways-lr" and right in all other cases
     if not align:
-        if dir == "sideways-lr":
-            align = "left"
-        else:
-            align = "right"
+        align = "left" if dir == "sideways-lr" else "right"
 
-    res = self.tab_style(
+    # The label is rotated in a span (see `_wrap_rotated_column_label()`), so the cell centers it
+    # across the column and `align` places it along the cell's height: "left" is where the text
+    # starts, which is the bottom for "sideways-lr" and the top otherwise
+    starts_at_bottom = dir == "sideways-lr"
+    valign = {
+        "left": "bottom" if starts_at_bottom else "top",
+        "center": "middle",
+        "right": "top" if starts_at_bottom else "bottom",
+    }[align]
+
+    # Select the columns as the style below does, so that the same columns are rotated
+    sel_cols = resolve_cols_c(data=self, expr=columns)
+
+    boxhead = self._boxhead._set_column_label_rotate(sel_cols, dir=dir)
+    res = self._replace(_boxhead=boxhead).tab_style(
         style=CellStyleCss(
-            f"writing-mode: {dir}; vertical-align: middle; text-align: {align}; padding: {padding}px 0px;"
+            f"text-align: center; vertical-align: {valign}; padding: {padding}px 0px;"
         ),
         locations=LocColumnLabels(columns=columns),
     )

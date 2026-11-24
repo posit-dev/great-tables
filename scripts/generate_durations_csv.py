@@ -77,7 +77,7 @@ def fetch_cldr_units(locale: str) -> dict | None:
             return None
         print(f"  HTTP {e.code} for {cldr_locale}", file=sys.stderr)
         return None
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"  Error fetching {cldr_locale}: {e}", file=sys.stderr)
         return None
 

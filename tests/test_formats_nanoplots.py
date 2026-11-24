@@ -50,6 +50,15 @@ def test_fmt_nanoplot_pandas_nullable_float_with_missing_value():
     assert html_nullable == gt_numpy.fmt_nanoplot("x").as_raw_html()
 
 
+@pytest.mark.usefixtures("no_polars_import")
+def test_fmt_nanoplot_pandas_without_polars():
+    pd = pytest.importorskip("pandas")
+
+    html = GT(pd.DataFrame({"x": ["1 2 3"]})).fmt_nanoplot("x").as_raw_html()
+
+    assert "<svg" in html
+
+
 def test_generate_data_vals_fails_date_strings():
     with pytest.raises(ValueError) as exc_info:
         _generate_data_vals(["2022-01-01"])

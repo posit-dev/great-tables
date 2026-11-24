@@ -135,11 +135,12 @@ def _get_compact_fmt_settings(val: float, currency: str | None) -> tuple[float, 
 
         # The currency path rounds to a number of decimals, the number path to `n_sigfig=`
         if currency is not None:
-            rounding = dict(
-                decimals=_get_currency_decimals(currency, decimals, use_subunits), n_sigfig=None
-            )
+            rounding = {
+                "decimals": _get_currency_decimals(currency, decimals, use_subunits),
+                "n_sigfig": None,
+            }
         else:
-            rounding = dict(decimals=0, n_sigfig=n_sigfig)
+            rounding = {"decimals": 0, "n_sigfig": n_sigfig}
 
         if not _rounds_up_to(val / scale, threshold=bound / scale, **rounding):
             return val, _COMPACT_FMT_SETTINGS[i][1], False
@@ -485,10 +486,7 @@ def _remove_exponent(n: str | float) -> str:
     # formatting.
     try:
         d = Decimal(n)
-        if d == d.to_integral():
-            x = d.quantize(Decimal(1))
-        else:
-            x = d.normalize()
+        x = d.quantize(Decimal(1)) if d == d.to_integral() else d.normalize()
         return str(int(x))
     except InvalidOperation:
         return str(n)
@@ -1053,23 +1051,29 @@ def _nanoplot_svg_style(
     text_shown = "stroke: white; fill: #212427;"
 
     rules = [
-        "text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, "
-        "'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; "
-        "stroke-linejoin: round; cursor: default; }",
+        (
+            "text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, "
+            "'DejaVu Sans Mono', monospace; stroke-width: 0.15em; paint-order: stroke; "
+            "stroke-linejoin: round; cursor: default; }"
+        ),
     ]
 
     if interactive_data_values:
         # Values, guides, and the reference line are highlighted when hovered over
         rules += [
-            f".vert-line:hover rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; "
-            "stroke: #FFFFFF60; color: red; }",
+            (
+                f".vert-line:hover rect {{ fill: {vertical_guide_stroke_color}; fill-opacity: 40%; "
+                "stroke: #FFFFFF60; color: red; }"
+            ),
             f".vert-line:hover text {{ {text_shown} }}",
             f".horizontal-line:hover text {{ {text_shown} }}",
             ".ref-line:hover rect { stroke: #FFFFFF60; }",
             ".ref-line:hover line { stroke: #FF0000; }",
             f".ref-line:hover text {{ {text_shown} }}",
-            ".y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; "
-            "color: red; }",
+            (
+                ".y-axis-line:hover rect { fill: #EDEDED; fill-opacity: 60%; stroke: #FFFFFF60; "
+                "color: red; }"
+            ),
             ".y-axis-line:hover text { stroke: white; stroke-width: 0.20em; fill: #1A1C1F; }",
         ]
     else:
@@ -1943,7 +1947,7 @@ def _boxplot_layers(
 # ---------------------------------------------------------------------------------------------
 
 
-def _nanoplot_summary(y_vals: list[int | float | None] | int | float, plot_type: str) -> str:
+def _nanoplot_summary(y_vals: list[int | float | None] | float, plot_type: str) -> str:
     """Describe a nanoplot's values in words, for its accessible name.
 
     E.g., `"Line plot of 8 values from 12 to 47, ending at 30"`, or `"Bar of 4.1"` for a single

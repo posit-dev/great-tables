@@ -61,7 +61,7 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from html.parser import HTMLParser
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._pattern import (
     PatternError,
@@ -88,6 +88,17 @@ if TYPE_CHECKING:
     from ..gt import GT
 
 Query = dict[str, list[dict[str, Any]]]
+
+
+def require_narwhals(what: str) -> None:
+    """Raise an `ImportError` if the narwhals package isn't installed, saying `what` needs it."""
+    try:
+        import narwhals  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            f"{what} needs the narwhals package: install it with `pip install narwhals`."
+        ) from None
+
 
 # A sort: column names, each with whether it's descending
 SortKeys = tuple[tuple[str, bool], ...]
@@ -245,7 +256,7 @@ def _normal_item(item: Any, where: str) -> dict[str, Any]:
     items: list[dict[str, Any]] = []
     for i, part in enumerate(_group_parts(item, kind)):
         normal = _normal_item(part, f"part {i} of an {kind!r} group")
-        items.extend(normal[kind] if kind in normal else [normal])
+        items.extend(normal.get(kind, [normal]))
     if kind == "and":
         seen: set[tuple[str, str]] = set()
         for part in items:
@@ -338,7 +349,7 @@ def _facet_value(item: Any, col: str) -> Any:
 def _count(value: Any, col: str, op: str) -> int:
     # (A whole number, as JSON has it: so 10.0 is 10, as the runtime has it)
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         number = _json_value(value)
         if number is not None and float(number).is_integer() and 1 <= number <= _MAX_COUNT:
             return int(number)
@@ -350,7 +361,7 @@ def _count(value: Any, col: str, op: str) -> int:
 
 def _bound(value: Any, col: str, op: str) -> int | float | str:
     numpy_number = getattr(getattr(value, "dtype", None), "kind", None) in ("i", "u", "f")
-    if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool) or numpy_number:
+    if (isinstance(value, (int, float, Decimal)) and not isinstance(value, bool)) or numpy_number:
         bound = _json_value(value)
         if bound is not None:
             return bound
@@ -645,7 +656,7 @@ class _QueryParser:
         item = self.or_()
         if self.token.kind != "end":
             self.fail('expected "and", "or" or the end of the query')
-        return {"and": item["and"] if "and" in item else [item]}
+        return {"and": item.get("and", [item])}
 
 
 def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
@@ -653,7 +664,7 @@ def _joined(kind: str, items: list[dict[str, Any]]) -> dict[str, Any]:
     # kind spliced in)
     if len(items) == 1:
         return items[0]
-    return {kind: [part for item in items for part in (item[kind] if kind in item else [item])]}
+    return {kind: [part for item in items for part in (item.get(kind, [item]))]}
 
 
 def parse_query(text: str) -> Query | None:
@@ -779,10 +790,12 @@ def check_view(
     hidden: Sequence[str] = (),
     hideable: Sequence[str] = (),
     kinds: Mapping[str | None, ColumnKind] | None = None,
+    group_by: str | None = None,
+    groupable: Sequence[str] = (),
 ) -> ViewSpec:
     """
-    Check a view against a table's filters, sortable columns, and the columns readers can hide
-    (in column order), as the runtime does. (A date filter's bounds go by its column's kind: a
+    Check a view against a table's filters, sortable columns, the columns readers can hide (in
+    column order), and those they can group the rows by, as the runtime does. (A date filter's bounds go by its column's kind: a
     column of dates takes dates, without times.)
     """
     by_column = {f["column"]: f for f in filters}
@@ -849,10 +862,18 @@ def check_view(
                 "one with `i_cols_controls(hideable=True)` (the stub and the row group column "
                 "can't be)."
             )
+    if group_by is not None and group_by not in groupable:
+        raise ValueError(
+            f"The view can't group the rows by column {group_by!r}: it isn't one readers can "
+            "group them by. Make it one with `i_cols_controls(groupable=True)` (the stub can't be, "
+            "and neither can a column the table can't be sorted by, or any column of a table with "
+            "row groups or summary rows)."
+        )
     return ViewSpec(
         filter=query,
         sort=[{"column": column, "descending": desc} for column, desc in sort],
         hidden=[column for column in hideable if column in hidden],
+        group_by=group_by,
     )
 
 
@@ -1103,7 +1124,7 @@ class _IsNull:
     nan: bool  # (a column of floats, whose NaN is missing too)
 
 
-_Clause = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull]
+_Clause = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull
 
 
 @dataclass(frozen=True)
@@ -1117,7 +1138,7 @@ class _Not:
     part: _Predicate
 
 
-_Predicate = Union[_In, _Compare, _Extreme, _Contains, _Matches, _IsNull, _Group, _Not]
+_Predicate = _In | _Compare | _Extreme | _Contains | _Matches | _IsNull | _Group | _Not
 
 
 def _plan(query: Query | None, spec: Spec, schema: Mapping[str, Any]) -> list[_Predicate]:
@@ -1210,21 +1231,25 @@ def _from_json(value: Any, kind: str | None, dtype: Any, col: str) -> Any:
 
 
 def _expr(
-    predicate: _Predicate, texts: Mapping[str, str], matched: Mapping[tuple[str, str], str]
+    predicate: _Predicate,
+    texts: Mapping[str, str],
+    matched: Mapping[tuple[str, str], str],
+    refold: Callable[[str], str] | None = None,
 ) -> nw.Expr:
     import narwhals as nw
 
     if isinstance(predicate, _Not):
         # (A clause leaves out a row with a missing value, which its expression is missing for)
-        return ~_expr(predicate.part, texts, matched).fill_null(False)
+        return ~_expr(predicate.part, texts, matched, refold).fill_null(False)
     if isinstance(predicate, _Group):
-        exprs = [_expr(part, texts, matched) for part in predicate.parts]
+        exprs = [_expr(part, texts, matched, refold) for part in predicate.parts]
         joined = exprs[0]
         for expr in exprs[1:]:
             joined = joined | expr if predicate.kind == "or" else joined & expr
         return joined
     if isinstance(predicate, _Contains):
-        return nw.col(texts[predicate.col]).str.contains(predicate.needle, literal=True)
+        needle = predicate.needle if refold is None else refold(predicate.needle)
+        return nw.col(texts[predicate.col]).str.contains(needle, literal=True)
     if isinstance(predicate, _Matches):
         return nw.col(matched[predicate.col, predicate.pattern])
     col = nw.col(predicate.col)
@@ -1251,13 +1276,16 @@ def filter_exprs(
     schema: Mapping[str, Any],
     texts: Mapping[str, str] | None = None,
     matched: Mapping[tuple[str, str], str] | None = None,
+    refold: Callable[[str], str] | None = None,
 ) -> list[nw.Expr]:
     """A query as Narwhals expressions, on a frame with the table's data (of `schema`).
 
     A "contains" clause matches the folded text of a column's cells, which the frame needs as a
     column of its own: `texts` names them (by the data column). Blank text keeps every row, so has
     no expression. A "matches" clause's matches are a column of bools: `matched` names them (by
-    the data column and the pattern, as the query has it).
+    the data column and the pattern, as the query has it). `refold` folds a "contains" clause's
+    text (folded as `fold()` folds it) as the columns of cell text are folded, if they're folded
+    otherwise.
     """
     predicates = _plan(query, spec, schema)
     clauses = list(_clauses(predicates))
@@ -1271,7 +1299,7 @@ def filter_exprs(
         raise ValueError(
             f'A "matches" clause needs a column of its matches, for {sorted(unmatched)}.'
         )
-    return [_expr(predicate, texts or {}, matched or {}) for predicate in predicates]
+    return [_expr(predicate, texts or {}, matched or {}, refold) for predicate in predicates]
 
 
 def _free_name(base: str, taken: Any) -> str:
@@ -1281,20 +1309,38 @@ def _free_name(base: str, taken: Any) -> str:
     return name
 
 
+def _view_sort(view: Mapping[str, Any]) -> list[tuple[str, bool]]:
+    """A view's sort keys (each a column, and whether it's descending), after the column it
+    groups the rows by, if any: as the runtime lays out its groups, by their values (descending
+    if the view sorts by the column so), then sorts each group's rows."""
+    sort = [(key["column"], key["descending"]) for key in view["sort"]]
+    group = view.get("group_by")
+    if group is None:
+        return sort
+    descending = any(column == group and desc for column, desc in sort)
+    return [(group, descending), *(key for key in sort if key[0] != group)]
+
+
 def view_rows(gt: GT) -> list[int]:
     """The data rows a table's view shows (on every page), in order, as `<gt-table>` shows them.
 
     The view's filter and sort, compiled to Narwhals and applied to the table's data: rows are
     kept within their blocks (the runs of rows between group headings and summary rows), and
-    sorted within them, ties keeping their order. A table whose stub has cells merged across
-    rows keeps its rows as they are, as the runtime does. (A PyArrow dictionary column is sorted
-    as its text; an ordered one, by its levels.)
+    sorted within them, ties keeping their order (and grouped by a column, sorted by it first). A
+    table whose stub has cells merged across rows keeps its rows as they are, as the runtime does.
+    (A PyArrow dictionary column is sorted as its text; an ordered one, by its levels.)
     """
+    require_narwhals(
+        "Finding a view's rows in Python (for a widget's, Streamlit's or Panel's table)"
+    )
     import narwhals as nw
 
     from .._tbl_data import _get_column_levels
+    from ._lazy import eager
     from ._render import render_parts
 
+    # (A table of a LazyFrame, with all of its rows)
+    gt = eager(gt)
     table_html, spec = render_parts(gt)
     trs = _body_trs(table_html)
     body = spec["body"]
@@ -1379,8 +1425,7 @@ def view_rows(gt: GT) -> list[int]:
 
     by, descending = [block_col], [False]
     schema = frame.schema
-    for key in view["sort"]:
-        column, desc = key["column"], key["descending"]
+    for column, desc in _view_sort(view):
         dtype = schema[column]
         sort_col = column
         if desc and dtype.is_float():
@@ -1422,14 +1467,17 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     """Code that filters and sorts a table's data (`df`) as its view does, with its imports.
 
     The code keeps and orders the data's rows, not the table's, so doesn't keep rows within their
-    row groups; and drops the columns the view hides. A "contains" clause is a match, ignoring
+    row groups (but sorts by the column the view groups the rows by, if any, first, as the groups
+    are laid out); and drops the columns the view hides. A "contains" clause is a match, ignoring
     case, of the column's values as text (not of the text the table shows, nor ignoring accents);
     and a "matches" clause, a search of them with its pattern, translated for the library's
     regexes. (With pandas, a column that isn't of PyArrow's strings is searched with Python's
     `re`, whose `$` also matches before a line break at the end of the text.)
     """
+    from ._lazy import eager
     from ._render import render_parts
 
+    gt = eager(gt)
     if backend not in ("polars", "pandas", "narwhals"):
         raise ValueError(f'`backend=` must be "polars", "pandas", or "narwhals", not {backend!r}.')
     import narwhals as nw
@@ -1439,7 +1487,7 @@ def query_code(gt: GT, backend: Backend = "polars") -> str:
     schema = frame.schema
     # (As the runtime has the query, so that its code is the runtime's, character for character)
     predicates = _plan(_canonical(spec["view"]["filter"], spec["filters"]), spec, schema)
-    sort = [(key["column"], key["descending"]) for key in spec["view"]["sort"]]
+    sort = _view_sort(spec["view"])
     hidden = spec["view"]["hidden"]
     imports: set[str] = set()
     if backend == "polars":
@@ -1506,7 +1554,7 @@ def _canonical(query: Query | None, filters: list[FilterSpec]) -> Query | None:
     return {"and": [*map(clause_of, clauses), *map(item_of, groups)]}
 
 
-def _whole(value: int | float) -> int | float:
+def _whole(value: float) -> int | float:
     # (A bound as JavaScript holds it, a double: an integer if it's whole)
     number = float(value)
     return int(number) if number.is_integer() else number
@@ -1560,6 +1608,8 @@ def code_spec(
                 if dtype == nw.String
                 else "float"
                 if dtype.is_float()
+                else "integer"
+                if dtype.is_integer()
                 else "categorical"
                 if isinstance(dtype, (nw.Categorical, nw.Enum))
                 else "date"
@@ -1712,20 +1762,27 @@ def _pandas_code(
                 f"{text}.str.contains({_literal(p.needle)}, case=False, regex=False, na=False)",
                 _ATOM,
             )
-        if isinstance(p, _Compare):
-            op = _SYMBOLS[p.op]
-            term: _Term = (f"{col} {op} {_literal(p.value)}", _COMPARE)
-            if p.finite:
-                imports.add("import numpy as np")
-                term = (f"({term[0]}) & np.isfinite({col})", _AND)
-            # (pandas' nullable dtypes compare to `pd.NA`, which a mask can't have)
-            return (f"({term[0]}).fillna(False)", _ATOM) if _nullable(data, p.col) else term
-        if isinstance(p, _Extreme):
-            ranked = col
-            if p.finite:
-                imports.add("import numpy as np")
-                ranked = f"{col}.where(np.isfinite({col}))"
-            return f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE
+        if isinstance(p, (_Compare, _Extreme)):
+            nullable = _nullable(data, p.col)
+            if isinstance(p, _Extreme):
+                # (A nullable number as a numpy float, its missing values NaN, which aren't ranked
+                # (before pandas 3, a nullable dtype's are) and don't make the rank `pd.NA`)
+                ranked = col
+                if nullable and (p.finite or schema[p.col].is_integer()):
+                    ranked = f'{col}.astype("float64")'
+                    nullable = False
+                if p.finite:
+                    imports.add("import numpy as np")
+                    ranked = f"{ranked}.where(np.isfinite({col}))"
+                term: _Term = (f"{ranked}.rank({_rank_args(p, pandas=True)}) <= {p.n}", _COMPARE)
+            else:
+                term = (f"{col} {_SYMBOLS[p.op]} {_literal(p.value)}", _COMPARE)
+                if p.finite:
+                    imports.add("import numpy as np")
+                    term = (f"({term[0]}) & np.isfinite({col})", _AND)
+            # (pandas' nullable dtypes compare to, and rank missing values as, `pd.NA`, which a
+            # mask can't have)
+            return (f"({term[0]}).fillna(False)", _ATOM) if nullable else term
         if not p.values:
             return f"{col}.isna()", _ATOM
         term_ = f"{col}.isin({_list(p.values)})"

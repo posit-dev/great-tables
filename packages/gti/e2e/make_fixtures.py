@@ -17,6 +17,7 @@ from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import render_gti_html
 from great_tables._gti._query import query_code, view_rows
 from great_tables._gti._render import render_parts
+from great_tables._styles import CellStyleFill, CellStyleText
 
 HERE = Path(__file__).parent
 OUT = HERE / ".fixtures"
@@ -122,7 +123,7 @@ def select_html(
 
 
 def scroll_html(
-    table_id: str, groups_as_column: bool = False, height: str = "300px", **options
+    table_id: str, groups_as_column: bool = False, height: str = "340px", **options
 ) -> str:
     # exibble three times over (24 rows, in two groups), with a title, a spanner, group and
     # grand summary rows, a footnote and a source note, in a body that scrolls.
@@ -186,11 +187,17 @@ def pad_html(table_id: str, **options) -> str:
 
 
 def bar_html(
-    table_id: str, columns: list[str] | None = None, selection: str | None = None, **pagination
+    table_id: str,
+    columns: list[str] | None = None,
+    selection: str | None = None,
+    height: str | None = None,
+    parts: bool = False,
+    **pagination,
 ) -> str:
     # A GTI table (with GTI's control bar): exibble three times over (24 rows, in two groups),
     # 2 rows to a page (so 12 pages), or with only the columns given; or without pages. Rows can
-    # be selected, with `selection`.
+    # be selected, with `selection`; its body scrolls within `height`, if given, and its view is
+    # kept in the URL; its parts are named for good, with `parts`.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     if columns is None:
@@ -202,6 +209,10 @@ def bar_html(
         gti = gti.i_pagination(**{"page_size": 2, **pagination})
     else:
         gti = gti.i_pagination(False)
+    if height is not None:
+        gti = gti.i_scroll(height).i_view_state()
+    if parts:
+        gti = gti.i_display(parts=True)
     return render_gti_html(gti, runtime="none")
 
 
@@ -337,11 +348,14 @@ def export_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
-def pin_html(table_id: str, groups_as_column: bool = False, height: str | None = None) -> str:
+def pin_html(
+    table_id: str, groups_as_column: bool = False, height: str | None = None, filters: bool = False
+) -> str:
     # A GTI table of exibble three times over (24 rows, in two groups), on one page, selectable,
     # with every column: char moved to the start and pinned there, and fctr moved to the end and
     # pinned there, under a spanner across its edge (with currency); with group and grand summary
-    # rows, a footnote and a source note. Wider than its container.
+    # rows, a footnote and a source note (and, with `filters`, a filter on every column). Wider
+    # than its container.
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
     gti = (
@@ -364,6 +378,8 @@ def pin_html(table_id: str, groups_as_column: bool = False, height: str | None =
         .i_cols_pin("char")
         .i_cols_pin("fctr", side="right")
     )
+    if filters:
+        gti = gti.i_cols_filter()
     return render_gti_html(gti, runtime="none")
 
 
@@ -425,13 +441,60 @@ def reorder_html(table_id: str) -> str:
     return render_gti_html(gti, runtime="none")
 
 
+GROUP_DATA = pd.DataFrame(
+    {
+        "name": [f"town_{i + 1}" for i in range(12)],
+        "region": ["north", "south", None, "north", "east", "south"] * 2,
+        "size": [
+            "big",
+            "small",
+            "small",
+            "big",
+            "small",
+            "big",
+            "small",
+            "big",
+            "big",
+            "small",
+            "small",
+            "big",
+        ],
+        "pop": [120, 45, 80, 300, 15, 60, 210, 95, 33, 150, 70, 5],
+    }
+)
+
+
+def group_html(table_id: str, height: str | None = None) -> str:
+    # Twelve towns (name as the stub, then region, which three lack, size, and pop), 5 rows to a
+    # page, whose region and size readers can group the rows by (and hide, as they can pop), with
+    # a search, its view kept in the URL and changes undone. With `height`, all on one page, its
+    # body scrolling within that, and its rows grouped by region to start with
+    gti = (
+        GTI(GROUP_DATA, rowname_col="name", id=table_id)
+        .fmt_integer(columns="pop")
+        .i_search()
+        .i_cols_controls(columns=["region", "size"], groupable=True)
+        .i_cols_controls(columns=["region", "size", "pop"], hideable=True)
+        .i_view_state(undo=True)
+    )
+    if height is None:
+        gti = gti.i_pagination(page_size=5)
+    else:
+        gti = gti.i_pagination(enabled=False).i_scroll(height).i_view(group_by="region")
+    return render_gti_html(gti, runtime="none")
+
+
 def stack_html(
-    table_id: str, mode: str = "stack", columns: list[str] | None = None, dark: bool = False
+    table_id: str,
+    mode: str = "stack",
+    columns: list[str] | None = None,
+    dark: bool = False,
+    container_width: str | None = None,
 ) -> str:
     # exibble (8 rows, grp_b then grp_a, each with a summary row, then a grand summary row), with
     # a title, a spanner, a stub, a filter on fctr and selectable rows, 5 to a page: shown as
     # cards in a container narrower than 420px. Its columns can be hidden; with `dark=True`, it's
-    # light text on a dark background.
+    # light text on a dark background; with `container_width`, GT's own container is that wide.
     columns = columns or ["num", "char", "fctr", "currency"]
     gti = (
         GTI(
@@ -461,6 +524,8 @@ def stack_html(
             column_labels_background_color="#1e1e1e",
             row_group_background_color="#2a2a2a",
         )
+    if container_width is not None:
+        gti = gti.tab_options(container_width=container_width)
     return render_gti_html(gti, runtime="none")
 
 
@@ -505,9 +570,182 @@ def collapse_html(
     )
     if widths:
         gti = gti.cols_width(
-            {"row": "80px", "num": "120px", **{c: "100px" for c in ["currency", "char", "fctr"]}}
+            {"row": "80px", "num": "120px", **dict.fromkeys(["currency", "char", "fctr"], "100px")}
         )
     return render_gti_html(gti, runtime="none")
+
+
+def details_of(row: dict) -> object:
+    # A table for row_1 and row_5 (with a fill and borders of its own), Markdown for row_2, nothing
+    # for row_3, and text (with markup, shown as text) for the rest
+    label = row["row"]
+    if label == "row_3":
+        return None
+    if label in ("row_1", "row_5"):
+        return (
+            GT(pd.DataFrame({"a": [1, 2], "b": ["x", "y"]}), id=f"inner_{label}")
+            .tab_header(title=f"Inner {label}")
+            .tab_style(style.fill(color="#ffeeaa"), loc.body(columns="a"))
+            .tab_style(
+                style.borders(sides="all", color="#ff0000", weight="3px"), loc.body(columns="b")
+            )
+        )
+    if label == "row_2":
+        return md(f"**Bold** for {label}")
+    return f"<b>Plain</b> {label}"
+
+
+def details_html(table_id: str, mode: str = "scroll", search: bool = True) -> str:
+    # exibble (8 rows, grp_b then grp_a), with a stub, selectable rows and a search, 5 to a page:
+    # each row but row_3 with details (see `details_of()`). Optionally stacked or dropping columns
+    # in a narrow container (where currency, then char, go first)
+    gti = (
+        GTI(
+            exibble[["num", "char", "fctr", "currency", "row", "group"]],
+            rowname_col="row",
+            groupname_col="group",
+            id=table_id,
+        )
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_table_font(font="monospace", add=False)
+        .i_search(search)
+        .i_selection("multiple")
+        .i_pagination(page_size=5, page_sizes=None)
+        .i_cols_priority("num")
+        .i_cols_priority("fctr", priority=2)
+        .i_responsive(mode)  # type: ignore[arg-type]
+        .i_row_details(details_of)
+    )
+    return render_gti_html(gti, runtime="none")
+
+
+def profile_html(table_id: str, mode: str = "scroll") -> str:
+    # exibble (8 rows, grp_b then grp_a), searchable and filtered by fctr (a facet), with
+    # profiles: num's histogram (with a NaN), char's most common values (with a missing value),
+    # fctr's (5 and the 3 others) and date's histogram (of datetimes), and none for currency.
+    # Optionally stacked in a narrow container
+    data = exibble[["num", "char", "fctr", "date", "currency", "row", "group"]].assign(
+        date=lambda df: pd.to_datetime(df["date"])
+    )
+    gti = (
+        GTI(data, rowname_col="row", groupname_col="group", id=table_id)
+        .fmt_number(columns="num", decimals=2)
+        .fmt_currency(columns="currency")
+        .fmt_date(columns="date", date_style="year.mn.day")
+        .row_group_order(["grp_b", "grp_a"])
+        .opt_table_font(font="monospace", add=False)
+        .i_cols_filter("fctr", type="facet")
+        .i_cols_profile(["num", "char", "fctr", "date"])
+        .i_responsive(mode)  # type: ignore[arg-type]
+    )
+    return render_gti_html(gti, runtime="none")
+
+
+def explorer_html(table_id: str, mode: str = "scroll", select: bool = False) -> str:
+    # exibble's num, char, fctr and date (8 rows, with row_1... as the stub), as an explorer: the
+    # rows numbered, the dtypes under the labels, the dimensions above, and the missing values
+    # (num's in row 6, char's in row 5, date's in row 7) tinted, as `sub_missing()` shows them.
+    # Optionally with rows to select, and stacked or dropping columns in a narrow container
+    gti = (
+        GTI(
+            exibble[["num", "char", "fctr", "date", "row"]],
+            rowname_col="row",
+            id=table_id,
+            preset="explorer",
+        )
+        .sub_missing()
+        .opt_table_font(font="monospace", add=False)
+        .i_responsive(mode)  # type: ignore[arg-type]
+        .i_cols_priority("char")
+    )
+    return render_gti_html(gti.i_selection("multiple") if select else gti, runtime="none")
+
+
+def explorer_page_html(table_id: str, scroll: bool = False) -> str:
+    # exibble's num, char, fctr and date as an explorer in the table's own font (so the cells and
+    # labels are monospaced by the preset), 3 rows to a page or in a body that scrolls
+    gti = GTI(
+        exibble[["num", "char", "fctr", "date", "row"]],
+        rowname_col="row",
+        id=table_id,
+        preset="explorer",
+    )
+    gti = gti.i_scroll(150) if scroll else gti.i_pagination(page_size=3)
+    return render_gti_html(gti, runtime="none")
+
+
+def link_html() -> str:
+    # Two tables linked by exibble's group: one of the groups (grp_a, grp_b), whose rows can be
+    # selected, and one of exibble's rows (8, row_1... as the stub, grp_a's first), 5 to a page
+    groups = pd.DataFrame({"group": ["grp_a", "grp_b"], "rows": [4, 4]})
+    linked = [
+        GTI(groups, id="groups").tab_header(title="Groups").i_selection("multiple"),
+        GTI(exibble[["num", "char", "row", "group"]], rowname_col="row", id="rows")
+        .tab_header(title="Rows")
+        .fmt_number(columns="num", decimals=2)
+        .i_pagination(page_size=5, page_sizes=None),
+    ]
+    return "\n".join(
+        render_gti_html(gti.i_link("exibble", on="group"), runtime="none") for gti in linked
+    )
+
+
+COLOR_DF = pd.DataFrame(
+    {
+        "fruit": ["apple", "avocado", "banana", "blueberry", "cherry", "date"],
+        "n": [1.0, 2.0, 3.0, 4.0, 5.0, None],
+        "m": [1, 2, 3, 4, 5, 6],
+    }
+)
+# (The searches the test makes, and the rows they keep)
+COLOR_SEARCHES = {"b": [2, 3], "a": [0, 1, 2, 5]}
+
+
+def n_colors(gt: GT, rows: list[int]) -> dict[str, list[str | None]]:
+    # The fill and text color of each of n's cells, by its row in `COLOR_DF` (the table's `rows`)
+    found: dict[str, list[str | None]] = {}
+    for info in gt._styles:
+        if info.colname == "n":
+            cell = found.setdefault(str(rows[info.rownum]), [None, None])
+            for cell_style in info.styles:
+                if isinstance(cell_style, (CellStyleFill, CellStyleText)):
+                    cell[isinstance(cell_style, CellStyleText)] = cell_style.color
+    return found
+
+
+def colors_html(collapse: bool = False) -> str:
+    # Fruits (apple, avocado, banana, blueberry, cherry, date; date's n is missing), whose n and m
+    # are colored blue, and apple's n red; n's colors made again from the rows a search keeps,
+    # m's left as they are. Then, as JSON, n's colors (as `n_colors()` has them) with every row
+    # shown, and with each search, as `data_color()` makes them from the rows kept. Optionally
+    # dropping n to fit a narrow container (m has priority), in a monospace font
+    gti = (
+        GTI(COLOR_DF, rowname_col="fruit", id="c")
+        .data_color(columns=["n", "m"], palette="Blues")
+        .tab_style(style.fill("#FF0000"), loc.body("n", rows=[0]))
+        .i_cols_controls("n", data_color="recompute")
+        .i_pagination(False)
+    )
+    if collapse:
+        gti = (
+            gti.opt_table_font(font="monospace", add=False)
+            .i_cols_priority("m")
+            .i_responsive("collapse")
+        )
+    first = n_colors(gti, list(range(len(COLOR_DF))))
+    expected = {"": first}
+    for search, kept in COLOR_SEARCHES.items():
+        alone = GT(COLOR_DF.iloc[kept].reset_index(drop=True)).data_color(
+            columns="n", palette="Blues"
+        )
+        # (The cells the search hides keep their colors, and so does apple's, which still counts)
+        expected[search] = {**first, **n_colors(alone, kept), "0": first["0"]}
+    return (
+        render_gti_html(gti, runtime="none")
+        + f'\n<script type="application/json" id="expected">{json.dumps(expected)}</script>'
+    )
 
 
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
@@ -543,6 +781,23 @@ QUERY_ONLY_VIEWS = [
     ('fctr in ("one", "five") and currency >= 10', "-currency"),
     (None, "-currency"),
 ]
+
+
+def labels_html(table_id: str) -> str:
+    # Exibble (8 rows), on one page, whose columns with filters are labelled other than their
+    # names: num ("Amount (€)", a range), char ("Café", text), and fctr and currency both "Kind"
+    # (a facet, and a range left out for querying)
+    gti = (
+        GTI(exibble[["num", "char", "fctr", "currency", "row"]], rowname_col="row", id=table_id)
+        .cols_label(num="Amount (€)", char="Café", fctr="Kind", currency="Kind")
+        .i_pagination(enabled=False)
+        .i_cols_filter(columns="num")
+        .i_cols_filter(columns="char", type="text")
+        .i_cols_filter(columns="fctr", type="facet")
+        .i_cols_filter(columns="currency", type="range")
+        .i_cols_controls(columns="currency", display=False)
+    )
+    return render_gti_html(gti, runtime="none")
 
 
 def query_only_cases() -> list[dict]:
@@ -646,6 +901,12 @@ def main() -> None:
             sort_html("s", groups_as_column=True, summaries=False) + "\n" + runtime_src,
             head=styles,
         ),
+        # The table to sort on a page with styles of its own (as Bootstrap's, for one, sizes
+        # boxes), in a container that scrolls (as a Quarto page's cell output does).
+        "sort-page-styles.html": page(
+            '<div style="overflow: auto">\n' + sort_html("s") + "\n</div>\n" + runtime_src,
+            head=styles + "<style>*, ::before, ::after { box-sizing: border-box; }</style>\n",
+        ),
         # Tables to search, likewise.
         "search.html": page(search_html("q") + "\n" + runtime_src, head=styles),
         "search-column.html": page(
@@ -717,6 +978,15 @@ def main() -> None:
             + "\n"
             + runtime_src,
             head=styles,
+        ),
+        # The first, on a page that scrolls (above and below it), whose styles give the table
+        # margins (as a Quarto page's do)
+        "scroll-page.html": page(
+            '<div style="height: 600px"></div>\n'
+            + scroll_html("v", use_pagination=False, use_search=True)
+            + '\n<div style="height: 1500px"></div>\n'
+            + runtime_src,
+            head=styles + "<style>table { margin-block: 8.5px; }</style>\n",
         ),
         "scroll-column.html": page(
             scroll_html("v", groups_as_column=True, use_pagination=False) + "\n" + runtime_src,
@@ -801,7 +1071,8 @@ def main() -> None:
         ),
         # GTI tables, with the control bar: 12 pages and a search; as narrow as one column; in a
         # container 300px wide; on one page, which the bar sticks to the bottom of the view of;
-        # and without the runtime (added by the test), with text after it.
+        # without the runtime (added by the test), with text after it; and on one page that
+        # scrolls.
         "bar.html": page(bar_html("c") + "\n" + runtime_src, head=styles),
         "bar-narrow.html": page(bar_html("c", columns=["char"]) + "\n" + runtime_src, head=styles),
         "bar-container.html": page(
@@ -811,7 +1082,21 @@ def main() -> None:
             bar_html("c", enabled=False) + '\n<div style="height: 1500px"></div>\n' + runtime_src,
             head=styles,
         ),
+        # Its parts named for good, as on a docs page: in a container that scrolls sideways, as
+        # Quarto's for a table is
+        "parts.html": page(
+            '<div style="overflow-x: auto">' + bar_html("c", parts=True) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
         "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
+        # On one page, in a body that scrolls within 300px, its view kept in the URL
+        "bar-scroll.html": page(
+            bar_html("c", enabled=False, height="300px") + "\n" + runtime_src, head=styles
+        ),
+        # 10 rows to a page (3 pages), in a body that scrolls within 250px
+        "bar-scroll-pages.html": page(
+            bar_html("c", height="250px", page_size=10) + "\n" + runtime_src, head=styles
+        ),
         # The info panel: of a GTI table whose rows can be selected, with page sizes of 2 and 5
         # (below room for the panel above it); and of one in a container 300px wide
         "info.html": page(
@@ -862,7 +1147,9 @@ def main() -> None:
         "controls.html": page(controls_html("cc") + "\n" + runtime_src, head=styles),
         # Pinned columns (at the start and the end), in a container 480px wide: with group
         # headings; with groups shown as a column, in a body that scrolls (in one 640px wide, with
-        # room for that column); and right to left
+        # room for that column); in a body that scrolls, with the group headings stuck (with no
+        # background of their own, from the page's CSS); right to left; and with a filter on every
+        # column
         "pin.html": page(
             '<div style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
             head=styles,
@@ -874,10 +1161,33 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        "pin-scroll.html": page(
+            '<div style="width: 480px; --gt-row-group-background-color: transparent">'
+            + pin_html("pn", height="300px")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
         "pin-rtl.html": page(
             '<div dir="rtl" style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
             head=styles,
         ),
+        "pin-filters.html": page(
+            '<div style="width: 480px">' + pin_html("pn", filters=True) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        # Tables under a CSS zoom of 1.25: with the control bar; with the pinned columns, in a
+        # container 480px wide; and with resize handles
+        **{
+            f"{name}-zoom.html": page(
+                f'<div style="zoom: 1.25">{table}</div>\n' + runtime_src, head=styles
+            )
+            for name, table in [
+                ("bar", bar_html("c")),
+                ("pin", '<div style="width: 480px">' + pin_html("pn") + "</div>"),
+                ("resize", resize_html("r")),
+            ]
+        },
         # Hiding columns: of the pinned columns' table, in a container 480px wide, and right to
         # left; and of a table without a stub, whose last column shown can't be hidden
         "hide.html": page(
@@ -907,6 +1217,19 @@ def main() -> None:
             '<div dir="rtl" style="width: 780px">' + reorder_html("r") + "</div>\n" + runtime_src,
             head=styles,
         ),
+        # Grouping rows: of twelve towns, 5 to a page; and all on one page, its body scrolling
+        # within 200px, grouped by region to start with
+        "group.html": page(
+            '<div style="width: 800px">' + group_html("g") + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "group-scroll.html": page(
+            '<div style="width: 800px">'
+            + group_html("g", height="200px")
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
         # Export: from a GTI table 5 rows to a page, whose rows can be selected
         "export.html": page(export_html("e") + "\n" + runtime_src, head=styles),
         # Export as code: from GTI tables of pandas data and of Polars data, the latter with a
@@ -923,6 +1246,8 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
+        # Columns labelled other than their names, for the query box
+        "labels.html": page(labels_html("l") + "\n" + runtime_src, head=styles),
         # Columns only for querying: in a GTI table that shows two of exibble's columns
         "query-only.html": page(
             render_gti_html(query_only_gti("q"), runtime="none") + "\n" + runtime_src,
@@ -966,6 +1291,18 @@ def main() -> None:
                 mode="auto",
                 columns=["num", "char", "fctr", "date", "time", "datetime", "currency"],
             )
+            + "</div>\n"
+            + runtime_src,
+            head=styles,
+        ),
+        # Stacked tables in GT's own container 360px wide (`container_width=`), in the page: by
+        # itself, and in an inline block
+        "stack-container.html": page(
+            stack_html("k", container_width="360px") + "\n" + runtime_src, head=styles
+        ),
+        "stack-container-inline.html": page(
+            '<div style="display: inline-block">'
+            + stack_html("k", container_width="360px")
             + "</div>\n"
             + runtime_src,
             head=styles,
@@ -1020,6 +1357,74 @@ def main() -> None:
                 ("-narrow", "", "160px", {}),
             ]
         },
+        # Tables with rows' details: in a wide container; and stacked, and dropping columns, in
+        # narrow ones
+        **{
+            f"details{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + details_html("d", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-stack", "360px", {"mode": "stack"}),
+                ("-collapse", "300px", {"mode": "collapse"}),
+            ]
+        },
+        # Tables with profiles under their labels: in a wide container, and stacked in a narrow one
+        **{
+            f"profile{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + profile_html("f", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-stack", "360px", {"mode": "stack"}),
+            ]
+        },
+        # Explorers paged and in a body that scrolls, between paragraphs on a page whose styles
+        # give the table margins (as a Quarto page's do)
+        **{
+            f"explorer-page{suffix}.html": page(
+                '<p id="before">Before.</p>\n'
+                + explorer_page_html("e", scroll=scroll)
+                + '\n<p id="after">After.</p>\n'
+                + runtime_src,
+                head=styles + "<style>table { margin-block: 8.5px; } p { margin: 0; }</style>\n",
+            )
+            for suffix, scroll in [("", False), ("-scroll", True)]
+        },
+        # Explorers (`preset="explorer"`): in a wide container, with rows to select, and stacked or
+        # dropping columns in narrow ones
+        **{
+            f"explorer{suffix}.html": page(
+                f'<div style="width: {width}">'
+                + explorer_html("e", **options)
+                + "</div>\n"
+                + runtime_src,
+                head=styles,
+            )
+            for suffix, width, options in [
+                ("", "800px", {}),
+                ("-select", "800px", {"select": True}),
+                ("-stack", "360px", {"mode": "stack"}),
+                ("-collapse", "300px", {"mode": "collapse"}),
+            ]
+        },
+        # Two tables linked by a column: the rows selected in one filter the other
+        "link.html": page(link_html() + "\n" + runtime_src, head=styles),
+        # A table whose colors are made again from the rows a search keeps
+        "colors.html": page(colors_html() + "\n" + runtime_src, head=styles),
+        # (Dropping n, which a row open shows under it, in those colors)
+        "colors-collapse.html": page(
+            '<div style="width: 160px">' + colors_html(collapse=True) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
         "collapse-nostub.html": page(
             '<div style="width: 240px">'
             + render_gti_html(

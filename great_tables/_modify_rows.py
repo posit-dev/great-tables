@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from ._gt_data import (
     FormatFn,
@@ -19,6 +19,8 @@ from ._tbl_data import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from ._types import GTSelf
 
 
@@ -262,11 +264,10 @@ def summary_rows(
 
     ```{python}
     import polars as pl
-    from great_tables import GT, vals
-    from great_tables.data import gtcars
+    from great_tables import GT, data, vals
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
@@ -326,11 +327,10 @@ def summary_rows(
 
     ```{python}
     import polars as pl
-    from great_tables import GT, vals
-    from great_tables.data import gtcars
+    from great_tables import GT, data, vals
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
@@ -350,11 +350,10 @@ def summary_rows(
 
     ```{python}
     import polars as pl
-    from great_tables import GT, vals, style, loc
-    from great_tables.data import gtcars
+    from great_tables import GT, data, vals, style, loc
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
@@ -388,11 +387,10 @@ def summary_rows(
 
     ```{python}
     import polars as pl
-    from great_tables import GT, vals
-    from great_tables.data import gtcars
+    from great_tables import GT, data, vals
 
     gtcars_mini = (
-        pl.from_pandas(gtcars)
+        data.pl.gtcars
         .select(["mfr", "model", "hp", "trq"])
         .head(12)
     )
@@ -581,11 +579,10 @@ def grand_summary_rows(
     ```{python}
     import polars as pl
     import polars.selectors as cs
-    from great_tables import GT, vals, style, loc
-    from great_tables.data import sp500
+    from great_tables import GT, data, vals, style, loc
 
     sp500_mini = (
-        pl.from_pandas(sp500)
+        data.pl.sp500
         .slice(0, 7)
         .drop(["volume", "adj_close"])
     )

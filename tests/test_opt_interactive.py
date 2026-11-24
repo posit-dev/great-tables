@@ -117,23 +117,36 @@ class TestAsRawHtml:
 
     def test_make_page(self, gt_mini: GT):
         html = gt_mini.opt_interactive().as_raw_html(make_page=True)
-        assert html.startswith('<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8"/>')
+        assert html.startswith(
+            '<!DOCTYPE html>\n<html lang="en" style="color-scheme: light dark">\n<head>\n'
+            '<meta charset="utf-8"/>'
+        )
         assert '<meta name="viewport" content="width=device-width, initial-scale=1"/>' in html
         assert "<body>\n<gt-table>\n" in html
         assert html.endswith("</body>\n</html>\n")
 
     def test_make_page_as_gti_does(self):
         gt = GT(pl.DataFrame({"x": [1]}), id="t").opt_interactive()
-        assert gt.as_raw_html(make_page=True) == page_html(gt.as_raw_html())
+        assert gt.as_raw_html(make_page=True) == page_html(gt.as_raw_html(), gt)
 
     def test_all_important(self):
         gt = GT(pl.DataFrame({"x": [1]}), id="t").opt_interactive()
         assert "!important" not in table_in(gt.as_raw_html())
         assert re.search(r"#t \.gt_row {[^}]*?!important", gt.as_raw_html(all_important=True))
 
-    def test_inline_css_is_ignored(self, gt_mini: GT):
+    def test_inline_css_is_ignored_with_a_warning(self, gt_mini: GT):
         gt = gt_mini.opt_interactive()
-        assert gt.as_raw_html(inline_css=True) == gt.as_raw_html()
+        with pytest.warns(UserWarning, match=r"`inline_css=True` is ignored"):
+            assert gt.as_raw_html(inline_css=True) == gt.as_raw_html()
+
+    def test_inline_css_of_a_table_not_interactive_any_more(self, gt_mini: GT):
+        # (Inlined, without the warning)
+        pytest.importorskip("css_inline")
+        gt = gt_mini.opt_interactive()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            html = gt.opt_interactive(active=False).as_raw_html(inline_css=True)
+        assert "<gt-table" not in html and "<style>" not in html
 
     def test_unique_ids_across_tables(self):
         df = pl.DataFrame({"x": [1, 2]})
@@ -176,7 +189,17 @@ class TestAsRawHtml:
             "info": True,
             "type": "full",
         }
-        assert spec["display"] == {"highlight": True, "compact": True, "wrap": True}
+        assert spec["display"] == {
+            "highlight": True,
+            "compact": True,
+            "wrap": True,
+            "monospace": False,
+            "parts": False,
+            "row_numbers": False,
+            "row_start": 0,
+            "dimensions": False,
+            "data_kind": None,
+        }
 
     @pytest.mark.parametrize(
         "height, expected",

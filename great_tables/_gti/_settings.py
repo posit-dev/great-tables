@@ -11,6 +11,8 @@ from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from .._gt_data import GTData, Options
 
 SelectionMode = Literal["single", "multiple"]
@@ -28,6 +30,18 @@ PAGE_SIZES = (10, 25, 50, 100)
 FilterType = Literal["auto", "text", "facet", "range", "date", "bool"]
 
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date", "bool")
+
+# A column's profile, the plot under its label: as its kind suggests ("auto"), a histogram of its
+# numbers or dates, or bars for its most common values
+ProfilePlot = Literal["auto", "histogram", "top"]
+
+PROFILE_PLOTS: tuple[ProfilePlot, ...] = ("auto", "histogram", "top")
+
+# What a column's `data_color()` colors do when the rows are searched or filtered: stay as they are
+# (made from every row), or be made again from the rows kept
+DataColorMode = Literal["keep", "recompute"]
+
+DATA_COLOR_MODES: tuple[DataColorMode, ...] = ("keep", "recompute")
 
 # How readers can export the rows: by copying them, or downloading them as CSV, TSV or JSON; or
 # copy the code that filters and sorts the data as the view does
@@ -47,6 +61,20 @@ PIN_SIDES: tuple[PinSide, ...] = ("left", "right")
 ResponsiveMode = Literal["scroll", "stack", "collapse", "auto"]
 
 RESPONSIVE_MODES: tuple[ResponsiveMode, ...] = ("scroll", "stack", "collapse", "auto")
+
+# The settings a new `GTI` table starts with: those for a report (`GTI`'s defaults), or those for
+# exploring data (every column filtered and profiled, hideable and movable, compact rows, CSV
+# export, and what `i_inspect()` shows)
+Preset = Literal["report", "explorer"]
+
+PRESETS: tuple[Preset, ...] = ("report", "explorer")
+
+# Where a widget's rows are searched, filtered, sorted and paged: in the browser (which then has
+# them all), in Python (the kernel, which sends the browser a page at a time), or in Python if the
+# table is too large for the browser
+Engine = Literal["auto", "browser", "kernel"]
+
+ENGINES: tuple[Engine, ...] = ("auto", "browser", "kernel")
 
 
 @dataclass(frozen=True)
@@ -76,6 +104,23 @@ class Settings:
     highlight: bool = True
     compact: bool = False
     wrap: bool = True
+    # (The column labels and the cells in a monospaced font, as `i_display()` set it)
+    monospace: bool = False
+    # (The parts GTI adds named over the table, for good, as `i_display()` set it: for a docs page)
+    parts: bool = False
+    # (What readers see of the data itself, as `i_inspect()` set it: each row's number (its place
+    # in the data), each column's dtype (under its label), the number of rows and columns (above
+    # the table), and the missing values (tinted); none, by default)
+    row_numbers: bool = False
+    # (The first row's number, 0 or 1; `None` for the data's own (from 1 for a database's relation
+    # or table, from 0 for a DataFrame's, as its index is))
+    row_start: int | None = None
+    dtypes: bool = False
+    dimensions: bool = False
+    missing: bool = False
+    # (What the data is, which the dimensions start with ("Polars DataFrame"): `GTI()` names it,
+    # where it knows the kind; `None` for one it doesn't)
+    data_kind: str | None = None
     # (GTI's control bar below the table; `opt_interactive()` tables keep a search box above the
     # table and page controls below it, as `pagination_type` says)
     bar: bool = True
@@ -84,21 +129,29 @@ class Settings:
     unsortable: tuple[str, ...] = ()
     unsearchable: tuple[str, ...] = ()
     unresizable: tuple[str, ...] = ()
-    # (The columns readers can hide, and those they can move, in the order they were set; none, by
-    # default)
+    # (The columns readers can hide, those they can move, and those they can group the rows by, in
+    # the order they were set; none, by default)
     hideable: tuple[str, ...] = ()
     reorderable: tuple[str, ...] = ()
+    groupable: tuple[str, ...] = ()
+    # (The columns whose `data_color()` colors are made again from the rows a search or filter
+    # keeps, in the order they were set; none, by default, so that colors stay as they are)
+    recolor: tuple[str, ...] = ()
     # (The columns left out of the table but shipped for querying, in the order they were set)
     query_only: tuple[str, ...] = ()
     # (The columns pinned to a side, as `i_cols_pin()` set them, in the order they were set)
     pins: tuple[tuple[str, PinSide], ...] = ()
     # (The columns readers can filter by, and how, in the order they were set)
     filters: tuple[tuple[str, FilterType], ...] = ()
+    # (The columns with a profile under their label, and its plot, in the order they were set)
+    profiles: tuple[tuple[str, ProfilePlot], ...] = ()
     # (How the table is first shown: a query, checked as `i_view()` takes it, and sort keys,
-    # each a column and whether it's descending; and the columns hidden)
+    # each a column and whether it's descending; the columns hidden; and the column the rows are
+    # grouped by)
     view_filter: dict[str, list[dict[str, Any]]] | None = None
     view_sort: tuple[tuple[str, bool], ...] = ()
     view_hidden: tuple[str, ...] = ()
+    view_group_by: str | None = None
     # (How readers can export the rows, from the bar; none, by default. The name of a download,
     # without its extension)
     export_formats: tuple[ExportFormat, ...] = ()
@@ -109,6 +162,15 @@ class Settings:
     view_state_url: bool = False
     view_state_storage: bool = False
     view_state_undo: bool = False
+    # (Each data row's details, which readers can show under it: what a function of the row's
+    # values makes, or what a column (left out of the table) holds; none, by default)
+    row_details: Callable[[dict[str, Any]], Any] | str | None = None
+    # (The tables on the page this one is linked to, by their group's name, and the column whose
+    # values link their rows, so that rows selected in one filter the others; none, by default)
+    link_group: str | None = None
+    link_on: str | None = None
+    # (Where a widget's rows are searched, filtered, sorted and paged, as `i_scale()` set it)
+    engine: Engine = "auto"
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:
@@ -117,7 +179,7 @@ class Settings:
         height = options.ihtml_height.value
         # (`tab_options()` takes only these)
         selection = options.ihtml_selection_mode.value
-        # (`opt_interactive()` doesn't check the type, so an unknown one falls back to "numbers")
+        # (`tab_options()` takes only these, but options set otherwise fall back to "numbers")
         pagination_type = options.ihtml_pagination_type.value
         return cls(
             sorting=bool(options.ihtml_use_sorting.value),

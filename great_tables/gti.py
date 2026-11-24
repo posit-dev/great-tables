@@ -1,23 +1,36 @@
 from __future__ import annotations
 
+import copy
+import functools
+import inspect
 import math
 import numbers
 import operator
+import sys
+from contextvars import ContextVar
 from dataclasses import replace
-from typing import Any, NoReturn
+from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 from typing_extensions import Self
 
 from ._gt_data import ColInfoTypeEnum
 from ._gti._settings import (
+    DATA_COLOR_MODES,
+    ENGINES,
     EXPORT_FORMATS,
     FILTER_TYPES,
     PIN_SIDES,
+    PRESETS,
+    PROFILE_PLOTS,
     RESPONSIVE_MODES,
     SELECTION_MODES,
+    DataColorMode,
+    Engine,
     ExportFormat,
     FilterType,
     PinSide,
+    Preset,
+    ProfilePlot,
     ResponsiveMode,
     SelectionMode,
     Settings,
@@ -26,8 +39,14 @@ from ._gti._settings import (
 from ._gti._spec import _has_time_zone
 from ._locations import resolve_cols_c
 from ._options import _is_height
-from ._tbl_data import SelectExpr, _get_column_kind
+from ._tbl_data import SelectExpr, _get_column_kind, get_column_names
 from .gt import GT
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from ._gti._lazy import Lazy
+    from ._gti._widget import GTIWidget
 
 __all__ = ["GTI"]
 
@@ -54,6 +73,31 @@ class GTI(GT):
     interface, one readers work with, and [`GTI.from_gt()`](`great_tables.GTI.from_gt`) turns a
     `GT` table into one.
 
+    A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) is made,
+    formatted and styled as any other, but its rows are collected only as they're shown. Shown as
+    a widget (with [`i_as_widget()`](`great_tables.GTI.i_as_widget`)) or in a Shiny app (with
+    [`render_gt()`](`great_tables.shiny.render_gt`)), a table of more rows than the browser is
+    quick with keeps them in Python (see [`i_scale()`](`great_tables.GTI.i_scale`)): each view is
+    found with a query on the frame, and only the rows of the page shown are collected, formatted
+    and rendered. Anywhere else (or with few rows), all the rows are collected and the table is
+    shown as a table of them would be.
+
+    The table is made again from the rows shown, by the same methods: so what depends on every row
+    can't be used (`data_color()`, a footnote on the body or the stub, or rows chosen by their
+    positions, rather than by an expression or their names in the stub); and a method that looks
+    at the rows it's given looks only at the page's (as an expression of a column's mean does, in
+    `tab_style()`'s rows, or `cols_align_decimal()`, or a nanoplot's scale). A table with summary
+    rows or row groups has all its rows collected. In Python, its search, and its filters'
+    "contains" and "matches" clauses, match the rows' values as text (e.g., `1000.5`), not the
+    text of their cells (`1,000.50`), and a missing value matches nothing.
+
+    A DuckDB relation's or an Ibis table's rows have no order that's kept from one query to the
+    next, so they're shown in the order of their values: sorted by the columns of `order_by=`,
+    then by every other column (but those of lists, structs and objects). A Polars LazyFrame's are
+    in its own order, unless it's given an `order_by=`. The collected rows, and their data (as
+    the widget's `view()` gives it), are of the frame's backend: a Polars DataFrame, for a
+    LazyFrame, and a PyArrow table, for DuckDB and Ibis.
+
     :::{.callout-warning}
     `GTI()` is experimental: its methods, and what they do, may change.
     :::
@@ -61,7 +105,8 @@ class GTI(GT):
     Parameters
     ----------
     data
-        A DataFrame object.
+        A DataFrame object, or a lazy frame: a Polars LazyFrame, a DuckDB relation or an Ibis table
+        (whose rows are collected as they're shown: see above).
     rowname_col
         The column name in the input `data=` table to use as row labels to be placed in the table
         stub. A list of column names creates a hierarchical stub.
@@ -78,6 +123,24 @@ class GTI(GT):
     locale
         An optional locale identifier that can be set as the default locale for all functions that
         take a `locale` argument.
+    preset
+        The settings the table starts with: `"report"` (the default) for a table to be read, with
+        the controls above; or `"explorer"` for a look through data, as if made with
+        `i_cols_filter()` and `i_cols_profile()` (every column filtered and profiled, as its kind
+        suggests), `i_cols_controls(hideable=True, reorderable=True)` (every column can be hidden
+        and moved), `i_display(compact=True, wrap=False, monospace=True)` (compact rows of one
+        line each, in a monospaced font), `i_export("csv")` and `i_inspect()` (row numbers,
+        dtypes under the labels, what the data is and its number of rows and columns, and missing
+        values tinted). The stub is left out of these, as those methods leave it out. The `i_`
+        methods change a preset as they change any table: each sets all of its feature's settings
+        (so `i_display(wrap=True)` on an explorer lets its text wrap, but also makes its rows less
+        compact and puts them in the table's own font, unless it's given `compact=True` and
+        `monospace=True` too), and the `i_cols_` methods set those of the columns they're given.
+    order_by
+        For a lazy frame, the columns its rows are in the order of (and numbered by): the rows sort
+        by them first, then by the frame's other columns (see above). A column of unique values
+        (an ID) is best, which leaves them nothing to sort. Not for a DataFrame (which can be
+        sorted first, for the table).
 
     Returns
     -------
@@ -86,8 +149,8 @@ class GTI(GT):
 
     Examples
     --------
-    Out of the box, a `GTI` table can be sorted by its columns (by clicking their labels), searched,
-    and paged through, ten rows at a time, and its columns can be resized.
+    Out of the box, a `GTI` table can be sorted by its columns (with the arrows under their labels),
+    searched, and paged through, ten rows at a time, and its columns can be resized.
 
     ```{python}
     from great_tables import GTI
@@ -111,7 +174,39 @@ class GTI(GT):
     )
     ```
 
+    With `preset="explorer"`, the table is set up for looking through data: each column can be
+    filtered (from the button by its label) and has a profile of its values, with its dtype, the
+    rows are numbered, compact and monospaced, missing values are tinted, the status line above
+    the table says what the data is and how much of it there is, and the rows can be downloaded.
+
+    ```{python}
+    from great_tables.data import gtcars
+
+    GTI(gtcars[["mfr", "model", "year", "hp", "msrp", "ctry_origin"]], preset="explorer")
+    ```
+
     A `GT` table can be made into a `GTI` table with [`GTI.from_gt()`](`great_tables.GTI.from_gt`).
+
+    A table of a Polars LazyFrame keeps its rows there until they're shown.
+
+    ```python
+    import polars as pl
+    from great_tables import GTI
+
+    lf = pl.scan_parquet("trips.parquet")
+
+    GTI(lf).fmt_number(columns="fare", decimals=2).i_cols_filter("payment").i_as_widget()
+    ```
+
+    And so does a table of a DuckDB relation, in DuckDB, its rows in the order of a column of IDs.
+
+    ```python
+    import duckdb
+
+    trips = duckdb.read_parquet("trips.parquet")
+
+    GTI(trips, order_by="trip_id").i_cols_filter("payment").i_as_widget()
+    ```
     """
 
     def __init__(
@@ -122,22 +217,55 @@ class GTI(GT):
         auto_align: bool = True,
         id: str | None = None,
         locale: str | None = None,
+        preset: Preset = "report",
+        order_by: str | list[str] | None = None,
     ):
-        super().__init__(
-            data,
-            rowname_col=rowname_col,
-            groupname_col=groupname_col,
-            auto_align=auto_align,
-            id=id,
-            locale=locale,
-        )
+        if preset not in PRESETS:
+            raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
+        kind = _data_kind(data)
+        init = {
+            "rowname_col": rowname_col,
+            "groupname_col": groupname_col,
+            "auto_align": auto_align,
+            "id": id,
+            "locale": locale,
+        }
+        lazy = None
+        if _is_lazy_frame(data):
+            # (Made over a frame of its columns, without rows, and made again from the rows shown:
+            # see `_gti/_lazy.py`)
+            from ._gti._lazy import lazy_table
+
+            data, lazy = lazy_table(data, init, order_by)
+        elif order_by is not None:
+            raise ValueError(
+                "`order_by=` orders a lazy frame's rows, and this data isn't one: sort it first."
+            )
+        super().__init__(data, **init)
+        if lazy is not None:
+            object.__setattr__(self, "_boxhead", lazy.boxhead)
+        object.__setattr__(self, "_lazy", lazy)
         # (Kept apart from the table's options, which are `GT`'s; frozen, as the table is)
-        object.__setattr__(self, "_interactive", Settings())
+        object.__setattr__(self, "_interactive", Settings(data_kind=kind))
+        if preset == "explorer":
+            object.__setattr__(self, "_interactive", self._explorer()._interactive)
 
     _interactive: Settings
+    _lazy: Lazy | None
+
+    def _explorer(self) -> Self:
+        # (The table with the explorer preset's settings, over those it has)
+        return (
+            self.i_cols_filter()
+            .i_cols_profile()
+            .i_cols_controls(hideable=True, reorderable=True)
+            .i_display(compact=True, wrap=False, monospace=True)
+            .i_export("csv")
+            .i_inspect()
+        )
 
     @classmethod
-    def from_gt(cls, gt: GT) -> GTI:
+    def from_gt(cls, gt: GT, preset: Preset = "report") -> GTI:
         """
         Make an interactive table from a `GT` table.
 
@@ -151,6 +279,12 @@ class GTI(GT):
         ----------
         gt
             A `GT` table.
+        preset
+            The settings the table starts with: `"report"` (the default) for those above; or
+            `"explorer"` for those of [`GTI(preset="explorer")`](`great_tables.GTI`), set over
+            them by the `i_` methods it's made with (each of which sets all of its feature's
+            settings, so that its `i_display()` sets how the rows look, whatever
+            `opt_interactive()` set, but the page controls and selection are kept).
 
         Returns
         -------
@@ -162,16 +296,33 @@ class GTI(GT):
         A table made with `GT()` can become interactive at the end.
 
         ```{python}
-        from great_tables import GT, GTI
-        from great_tables.data import towny
+        from great_tables import GT, GTI, data
 
-        gt_tbl = GT(towny[["name", "population_2021"]]).fmt_integer(columns="population_2021")
+        towny_mini = data.pl.towny.select("name", "population_2021")
+
+        gt_tbl = GT(towny_mini).fmt_integer(columns="population_2021")
 
         GTI.from_gt(gt_tbl)
         ```
+
+        A Polars DataFrame's `.style` property makes a `GT` table too, so a table started from it
+        can become interactive in the same way.
+
+        ```{python}
+        GTI.from_gt(towny_mini.style.fmt_integer(columns="population_2021")).i_cols_profile()
+        ```
+
+        With `preset="explorer"`, it's set up for looking through its data, as a
+        `GTI(preset="explorer")` table is.
+
+        ```{python}
+        GTI.from_gt(gt_tbl, preset="explorer")
+        ```
         """
+        if preset not in PRESETS:
+            raise ValueError(f'`preset=` must be "report" or "explorer", not {preset!r}.')
         if isinstance(gt, GTI):
-            return gt
+            return gt._explorer() if preset == "explorer" else gt
         if not isinstance(gt, GT):
             raise TypeError(f"`GTI.from_gt()` needs a `GT` table, not {type(gt).__name__!r}.")
 
@@ -182,14 +333,15 @@ class GTI(GT):
                 pagination_type=Settings().pagination_type,
                 bar=True,
                 responsive=Settings().responsive,
+                data_kind=_data_kind(gt._tbl_data),
             )
         else:
-            settings = Settings()
+            settings = Settings(data_kind=_data_kind(gt._tbl_data))
 
         new = cls.__new__(cls)
         new.__dict__.update(gt.__dict__)
         object.__setattr__(new, "_interactive", settings)
-        return new
+        return new._explorer() if preset == "explorer" else new
 
     def _set_interactive(self, **changes: Any) -> Self:
         return self._replace(_interactive=replace(self._interactive, **changes))
@@ -203,12 +355,13 @@ class GTI(GT):
         """
         Let readers sort the table by its columns.
 
-        A column is sorted by clicking (or tapping) its label: once for ascending order, again for
-        descending, and a third time to go back to the table's own order. With Shift held, a column
-        is added to the sort (and is sorted within the columns before it). Rows are sorted by the
-        column's values, not by how they're formatted, and stay in their row groups. The info panel
-        (from the (i) button in the control bar) says how the table is sorted, and can put it back
-        in its own order. Sorting is on by default; some columns can be left unsortable with
+        A column is sorted with the arrows under its label (or by clicking the label itself): once
+        for ascending order, again for descending, and a third time to go back to the table's own
+        order. With Shift held, a column is added to the sort (and is sorted within the columns
+        before it). Rows are sorted by the column's values, not by how they're formatted, and stay
+        in their row groups. The info panel (from the (i) button in the control bar) says how the
+        table is sorted, and can put it back in its own order. Sorting is on by default; some
+        columns can be left unsortable with
         [`i_cols_controls()`](`great_tables.GTI.i_cols_controls`).
 
         Parameters
@@ -310,11 +463,14 @@ class GTI(GT):
 
         With pagination, readers see a page of rows at a time, with arrows in the control bar below
         the table to go from page to page (as do the arrow keys, Page Up and Page Down, and Home
-        and End, in the bar). Between the arrows is the page and the number of pages, which can be
-        clicked to type the page to go to. Each page is as tall as a full one, so the controls stay
-        in place. The (i) button at the end of the bar opens the table's info panel, which says
-        which rows are shown and has the choice of page size. Pagination is on by default, with ten
-        rows to a page.
+        and End, with the table clicked or focus in it). Between the arrows is the page and the
+        number of pages, which can be clicked to type the page to go to. Each page is as tall as a
+        full one, so the controls stay in place. The (i) button at the end of the bar opens the table's info panel, which says
+        which rows are shown and has the choice of page size. Readers can also drag the foot of
+        the page's rows (the line between the last row and the grand summary rows or footer) down
+        or up, for a row more or fewer on each page, from one row to all of them, or focus it and
+        use the arrow keys; Enter or a double click on it goes back to `page_size`, as does the
+        bar's reset. Pagination is on by default, with ten rows to a page.
 
         Parameters
         ----------
@@ -324,7 +480,8 @@ class GTI(GT):
             How many rows are on a page, to begin with.
         page_sizes
             The page sizes readers can choose from, in the info panel (as well as `page_size`).
-            With `None` (or none at all), readers can't change the page size.
+            With `None` (or none at all), readers can't change the page size (and there's no
+            handle to drag at the foot of the rows).
         info
             Whether the info panel says which rows are shown (as in "21–30 of 215 rows").
 
@@ -394,12 +551,18 @@ class GTI(GT):
             )
         return self._set_interactive(selection=mode)
 
-    def i_scroll(self, height: str | int | float | None) -> Self:
+    def i_scroll(self, height: str | float | None) -> Self:
         """
         Make the table's body scroll, within a height.
 
         The table takes up no more than `height`, and its body scrolls within it, with the column
         labels (and the table's header) staying in view. By default, a table grows with its rows.
+
+        With the control bar, readers can drag the foot of the body down or up (or use the arrow
+        keys and Page Up and Page Down on it) for a taller or shorter one: from a row's height to
+        all of the rows. Double-clicking it (or pressing Enter) puts `height` back, as resetting
+        the view does; the height is kept with the view (see
+        [`i_view_state()`](`great_tables.GTI.i_view_state`)).
 
         Parameters
         ----------
@@ -433,9 +596,7 @@ class GTI(GT):
         # (A number is of pixels, as with `tab_options()`)
         return self._set_interactive(height=height if isinstance(height, str) else f"{height}px")
 
-    def i_responsive(
-        self, mode: ResponsiveMode = "auto", *, stack_below: int | float = 420
-    ) -> Self:
+    def i_responsive(self, mode: ResponsiveMode = "auto", *, stack_below: float = 420) -> Self:
         """
         Set how the table fits a narrow container.
 
@@ -464,10 +625,11 @@ class GTI(GT):
         it (a table's cell, or an inline block), once its script runs: before that, such a table
         has no width.
 
-        Whatever the mode, on a touch screen, a control bar narrower than 30em (480 pixels, at 16px text) folds
-        its search, its filters as text and its "Columns" button into one "Filter & sort" button,
-        which opens a sheet from the foot of the window with all of them, and the table's sort and
-        filters. A long press on a column's label opens a sheet for that column (to sort it, filter
+        Whatever the mode, in a container narrower than 30em (480 pixels, at 16px text), the
+        control bar folds its search, its filters as text and its "Columns" button into one
+        "Filter & sort" button, which opens a sheet from the foot of the window with all of them,
+        and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less.
+        There, a long press on a column's label opens a sheet for that column (to sort it, filter
         it, or hide it), while a tap still sorts by it.
 
         Parameters
@@ -521,10 +683,16 @@ class GTI(GT):
         )
 
     def i_display(
-        self, *, highlight: bool = True, compact: bool = False, wrap: bool = True
+        self,
+        *,
+        highlight: bool = True,
+        compact: bool = False,
+        wrap: bool = True,
+        monospace: bool = False,
+        parts: bool = False,
     ) -> Self:
         """
-        Set how the table's rows look.
+        Set how the table's rows look, and whether its parts are named.
 
         Parameters
         ----------
@@ -535,7 +703,17 @@ class GTI(GT):
             it hasn't been set, as with `tab_options(data_row_padding=)`).
         wrap
             Whether the text in cells wraps. Without wrapping, the text is on one line, cut short
-            (with an ellipsis) if it doesn't fit.
+            (with an ellipsis) if it doesn't fit, so that every row is the same height.
+        monospace
+            Whether the column labels and the cells are in a monospaced font, for a table that's a
+            look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
+            title, the notes and the controls keep the table's font.
+        parts
+            Whether the parts GTI adds to the table (its status line, column controls, row numbers,
+            control bar, and so on) are outlined and named over it, from the start and for good,
+            for a page that shows readers what they are, as a docs page does. The table works as
+            ever under the names, which follow its parts as they move. Without it, readers can
+            name the parts themselves, with `?` or the button in the table's info panel.
 
         Returns
         -------
@@ -551,11 +729,110 @@ class GTI(GT):
 
         GTI(exibble[["num", "char", "fctr"]]).i_display(highlight=False, compact=True)
         ```
+
+        And one for looking through data: compact, on one line to a row, and monospaced.
+
+        ```{python}
+        GTI(exibble[["num", "char", "fctr"]]).i_display(compact=True, wrap=False, monospace=True)
+        ```
+
+        And one with its parts named, as on a page that shows them: its status line and row
+        numbers (from `i_inspect()`), its column controls, and its control bar.
+
+        ```{python}
+        (
+            GTI(exibble[["num", "char", "fctr"]])
+            .i_inspect()
+            .i_pagination(page_size=4)
+            .i_display(parts=True)
+        )
+        ```
         """
         return self._set_interactive(
             highlight=_flag(highlight, "highlight"),
             compact=_flag(compact, "compact"),
             wrap=_flag(wrap, "wrap"),
+            monospace=_flag(monospace, "monospace"),
+            parts=_flag(parts, "parts"),
+        )
+
+    def i_inspect(
+        self,
+        *,
+        row_numbers: bool = True,
+        dtypes: bool = True,
+        dimensions: bool = True,
+        missing: bool = True,
+        row_start: int | None = None,
+    ) -> Self:
+        """
+        Show readers what's in the data: its rows' numbers, its columns' dtypes, its size, and where
+        its values are missing.
+
+        Row numbers are in a narrow column before the others (with the rows' checkboxes, with
+        [`i_selection()`](`great_tables.GTI.i_selection`)), pinned with the stub as the table
+        scrolls sideways: each row's is its place in the data, which stays with it as the rows are
+        sorted, filtered and paged. A DataFrame's rows are numbered from 0, as its index is (and as
+        Polars' `with_row_index()` numbers them), and a DuckDB relation's or an Ibis table's from 1,
+        as a database's `ROW_NUMBER()` does; `row_start=` sets where they start. A dtype is under its column's label, as a short name
+        (as Polars prints it, for any DataFrame library): `"i64"`, `"f64"`, `"str"`, `"bool"`,
+        `"cat"`, `"date"`, `"datetime"`, and so on. The dimensions are in the status line above
+        the table: what the data is (a Polars DataFrame or LazyFrame, a Pandas DataFrame, a
+        PyArrow Table, a DuckDB relation or an Ibis table), its number of rows and columns (those
+        shown, of the stub and the data), and how many of them are left as readers search, filter
+        and hide columns ("Polars DataFrame · 12 of 47 rows × 6 columns"). A missing
+        value (`None`, or NaN in a column of floats) has its cell tinted, whatever the cell shows
+        (as [`sub_missing()`](`great_tables.GT.sub_missing`) makes it). None of these are
+        searched or exported, and they're all off by default (but in `GTI(preset="explorer")`).
+
+        Like the other `i_` methods (but for the `i_cols_` ones), a call sets all of these: those
+        not given are shown.
+
+        Parameters
+        ----------
+        row_numbers
+            Whether each row has its number, in a column before the others.
+        dtypes
+            Whether each column's dtype is under its label.
+        dimensions
+            Whether what the data is, and its number of rows and columns, are in the status line
+            above the table.
+        missing
+            Whether the cells of missing values are tinted.
+        row_start
+            The first row's number: `0` or `1`. By default, it's `0` for a DataFrame (of Polars,
+            Pandas or PyArrow) and `1` for a DuckDB relation or an Ibis table.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table with every one of these: sort it, and the rows keep their numbers.
+
+        ```{python}
+        from great_tables import GTI, exibble
+
+        GTI(exibble[["num", "char", "fctr", "date"]]).sub_missing().i_inspect()
+        ```
+
+        The row numbers alone, counted from 1:
+
+        ```{python}
+        (
+            GTI(exibble[["num", "char", "fctr"]])
+            .i_inspect(dtypes=False, dimensions=False, missing=False, row_start=1)
+        )
+        ```
+        """
+        return self._set_interactive(
+            row_numbers=_flag(row_numbers, "row_numbers"),
+            dtypes=_flag(dtypes, "dtypes"),
+            dimensions=_flag(dimensions, "dimensions"),
+            missing=_flag(missing, "missing"),
+            row_start=_row_start(row_start),
         )
 
     def i_cols_filter(self, columns: SelectExpr = None, type: FilterType | None = "auto") -> Self:
@@ -573,9 +850,11 @@ class GTI(GT):
         each, and their text as the table shows it). The facets, ranges, date ranges and booleans
         go by the column's values, not by how they're formatted. Rows are shown when they
         pass every filter, and the search; the info panel (from the (i) button in the control bar)
-        says how many filters there are, and can clear them. The bar also shows the filters that are on, and its <> button opens them as
-        text, a query as [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit
-        (with suggestions as they type). Filters are off by default.
+        says how many filters there are, and can clear them. The bar also shows the filters that
+        are on, and its `{ }` button opens them as text, a query as
+        [`i_view()`](`great_tables.GTI.i_view`) takes it, which readers can edit (with suggestions
+        as they type, and a column's label in place of its name, which is put there for it).
+        Filters are off by default.
 
         Each call sets the filters of the columns it's given, so that some columns can be filtered
         one way, and others another; a later call for a column replaces what an earlier one set.
@@ -704,11 +983,13 @@ class GTI(GT):
         resizable: bool | None = None,
         hideable: bool | None = None,
         reorderable: bool | None = None,
+        groupable: bool | None = None,
         display: bool | None = None,
+        data_color: DataColorMode | None = None,
     ) -> Self:
         """
-        Choose which columns readers can sort by, search, resize, hide, and move, and which are only
-        for querying.
+        Choose which columns readers can sort by, search, resize, hide, move, and group the rows by,
+        which are only for querying, and whose colors follow the rows kept.
 
         Where the table lets readers sort it ([`i_sorting()`](`great_tables.GTI.i_sorting`)),
         search it ([`i_search()`](`great_tables.GTI.i_search`)), and resize its columns
@@ -737,6 +1018,18 @@ class GTI(GT):
         stub and the row group column can't be moved (naming them for `reorderable=` does
         nothing).
 
+        Nor can readers group the rows by any column, by default. Making some groupable puts a
+        "Group rows" button in the control bar, whose panel lists them (and "None"), to group the
+        rows by one of them: each of its values gets a heading (with its text, as its first row's
+        cell shows it, and the number of rows the search and filters keep), and the rows with it
+        come under it, sorted as the table is. The groups are in the order of their values
+        (ascending, or descending if the table is sorted by the column so), with the rows missing
+        a value last, under "(Missing)". On a page, each group with rows on it has its heading. The
+        grouping is part of the view, as [`i_view()`](`great_tables.GTI.i_view`) can set it. A
+        column the table can't be sorted by (one of images, say) can't be grouped by, nor can the
+        stub (naming them for `groupable=` does nothing), and a table with row groups or summary
+        rows can't have any groupable column.
+
         A column can also be left out of the table but kept for querying, with `display=False`.
         It isn't shown (as with [`cols_hide()`](`great_tables.GT.cols_hide`), and readers can't
         show it), but a filter on it ([`i_cols_filter()`](`great_tables.GTI.i_cols_filter`))
@@ -748,6 +1041,19 @@ class GTI(GT):
         querying. The stub and the row group column can't be left out (naming them for
         `display=False` is an error), and neither can every column of a table without a stub.
 
+        A column's colors from [`data_color()`](`great_tables.GT.data_color`) are made from
+        all of its rows, and stay as they are when the rows are searched or filtered, by default
+        (`data_color="keep"`). With `data_color="recompute"`, they're made again from the rows the
+        search and filters keep (and a linked table's selection, with
+        [`i_link()`](`great_tables.GTI.i_link`)), as `data_color()` would make them from those rows
+        alone, so that its whole palette is spread over them (the table's first colors come back
+        once every row is shown again). Sorting the rows or turning the page doesn't change them.
+        Only colors that depend on the rows can change: those `data_color()` made down a column
+        (not with `direction="row"`), from a domain it found in the values (not with `domain=`,
+        nor from an ordered categorical's levels), and without `fn=`. A missing value keeps its
+        `na_color=`, and a cell a later style colors (with `tab_style()`, or another
+        `data_color()`) keeps that style's colors.
+
         Each call sets what it's given for the columns it's given, so that some columns can be
         left out of one thing, and others another; a later call for a column replaces what an
         earlier one set.
@@ -758,12 +1064,17 @@ class GTI(GT):
             The columns: a column name, a list of them, or a selector (e.g., Polars'
             `cs.numeric()`). With `None` (the default), every column but the stub (which can be
             named). The row group column can't be one of them.
-        sortable, searchable, resizable, hideable, reorderable
-            Whether readers can sort by the columns, search them, resize them, hide them, and move
-            them. With `None` (the default), the columns are left as they are.
+        sortable, searchable, resizable, hideable, reorderable, groupable
+            Whether readers can sort by the columns, search them, resize them, hide them, move
+            them, and group the rows by them. With `None` (the default), the columns are left as
+            they are.
         display
             Whether the columns are in the table (`True`), or left out of it and kept only for
             querying (`False`). With `None` (the default), the columns are left as they are.
+        data_color
+            Whether the columns' colors from `data_color()` stay as they are when the rows are
+            searched or filtered (`"keep"`), or are made again from the rows kept (`"recompute"`).
+            With `None` (the default), the columns are left as they are.
 
         Returns
         -------
@@ -811,8 +1122,19 @@ class GTI(GT):
         )
         ```
 
+        A table whose readers can group the municipalities by their status, from the "Group rows"
+        button in the control bar:
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns="status", groupable=True)
+        )
+        ```
+
         A table of the municipalities' names and populations that can be filtered by their status,
-        which it doesn't show (the filter is in the query bar, from the `<>` button in the control
+        which it doesn't show (the filter is in the query bar, from the `{ }` button in the control
         bar):
 
         ```{python}
@@ -824,18 +1146,39 @@ class GTI(GT):
             .i_view(filter='status in ("single-tier")')
         )
         ```
+
+        A table whose populations are colored from the rows the search keeps: search for "lake",
+        and the darkest blue goes to the most populous of the municipalities named for one
+        (Kawartha Lakes), rather than to Toronto.
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .data_color(columns="population_2021", palette="Blues")
+            .i_cols_controls(columns="population_2021", data_color="recompute")
+        )
+        ```
         """
         # (Each setting keeps the columns readers can't do it with (and `query_only`, those not
-        # shown), but `hideable` and `reorderable` keep those they can, so they're turned around)
+        # shown), but `hideable`, `reorderable` and `groupable` keep those they can, so they're
+        # turned around)
         hide = _optional_flag(hideable, "hideable")
         move = _optional_flag(reorderable, "reorderable")
+        group = _optional_flag(groupable, "groupable")
+        if data_color is not None and data_color not in DATA_COLOR_MODES:
+            raise ValueError(
+                f'`data_color=` must be "keep", "recompute", or `None`, not {data_color!r}.'
+            )
         flags = {
             "unsortable": _optional_flag(sortable, "sortable"),
             "unsearchable": _optional_flag(searchable, "searchable"),
             "unresizable": _optional_flag(resizable, "resizable"),
             "hideable": None if hide is None else not hide,
             "reorderable": None if move is None else not move,
+            "groupable": None if group is None else not group,
             "query_only": _optional_flag(display, "display"),
+            "recolor": None if data_color is None else data_color == "keep",
         }
         if display is False:
             # (The stub and the row group column are what the rows are known by)
@@ -990,18 +1333,124 @@ class GTI(GT):
                 priorities[column] = priority
         return self._set_interactive(priorities=tuple(priorities.items()))
 
+    def i_cols_profile(self, columns: SelectExpr = None, plot: ProfilePlot | None = "auto") -> Self:
+        """
+        Show how the columns' values are spread, in a small plot under their labels.
+
+        A column's profile is a plot under its label of the values in the rows the table shows:
+        a histogram of its numbers or dates (`"histogram"`: how many rows have a value in each of
+        up to 20 equal ranges, from the column's lowest value to its highest; or one per value,
+        for whole numbers or days a few apart), or bars for its most common values (`"top"`: the
+        5 that most rows have, with a bar for the others). Under the plot are the lowest and
+        highest values the rows show (for a histogram) or the number of values they have (for the
+        others), as the table formats them, and the share of the rows with a missing value.
+        Pointing at a bar shows its values and its number of rows. As the reader searches and
+        filters the table, the profiles show only the rows that are left (their ranges and
+        values stay the same, so that they're easy to compare), but not as the table is sorted,
+        or paged. Profiles are off by default, and aren't shown in a table stacked as cards.
+
+        Each call sets the profiles of the columns it's given, so that some columns can have one
+        plot, and others another; a later call for a column replaces what an earlier one set.
+
+        Parameters
+        ----------
+        columns
+            The columns to profile: a column name, a list of them, or a selector (e.g., Polars'
+            `cs.numeric()`). With `None` (the default), every column but the stub (which can be
+            named). The row group column can't be profiled, and neither can a column left out of
+            the table.
+        plot
+            The plot: `"histogram"` (for columns of numbers, dates, or dates and times), or
+            `"top"` (the most common values), or `"auto"` to choose by the column: a histogram for
+            numbers and dates, and the most common values otherwise. With `None`, the columns
+            have no profile.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of Ontario's municipalities with a profile of their statuses (their most
+        common ones) and of their populations (a histogram), which follow the rows a search or a
+        filter leaves (try searching for "county").
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import towny
+
+        (
+            GTI(
+                towny[["name", "status", "density_2021", "population_2021"]],
+                rowname_col="name",
+            )
+            .fmt_integer(columns=["density_2021", "population_2021"])
+            .i_cols_filter(columns="status")
+            .i_cols_profile(columns=["status", "density_2021", "population_2021"])
+        )
+        ```
+
+        A column of dates (here, made from the dataset's text) has a histogram of them, from its
+        first date to its last.
+
+        ```{python}
+        import pandas as pd
+        from great_tables.data import sp500
+
+        sp500_2015 = sp500[sp500["date"] >= "2015-01-01"].assign(
+            date=lambda df: pd.to_datetime(df["date"])
+        )
+
+        (
+            GTI(sp500_2015[["date", "open", "close", "volume"]])
+            .fmt_date(columns="date", date_style="month_day_year")
+            .fmt_currency(columns=["open", "close"])
+            .fmt_number(columns="volume", compact=True)
+            .i_cols_profile()
+        )
+        ```
+        """
+        if plot is not None and plot not in PROFILE_PLOTS:
+            raise ValueError(
+                f'`plot=` must be "auto", "histogram", "top", or `None` (no profile), not {plot!r}.'
+            )
+        selected = resolve_cols_c(self, columns, excl_stub=False)
+        for column in selected:
+            kind = _get_column_kind(self._tbl_data, column)
+            if plot == "histogram" and kind not in ("number", "date", "datetime"):
+                raise ValueError(
+                    f"Column {column!r} can't have a histogram, which is for columns of numbers, "
+                    f"dates, or dates and times (its values are of the {kind!r} kind). Try "
+                    '`plot="top"`.'
+                )
+            if plot == "top" and kind == "other":
+                raise ValueError(
+                    f"Column {column!r} can't have its most common values shown: its values "
+                    "can't be told apart and ordered."
+                )
+
+        profiles = dict(self._interactive.profiles)
+        for column in selected:
+            profiles.pop(column, None)
+            if plot is not None:
+                profiles[column] = plot
+        return self._set_interactive(profiles=tuple(profiles.items()))
+
     def i_view(
         self,
         filter: str | dict[str, Any] | None = None,
         sort: str | list[str] | None = None,
         hidden: SelectExpr = None,
+        group_by: str | None = None,
     ) -> Self:
         """
         Show the table filtered and sorted, as readers first see it.
 
         The table is first shown with the rows that `filter=` keeps, in the order `sort=` gives
-        them, and without the columns `hidden=` hides, which readers can then change (with the
-        column filters, sort buttons, and the bar's "Columns" panel) or clear. Rows stay within
+        them, without the columns `hidden=` hides, and with the rows grouped by the column
+        `group_by=` names, which readers can then change (with the column filters, sort buttons,
+        and the bar's "Columns" and "Group rows" panels) or clear. Rows stay within
         their row groups, as they do when readers sort the table, and a table whose stub has cells
         merged across rows is shown as it is. Without arguments, the table is shown with all its
         rows and columns, in order (the default).
@@ -1025,7 +1474,7 @@ class GTI(GT):
             (so `{"col": "population_2021", "op": "top_n", "value": 10}` keeps the ten most
             populous, and any tied with the tenth), but not a missing value, NaN or an infinity.
             A `"matches"` pattern is in the part of regular
-            expressions' syntax that the browser, Polars, pandas and PyArrow read alike:
+            expressions' syntax that the browser, Polars, Pandas and PyArrow read alike:
             characters (`\\` before punctuation for the character itself), `.`, `^` and `$` (the
             start and end of the text), classes as `[a-z]` and `[^0-9]`, `\\d`, `\\w` and `\\s`
             (ASCII's), groups (`(...)` or `(?:...)`) and `|`, and repeats (`*`, `+`, `?`, and
@@ -1070,6 +1519,11 @@ class GTI(GT):
             selector (e.g., Polars' `cs.numeric()`). Readers have to be able to hide them (see
             [`i_cols_controls(hideable=True)`](`great_tables.GTI.i_cols_controls`)). With `None`
             (the default), none are hidden.
+        group_by
+            The column to group the rows by, which readers can change: a column name. Readers have
+            to be able to group the rows by it (see
+            [`i_cols_controls(groupable=True)`](`great_tables.GTI.i_cols_controls`)). With `None`
+            (the default), the rows aren't grouped.
 
         Returns
         -------
@@ -1148,16 +1602,41 @@ class GTI(GT):
             .i_view(hidden=years[:-1])
         )
         ```
+
+        A table first shown with the municipalities grouped by their status, most populous first
+        in each group, which readers can group otherwise (or not at all) from the "Group rows"
+        button in the control bar:
+
+        ```{python}
+        (
+            GTI(towny[["name", "status", "population_2021"]], rowname_col="name")
+            .fmt_integer(columns="population_2021")
+            .i_cols_controls(columns="status", groupable=True)
+            .i_view(sort="-population_2021", group_by="status")
+        )
+        ```
         """
         # (Imported here, as `_query` is only needed for a view)
         from ._gti._query import check_query, parse_sort
 
+        if group_by is not None:
+            if not isinstance(group_by, str):
+                raise TypeError(
+                    f"`group_by=` takes a column name (or `None`), not {type(group_by).__name__}."
+                )
+            try:
+                found = group_by in resolve_cols_c(self, group_by, excl_stub=False)
+            except ValueError:
+                found = False
+            if not found:
+                raise ValueError(f"`group_by=` names column {group_by!r}, which the table hasn't.")
         return self._set_interactive(
             view_filter=check_query(filter),
             view_sort=parse_sort(sort),
             view_hidden=(
                 () if hidden is None else tuple(resolve_cols_c(self, hidden, excl_stub=False))
             ),
+            view_group_by=group_by,
         )
 
     def i_view_state(self, url: bool = True, storage: bool = False, undo: bool = True) -> Self:
@@ -1165,8 +1644,9 @@ class GTI(GT):
         Keep the reader's view of the table, for when the page is opened again, and let them undo
         their changes to it.
 
-        The view is the table's filters, sort, search, page, page size, and hidden columns (not
-        the rows selected, or the columns' widths). As the reader changes it, it can be kept in
+        The view is the table's filters, sort, search, page, page size, hidden columns, and the
+        column its rows are grouped by, and the height of a body that scrolls (see [`i_scroll()`](`great_tables.GTI.i_scroll`)) as the
+        reader drags it (not the rows selected, or the columns' widths). As the reader changes it, it can be kept in
         the page's URL (`url=`), so that reloading the page, or sharing its link, opens the table
         as it was; and in the browser's storage (`storage=`), so that the reader finds it as they
         left it when they come back to the page. The table's info panel then has a button that
@@ -1260,11 +1740,12 @@ class GTI(GT):
         name). Exporting is off by default.
 
         With `"code"`, readers can also copy code that filters and sorts the table's data (as
-        `df`) as their view of it does, for Polars, pandas, or Narwhals (the library of the
+        `df`) as their view of it does, for Polars, Pandas, or Narwhals (the library of the
         data, at first). The code works on the data's values, so it leaves out the search, and
         a `contains` or `matches` match is of a column's values as text (not of the text the
         table shows; and `contains` ignores case, but not accents); it doesn't keep rows within
-        their row groups.
+        their row groups. (It needs the [Narwhals](https://narwhals-dev.github.io/narwhals/)
+        package, to know the data's types: `pip install narwhals`.)
 
         Parameters
         ----------
@@ -1284,7 +1765,7 @@ class GTI(GT):
         Examples
         --------
         Here's a table of Ontario's municipalities that readers can filter, then download what's
-        left as a CSV or JSON file (`towny.csv` or `towny.json`), or copy, or copy the pandas code
+        left as a CSV or JSON file (`towny.csv` or `towny.json`), or copy, or copy the Pandas code
         that filters the data as they have.
 
         ```{python}
@@ -1312,6 +1793,10 @@ class GTI(GT):
                 )
             if fmt not in chosen:
                 chosen.append(fmt)
+        if "code" in chosen:
+            from ._gti._query import require_narwhals
+
+            require_narwhals('The "code" export (`i_export("code")`)')
 
         if filename is None:
             filename = Settings().export_filename
@@ -1326,6 +1811,352 @@ class GTI(GT):
             raise ValueError("`filename=` must name the file, not be empty.")
         return self._set_interactive(export_formats=tuple(chosen), export_filename=filename)
 
+    def i_row_details(self, content: Callable[[dict[str, Any]], Any] | str | None) -> Self:
+        """
+        Let readers show more about each row, under it.
+
+        Each row with details gets a button (in its first cell) that shows them under the row,
+        across the table, and hides them again; on a touch screen, tapping the row does too (with
+        [`i_selection()`](`great_tables.GTI.i_selection`), its checkbox selects it then). A row's
+        details are a table (a `GT` table, shown as it is on its own) or text (`html()` or `md()`
+        text, or a string, shown as it is). They're made from `content=`: a function, which gets
+        each row's values and returns the row's details, or the name of a column with each row's
+        details in it, which is left out of the table. The info panel (from the (i) button in the
+        control bar) has buttons that show and hide the details of every row.
+
+        The function gets a row's values as the data has them (not as they're formatted), as a
+        dict of the data's column names to the row's values, with those of the columns the table
+        hides (with [`cols_hide()`](`great_tables.GT.cols_hide`)), so they can be what the
+        details are made of. With `None` (or, in a column, a missing value or an empty string), a
+        row has no details, and no button.
+
+        The details are made as the table is rendered, and are in its HTML, but aren't shown until
+        a reader opens them (nor without the table's script running); they aren't searched,
+        filtered, or exported. Open details follow their row as the rows are sorted, filtered and
+        paged. They're shown apart from the page's styles (in a shadow root), so that a table in
+        them looks as it does on its own, in the table's font and text color. Each `GT` table has
+        its own CSS, so a table with many of them in its rows' details is a larger page. In a
+        table that drops columns to fit a narrow container (see
+        [`i_responsive()`](`great_tables.GTI.i_responsive`)), the details are under the columns
+        dropped from the row.
+
+        Parameters
+        ----------
+        content
+            A function that takes a row's values (a dict) and returns its details: a `GT` table
+            (not an interactive one), `html()` or `md()` text, a string, or `None` (no details).
+            Or the name of a column with each row's details in it. With `None`, the rows have no
+            details.
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here's a table of cars, each with a sentence about its engine under it, made from columns
+        that the table hides.
+
+        ```{python}
+        from great_tables import GTI, md
+        from great_tables.data import gtcars
+
+        cars = gtcars[["mfr", "model", "year", "trim", "hp", "hp_rpm", "trq", "msrp"]].head(10)
+
+
+        def engine(row):
+            return md(
+                f"The **{row['trim']}** makes {row['hp']:.0f} hp at {row['hp_rpm']:,.0f} rpm, "
+                f"and {row['trq']:.0f} lb-ft of torque."
+            )
+
+
+        (
+            GTI(cars, rowname_col="model")
+            .cols_hide(columns=["trim", "hp", "hp_rpm", "trq"])
+            .fmt_currency(columns="msrp", decimals=0)
+            .i_row_details(engine)
+        )
+        ```
+
+        A row's details can be a table of their own. Here, each of Ontario's ten largest
+        municipalities has a table of its population at each census.
+
+        ```{python}
+        import pandas as pd
+        from great_tables import GT
+        from great_tables.data import towny
+
+        years = [1996, 2001, 2006, 2011, 2016, 2021]
+        counts = [f"population_{year}" for year in years]
+        largest = towny.nlargest(10, "population_2021")[["name", "status", *counts]]
+
+
+        def populations(row):
+            census = pd.DataFrame({"census": years, "population": [row[c] for c in counts]})
+            return (
+                GT(census)
+                .cols_label(census="Census", population="Population")
+                .fmt_integer(columns="population")
+            )
+
+
+        (
+            GTI(largest, rowname_col="name")
+            .cols_hide(columns=counts[:-1])
+            .fmt_integer(columns="population_2021")
+            .i_row_details(populations)
+        )
+        ```
+        """
+        if not (content is None or isinstance(content, str) or callable(content)):
+            raise TypeError(
+                "`content=` must be a function that makes a row's details, the name of a column "
+                f"with them, or `None` (no details), not {content!r}."
+            )
+        if isinstance(content, str) and content not in get_column_names(self._tbl_data):
+            raise ValueError(f"`content=` names a column the data doesn't have: {content!r}.")
+        return self._set_interactive(row_details=content)
+
+    def i_link(self, group: str | None, on: str | None = None) -> Self:
+        """
+        Link the table to others on the page, so that the rows selected in one filter the others.
+
+        Tables with the same `group=` are linked by their `on=` column, which each of them has in
+        its data (it can be a hidden one). When a reader selects rows in one of them (which
+        [`i_selection()`](`great_tables.GTI.i_selection`) lets them do), each of the others
+        shows only its rows whose value in that column is one of the selected rows' values;
+        clearing the selection shows them all again. A row with a missing value in the column
+        isn't linked to any. A table whose rows can't be selected is only filtered, and tables
+        whose rows can be filter each other (but not themselves). The tables link in the browser,
+        without a server: in a Quarto document, a notebook (but not across the frames some show
+        each cell's output in, as Colab does), or an HTML page with the tables in it.
+
+        A table filtered by another's selection says so in its control bar, with a token
+        ("Selected in Makes: Ferrari, Lamborghini") that shows the rows again (until the
+        selection changes), and in its info panel. The tables are named after their titles (see
+        [`tab_header()`](`great_tables.GT.tab_header`)), or else their IDs. The filter is on top
+        of the table's own search and filters, and isn't part of its view: it isn't kept with the
+        view (see [`i_view_state()`](`great_tables.GTI.i_view_state`)), undone, or in the code
+        an export copies.
+
+        Parameters
+        ----------
+        group
+            The name of the tables' group: tables with the same one are linked. With `None`, the
+            table isn't linked.
+        on
+            The column of the table's data whose values link its rows to those of the others in
+            the group (each of which has a column of that name).
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        Here are two tables of cars, one of their makes and one of the cars themselves, linked
+        by the make. Select some makes in the first, and the second shows only their cars.
+
+        ```{python}
+        from great_tables import GTI
+        from great_tables.data import gtcars
+
+        cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+        makes = cars.groupby("mfr", as_index=False).agg(models=("model", "count"))
+
+        (
+            GTI(makes, rowname_col="mfr")
+            .tab_header(title="Makes")
+            .i_selection("multiple")
+            .i_link("cars", on="mfr")
+        )
+        ```
+
+        ```{python}
+        (
+            GTI(cars, rowname_col="model")
+            .tab_header(title="Cars")
+            .fmt_integer(columns=["year", "hp"], use_seps=False)
+            .fmt_currency(columns="msrp", decimals=0)
+            .i_link("cars", on="mfr")
+        )
+        ```
+        """
+        if group is None:
+            return self._set_interactive(link_group=None, link_on=None)
+        if not isinstance(group, str):
+            raise TypeError(f"`group=` must be a string, or `None` (not linked), not {group!r}.")
+        if group.strip() == "":
+            raise ValueError("`group=` must name the tables' group, not be empty.")
+        if on is None:
+            raise ValueError(
+                "`on=` must name the column whose values link the table's rows to those of the "
+                f"other tables in the {group!r} group."
+            )
+        if not isinstance(on, str):
+            raise TypeError(f"`on=` must be the name of a column, not {on!r}.")
+        if on not in get_column_names(self._tbl_data):
+            raise ValueError(f"`on=` names a column the data doesn't have: {on!r}.")
+        return self._set_interactive(link_group=group, link_on=on)
+
+    def i_scale(self, engine: Engine = "auto") -> Self:
+        """
+        Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
+        filtered and sorted.
+
+        A table shown in the browser has all of its rows there, which does all of this: quick for
+        a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a
+        widget (with [`i_as_widget()`](`great_tables.GTI.i_as_widget`)), or in a Shiny app (with
+        [`render_gt()`](`great_tables.shiny.render_gt`)), a table can keep its rows in Python
+        instead (in the notebook's kernel, or on the app's server), which searches, filters and
+        sorts them (with [Narwhals](https://narwhals-dev.github.io/narwhals/), on the data's own
+        library), and sends the browser the page it shows, one at a time: so the table loads as
+        quickly with a million rows as with a few.
+
+        In the kernel, a table always has pages (as [`i_pagination()`](`great_tables.GTI.i_pagination`)
+        sets them up), and its readers can't group its rows by a column, see its columns'
+        profiles, see rows' details, or export the rows themselves (they can copy the code that
+        filters and sorts the data as the view does, if the table has the `"code"` format); nor
+        do its `data_color()` colors change with the rows kept, or does it filter linked tables
+        (see [`i_link()`](`great_tables.GTI.i_link`)). A table with row groups, summary rows, or a
+        stub of more than one column is shown in the browser, as anywhere else, and so is a table
+        that isn't shown as a widget or in a Shiny app.
+
+        A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its
+        rows in the frame, and has only the page shown collected (see [`GTI()`](`great_tables.GTI`)).
+
+        Parameters
+        ----------
+        engine
+            Where the rows are searched, filtered and sorted: in Python, if the table is shown as a
+            widget or in a Shiny app and has more rows than the browser is quick with (more than
+            3,000, or more than 10 MB of HTML), and in the browser otherwise (`"auto"`, the
+            default); in the browser (`"browser"`); or in Python, if the table is shown as a widget
+            or in a Shiny app (`"kernel"`).
+
+        Returns
+        -------
+        GTI
+            The GTI object is returned.
+
+        Examples
+        --------
+        This table of a million rows is shown a page at a time, from Python.
+
+        ```python
+        import numpy as np
+        import polars as pl
+        from great_tables import GTI
+
+        rng = np.random.default_rng(1)
+        df = pl.DataFrame({"x": rng.normal(size=1_000_000), "n": rng.integers(0, 100, 1_000_000)})
+
+        GTI(df).fmt_number(columns="x").i_cols_filter().i_scale(engine="kernel").i_as_widget()
+        ```
+        """
+        if engine not in ENGINES:
+            raise ValueError(f'`engine=` must be "auto", "browser", or "kernel", not {engine!r}.')
+        return self._set_interactive(engine=engine)
+
+    def i_as_widget(self) -> GTIWidget:
+        """
+        Show the table as a widget, whose view and selection can be read and set from Python.
+
+        The widget (an [anywidget](https://anywidget.dev)) shows the table as it's shown anywhere
+        else, in a notebook in Jupyter, VS Code or Colab, or in marimo (where
+        [`mo_gti()`](`great_tables.marimo.mo_gti`) shows it as a UI element, so that the cells
+        that read it run again with each change), and keeps Python up to date with what the
+        reader does with it: the rows its search and filters keep, in the order shown, and those
+        selected. Python can change the table's filters, sort, search and selection, too, and the
+        table shows the change. The table works in the browser, as without a widget: Python is
+        told what it does.
+
+        The widget has these, to read and set:
+
+        - `query`: the filters, as a query in text (as the query box has it, e.g.
+          `'category in ("Tools") and margin > 0.2'`), or `""` without any; set it to a query (in
+          text, or as [`i_view()`](`great_tables.GTI.i_view`)'s `filter=` takes it), or to `""`.
+        - `search`: the search, or `""`.
+        - `sort`: the columns the rows are sorted by, most significant first, with a `-` before
+          each one sorted in descending order (e.g., `["-net", "store"]`).
+        - `selection`: the data rows selected (numbered by position in the data, from 0), in data
+          order, as far as [`i_selection()`](`great_tables.GTI.i_selection`) lets readers select
+          them.
+
+        And these, to read:
+
+        - `rows`: the data rows the search and filters keep (and linked tables' selections; see
+          [`i_link()`](`great_tables.GTI.i_link`)), in the order shown, on every page.
+        - `view()`: the table's data with those rows, as a DataFrame of the data's library (with
+          all its columns); `view(selected=True)` has the rows selected.
+
+        And `on_change(callback)` has `callback` called, with the widget, after each change the
+        reader makes (`on_change(callback, remove=True)` stops it).
+
+        The rows are the browser's: a change made from Python is applied by the browser once the
+        code making it has run, so in a notebook, `rows` and `view()` have it in the next cell (in
+        the same cell, they raise an error). Before the widget is shown, they're those of the
+        table's view (see [`i_view()`](`great_tables.GTI.i_view`)), as Python finds them.
+
+        A table with more rows than the browser is quick with keeps them in Python instead (see
+        [`i_scale()`](`great_tables.GTI.i_scale`)), which sends the browser a page at a time:
+        then the rows are Python's, and `rows` and `view()` have a change at once.
+
+        The widget needs the `anywidget` package (`pip install anywidget`, or
+        `pip install great_tables[widget]`).
+
+        Returns
+        -------
+        GTIWidget
+            The widget, which shows the table when it's a cell's output (or with `display()`).
+
+        Examples
+        --------
+        Here the reader can filter the cars by their make and select some; Python gets them.
+
+        ```python
+        from great_tables import GTI
+        from great_tables.data import gtcars
+
+        cars = gtcars[["mfr", "model", "year", "hp", "msrp"]]
+
+        widget = (
+            GTI(cars, rowname_col="model")
+            .i_cols_filter(columns="mfr", type="facet")
+            .i_selection("multiple")
+            .i_as_widget()
+        )
+        widget
+        ```
+
+        In a later cell, after filtering and selecting:
+
+        ```python
+        widget.query           # 'mfr in ("Ferrari", "Lamborghini")'
+        widget.view()          # those makes' cars, as a Pandas DataFrame
+        widget.view(selected=True)
+        ```
+
+        And from Python, the table shows the cars with the most power first:
+
+        ```python
+        widget.sort = "-hp"
+        ```
+        """
+        try:
+            from ._gti._widget import GTIWidget
+        except ImportError as err:
+            if err.name not in ("anywidget", "traitlets", "ipywidgets"):
+                raise
+            raise ImportError(
+                "`i_as_widget()` needs the anywidget package: install it with "
+                "`pip install anywidget` (or `pip install great_tables[widget]`)."
+            ) from err
+        return GTIWidget(self)
+
     # -----
     # A `GTI` table is only ever interactive HTML
 
@@ -1334,12 +2165,13 @@ class GTI(GT):
         inline_css: bool = False,
         make_page: bool = False,
         all_important: bool = False,
+        runtime: Literal["inline", "none"] = "inline",
     ) -> str:
         """
         Get the HTML of a GTI table.
 
         The HTML is a `<gt-table>` element (the table's own HTML, and what it needs to be
-        interactive), followed by the element's CSS and JavaScript.
+        interactive), followed by the element's CSS and JavaScript (unless `runtime="none"`).
 
         Parameters
         ----------
@@ -1352,6 +2184,11 @@ class GTI(GT):
         all_important
             If `True`, the table's CSS declarations are marked with `!important` to ensure they
             take precedence over other styles that might be present in the document.
+        runtime
+            Whether the table's HTML is followed by the runtime that makes it interactive, its
+            JavaScript and CSS: `"inline"` (the default) or `"none"`, for a page that has the
+            runtime once, however many tables it shows (see
+            [`runtime_tags()`](`great_tables.web.runtime_tags`)).
 
         Returns
         -------
@@ -1366,8 +2203,8 @@ class GTI(GT):
                 "needs a <style> block and a script. Use `GT` for a table in an email."
             )
 
-        fragment = render_gti_html(self, all_important=all_important)
-        return page_html(fragment) if make_page else fragment
+        fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
+        return page_html(fragment, self) if make_page else fragment
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
         """Not available for a GTI table, which is interactive HTML only."""
@@ -1386,10 +2223,106 @@ class GTI(GT):
         raise TypeError(
             "`opt_interactive()` is for `GT` tables. A GTI table is set up with its `i_` methods "
             "instead: `i_sorting()`, `i_search()`, `i_resizing()`, `i_pagination()`, "
-            "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_cols_filter()`, "
-            "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_view()`, "
-            "`i_view_state()`, and `i_export()`."
+            "`i_selection()`, `i_scroll()`, `i_responsive()`, `i_display()`, `i_inspect()`, "
+            "`i_cols_filter()`, "
+            "`i_cols_controls()`, `i_cols_pin()`, `i_cols_priority()`, `i_cols_profile()`, "
+            "`i_view()`, `i_view_state()`, `i_export()`, `i_row_details()`, and `i_link()` "
+            "(and shown as a widget with `i_as_widget()`, set up with `i_scale()`)."
         )
+
+
+# A `GTI` table of a LazyFrame keeps the calls of `GT`'s methods that made it (but not of those
+# they call), to make it again from the rows shown
+_RECORDING: ContextVar[bool] = ContextVar("_RECORDING", default=False)
+
+# (Those whose results aren't tables, or that render it, which are of all of its rows)
+_NOT_RECORDED = {"show", "write_raw_html", "render"}
+
+
+def _recorded(name: str, method: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(method)
+    def call(self: GT, *args: Any, **kwargs: Any) -> Any:
+        lazy = self.__dict__.get("_lazy")
+        if lazy is None:
+            return method(self, *args, **kwargs)
+        from ._gti._lazy import UNRUN, check_call
+
+        check_call(name, method, args, kwargs)
+        if _RECORDING.get():
+            return self if name in UNRUN else method(self, *args, **kwargs)
+        token = _RECORDING.set(True)
+        try:
+            result = self if name in UNRUN else method(self, *args, **kwargs)
+        finally:
+            _RECORDING.reset(token)
+        result = copy.copy(result)
+        object.__setattr__(result, "_lazy", lazy.called(name, args, kwargs))
+        return result
+
+    return call
+
+
+def _collected(method: Callable[..., Any]) -> Callable[..., Any]:
+    @functools.wraps(method)
+    def call(self: GT, *args: Any, **kwargs: Any) -> Any:
+        from ._gti._lazy import eager
+
+        return method(eager(self), *args, **kwargs)
+
+    return call
+
+
+for _name, _method in list(vars(GT).items()):
+    if _name.startswith("_") or not inspect.isfunction(_method) or _name in vars(GTI):
+        continue
+    if _name == "render":
+        setattr(GTI, _name, _collected(_method))
+    elif _name not in _NOT_RECORDED:
+        setattr(GTI, _name, _recorded(_name, _method))
+del _name, _method
+
+
+# The lazy frames a table can be of (see `_gti/_lazy.py`): each one's module and class
+_LAZY_FRAMES = [
+    ("polars", "LazyFrame"),
+    ("duckdb", "DuckDBPyRelation"),
+    ("ibis.expr.types", "Table"),
+]
+
+
+# What each kind of data is called, where the dimensions name it
+_DATA_KINDS = [
+    ("polars", "DataFrame", "Polars DataFrame"),
+    ("polars", "LazyFrame", "Polars LazyFrame"),
+    ("pandas", "DataFrame", "Pandas DataFrame"),
+    ("pyarrow", "Table", "PyArrow Table"),
+    ("duckdb", "DuckDBPyRelation", "DuckDB relation"),
+    ("ibis.expr.types", "Table", "Ibis table"),
+]
+
+
+def _row_start(value: Any) -> int | None:
+    if value is None or (value in (0, 1) and type(value) is int):
+        return value
+    raise ValueError(f"`row_start=` must be 0, 1 or `None`, not {value!r}.")
+
+
+def _data_kind(data: Any) -> str | None:
+    # (Of a module that's imported, which it is if there's data of it)
+    for module, name, called in _DATA_KINDS:
+        kind = getattr(sys.modules.get(module), name, None)
+        if isinstance(kind, type) and isinstance(data, kind):
+            return called
+    return None
+
+
+def _is_lazy_frame(data: Any) -> bool:
+    # (Of a module that's imported, which it is if there's data of it)
+    for module, name in _LAZY_FRAMES:
+        kind = getattr(sys.modules.get(module), name, None)
+        if isinstance(kind, type) and isinstance(data, kind):
+            return True
+    return False
 
 
 def _static_only(method: str) -> str:

@@ -1,0 +1,353 @@
+{
+  "format": "gridwell-conformance-grid/1",
+  "tier": "L3",
+  "case": "notes_and_marks",
+  "producer": {
+    "package": "great_tables",
+    "version": "1.1.1.dev1021+g018350394"
+  },
+  "source": {
+    "L1": "harness/gt-reference-py/notes_and_marks.gt.html (Great Tables' HTML)",
+    "L2, L3": "harness/gt-reference-py/notes_and_marks.ir.json (gridwell's emitter, reviewed)"
+  },
+  "grid": {
+    "columns": [
+      {
+        "align": "left",
+        "id": "char"
+      },
+      {
+        "align": "right",
+        "id": "num"
+      },
+      {
+        "align": "right",
+        "id": "date"
+      }
+    ],
+    "extra_lines": [],
+    "footnotes": [
+      {
+        "mark": "1",
+        "runs": [
+          {
+            "text": "A title note."
+          }
+        ],
+        "text": "A title note."
+      },
+      {
+        "mark": "2",
+        "runs": [
+          {
+            "text": "A column label note."
+          }
+        ],
+        "text": "A column label note."
+      },
+      {
+        "mark": "3",
+        "runs": [
+          {
+            "text": "A body cell note."
+          }
+        ],
+        "text": "A body cell note."
+      }
+    ],
+    "groups": [
+      {
+        "group_id": null,
+        "label": null,
+        "rows": [
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "apricot"
+                  }
+                ],
+                "text": "apricot",
+                "typed_value": {
+                  "type": "string",
+                  "value": "apricot"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "0.1111"
+                  }
+                ],
+                "text": "0.1111",
+                "typed_value": {
+                  "type": "number",
+                  "value": 0.1111
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2015-01-15"
+                  }
+                ],
+                "text": "2015-01-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-01-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "banana"
+                  },
+                  {
+                    "footnote": 3,
+                    "mark_text": "3"
+                  }
+                ],
+                "text": "banana",
+                "typed_value": {
+                  "type": "string",
+                  "value": "banana"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "2.222"
+                  }
+                ],
+                "text": "2.222",
+                "typed_value": {
+                  "type": "number",
+                  "value": 2.222
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2015-02-15"
+                  }
+                ],
+                "text": "2015-02-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-02-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "coconut"
+                  }
+                ],
+                "text": "coconut",
+                "typed_value": {
+                  "type": "string",
+                  "value": "coconut"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "33.33"
+                  }
+                ],
+                "text": "33.33",
+                "typed_value": {
+                  "type": "number",
+                  "value": 33.33
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2015-03-15"
+                  }
+                ],
+                "text": "2015-03-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-03-15"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "align": "left",
+                "col": 0,
+                "runs": [
+                  {
+                    "text": "durian"
+                  }
+                ],
+                "text": "durian",
+                "typed_value": {
+                  "type": "string",
+                  "value": "durian"
+                }
+              },
+              {
+                "align": "right",
+                "col": 1,
+                "runs": [
+                  {
+                    "text": "444.4"
+                  }
+                ],
+                "text": "444.4",
+                "typed_value": {
+                  "type": "number",
+                  "value": 444.4
+                }
+              },
+              {
+                "align": "right",
+                "col": 2,
+                "runs": [
+                  {
+                    "text": "2015-04-15"
+                  }
+                ],
+                "text": "2015-04-15",
+                "typed_value": {
+                  "type": "string",
+                  "value": "2015-04-15"
+                }
+              }
+            ]
+          }
+        ],
+        "summary_rows": []
+      }
+    ],
+    "head": [
+      {
+        "cells": [
+          {
+            "align": "left",
+            "col": 0,
+            "runs": [
+              {
+                "text": "char"
+              }
+            ],
+            "scope": "col",
+            "text": "char"
+          },
+          {
+            "align": "right",
+            "col": 1,
+            "runs": [
+              {
+                "text": "num"
+              },
+              {
+                "footnote": 2,
+                "mark_text": "2"
+              }
+            ],
+            "scope": "col",
+            "text": "num"
+          },
+          {
+            "align": "right",
+            "col": 2,
+            "runs": [
+              {
+                "text": "date"
+              }
+            ],
+            "scope": "col",
+            "text": "date"
+          }
+        ],
+        "role": "column_label"
+      }
+    ],
+    "source_notes": [
+      {
+        "runs": [
+          {
+            "text": "Source note one."
+          }
+        ],
+        "text": "Source note one."
+      },
+      {
+        "runs": [
+          {
+            "text": "Source note "
+          },
+          {
+            "style": {
+              "font_style": "italic"
+            },
+            "text": "two"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "text": "Source note two."
+      }
+    ],
+    "subtitle": {
+      "runs": [
+        {
+          "text": "Subtitle text"
+        }
+      ],
+      "text": "Subtitle text"
+    },
+    "title": {
+      "runs": [
+        {
+          "style": {
+            "font_weight": "bold"
+          },
+          "text": "Notes"
+        },
+        {
+          "text": " and marks"
+        },
+        {
+          "footnote": 1,
+          "mark_text": "1"
+        }
+      ],
+      "text": "Notes and marks"
+    }
+  }
+}

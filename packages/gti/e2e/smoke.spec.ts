@@ -9,7 +9,8 @@ for (const name of ["after.html", "head.html"]) {
     await expect(el).toHaveAttribute("data-gti-state", "ready");
     expect(await el.evaluate((node) => (node as any).table === node.querySelector("table.gt_table"))).toBe(true);
     expect(await page.evaluate(() => (window as any).GTI.VERSION)).toMatch(/^\d+\.\d+\.\d+/);
-    await expect(el).toHaveCSS("display", "block");
+    // (A block that keeps its controls' margins in it)
+    await expect(el).toHaveCSS("display", "flow-root");
 
     // Hydrating doesn't change the table GT rendered.
     await expect(el.locator("table.gt_table tbody tr")).not.toHaveCount(0);

@@ -4,57 +4,475 @@ jupyter: python3
 html-table-processing: none
 ---
 
-Great Tables is all about making it simple to produce nice-looking display tables in Python. Display
-tables? Well yes, we are trying to distinguish between data tables (i.e., DataFrames) and those
-tables you'd find in a web page, a journal article, or in a magazine.
+Great Tables turns DataFrames into display tables: the kind of table you'd find in a report, a
+journal article or on a web page. Give a table a header and footer, group and label its rows and
+columns, format every kind of value, and style any part of it. Then, if you like, hand it to your
+readers to sort, filter and search in the browser.
 
-Here's a quick example (click "Show the code" to see how it's done):
+```{=html}
+<link rel="stylesheet" href="assets/homepage.css">
+<script src="assets/homepage.js" defer></script>
+<script src="assets/backdrop.js" defer></script>
+<script src="assets/tabblen.js" defer></script>
+```
+
+::: {.gth-cta}
+[Get started](/user-guide/introduction.qmd){.gth-btn .gth-btn-primary}
+[See the examples](/examples/){.gth-btn}
+[Browse the reference](/reference/index.qmd){.gth-btn}
+
+```{=html}
+<button type="button" class="gth-install" data-copy="pip install great_tables" aria-label="Copy the install command">
+  <code><span class="gth-prompt">$</span> pip install great_tables</code>
+  <i class="bi bi-clipboard" aria-hidden="true"></i>
+</button>
+```
+:::
+
+## Build a table, one layer at a time {.gth-heading}
+
+A table is made by chaining methods onto `GT()`, each adding a part of the table, a format or a
+style. Step through the layers of this one to see what each adds; the new lines of code are
+highlighted.
+
+```{python}
+#| code-fold: true
+#| code-summary: "How `countries` is made"
+#| classes: gth-prep
+import polars as pl
+from great_tables import GT, GTI, data, loc, md, nanoplot_options, style
+
+regions = {
+    "IN": "Asia", "CN": "Asia", "ID": "Asia", "PK": "Asia", "BD": "Asia",
+    "US": "Americas", "BR": "Americas",
+    "NG": "Africa",
+}
+
+# The eight most populous countries of 2022, with their populations in 1960 and 2022, and
+# (in millions) every five years between
+countries = (
+    data.pl.countrypops
+    .filter(pl.col("country_code_2").is_in(list(regions)))
+    .sort("year")
+    .group_by("country_code_2", "country_name", maintain_order=True)
+    .agg(
+        pop_1960=pl.col("population").first(),
+        pop_2022=pl.col("population").last(),
+        trend=(pl.col("population") / 1e6).round(1).filter(pl.col("year") % 5 == 0),
+    )
+    .with_columns(
+        region=pl.col("country_code_2").replace_strict(regions),
+        change=pl.col("pop_2022") / pl.col("pop_1960") - 1,
+    )
+    .sort("pop_2022", descending=True)
+    .select("country_code_2", "country_name", "region", "pop_1960", "pop_2022", "change", "trend")
+)
+```
+
+::::: {.gth-stepper}
+
+:::: {.gth-step .gth-step-raw}
+[Data]{.gth-step-name}
+
+It starts with a DataFrame: here, the eight most populous countries, from `data.countrypops`.
+`GT()` takes Polars, Pandas and PyArrow tables as they are.
+
+```{python}
+GT(countries)
+```
+::::
+
+:::: {.gth-step}
+[Structure]{.gth-step-name}
+
+Add a title, group the rows by region, put a spanner over the population columns, label the
+columns and cite the source.
+
+```{python}
+(
+    GT(countries, groupname_col="region")
+    .tab_header(
+        title="The world's most populous countries",
+        subtitle="And how they've grown since 1960",
+    )
+    .tab_spanner(label="Population", columns=["pop_1960", "pop_2022"])
+    .cols_label(
+        country_code_2="",
+        country_name="Country",
+        pop_1960="1960",
+        pop_2022="2022",
+        change="Change",
+        trend="1960–2020",
+    )
+    .tab_source_note(
+        md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+)
+```
+::::
+
+:::: {.gth-step}
+[Format]{.gth-step-name}
+
+Turn country codes into flags and populations into millions and billions, show the change as a
+percentage, and draw each list of populations as a small plot.
+
+```{python}
+(
+    GT(countries, groupname_col="region")
+    .tab_header(
+        title="The world's most populous countries",
+        subtitle="And how they've grown since 1960",
+    )
+    .tab_spanner(label="Population", columns=["pop_1960", "pop_2022"])
+    .cols_label(
+        country_code_2="",
+        country_name="Country",
+        pop_1960="1960",
+        pop_2022="2022",
+        change="Change",
+        trend="1960–2020",
+    )
+    .tab_source_note(
+        md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+    .fmt_flag(columns="country_code_2")
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
+    .fmt_percent(columns="change", decimals=0, force_sign=True)
+    .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
+)
+```
+::::
+
+:::: {.gth-step}
+[Style]{.gth-step-name}
+
+Color each change by its size, set the countries and regions in bold, add a footnote and set the
+header to the left.
+
+```{python}
+(
+    GT(countries, groupname_col="region")
+    .tab_header(
+        title="The world's most populous countries",
+        subtitle="And how they've grown since 1960",
+    )
+    .tab_spanner(label="Population", columns=["pop_1960", "pop_2022"])
+    .cols_label(
+        country_code_2="",
+        country_name="Country",
+        pop_1960="1960",
+        pop_2022="2022",
+        change="Change",
+        trend="1960–2020",
+    )
+    .tab_source_note(
+        md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+    .fmt_flag(columns="country_code_2")
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
+    .fmt_percent(columns="change", decimals=0, force_sign=True)
+    .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
+    .data_color(columns="change", palette=["#FFF0FA", "#F900C3"])
+    .tab_style(
+        style=style.text(weight="bold"),
+        locations=[loc.body(columns="country_name"), loc.row_groups()],
+    )
+    .tab_footnote(
+        "Midyear estimates.",
+        locations=loc.spanner_labels(ids=["Population"]),
+    )
+    .opt_align_table_header(align="left")
+)
+```
+::::
+
+:::: {.gth-step}
+[Interact]{.gth-step-name}
+
+Change `GT` to `GTI`, and readers can sort, search and filter the table, with every format and
+style kept. Try sorting by a column, or filtering by the change.
+
+```{python}
+(
+    GTI(countries, groupname_col="region")
+    .tab_header(
+        title="The world's most populous countries",
+        subtitle="And how they've grown since 1960",
+    )
+    .tab_spanner(label="Population", columns=["pop_1960", "pop_2022"])
+    .cols_label(
+        country_code_2="",
+        country_name="Country",
+        pop_1960="1960",
+        pop_2022="2022",
+        change="Change",
+        trend="1960–2020",
+    )
+    .tab_source_note(
+        md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
+    )
+    .fmt_flag(columns="country_code_2")
+    .fmt_number(columns=["pop_1960", "pop_2022"], compact=True, n_sigfig=3)
+    .fmt_percent(columns="change", decimals=0, force_sign=True)
+    .fmt_nanoplot(columns="trend", options=nanoplot_options(show_data_points=False))
+    .text_replace("United States", "USA", locations=loc.body(columns="country_name"))
+    .data_color(columns="change", palette=["#FFF0FA", "#F900C3"])
+    .tab_style(
+        style=style.text(weight="bold"),
+        locations=[loc.body(columns="country_name"), loc.row_groups()],
+    )
+    .tab_footnote(
+        "Midyear estimates.",
+        locations=loc.spanner_labels(ids=["Population"]),
+    )
+    .opt_align_table_header(align="left")
+    .i_cols_filter(columns="change")
+    .i_cols_controls(columns="country_code_2", sortable=False)
+    .i_pagination(False)
+    .i_responsive("scroll")
+    .i_view(sort="-change")
+)
+```
+::::
+
+:::::
+
+## Format every kind of value {.gth-heading}
+
+The `fmt_*()` methods format a table's values as numbers, currencies, percentages, dates and times,
+durations, units, chemical formulas, flags, icons, images and more, in any of hundreds of locales.
+The values themselves are kept: formatting only changes how they're shown. Where formats leave
+off, `sub_*()` methods put text in place of missing, zero, small or large values, and `text_*()`
+methods transform the text that formatting made.
+
+::: {.gth-gallery}
+```{python}
+#| code-fold: true
+#| code-summary: "Show the code"
+import pandas as pd
+
+examples = pd.DataFrame(
+    [
+        ("Numbers", "fmt_number(compact=True)", 2_418_000_000),
+        ("Numbers", "fmt_currency(currency=\"EUR\", locale=\"de\")", 1234.5),
+        ("Numbers", "fmt_percent(decimals=1)", 0.4567),
+        ("Numbers", "fmt_fraction()", 0.875),
+        ("Numbers", "fmt_roman()", 2026),
+        ("Numbers", "fmt_bytes()", 1_500_000_000),
+        ("Dates and times", "fmt_date(date_style=\"wday_month_day_year\")", "2026-11-21"),
+        ("Dates and times", "fmt_datetime(format_str=\"EEEE d MMMM\", locale=\"fr\")", "2026-11-21"),
+        ("Dates and times", "fmt_duration(input_units=\"seconds\")", 3725),
+        ("Science", "fmt_scientific()", 6.02214076e23),
+        ("Science", "fmt_units()", "m s^-2"),
+        ("Science", "fmt_chem()", "C6H12O6"),
+        ("Symbols", "fmt_flag()", "JP"),
+        ("Symbols", "fmt_icon()", "star"),
+        ("Symbols", "fmt_tf(tf_style=\"check-mark\")", True),
+    ],
+    columns=["kind", "method", "shown"],
+).assign(value=lambda df: df["shown"].map(repr))
+
+(
+    GT(examples[["kind", "method", "value", "shown"]], rowname_col="method", groupname_col="kind")
+    .cols_label(value="Value", shown="Shown as")
+    .fmt_number(columns="shown", rows=0, compact=True)
+    .fmt_currency(columns="shown", rows=1, currency="EUR", locale="de")
+    .fmt_percent(columns="shown", rows=2, decimals=1)
+    .fmt_fraction(columns="shown", rows=3)
+    .fmt_roman(columns="shown", rows=4)
+    .fmt_bytes(columns="shown", rows=5)
+    .fmt_date(columns="shown", rows=6, date_style="wday_month_day_year")
+    .fmt_datetime(columns="shown", rows=7, format_str="EEEE d MMMM", locale="fr")
+    .fmt_duration(columns="shown", rows=8, input_units="seconds")
+    .fmt_scientific(columns="shown", rows=9)
+    .fmt_units(columns="shown", rows=10)
+    .fmt_chem(columns="shown", rows=11)
+    .fmt_flag(columns="shown", rows=12)
+    .fmt_icon(columns="shown", rows=13)
+    .fmt_tf(columns="shown", rows=14, tf_style="check-mark")
+    .tab_style(
+        style=style.text(font="ui-monospace, SFMono-Regular, Menlo, monospace", size="0.85em"),
+        locations=[loc.stub(), loc.body(columns="value")],
+    )
+    .tab_style(style=style.text(weight="bold"), locations=loc.body(columns="shown"))
+    .tab_options(data_row_padding="5px", row_group_padding="6px")
+)
+```
+:::
+
+[Formatting values →](/user-guide/formatting-values.qmd){.gth-more}
+[Nanoplots →](/user-guide/nanoplots.qmd){.gth-more}
+
+## Let readers explore the data {.gth-heading}
+
+A `GTI` table is a `GT` table that readers work with. Give its columns filters and small plots of
+their values, and it becomes a way to look through thousands of rows: all of it in the page, with
+no server. Here are the 1,851 films in competition at the Cannes Film Festival from 1946 to 2024.
+Pick a view below, or use the table's own controls, and the profiles under the column labels show
+what's left.
+
+::: {.gth-tour}
+
+```{=html}
+<div class="gth-chips" role="group" aria-label="Views of the table">
+  <button type="button" class="gth-chip" data-view='{"filter": {"and": [{"col": "director", "op": "contains", "value": "Ken Loach"}]}, "sort": [{"column": "year", "descending": false}]}'>Ken Loach's films</button>
+  <button type="button" class="gth-chip" data-view='{"filter": {"and": [{"col": "year", "op": "gte", "value": 1960}, {"col": "year", "op": "lte", "value": 1969}]}, "sort": [{"column": "minutes", "descending": true}]}'>The 1960s, longest first</button>
+  <button type="button" class="gth-chip" data-view='{"filter": {"and": [{"col": "countries", "op": "contains", "value": "JP"}]}, "sort": [{"column": "year", "descending": true}]}'>From Japan, newest first</button>
+  <button type="button" class="gth-chip" data-view='{"filter": {"and": [{"col": "minutes", "op": "lte", "value": 90}]}, "sort": [{"column": "minutes", "descending": false}]}'>Under 90 minutes</button>
+  <button type="button" class="gth-chip" data-view='{"groupBy": "decade", "sort": [{"column": "minutes", "descending": true}]}'>Longest of each decade</button>
+  <button type="button" class="gth-chip gth-chip-reset" data-view="reset"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reset</button>
+</div>
+```
 
 ```{python}
 #| code-fold: true
 #| code-summary: "Show the code"
-
-import polars as pl
-from great_tables import GT, md, html
-from great_tables.data import countrypops
-
-countries_mini = (
-    pl.from_pandas(countrypops)
-    .filter(pl.col("year") == 2022)
-    .sort("population", descending=True)
-    .select("country_name", "population")
-    .head(10)
+films = (
+    data.pl.films
+    .with_columns(
+        minutes=(
+            pl.col("run_time").str.extract(r"(\d+)h").cast(pl.Int64).fill_null(0) * 60
+            + pl.col("run_time").str.extract(r"(\d+)m").cast(pl.Int64).fill_null(0)
+        ),
+        decade=(pl.col("year") // 10 * 10).cast(pl.String) + "s",
+        countries=pl.col("countries_of_origin").str.replace_all(",", ", "),
+    )
+    .select("year", "title", "director", "countries", "minutes", "decade")
 )
 
 (
-    GT(countries_mini)
-    .tab_header(
-        title="The World's Most Populous Countries",
-        subtitle="The top ten in 2022 are presented"
+    GTI(films, id="cannes")
+    .tab_header(title="Films in competition at Cannes, 1946–2024")
+    .cols_label(
+        year="Year", title="Film", director="Director", countries="Countries",
+        minutes="Length", decade="Decade",
     )
-    .tab_stub(rowname_col="country_name")
-    .tab_stubhead(label="country")
-    .fmt_integer(columns="population")
-    .tab_source_note(
-        source_note=md("Source: [The World Bank](https://data.worldbank.org/indicator/SP.POP.TOTL).")
-    )
+    .fmt_integer(columns="year", use_seps=False)
+    .fmt_integer(columns="minutes", pattern="{x} min")
+    .i_cols_filter(columns=["director", "countries"], type="text")
+    .i_cols_filter(columns=["year", "minutes"])
+    .i_cols_profile(columns=["year", "minutes"])
+    .i_cols_controls(columns="decade", groupable=True, hideable=True)
+    .i_export(["csv", "clipboard", "code"], filename="cannes")
+    .i_pagination(page_size=8)
+    .i_responsive("scroll")
 )
 ```
 
-We can think of display tables as output only, where we'd not want to use them as input ever again.
-Other features include annotations, table element styling, and text transformations that serve to
-communicate the subject matter more clearly.
+```{=html}
+<div class="gth-livecode" hidden>
+  <div class="gth-livecode-bar">
+    <span class="gth-livecode-title">The code for the rows you see</span>
+    <span class="gth-livecode-langs" role="group" aria-label="Library">
+      <button type="button" data-backend="polars" aria-pressed="true">Polars</button>
+      <button type="button" data-backend="pandas" aria-pressed="false">Pandas</button>
+    </span>
+    <button type="button" class="gth-livecode-copy" aria-label="Copy the code"><i class="bi bi-clipboard" aria-hidden="true"></i></button>
+  </div>
+  <pre class="gth-livecode-code"><code></code></pre>
+</div>
+```
 
-Great Tables lets you build tables with a chainable API that starts with `GT()`. From there you
-can add a header, format values, apply styles, and export to HTML, LaTeX, or image files.
+:::
 
-## Get Started
+Every view is a query that readers can edit as text (from the `{ }` button), and that
+`i_export("code")` turns into the Polars or Pandas code that gets the same rows from the data.
+Tables can start with a view of their own, keep the reader's view in the page's URL, open rows to
+show their details, link to each other, and fit narrow screens. In Shiny, Streamlit, Panel,
+Solara, marimo and notebooks, Python can read and set what readers do.
 
-Install with:
+[Interactive tables with GTI →](/user-guide/gti-tables.qmd){.gth-more}
+[GTI in Python and apps →](/user-guide/gti-in-python-and-apps.qmd){.gth-more}
+
+## Everything a table needs {.gth-heading}
+
+::: {.gth-cards}
+
+::: {.gth-card}
+[<i class="bi bi-layout-text-window-reverse"></i>]{.gth-card-icon}
+
+#### Structure
+
+Headers, footers, a stub of row labels, row groups, column spanners, footnotes and summary rows.
+
+[The parts of a table →](/user-guide/header-footer-stub.qmd)
+:::
+
+::: {.gth-card}
+[<i class="bi bi-palette"></i>]{.gth-card-icon}
+
+#### Style
+
+Style any cell or part of a table, color cells by their values, and choose from premade themes and
+fonts.
+
+[Styling the table →](/user-guide/styling-the-table-body.qmd)
+:::
+
+::: {.gth-card}
+[<i class="bi bi-graph-up"></i>]{.gth-card-icon}
+
+#### Nanoplots
+
+Small line, bar and box plots in the cells of a table, made from each row's values.
+
+[Nanoplots →](/user-guide/nanoplots.qmd)
+:::
+
+::: {.gth-card}
+[<i class="bi bi-database"></i>]{.gth-card-icon}
+
+#### Any DataFrame
+
+Polars, Pandas and PyArrow tables, and for `GTI` tables, Polars LazyFrames, DuckDB relations and
+Ibis tables too.
+
+[The datasets →](/user-guide/datasets.qmd)
+:::
+
+::: {.gth-card}
+[<i class="bi bi-window-stack"></i>]{.gth-card-icon}
+
+#### Notebooks and apps
+
+Tables show themselves in Jupyter, Quarto, marimo and VS Code, and in Shiny, Streamlit, Panel and
+Solara apps.
+
+[GTI in Python and apps →](/user-guide/gti-in-python-and-apps.qmd)
+:::
+
+::: {.gth-card}
+[<i class="bi bi-box-arrow-up-right"></i>]{.gth-card-icon}
+
+#### Export
+
+HTML and LaTeX, images and PDFs, and with gridwell, Word, Excel, PowerPoint, RTF, Typst and SVG.
+
+[Exporting and saving →](/user-guide/exporting-and-saving.qmd)
+:::
+
+:::
+
+## Get started {.gth-heading}
+
+:::: {.gth-start}
+
+::: {.gth-start-text}
+Install Great Tables from PyPI:
 
 ```bash
 pip install great_tables
 ```
 
-Then head over to the [User Guide](/user-guide/) to learn how to build your
-first table, or explore the [Examples](/examples/) gallery for inspiration.
+Then head over to the [User Guide](/user-guide/introduction.qmd) to make your first table, or look
+through the [Examples](/examples/) for ideas.
+:::
+
+```{=html}
+<gt-tabblen class="gth-tabblen" bubble="top" follow cell-trick="shuffle"></gt-tabblen>
+```
+
+::::

@@ -13,9 +13,9 @@ IDE_ENV_FLAGS = {
 }
 
 
-def infer_render_env() -> (
-    Literal["quarto", "databricks", "ipython_terminal", "vscode", "positron", "default"]
-):
+def infer_render_env() -> Literal[
+    "quarto", "databricks", "ipython_terminal", "vscode", "positron", "default"
+]:
     # Check if we are rendering in the Quarto environment
     _env = os.environ
     if "QUARTO_BIN_PATH" in _env:

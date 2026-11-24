@@ -13,6 +13,7 @@ from . import loc, style, vals
 if TYPE_CHECKING:
     from .data import exibble as exibble
     from .data import load_dataset as load_dataset
+from ._data_color.col_fns import col_bin, col_factor, col_numeric
 from ._helpers import (
     LETTERS,
     define_units,
@@ -27,8 +28,8 @@ from ._helpers import (
     stub,
     system_fonts,
 )
-from ._data_color.col_fns import col_bin, col_factor, col_numeric
 from ._styles import FromColumn as from_column
+from ._theme import Theme
 from .gt import GT
 from .gti import GTI
 
@@ -36,6 +37,7 @@ __all__ = (
     "GT",
     "GTI",
     "LETTERS",
+    "Theme",
     "col_bin",
     "col_factor",
     "col_numeric",

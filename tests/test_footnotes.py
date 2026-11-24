@@ -525,6 +525,113 @@ def test_tab_footnote_mixed_locations_hidden():
     assert marks_match.group(1) == "1"
 
 
+def _column_heading_mark(html: str, column: str) -> str | None:
+    match = re.search(rf'<th[^>]*id="{re.escape(column)}"[^>]*>(.*?)</th>', html)
+    if match is None:
+        return None
+    mark = re.search(r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>', match.group(1))
+    return mark.group(1) if mark else None
+
+
+def _footer_notes(html: str) -> list[tuple[str, str]]:
+    tfoot = re.search(r"<tfoot>.*</tfoot>", html, re.DOTALL)
+    if tfoot is None:
+        return []
+    return [
+        (mark, text.strip())
+        for mark, text in re.findall(
+            r'<span class="gt_footnote_marks"[^>]*>([^<]*)</span>\s*([^<]+?)(?=</td>)',
+            tfoot.group(0),
+        )
+    ]
+
+
+@pytest.mark.parametrize("remove_header", [False, True])
+def test_footnote_on_missing_title_does_not_consume_mark(remove_header):
+    """A title footnote is left out when the table has no title, or the header was removed."""
+    df = pl.DataFrame({"a": [1], "b": [2]})
+
+    gt_table = GT(df)
+    if remove_header:
+        gt_table = gt_table.tab_header(title="Title")
+
+    gt_table = gt_table.tab_footnote("Note on the title.", locations=loc.title()).tab_footnote(
+        "Note on column a.", locations=loc.column_labels(columns="a")
+    )
+
+    if remove_header:
+        gt_table = gt_table.rm_header()
+
+    html = gt_table.as_raw_html()
+
+    assert _column_heading_mark(html, "a") == "1"
+    assert _footer_notes(html) == [("1", "Note on column a.")]
+    assert "Note on the title." not in html
+
+
+def test_footnote_on_missing_subtitle_does_not_consume_mark():
+    """A subtitle footnote is left out when the header has a title and no subtitle."""
+    df = pl.DataFrame({"a": [1], "b": [2]})
+
+    gt_table = (
+        GT(df)
+        .tab_header(title="Title")
+        .tab_footnote("Note on the subtitle.", locations=loc.subtitle())
+        .tab_footnote("Note on column a.", locations=loc.column_labels(columns="a"))
+    )
+
+    html = gt_table.as_raw_html()
+
+    assert "Title" in html
+    assert _column_heading_mark(html, "a") == "1"
+    assert _footer_notes(html) == [("1", "Note on column a.")]
+    assert "Note on the subtitle." not in html
+
+
+@pytest.mark.parametrize("how", ["hide", "remove"])
+def test_footnote_on_missing_spanner_does_not_consume_mark(how):
+    """A spanner footnote is left out when the spanner is removed or its columns are all hidden."""
+    df = pl.DataFrame({"a": [1], "b": [2]})
+
+    gt_table = (
+        GT(df)
+        .tab_spanner("Spanner", columns="b")
+        .tab_footnote("Note on the spanner.", locations=loc.spanner_labels(ids=["Spanner"]))
+        .tab_footnote("Note on column a.", locations=loc.column_labels(columns="a"))
+    )
+    if how == "hide":
+        gt_table = gt_table.cols_hide(columns="b")
+    else:
+        gt_table = gt_table.rm_spanners()
+
+    html = gt_table.as_raw_html()
+
+    assert _column_heading_mark(html, "a") == "1"
+    assert _footer_notes(html) == [("1", "Note on column a.")]
+    assert "Note on the spanner." not in html
+
+
+def test_footnote_on_partially_hidden_spanner_is_kept():
+    """Hiding one column under a spanner leaves the spanner, so its footnote still shows."""
+    df = pl.DataFrame({"a": [1], "b": [2]})
+
+    gt_table = (
+        GT(df)
+        .tab_spanner("Spanner", columns=["a", "b"])
+        .tab_footnote("Note on the spanner.", locations=loc.spanner_labels(ids=["Spanner"]))
+        .tab_footnote("Note on column a.", locations=loc.column_labels(columns="a"))
+        .cols_hide(columns="b")
+    )
+
+    html = gt_table.as_raw_html()
+
+    assert "Spanner" in html
+    assert _footer_notes(html) == [
+        ("1", "Note on the spanner."),
+        ("2", "Note on column a."),
+    ]
+
+
 def test_tab_footnote_stub_body_ordering_snapshot(snapshot):
     df = pl.DataFrame(
         {
@@ -1062,6 +1169,41 @@ def test_source_notes_multiline_with_footnotes():
         r'<tr class="gt_sourcenotes"><td class="gt_sourcenote"[^>]*>', html
     )
     assert len(source_note_rows) >= 3
+
+
+@pytest.mark.parametrize("multiline", [True, False])
+def test_footnotes_come_before_source_notes(multiline: bool):
+    # gt puts the footnotes above the source notes in the footer
+    gt_table = (
+        GT(pd.DataFrame({"values": [42, 123]}))
+        .tab_source_note("First source note")
+        .tab_footnote("Value footnote", locations=loc.body(columns="values", rows=[0]))
+        .tab_source_note("Second source note")
+        .tab_options(source_notes_multiline=multiline)
+    )
+
+    footer = re.search(r"<tfoot>(.*?)</tfoot>", gt_table._render_as_html(), re.DOTALL)
+    assert footer
+
+    row_classes = re.findall(r'<tr class="(gt_footnotes|gt_sourcenotes)">', footer.group(1))
+    n_source_note_rows = 2 if multiline else 1
+    assert row_classes == ["gt_footnotes"] + ["gt_sourcenotes"] * n_source_note_rows
+
+
+@pytest.mark.parametrize("multiline", [True, False])
+@pytest.mark.parametrize("location", [loc.source_notes(), loc.footer()])
+def test_source_note_styles_kept_in_both_modes(multiline: bool, location):
+    gt_table = (
+        GT(pd.DataFrame({"values": [42, 123]}))
+        .tab_source_note("First source note")
+        .tab_source_note("Second source note")
+        .tab_style(style.text(color="red"), location)
+        .tab_options(source_notes_multiline=multiline)
+    )
+
+    source_note_cells = re.findall(r'<td class="gt_sourcenote"[^>]*>', gt_table._render_as_html())
+    assert len(source_note_cells) == (2 if multiline else 1)
+    assert all('style="color: red; ' in cell for cell in source_note_cells)
 
 
 def test_footnote_and_source_note_integration():
