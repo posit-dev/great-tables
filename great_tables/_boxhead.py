@@ -564,6 +564,22 @@ def cols_label_rotate(
     )
     ```
 
+    All three `dir` values can be compared side by side by assigning each direction to a different
+    column and renaming the labels to the direction names.
+
+    ```{python}
+    (
+        GT(exibble[["num", "char", "fctr"]])
+        .cols_label(num="sideways-lr", char="sideways-rl", fctr="vertical-lr")
+        .cols_label_rotate(columns="num", dir="sideways-lr")
+        .cols_label_rotate(columns="char", dir="sideways-rl")
+        .cols_label_rotate(columns="fctr", dir="vertical-lr")
+    )
+    ```
+
+    `"sideways-rl"` and `"vertical-lr"` look the same with Latin text. They differ with CJK
+    characters, which `"vertical-lr"` keeps upright.
+
     Other styles you provide won't override the column label rotation directives. Here we set the
     text to the right.
 
@@ -595,18 +611,16 @@ def cols_label_rotate(
     ##### `"sideways-lr"`
 
     For ltr scripts, content flows vertically from bottom to top. For rtl scripts, content flows
-    vertically from top to bottom. Characters are set sideways toward the left. Overflow lines are
-    appended to the right.
+    vertically from top to bottom. Characters are set sideways toward the left.
 
     ##### `"sideways-rl"`
 
     For ltr scripts, content flows vertically from top to bottom. For rtl scripts, content flows
-    vertically from bottom to top. Characters are set sideways toward the right. Overflow lines are
-    appended to the left.
+    vertically from bottom to top. Characters are set sideways toward the right.
 
     ##### `"vertical-lr"`
 
-    Identical to `"sideways-rl"`, but overflow lines are appended to the right.
+    Like `"sideways-rl"`, but CJK characters are kept upright rather than set sideways.
 
     """
     # Throw if `align` is not one of the four allowed values
