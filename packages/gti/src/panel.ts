@@ -68,6 +68,31 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
   const last = new Map<unknown, number>();
   // (The asks unanswered, each with the timer to ask it again)
   const asks = new Map<string, ReturnType<typeof setTimeout>>();
+  // (While Python's changes, or another view's, are taken; a report made then, as the table
+  // applies them, is written at once, as a notebook's Panel takes the first change of a message,
+  // which is then before Panel's echo of Python's; and again once they're taken, with those made
+  // since, as Panel's Pyodide worker drops what's set while it applies Python's changes)
+  let taking = false;
+  let again: Record<string, unknown> | null = null;
+
+  const report = () => {
+    if (Object.keys(pending).length > 0) {
+      model._report = escaped({ ...pending, n: ++count, from: id });
+      if (again !== null || taking) {
+        if (again === null) {
+          queueMicrotask(() => {
+            const made = again;
+            again = null;
+            model._report = escaped({ ...made, n: ++count, from: id });
+          });
+        }
+        again = { ...again, ...pending };
+      }
+      for (const name of Object.keys(pending)) {
+        delete pending[name];
+      }
+    }
+  };
 
   // (Python's changes, and another view's, set on the state, and each told)
   const take = (sent: unknown) => {
@@ -86,10 +111,16 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
     for (const name of names) {
       state[name] = changes[name];
     }
-    for (const name of names) {
-      for (const callback of callbacks.get(`change:${name}`) ?? []) {
-        callback();
+    const taken = taking;
+    taking = true;
+    try {
+      for (const name of names) {
+        for (const callback of callbacks.get(`change:${name}`) ?? []) {
+          callback();
+        }
       }
+    } finally {
+      taking = taken;
     }
   };
   take(model._update);
@@ -125,14 +156,7 @@ export function modelOf(model: PanelModel): Model & { close(): void } {
       state[name] = value;
       pending[name] = value;
     },
-    save_changes: () => {
-      if (Object.keys(pending).length > 0) {
-        model._report = escaped({ ...pending, n: ++count, from: id });
-        for (const name of Object.keys(pending)) {
-          delete pending[name];
-        }
-      }
-    },
+    save_changes: report,
     // (Python's told of the reader's changes by the report, so needs no message for them)
     send: (content) => {
       const message = content as { type?: unknown; id?: unknown } | null;
