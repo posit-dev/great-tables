@@ -4,7 +4,7 @@ Format values as times.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5443-L5591)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L5444-L5592)
 
 ``` python
 GT.fmt_time(

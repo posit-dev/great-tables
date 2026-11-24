@@ -4,7 +4,7 @@ Format values as URL links.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3739-L3930)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L3740-L3931)
 
 ``` python
 GT.fmt_url(

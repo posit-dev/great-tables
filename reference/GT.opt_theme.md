@@ -4,7 +4,7 @@ Apply a theme to the table and choose its color mode.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L402-L465)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L403-L466)
 
 ``` python
 GT.opt_theme(

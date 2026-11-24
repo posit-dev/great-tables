@@ -4,7 +4,7 @@ Use icons within a table's body cells.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8521-L8716)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_formats.py#L8522-L8717)
 
 ``` python
 GT.fmt_icon(
