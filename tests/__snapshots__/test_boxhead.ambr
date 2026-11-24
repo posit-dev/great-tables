@@ -2,8 +2,12 @@
 # name: test_cols_label_rotate
   '''
   <tr class="gt_col_headings">
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="writing-mode: sideways-lr; vertical-align: middle; text-align: left; padding: 8px 0px;" scope="col" id="test-x">x</th>
-    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="writing-mode: sideways-lr; vertical-align: middle; text-align: left; padding: 8px 0px;" scope="col" id="test-y">y</th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="text-align: center; vertical-align: bottom; padding: 8px 0px;" scope="col" id="test-x">
+      <span style="writing-mode: sideways-lr; height: max-content;">x</span>
+    </th>
+    <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="text-align: center; vertical-align: bottom; padding: 8px 0px;" scope="col" id="test-y">
+      <span style="writing-mode: sideways-lr; height: max-content;">y</span>
+    </th>
     <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="test-z">z</th>
   </tr>
   '''

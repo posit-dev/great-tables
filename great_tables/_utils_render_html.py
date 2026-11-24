@@ -220,6 +220,23 @@ def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     return None
 
 
+def _wrap_rotated_column_label(text: str, info: ColInfo) -> HTML | Tag:
+    """Wrap a label from `cols_label_rotate()` in a span that rotates it.
+
+    The `writing-mode` is set on the span and not on the `<th>`, since Safari doesn't size a
+    rotated cell for its text and so wraps short labels. The `height: max-content` keeps the label
+    on one line: Safari shows only the first line of a rotated label that wraps.
+    """
+    if info.column_label_rotate is None:
+        return HTML(text)
+
+    return Tag(
+        "span",
+        HTML(text),
+        style=f"writing-mode: {info.column_label_rotate}; height: max-content;",
+    )
+
+
 def _make_svg_ids_unique(html_str: str, prefix: str) -> str:
     """Prefix the ids defined in each SVG of `html_str`, and the references to them."""
 
@@ -639,7 +656,7 @@ def create_columns_component_h(data: GTData) -> str:
             table_col_headings.append(
                 Tag(
                     "th",
-                    HTML(column_label_with_footnotes),
+                    _wrap_rotated_column_label(column_label_with_footnotes, info),
                     class_=f"gt_col_heading gt_columns_bottom_border gt_{info.defaulted_align}",
                     rowspan=1,
                     colspan=1,
@@ -736,7 +753,7 @@ def create_columns_component_h(data: GTData) -> str:
                 level_1_spanners.append(
                     Tag(
                         "th",
-                        HTML(column_label_with_footnotes),
+                        _wrap_rotated_column_label(column_label_with_footnotes, h_info),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{first_set_alignment}",
                         rowspan=2,
                         colspan=1,
@@ -826,7 +843,10 @@ def create_columns_component_h(data: GTData) -> str:
                 spanned_column_labels.append(
                     Tag(
                         "th",
-                        HTML(remaining_headings_label_with_footnotes),
+                        _wrap_rotated_column_label(
+                            remaining_headings_label_with_footnotes,
+                            next(info for info in boxhead if info.var == remaining_heading),
+                        ),
                         class_=f"gt_col_heading gt_columns_bottom_border gt_{remaining_alignment}",
                         rowspan=1,
                         colspan=1,
