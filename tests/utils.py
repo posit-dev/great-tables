@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import difflib
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Literal, TypedDict, TypeVar
 
 from great_tables._tbl_data import DataFrameLike, PdDataFrame, PlDataFrame, SeriesLike
@@ -24,6 +25,11 @@ SeriesConstructor: TypeAlias = Callable[[list[Any]], SeriesLike]
 Backend: TypeAlias = Literal["pandas", "polars", "pyarrow"]
 Render: TypeAlias = Callable[[DataFrameConstructor], str]
 T = TypeVar("T")
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# (The docs' live app demos, each run in the browser where its code is shown)
+DEMOS = ROOT / "demos"
 
 
 class Divergent(TypedDict, total=False):
@@ -174,3 +180,10 @@ def assert_frame_equal(src: DataFrameLike, target: DataFrameLike):
         assert src.equals(target)
     else:
         raise NotImplementedError(f"Unsupported data type: {type(src)}")
+
+
+def docs_code(page: str, heading: str) -> list[str]:
+    """The Python code shown in a section of a user guide page (under `## {heading}`)."""
+    text = (ROOT / "user_guide" / page).read_text(encoding="utf-8")
+    section = text.split(f"\n## {heading}\n", 1)[1].split("\n## ", 1)[0]
+    return re.findall(r"^```python\n(.*?)^```$", section, flags=re.MULTILINE | re.DOTALL)
