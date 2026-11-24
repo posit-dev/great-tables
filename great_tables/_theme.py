@@ -5,7 +5,8 @@ import re
 from dataclasses import fields
 from typing import TYPE_CHECKING, Any, Literal
 
-from ._data_color.base import _html_color, _ideal_fgnd_color
+from ._data_color.base import _ideal_fgnd_color
+from ._data_color.utils import _html_color
 from ._gt_data import Options, OptionsInfo, _ThemeOptionsInfo, default_fonts_list, is_user_set
 from ._options import validate_option_values
 from .quarto import is_quarto_render, quarto_format_is_html
