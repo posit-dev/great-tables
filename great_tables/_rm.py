@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._gt_data import Heading, Spanners
+from ._spanners import _resolve_spanner_ids
 
 if TYPE_CHECKING:
     from ._types import GTSelf
@@ -255,29 +256,7 @@ def rm_spanners(
     if not len(crnt_spanners):
         return self
 
-    crnt_ids = [span.spanner_id for span in crnt_spanners]
-
-    if spanners is None:
-        sel_ids = list(crnt_ids)
-    else:
-        sel_ids = [spanners] if isinstance(spanners, str) else list(spanners)
-        missing = [id for id in sel_ids if id not in crnt_ids]
-        if missing:
-            raise ValueError(f"These spanner ID values do not exist in the table: {missing}.")
-
-    if levels is not None:
-        sel_levels = [levels] if isinstance(levels, int) else list(levels)
-        crnt_levels = {span.spanner_level for span in crnt_spanners}
-        missing_levels = [lvl for lvl in sel_levels if lvl not in crnt_levels]
-        if missing_levels:
-            raise ValueError(f"These spanner levels do not exist in the table: {missing_levels}.")
-
-        ids_at_levels = {
-            span.spanner_id for span in crnt_spanners if span.spanner_level in sel_levels
-        }
-        sel_ids = [id for id in sel_ids if id in ids_at_levels]
-
-    ids_to_remove = set(sel_ids)
+    ids_to_remove = _resolve_spanner_ids(crnt_spanners, spanners=spanners, levels=levels)
 
     new_spanners = Spanners(
         [span for span in crnt_spanners if span.spanner_id not in ids_to_remove]
