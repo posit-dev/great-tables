@@ -24,7 +24,7 @@ from .constants import ALL_PALETTES, DEFAULT_PALETTE
 from .palettes import GradientPalette
 from .utils import (
     RGBColor,
-    _add_alpha,  # noqa: F401 (re-exported)
+    _add_alpha,  # noqa: F401 (gt-extras imports it from here)
     _float_to_hex,
     _hex_to_rgb,
     _html_color,
