@@ -98,6 +98,31 @@ def test_md_html():
     assert Md("<b>raw</b>").to_html() == "<b>raw</b>"
 
 
+def test_md_html_link_with_space_in_url():
+    # A bare link destination containing spaces is percent-encoded so it still parses as a link
+    assert Md("[a](http://x.com/a b)").to_html() == '<a href="http://x.com/a%20b">a</a>'
+    assert (
+        Md("[map](http://x.com/?q=1&spaced attr=True)").to_html()
+        == '<a href="http://x.com/?q=1&amp;spaced%20attr=True">map</a>'
+    )
+    # Image destinations get the same treatment
+    assert (
+        Md("![i](http://x.com/i p.png)").to_html() == '<img src="http://x.com/i%20p.png" alt="i" />'
+    )
+
+
+def test_md_html_valid_link_forms_unchanged():
+    # A bare destination followed by a title is already valid and is left alone
+    assert (
+        Md('[a](http://x.com/u "a title")').to_html()
+        == '<a href="http://x.com/u" title="a title">a</a>'
+    )
+    # Angle-bracket destinations may already contain spaces
+    assert Md("[a](<http://x.com/u v>)").to_html() == '<a href="http://x.com/u%20v">a</a>'
+    # Link syntax inside code spans stays literal
+    assert Md("`[a](b c)`").to_html() == "<code>[a](b c)</code>"
+
+
 def test_html_to_latex_strips_tags():
     # Tags are stripped, remaining text is LaTeX-escaped
     assert Html("<b>bold</b>").to_latex() == "bold"

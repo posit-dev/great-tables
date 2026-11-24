@@ -70,10 +70,75 @@ def _md_html(x: str) -> str:
     else:
         processed_text = x
 
-    str_result = markdown_to_html(processed_text, unsafe=True)
+    str_result = markdown_to_html(_encode_space_link_dests(processed_text), unsafe=True)
     if str_result is None:  # pragma: no cover
         return processed_text
     return re.sub(r"^<p>|</p>\n$", "", str_result)
+
+
+# Fenced code blocks and inline code spans: link syntax inside them is literal text
+_MD_CODE_SPAN = re.compile(r"(?P<code>`{3,}[\s\S]*?`{3,}|`[^`]*`)")
+
+# A bare link destination followed by whitespace and a "title", 'title' or (title)
+_MD_DEST_AND_TITLE = re.compile(r"^\S+\s+(\"[^\"]*\"|'[^']*'|\([^()]*\))\s*$", re.DOTALL)
+
+# The `[label](` or `![label](` that opens an inline link (labels with nested brackets are
+# left to the parser)
+_MD_INLINE_LINK_OPEN = re.compile(r"!?\[[^\[\]]*\]\(")
+
+
+def _encode_space_link_dests(text: str) -> str:
+    """Percent-encode spaces in the destinations of inline links and images.
+
+    A bare destination cannot contain spaces, so `[a](b c)` parses as plain text; encoding
+    the spaces lets such links render instead of falling back to literal text.
+    """
+    parts = _MD_CODE_SPAN.split(text)
+    for i in range(0, len(parts), 2):
+        parts[i] = _encode_space_link_dests_segment(parts[i])
+    return "".join(parts)
+
+
+def _encode_space_link_dests_segment(segment: str) -> str:
+    edits = []
+    for m in _MD_INLINE_LINK_OPEN.finditer(segment):
+        depth = 0
+        j = m.end() - 1
+        while j < len(segment):
+            char = segment[j]
+            if char == "\\":
+                j += 2
+                continue
+            if char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        if j >= len(segment):
+            break
+        inner = segment[m.end() : j]
+        stripped = inner.strip()
+        if (
+            not stripped
+            or not re.search(r"\s", stripped)
+            or stripped.startswith("<")
+            or _MD_DEST_AND_TITLE.match(stripped)
+        ):
+            continue
+        edits.append(
+            (
+                m.end(),
+                j,
+                inner[: len(inner) - len(inner.lstrip())]
+                + re.sub(r"\s", "%20", stripped)
+                + inner[len(inner.rstrip()) :],
+            )
+        )
+    for start, end, replacement in reversed(edits):
+        segment = segment[:start] + replacement + segment[end:]
+    return segment
 
 
 def _md_latex(x: str) -> str:
