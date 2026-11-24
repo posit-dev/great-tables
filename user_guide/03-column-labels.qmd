@@ -76,6 +76,35 @@ gt_gibraltar = (
 gt_gibraltar
 ```
 
+## Making Spanners from Column Names
+
+Sometimes the grouping is already part of the column names, as with `population_1996` and
+`density_1996` in the `towny` dataset. The `~~GT.tab_spanner_delim()` method splits column names at
+a delimiter, turning the first part into a spanner label and the rest into the column label.
+
+```{python}
+towny_mini = data.pl.towny.head(5).select(
+    "name", "population_1996", "population_2021", "density_1996", "density_2021"
+)
+
+gt_towny = GT(towny_mini, rowname_col="name").tab_spanner_delim(delim="_")
+
+gt_towny
+```
+
+The spanner labels come straight from the column names, so they're lowercase. The
+`~~GT.tab_spanner_label_with()` method relabels spanners with a function, here `str.title`:
+
+```{python}
+gt_towny.tab_spanner_label_with(fn=str.title)
+```
+
+The function can be limited to some of the spanners, by spanner ID (with `spanners=`) or by level
+(with `levels=`). Relabeling doesn't change spanner IDs (here, the original `"population"` and
+`"density"` labels), so methods like `~~GT.tab_style()` and `~~GT.rm_spanners()` still target the
+spanners by those IDs. To relabel column labels with a function instead, use
+`~~GT.cols_label_with()`.
+
 ## Moving and Relabeling Columns
 
 We can do two more things to make this presentable:
