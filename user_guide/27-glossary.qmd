@@ -138,8 +138,9 @@ Source note
 Spanner label
 : A label in the **column header** that spans across multiple contiguous **column labels**,
   providing a higher-level grouping. Created with `tab_spanner()` or automatically with
-  `tab_spanner_delim()` (which splits column names at a delimiter character). Spanners can be
-  nested to any depth. Targetable with `loc.spanner_labels()`.
+  `tab_spanner_delim()` (which splits column names at a delimiter character), and relabeled with
+  `tab_spanner_label_with()`. Spanners can be nested to any depth. Targetable with
+  `loc.spanner_labels()`.
 
 Stub
 : A reserved leftmost column of the table that holds row labels, visually set apart from the
