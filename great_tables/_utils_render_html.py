@@ -766,6 +766,9 @@ def create_columns_component_h(data: GTData) -> str:
 
         for spanners_row, spanner_id_row in zip(spanner_ids[:-2], spanner_id_matrix[:-2]):
             spanners_row = {k: "" if v is None else v for k, v in spanners_row.items()}
+            # Group adjacent columns by spanner ID; the IDs are wrapped in tuples because
+            # `seq_groups()` never joins `None` values, and adjacent columns without a spanner
+            # here share one blank cell
             spanners_rle = seq_groups((span_id,) for span_id in spanner_id_row.values())
             group_spans = ([x[1]] + [0] * (x[1] - 1) for x in spanners_rle)
             colspans = list(chain.from_iterable(group_spans))

@@ -424,6 +424,9 @@ def create_columns_component_l(data: GTData, stub_layout: list[str] | None = Non
             omit_columns_row=True,
         )
         for label_row, id_row in zip(spanners, spanner_ids):
+            # Group adjacent columns by spanner ID; the IDs are wrapped in tuples because
+            # `seq_groups()` never joins `None` values, and adjacent columns without a spanner
+            # share one blank cell
             spanners_rle = seq_groups((span_id,) for span_id in id_row.values())
 
             group_spans = [[x[1]] + [0] * (x[1] - 1) for x in spanners_rle]
