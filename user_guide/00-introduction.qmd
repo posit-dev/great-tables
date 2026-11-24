@@ -106,7 +106,7 @@ and may change in the future. Using `GT` on a **Polars** DataFrame will always w
 
 What `.style` gives you is a `GT` table, so anything you'd do to a `GT` table can follow it. That
 includes making it interactive: `GTI.from_gt()` turns it into a `GTI` table, which readers can sort,
-search, and page through (see [Interactive Tables](24-interactive-tables.qmd)).
+search, and page through (see [Interactive Tables](25-interactive-tables.qmd)).
 
 ```{python}
 from great_tables import GTI
