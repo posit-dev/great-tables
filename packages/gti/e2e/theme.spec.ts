@@ -15,6 +15,8 @@ const TABLES = ["plain", "stylized", "themed", "navy"];
 const SWITCHING = ["plain", "themed", "navy"];
 // (A table with colors written on its cells draws them as written in dark, so it is the same as its literal CSS only in light)
 const CELLS = "cells";
+// (A table with border colors set for both modes blends them in dark, so it is the same as its literal CSS only in light)
+const BLENDED = ["stylized"];
 
 type Scheme = "light" | "dark";
 type Host = { body?: string; html?: string };
@@ -181,10 +183,60 @@ test("fixed modes ignore host and preference", async ({ page }, testInfo) => {
     const light = await shot(page, `${table}.light`, { scheme: "dark", ...DARK[0]! });
     const lightLiteral = await shot(page, `${table}.light-literal`, { scheme: "dark", ...DARK[0]! });
     await expectSame(light, lightLiteral, testInfo, `${table} light`);
+    if (BLENDED.includes(table)) {
+      continue;
+    }
     const dark = await shot(page, `${table}.dark`, { scheme: "light", ...LIGHT[0]! });
     const darkLiteral = await shot(page, `${table}.dark-literal`, { scheme: "light", ...LIGHT[0]! });
     await expectSame(dark, darkLiteral, testInfo, `${table} dark`);
   }
+});
+
+// The computed colors of an element (by selector) in a table fragment, as RGB channels from 0 to 255
+async function colors(page: Page, name: string, scheme: Scheme, selector: string, properties: string[]) {
+  await shot(page, name, { scheme, ...FOLLOWS });
+  return page.locator(selector).first().evaluate((el, properties) => {
+    // (An engine may serialize a mixed color as `color(srgb r g b)`, with channels from 0 to 1)
+    const rgb = (s: string) => {
+      const n = (s.match(/[\d.]+/g) ?? []).map(Number).slice(0, 3);
+      return s.startsWith("color(srgb") ? n.map((v) => v * 255) : n;
+    };
+    const style = getComputedStyle(el);
+    return properties.map((property) => rgb(style.getPropertyValue(property)));
+  }, properties);
+}
+
+const blended = (color: number[], text: number[]) => color.map((v, i) => 0.35 * v + 0.65 * text[i]!);
+
+function expectClose(actual: number[], expected: number[], label: string): void {
+  expect(
+    actual.every((v, i) => Math.abs(v - expected[i]!) <= 1),
+    `${label}: ${actual} isn't ${expected.map(Math.round)}`,
+  ).toBe(true);
+}
+
+test("border colors set for both modes are blended in dark", async ({ page }) => {
+  // (A cell's border from `style.borders()`, black by default)
+  const fig = "td:text-is('fig')";
+  const [light] = await colors(page, "cells.auto", "light", fig, ["border-bottom-color"]);
+  expect(light).toEqual([0, 0, 0]);
+  const [dark, text] = await colors(page, "cells.auto", "dark", fig, ["border-bottom-color", "color"]);
+  expectClose(dark!, blended([0, 0, 0], text!), "cell");
+
+  // (A table's border color from `tab_options()`, here through `opt_stylize()`)
+  const [literal] = await colors(page, "stylized.dark-literal", "light", ".gt_table", ["border-top-color"]);
+  const [forced, tableText] = await colors(page, "stylized.dark", "light", ".gt_table", ["border-top-color", "color"]);
+  expectClose(forced!, blended(literal!, tableText!), "table");
+});
+
+test("fills without contrast text get it in dark only", async ({ page }) => {
+  // (The first row's `num` cell, with a white fill from `data_color(autocolor_text=False)`)
+  const num = "td:text-is('0.11')";
+  const [light] = await colors(page, "cells.auto", "light", num, ["color"]);
+  const [table] = await colors(page, "cells.auto", "light", ".gt_table", ["color"]);
+  expect(light).toEqual(table);
+  const [dark] = await colors(page, "cells.auto", "dark", num, ["color"]);
+  expect(dark).toEqual([51, 51, 51]);
 });
 
 test("a shadow root follows the page's color scheme only", async ({ page }) => {

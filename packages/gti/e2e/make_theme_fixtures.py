@@ -39,9 +39,18 @@ def cells() -> GT:
     gt = base("cells")
     for i, cell_style in enumerate(by_row):
         gt = gt.tab_style(style=cell_style, locations=loc.body(columns="char", rows=[i]))
+    # (A black border, as `style.borders()` draws by default: blended in dark)
+    gt = gt.tab_style(
+        style=style.borders(sides="bottom", weight="2px"),
+        locations=loc.body(columns="char", rows=[5]),
+    )
     # (A light palette: the default one has mid-gray fills, where its own text choice is under 4.5:1)
-    return gt.data_color(
+    gt = gt.data_color(
         columns="currency", palette=["lightyellow", "lightgreen"], na_color="lightgray"
+    )
+    # (Fills with no contrast text: the inherited text in light, the dark text on them in dark)
+    return gt.data_color(
+        columns="num", palette=["white", "lightyellow"], na_color="white", autocolor_text=False
     )
 
 
