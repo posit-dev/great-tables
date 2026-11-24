@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import colorsys
+import math
 import re
 from typing import TypeAlias
 
@@ -57,15 +59,15 @@ def _html_color(colors: list[str], alpha: float | None = None) -> list[str]:
     """
     Normalize HTML colors.
 
-    Input colors can be color names (e.g., `"green"`, `"steelblue"`, etc.) or colors in hexadecimal
-    format with or without an alpha component (either #RRGGBB or #RRGGBBAA). Output will be a list
-    of hexadecimal colors of the same length as the input but it will contain #RRGGBB and #RRGGBBAA
-    colors.
+    Input colors can be color names (e.g., `"green"`, `"steelblue"`, etc.), colors in hexadecimal
+    format with or without an alpha component (either #RRGGBB or #RRGGBBAA), or CSS `rgb()`,
+    `rgba()`, `hsl()` and `hsla()` colors. Output will be a list of hexadecimal colors of the same
+    length as the input but it will contain #RRGGBB and #RRGGBBAA colors.
 
     Parameters
     ----------
     colors
-        A list of CSS3/X11 color names or hexadecimal color strings.
+        A list of CSS3/X11 color names, hexadecimal color strings, or CSS color functions.
     alpha
         An optional alpha transparency value between `0` and `1` to apply to all colors.
 
@@ -77,12 +79,13 @@ def _html_color(colors: list[str], alpha: float | None = None) -> list[str]:
     Raises
     ------
     ValueError
-        If a color is neither a hexadecimal color nor a known color name, or if `alpha` is not
-        between `0` and `1`.
+        If a color is not a hexadecimal color, a known color name or a valid color function, or if
+        `alpha` is not between `0` and `1`.
     """
 
-    # Expand any shorthand hexadecimal color values to the `RRGGBB` form
-    colors = [_expand_short_hex(hex_color=color) for color in colors]
+    # Convert any `rgb()` or `hsl()` colors, then expand any shorthand hexadecimal color values to
+    # the `RRGGBB` form
+    colors = [_expand_short_hex(hex_color=_color_function_to_hex(color)) for color in colors]
 
     # If not classified as hexadecimal, assume other values are named colors to be handled separately
     all_hex_colors = all(_is_hex_col(colors=colors))
@@ -314,3 +317,100 @@ def _expand_short_hex(hex_color: str) -> str:
     # Return the expanded 6-digit (or 8-digit) hexadecimal color value
     expanded = "#" + "".join(x * 2 for x in hex_color)
     return expanded.upper()
+
+
+# A CSS number, as in `12`, `-0.5`, `.5` or `1e2`
+_CSS_NUMBER = r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+
+# The degrees in one unit of hue
+_HUE_UNITS = {"deg": 1.0, "grad": 360 / 400, "rad": 180 / math.pi, "turn": 360.0}
+
+
+def _color_function_to_hex(color: str) -> str:
+    """
+    Convert a CSS `rgb()`, `rgba()`, `hsl()` or `hsla()` color to a hexadecimal color.
+
+    Both the comma-separated syntax (`rgb(253, 246, 227)`, `hsla(45, 80%, 94%, 0.5)`) and the
+    space-separated one with an optional `/ alpha` (`rgb(253 246 227 / 50%)`) are accepted. Values
+    out of range are clamped, as in CSS.
+
+    Parameters
+    ----------
+    color
+        The color string to convert.
+
+    Returns
+    -------
+    str
+        The uppercase hexadecimal color, in `#RRGGBB` form or, when the alpha is below `1`,
+        `#RRGGBBAA` form. Any value that isn't a color function is returned as it is.
+
+    Raises
+    ------
+    ValueError
+        If the value is a color function whose arguments can't be read.
+    """
+
+    if not isinstance(color, str):
+        return color
+
+    match = re.fullmatch(r"\s*(rgba?|hsla?)\((.*)\)\s*", color, flags=re.IGNORECASE | re.DOTALL)
+    if match is None:
+        return color
+
+    function = match.group(1).lower()
+    args = match.group(2).strip()
+
+    if "," in args:
+        channels = [arg.strip() for arg in args.split(",")]
+        alpha = channels.pop() if len(channels) == 4 else None
+    else:
+        channel_args, slash, alpha = args.partition("/")
+        channels = channel_args.split()
+        alpha = alpha.strip() if slash else None
+
+    try:
+        if len(channels) != 3:
+            raise ValueError
+
+        if function.startswith("rgb"):
+            rgb = [_css_value(channel, percent_of=255) for channel in channels]
+        else:
+            hue, saturation, lightness = channels
+            hue_match = re.fullmatch(f"({_CSS_NUMBER})(deg|grad|rad|turn)?", hue, re.IGNORECASE)
+            if hue_match is None:
+                raise ValueError
+            degrees = float(hue_match.group(1)) * _HUE_UNITS[(hue_match.group(2) or "deg").lower()]
+            # (Saturation and lightness are percentages; the space-separated syntax also takes
+            # plain numbers for them, on the same 0-100 scale)
+            sat, light = (
+                min(max(_css_value(x, percent_of=100), 0), 100) / 100
+                for x in (saturation, lightness)
+            )
+            rgb = [x * 255 for x in colorsys.hls_to_rgb((degrees % 360) / 360, light, sat)]
+
+        opacity = 1.0 if alpha is None else _css_value(alpha, percent_of=1)
+    except ValueError:
+        raise ValueError(
+            f"Invalid color provided ({color}). Please ensure that `{function}()` colors have three "
+            "values and an optional alpha, as in `rgb(253, 246, 227)` or `hsl(45 80% 94% / 0.5)`."
+        ) from None
+
+    channels_hex = "".join(f"{_clamp_byte(x):02X}" for x in rgb)
+    alpha_byte = _clamp_byte(opacity * 255)
+
+    return f"#{channels_hex}" + ("" if alpha_byte == 255 else f"{alpha_byte:02X}")
+
+
+def _css_value(value: str, percent_of: float) -> float:
+    """A CSS number, or a percentage of `percent_of`; raises `ValueError` for anything else."""
+    match = re.fullmatch(f"({_CSS_NUMBER})(%?)", value.strip())
+    if match is None:
+        raise ValueError(value)
+    number = float(match.group(1))
+    return number * percent_of / 100 if match.group(2) else number
+
+
+def _clamp_byte(x: float) -> int:
+    """Round a value to the nearest integer in `[0, 255]` (halves round up, as in CSS)."""
+    return int(min(max(x, 0), 255) + 0.5)
