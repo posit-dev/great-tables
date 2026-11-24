@@ -147,7 +147,7 @@ adding new behavior.
 ## Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
-plotting is already built in, called [nanoplots](./17-nanoplots.qmd). But there are endless plot
+plotting is already built in, called [nanoplots](./18-nanoplots.qmd). But there are endless plot
 types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
 When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle

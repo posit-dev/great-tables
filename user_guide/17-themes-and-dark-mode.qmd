@@ -104,6 +104,9 @@ gt_small.opt_theme(compact)
 There are no tokens for spacing, since the default padding differs by table part. Set the padding
 options (`data_row_padding`, `column_labels_padding`, and so on) in the theme instead.
 
+A table has one theme at a time: a second `~~GT.opt_theme()` call with a theme replaces the first.
+`opt_theme(False)` removes the theme, and leaves the mode as it is.
+
 ### Colors for dark mode
 
 `dark=` takes a second `Theme` with the values to use in dark mode. It can hold the five color tokens
@@ -215,6 +218,33 @@ gt_small.tab_options(data_row_padding="10px")
 
 The same holds for a theme: its values count as set from Python. A table cannot be restyled from page
 CSS for any value its theme sets.
+
+Text colors are not picked again for a background set in page CSS. Python picks the text color of
+each part of the table for the background that part has in Python, so page CSS that sets a background
+should set the text color with it. `--gt-color-foreground` is the text color, in both modes, of every
+part whose background was not set from Python. The page below makes every table inside `.ink` dark.
+
+```{=html}
+<style>
+.ink {
+    --gt-color-background: #101418;
+    --gt-color-foreground: #E6E6E6;
+}
+</style>
+```
+
+::: {.ink}
+
+```{python}
+gt_small
+```
+
+:::
+
+There is no text color variable for a single part of the table. A part whose background is set only
+in page CSS (with `--gt-heading-background-color`, say) keeps the text color picked for the table's
+background, so set that background from Python, with `~~GT.tab_options()`, to have its text color
+picked for it.
 
 Custom properties are inherited. A table placed inside another table (for example, one pasted into a
 cell as raw HTML) reads the variables that Python set on the outer table. The row details of

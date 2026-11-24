@@ -70,6 +70,15 @@ DARK = {
     "stripe": "#2A2A2A",
 }
 
+# The brand.yml field that each token is read from by `Theme.from_brand()`
+BRAND_FIELDS = {
+    "background": "color.background",
+    "foreground": "color.foreground",
+    "accent": "color.primary",
+    "font": "typography.base.family",
+    "font_size": "typography.base.size",
+}
+
 _DEFAULT_OPTIONS = Options()
 
 TOKEN_OPTIONS = {
@@ -138,7 +147,7 @@ class Theme:
     A theme that sets a border color and font, with its own colors for dark mode.
 
     ```{python}
-    from great_tables import GT, Theme, exibble
+    from great_tables import GT, Theme, data
 
     theme = Theme(
         border="#CCCCCC",
@@ -146,7 +155,7 @@ class Theme:
         dark=Theme(background="#101418", border="#2A3038"),
     )
 
-    GT(exibble[["num", "char", "currency"]]).opt_theme(theme)
+    GT(data.pl.exibble.select("num", "char", "currency")).opt_theme(theme)
     ```
     """
 
@@ -210,6 +219,17 @@ class Theme:
             _check_dark(dark)
         self.dark = dark
 
+    def __repr__(self) -> str:
+        args = [f"{k}={v!r}" for k, v in {**self.tokens, **self.options}.items()]
+        if self.dark is not None:
+            args.append(f"dark={self.dark!r}")
+        return f"Theme({', '.join(args)})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Theme):
+            return NotImplemented
+        return (self.tokens, self.options, self.dark) == (other.tokens, other.options, other.dark)
+
     @classmethod
     def from_brand(
         cls,
@@ -272,11 +292,11 @@ class Theme:
         Building a theme from it and applying the theme to a table looks like this.
 
         ```python
-        from great_tables import GT, Theme, exibble
+        from great_tables import GT, Theme, data
 
         theme = Theme.from_brand("_brand.yml")
 
-        GT(exibble).opt_theme(theme)
+        GT(data.pl.exibble).opt_theme(theme)
         ```
 
         The result is the same as the theme made directly with
@@ -297,6 +317,20 @@ class Theme:
                 return source
             return BrandCls.from_yaml(source)
 
+        def checked(tokens: dict[str, Any], which: str) -> dict[str, Any]:
+            # (A value the theme can't use raises with the brand field it came from)
+            for token, value in tokens.items():
+                if value is None:
+                    continue
+                try:
+                    cls(**{token: value})
+                except (TypeError, ValueError) as e:
+                    raise ValueError(
+                        f"The {which} field `{BRAND_FIELDS[token]}` can't be used as the theme's "
+                        f"`{token}`: {e}"
+                    ) from e
+            return tokens
+
         brand_obj = load(brand)
         color = brand_obj.color
         base = brand_obj.typography.base if brand_obj.typography is not None else None
@@ -313,9 +347,13 @@ class Theme:
         if dark is not None:
             dark_color = load(dark).color
             if dark_color is not None:
-                dark_theme = cls(background=dark_color.background, foreground=dark_color.foreground)
+                dark_tokens = {
+                    "background": dark_color.background,
+                    "foreground": dark_color.foreground,
+                }
+                dark_theme = cls(**checked(dark_tokens, "dark brand's"))
 
-        return cls(**tokens, dark=dark_theme)
+        return cls(**checked(tokens, "brand's"), dark=dark_theme)
 
 
 def _is_color(value: Any, keywords: bool) -> bool:
@@ -345,9 +383,11 @@ def _check_tokens(tokens: dict[str, Any]) -> None:
     for token in ("background", "foreground", "stripe"):
         keywords = token != "foreground"
         if token in tokens and not _is_color(tokens[token], keywords):
-            accepted = "a color name or a hexadecimal color"
+            accepted = "a color name, a hexadecimal color"
             if keywords:
-                accepted += f", or one of {', '.join(CSS_COLOR_KEYWORDS)}"
+                accepted += f", an `rgb()`/`hsl()` color, or one of {', '.join(CSS_COLOR_KEYWORDS)}"
+            else:
+                accepted += ", or an `rgb()`/`hsl()` color"
             raise ValueError(f"`{token}` must be {accepted}, but received {tokens[token]!r}.")
 
     for token in ("border", "border_strong", "accent"):
@@ -400,7 +440,9 @@ def dark_blend(color: str) -> str:
     return f"color-mix(in srgb, {color} 35%, currentcolor)"
 
 
-def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None = None) -> GTSelf:
+def opt_theme(
+    self: GTSelf, theme: Theme | Literal[False] | None = None, mode: ThemeMode | None = None
+) -> GTSelf:
     """
     Apply a theme to the table and choose its color mode.
 
@@ -413,7 +455,8 @@ def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None =
     Parameters
     ----------
     theme
-        The `Theme` to apply. If `None`, the theme already on the table is left as it is.
+        The `Theme` to apply. If `None`, the theme already on the table is left as it is, and if
+        `False`, it is removed (the mode stays as it is unless `mode=` is given).
     mode
         The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the
         table is left as it is. An `"auto"` table stays light when a background color is set for
@@ -432,9 +475,9 @@ def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None =
     mode with `opt_theme()`.
 
     ```{python}
-    from great_tables import GT, Theme, exibble
+    from great_tables import GT, Theme, data
 
-    gt_tbl = GT(exibble[["num", "char", "currency", "row"]], rowname_col="row")
+    gt_tbl = GT(data.pl.exibble.select("num", "char", "currency", "row"), rowname_col="row")
 
     gt_tbl.opt_theme(mode="dark")
     ```
@@ -454,14 +497,21 @@ def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None =
     )
     ```
     """
-    if theme is not None and not isinstance(theme, Theme):
-        raise TypeError(f"`theme` must be a `Theme`, but received type `{type(theme).__name__}`.")
+    if theme is not None and theme is not False and not isinstance(theme, Theme):
+        raise TypeError(
+            f"`theme` must be a `Theme`, `False` or `None`, but received type `{type(theme).__name__}`."
+        )
 
     if mode is not None and mode not in ("auto", "light", "dark"):
         raise ValueError(f'`mode` must be one of "auto", "light" or "dark", but received {mode!r}.')
 
+    if theme is None:
+        theme = self._theme
+    elif theme is False:
+        theme = None
+
     return self._replace(
-        _theme=self._theme if theme is None else theme,
+        _theme=theme,
         _theme_mode=self._theme_mode if mode is None else mode,
     )
 
