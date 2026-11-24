@@ -505,10 +505,18 @@ def filled(gt: GT, *styles) -> str:
         ("lightcyan", "var(--_gt-text-dark)"),
         ("navy", "var(--_gt-text-light)"),
         ("#FFFFFF", "var(--_gt-text-dark)"),
+        ("rgb(0 0 128)", "var(--_gt-text-light)"),
+        ("hsl(180, 100%, 94%)", "var(--_gt-text-dark)"),
     ],
 )
 def test_filled_cell_gets_contrast_text(gt: GT, color: str, text: str):
     assert f"color: {text}; background-color: {color};" in filled(gt, style.fill(color=color))
+
+
+def test_color_function_background_option_gets_contrast_text(gt: GT):
+    html = gt.tab_options(heading_background_color="rgb(0, 0, 128)").as_raw_html()
+    assert "--gt-heading-background-color: rgb(0, 0, 128);" in html
+    assert "--_gt-font-color-heading: var(--_gt-text-light);" in html
 
 
 def test_opaque_hex_fill_with_alpha_gets_contrast_text(gt: GT):
@@ -531,6 +539,7 @@ def test_fill_with_text_style_but_no_color_gets_contrast_text(gt: GT):
     "color",
     [
         "rgba(0, 0, 0, 0.5)",
+        "hsl(0 0% 0% / 50%)",
         "var(--x)",
         "transparent",
         "currentcolor",

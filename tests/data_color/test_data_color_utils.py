@@ -226,6 +226,53 @@ def test_html_color_hex_colors(colors: list[str], alpha: float | None, result: l
 
 
 @pytest.mark.parametrize(
+    ("color", "result"),
+    [
+        ("rgb(253, 246, 227)", "#FDF6E3"),
+        ("rgb(253 246 227)", "#FDF6E3"),
+        ("RGB(100%, 0%, 50%)", "#FF0080"),
+        ("rgba(0, 0, 0, 0.5)", "#00000080"),
+        ("rgb(0 0 0 / 50%)", "#00000080"),
+        ("rgb(1 2 3 / 1)", "#010203"),
+        ("rgb(300 -5 12.5)", "#FF000D"),
+        (" rgb(0,0,0) ", "#000000"),
+        ("hsl(120, 100%, 25%)", "#008000"),
+        ("hsl(120 50% 50%)", "#40BF40"),
+        ("hsl(-240deg 100% 25%)", "#008000"),
+        ("hsl(0.5turn 100% 50%)", "#00FFFF"),
+        ("hsl(200grad 100 50)", "#00FFFF"),
+        ("hsl(3.14159265rad 100% 50%)", "#00FFFF"),
+        ("hsla(0, 100%, 50%, .25)", "#FF000040"),
+    ],
+)
+def test_html_color_color_functions(color: str, result: str) -> None:
+    assert _html_color([color]) == [result]
+
+
+def test_html_color_color_function_with_alpha() -> None:
+    assert _html_color(["rgb(255 0 0)", "red"], alpha=0.5) == ["#FF00007F", "#FF00007F"]
+
+
+@pytest.mark.parametrize(
+    "color",
+    [
+        "rgb()",
+        "rgb(1, 2)",
+        "rgb(1 2 3 4)",
+        "rgb(1, 2 3)",
+        "rgb(a, b, c)",
+        "rgb(1, 2, 3,)",
+        "hsl(1 2% 3% /)",
+        "hsl(1px 2% 3%)",
+        "rgb(1 2 3 / 4 5)",
+    ],
+)
+def test_html_color_invalid_color_functions(color: str) -> None:
+    with pytest.raises(ValueError, match=r"Invalid color provided .* three values"):
+        _html_color([color])
+
+
+@pytest.mark.parametrize(
     ("alpha", "context"),
     [
         (0.5, nullcontext()),

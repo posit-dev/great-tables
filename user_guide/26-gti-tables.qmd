@@ -6,7 +6,7 @@ guide-section: Interactive Tables
 ---
 
 When readers need more than `~~GT.opt_interactive()` gives them (see
-[Making Tables Interactive](24-interactive-tables.qmd)), make the table a `GTI` table. Here, the
+[Making Tables Interactive](25-interactive-tables.qmd)), make the table a `GTI` table. Here, the
 `Make` column gets a list of its values to choose from and `HP` a range, the table is first shown
 with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
@@ -270,7 +270,7 @@ checked, only they're exported.
 
 The selection stays as the rows are sorted, searched, filtered and paged. It's what links tables
 together (see [Linked tables](#linked-tables)), and Python can read it, with the table as a widget
-or in an app (see [GTI in Python and Apps](26-gti-in-python-and-apps.qmd)).
+or in an app (see [GTI in Python and Apps](27-gti-in-python-and-apps.qmd)).
 
 ## Keeping the view
 
@@ -820,4 +820,4 @@ readers can export the rows they've selected instead.
 Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
 widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app
 makes itself, with Flask, Django or FastHTML, can show it. See
-[GTI in Python and Apps](26-gti-in-python-and-apps.qmd).
+[GTI in Python and Apps](27-gti-in-python-and-apps.qmd).

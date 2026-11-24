@@ -6,7 +6,7 @@ guide-section: Interactive Tables
 ---
 
 An interactive table works in the browser on its own, but Python can also read what readers do with
-it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](25-gti-tables.qmd)) as a
+it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](26-gti-tables.qmd)) as a
 widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara
 apps. These take a `GTI` table or a `GT` table with `opt_interactive()`, get its view and
 selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows

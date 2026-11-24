@@ -581,6 +581,22 @@ def test_as_css_font_family_attr_with_spaces_value_only():
     assert result == "'Times New Roman', Georgia"
 
 
+@pytest.mark.parametrize(
+    "font, css",
+    [
+        ("O'Reilly Sans", "'O\\'Reilly Sans'"),
+        ("O'Reilly", "'O\\'Reilly'"),
+        ("Back\\slash", "'Back\\\\slash'"),
+        ("'Segoe UI'", "'Segoe UI'"),
+        ('"Segoe UI"', '"Segoe UI"'),
+    ],
+)
+def test_as_css_font_family_attr_escapes_quotes(font: str, css: str):
+    from great_tables._utils import _as_css_font_family_attr
+
+    assert _as_css_font_family_attr([font, "serif"], value_only=True) == f"{css}, serif"
+
+
 def test_try_import_with_pip_install_line():
     # ImportError with pip_install_line message
     from great_tables._utils import _try_import

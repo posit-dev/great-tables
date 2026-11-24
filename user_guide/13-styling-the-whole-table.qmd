@@ -24,7 +24,7 @@ styling works well alongside the cell-level techniques covered on the previous p
 ## All Locations Example
 
 Below is a comprehensive example that shows most of the `loc` specifiers being used (the
-[Location Selection](./20-location-selection.qmd) page lists them all). Each table
+[Location Selection](./21-location-selection.qmd) page lists them all). Each table
 part receives a distinct background color so you can see exactly which region each specifier
 targets.
 

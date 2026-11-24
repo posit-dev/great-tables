@@ -256,4 +256,4 @@ When the option you need doesn't exist, `~~GT.opt_css()` lets you add your own C
 table. Give the table an ID with `~~GT.with_id()` (or `GT(id=...)`) so that the rules can be scoped
 to it without affecting other tables on the page.
 
-To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).
+To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](./17-themes-and-dark-mode.qmd).

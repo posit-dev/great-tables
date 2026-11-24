@@ -188,4 +188,4 @@ the specific `~~GT.tab_options()` argument names. For full control, you can alwa
 `~~GT.tab_options()` directly, but these convenience methods cover the most frequent customization
 needs in just a single method call.
 
-For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).
+For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./17-themes-and-dark-mode.qmd).
