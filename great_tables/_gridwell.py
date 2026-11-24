@@ -498,7 +498,7 @@ def _spanner_rows(
     all_cols: list, n_stub: int, built: Any, decor: _Decor, label_cells: list[dict]
 ) -> list:
     """One spanner row per spanner level, the top level first, as Great Tables
-    draws them: a spanner covers a run of adjacent columns with the same label,
+    draws them: a spanner covers a run of adjacent columns with the same spanner,
     followed by placeholder cells. In the lowest spanner row each column without
     a spanner is a blank cell of its own (the label row's cell reaches up to it in
     Great Tables' HTML), and so is each stub column; in the rows above, adjacent
