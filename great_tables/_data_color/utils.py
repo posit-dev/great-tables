@@ -15,7 +15,8 @@ def _hex_to_rgb(hex_color: str) -> RGBColor:
     Parameters
     ----------
     hex_color
-        The hexadecimal color value.
+        The hexadecimal color value, in `#RRGGBB` or `#RRGGBBAA` format (any alpha component is
+        dropped).
 
     Returns
     -------
@@ -72,6 +73,12 @@ def _html_color(colors: list[str], alpha: float | None = None) -> list[str]:
     -------
     list[str]
         The normalized hexadecimal color strings.
+
+    Raises
+    ------
+    ValueError
+        If a color is neither a hexadecimal color nor a known color name, or if `alpha` is not
+        between `0` and `1`.
     """
 
     # Expand any shorthand hexadecimal color values to the `RRGGBB` form
@@ -96,6 +103,9 @@ def _add_alpha(colors: list[str], alpha: float) -> list[str]:
     """
     Apply an alpha transparency value to a list of hexadecimal color strings.
 
+    The list is modified in place (and also returned). Any existing alpha component is replaced,
+    except in `"#FFFFFF00"` (fully transparent), which is left as it is.
+
     Parameters
     ----------
     colors
@@ -107,6 +117,11 @@ def _add_alpha(colors: list[str], alpha: float) -> list[str]:
     -------
     list[str]
         The hexadecimal color strings with the alpha component applied.
+
+    Raises
+    ------
+    ValueError
+        If `alpha` is not between `0` and `1`.
     """
 
     # If `alpha` is an integer, then convert it to a float
@@ -143,12 +158,13 @@ def _float_to_hex(x: float) -> str:
     Parameters
     ----------
     x
-        The float value to convert.
+        The float value to convert, between `0` and `1`. It's scaled to `0`-`255` and truncated
+        (so `0.5` gives `"7F"`).
 
     Returns
     -------
     str
-        The hexadecimal value.
+        The two-digit, uppercase hexadecimal value.
     """
 
     # Convert the float to an integer and convert to a hexadecimal value
@@ -171,12 +187,18 @@ def _color_name_to_hex(colors: list[str]) -> list[str]:
     Parameters
     ----------
     colors
-        A list of color names or hexadecimal color strings.
+        A list of color names (matched case-insensitively) or hexadecimal color strings, which are
+        kept as they are.
 
     Returns
     -------
     list[str]
         The corresponding hexadecimal color strings.
+
+    Raises
+    ------
+    ValueError
+        If a color is neither a hexadecimal color nor a known color name.
     """
 
     # If any of the colors are in the color_name_dict, then replace them with the
@@ -278,7 +300,8 @@ def _expand_short_hex(hex_color: str) -> str:
     Returns
     -------
     str
-        The expanded hexadecimal color value, or the original value if not shorthand hex.
+        The expanded, uppercase hexadecimal color value (`#RGB` becomes `#RRGGBB` and `#RGBA`
+        becomes `#RRGGBBAA`), or the original value if it isn't shorthand hex.
     """
 
     # If the hex color is not a short hexadecimal color value, return the original value
@@ -288,6 +311,6 @@ def _expand_short_hex(hex_color: str) -> str:
     # Get the hex color without the leading '#'
     hex_color = hex_color[1:]
 
-    # Return the expanded 6-digit hexadecimal color value
+    # Return the expanded 6-digit (or 8-digit) hexadecimal color value
     expanded = "#" + "".join(x * 2 for x in hex_color)
     return expanded.upper()
