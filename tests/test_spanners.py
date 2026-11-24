@@ -1,9 +1,12 @@
+import re
+
 import pandas as pd
 import polars as pl
 import polars.selectors as cs
 import pytest
 from dataclasses import asdict
-from great_tables import GT, exibble, loc, style
+from great_tables import GT, exibble, html, loc, md, style
+from great_tables._gridwell import build_ir
 from great_tables._gt_data import Boxhead, ColInfo, ColInfoTypeEnum, SpannerInfo, Spanners
 from great_tables._helpers import UnitStr
 from great_tables._spanners import (
@@ -658,6 +661,176 @@ def test_tab_spanner_delim_label_matches_existing_spanner_id():
         ("y", ["x"]),
         ("y-1", ["y.a", "y.b"]),
     ]
+
+
+@pytest.mark.parametrize("level", [0, 1])
+def test_tab_spanner_same_label_different_ids_are_separate_spanners(level):
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    gt = (
+        GT(df)
+        .tab_spanner("Count", columns="a", level=level, id="first")
+        .tab_spanner("Count", columns="b", level=level, id="second")
+    )
+    if level:
+        gt = gt.tab_spanner("Base", columns=["a", "b"], level=0)
+
+    rendered = gt.as_raw_html()
+    assert rendered.count('class="gt_column_spanner">Count</span>') == 2
+    assert 'id="Count"' in rendered and 'id="Count-2"' in rendered
+    assert gt.as_latex().count(r"\multicolumn{1}{c}{Count}") == 2
+
+    cells = build_ir(gt)["table"]["thead"]["rows"][0]["cells"]
+    assert [cell["content"][0]["value"] for cell in cells] == ["Count", "Count"]
+
+
+def test_spanner_rows_join_adjacent_columns_without_a_spanner_above_level_0():
+    df = pl.DataFrame({"a": [1], "b": [2], "c": [3], "d": [4]})
+    gt = (
+        GT(df)
+        .tab_spanner("A", columns="a")
+        .tab_spanner("B", columns="b")
+        .tab_spanner("Top", columns=["a", "b"])
+    )
+
+    # In the top row, `c` and `d` share one blank cell
+    rendered = gt.as_raw_html()
+    top_row = re.search(r'<tr class="gt_col_headings gt_spanner_row">(.*?)</tr>', rendered, re.S)
+    assert re.findall(r'colspan="(\d+)"', top_row.group(1)) == ["2", "2"]
+    assert "&nbsp;" in top_row.group(1)
+
+    top_cells = build_ir(gt)["table"]["thead"]["rows"][0]["cells"]
+    assert [(cell["colspan"], cell["is_placeholder"]) for cell in top_cells] == [
+        (2, False),
+        (1, True),
+        (2, False),
+        (1, True),
+    ]
+    assert top_cells[2]["content"] == []
+
+    # In the lowest spanner row, each column without a spanner has a cell of its own
+    low_cells = build_ir(gt)["table"]["thead"]["rows"][1]["cells"]
+    assert [(cell["colspan"], cell["is_placeholder"]) for cell in low_cells] == [(1, False)] * 4
+
+
+def test_tab_spanner_label_with_formats_delimited_labels():
+    df = pl.DataFrame({"null_count.petal_width": [1], "null_count.petal_length": [2]})
+    gt = GT(df).tab_spanner_delim()
+
+    relabeled = gt.tab_spanner_label_with(fn=lambda label: label.replace("_", " ").title())
+    rendered = relabeled.as_raw_html()
+
+    assert 'class="gt_column_spanner">Null Count</span>' in rendered
+    assert ">petal_width</th>" in rendered
+    assert gt._spanners[0].spanner_label == "null_count"
+    assert len(relabeled.rm_spanners("null_count")._spanners) == 0
+
+
+def test_tab_spanner_label_with_keeps_styles_and_footnotes_by_id():
+    df = pl.DataFrame({"null_count.petal_width": [1], "null_count.petal_length": [2]})
+    gt = (
+        GT(df)
+        .tab_spanner_delim()
+        .tab_spanner_label_with(fn=str.upper)
+        .tab_style(style.fill("red"), loc.spanner_labels(ids=["null_count"]))
+        .tab_footnote("Note", loc.spanner_labels(ids=["null_count"]))
+    )
+
+    rendered = gt.as_raw_html()
+    spanner_th = re.search(r"<th[^>]*gt_column_spanner_outer[^>]*>(.*?)</th>", rendered, re.S)
+    assert "background-color: red" in spanner_th.group(0)
+    assert re.search(
+        r'NULL_COUNT<span class="gt_footnote_marks"[^>]*>1</span>', spanner_th.group(1)
+    )
+
+
+def test_tab_spanner_label_with_accepts_formatted_results():
+    df = pl.DataFrame({"a": [1], "b": [2], "c": [3]})
+    gt = (
+        GT(df)
+        .tab_spanner("plain_label", columns="a", id="custom_id")
+        .tab_spanner(md("*Formatted*"), columns="b")
+        .tab_spanner(html("<b>Raw</b>"), columns="c")
+    )
+
+    res = gt.tab_spanner_label_with(fn=lambda label: md(f"**{label.upper()}**")).as_raw_html()
+
+    assert "<strong>PLAIN_LABEL</strong>" in res
+    assert "<em>Formatted</em>" in res
+    assert "<b>Raw</b>" in res
+
+
+def test_tab_spanner_label_with_empty_label_matches_tab_spanner():
+    df = pl.DataFrame({"a": [1], "b": [2]})
+
+    res = (
+        GT(df, id="test")
+        .tab_spanner("x", columns="a", id="x")
+        .tab_spanner_label_with(fn=lambda label: "")
+    )
+    expected = GT(df, id="test").tab_spanner("", columns="a", id="x")
+
+    assert res._spanners[0].spanner_label == ""
+    assert res.as_raw_html() == expected.as_raw_html()
+
+
+def test_tab_spanner_label_with_no_spanners():
+    gt = GT(pl.DataFrame({"x": [1]}))
+
+    assert gt.tab_spanner_label_with(fn=str.upper)._spanners == gt._spanners
+
+    with pytest.raises(ValueError, match=r"spanner ID values do not exist in the table: \['x'\]"):
+        gt.tab_spanner_label_with(fn=str.upper, spanners="x")
+
+
+def test_tab_spanner_label_with_units_notation():
+    df = pl.DataFrame({"a": [1], "b": [2]})
+    gt = GT(df).tab_spanner("speed", columns="a").tab_spanner("rate ({{s^-1}})", columns="b")
+
+    res = gt.tab_spanner_label_with(fn=lambda label: label.upper() + " ({{m s^-1}})")
+
+    # The returned string is parsed for units; the existing units label isn't passed to `fn`
+    assert isinstance(res._spanners[0].spanner_label, UnitStr)
+    assert res._spanners[1].spanner_label is gt._spanners[1].spanner_label
+    assert "SPEED (m s<span" in res.as_raw_html()
+
+
+@pytest.mark.parametrize(
+    "spanners, levels, expected",
+    [
+        (None, None, ["A", "B", "TOP"]),
+        ("a", None, ["A", "b", "top"]),
+        (["a", "top"], None, ["A", "b", "TOP"]),
+        (None, 0, ["A", "B", "top"]),
+        (None, [1], ["a", "b", "TOP"]),
+        ("a", 1, ["a", "b", "top"]),
+    ],
+)
+def test_tab_spanner_label_with_spanners_and_levels(spanners, levels, expected):
+    df = pl.DataFrame({"x": [1], "y": [2]})
+    gt = (
+        GT(df)
+        .tab_spanner("a", columns="x")
+        .tab_spanner("b", columns="y")
+        .tab_spanner("top", columns=["x", "y"])
+    )
+
+    res = gt.tab_spanner_label_with(fn=str.upper, spanners=spanners, levels=levels)
+
+    assert [span.spanner_label for span in res._spanners] == expected
+    assert [span.spanner_id for span in res._spanners] == ["a", "b", "top"]
+
+
+def test_tab_spanner_label_with_raises():
+    gt = GT(pl.DataFrame({"x": [1]})).tab_spanner("a", columns="x")
+
+    with pytest.raises(ValueError, match="Spanner labels must be strings or Text objects"):
+        gt.tab_spanner_label_with(fn=lambda label: 1)
+
+    with pytest.raises(ValueError, match=r"spanner ID values do not exist in the table: \['b'\]"):
+        gt.tab_spanner_label_with(fn=str.upper, spanners="b")
+
+    with pytest.raises(ValueError, match=r"spanner levels do not exist in the table: \[1\]"):
+        gt.tab_spanner_label_with(fn=str.upper, levels=1)
 
 
 def test_spanners_styled(snapshot: str):

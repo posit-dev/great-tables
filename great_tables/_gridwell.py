@@ -498,7 +498,7 @@ def _spanner_rows(
     all_cols: list, n_stub: int, built: Any, decor: _Decor, label_cells: list[dict]
 ) -> list:
     """One spanner row per spanner level, the top level first, as Great Tables
-    draws them: a spanner covers a run of adjacent columns with the same label,
+    draws them: a spanner covers a run of adjacent columns with the same spanner,
     followed by placeholder cells. In the lowest spanner row each column without
     a spanner is a blank cell of its own (the label row's cell reaches up to it in
     Great Tables' HTML), and so is each stub column; in the rows above, adjacent
@@ -545,7 +545,7 @@ def _spanner_rows(
             label, span_id = labels[j], ids[j]
             blank = label is None or label == ""
             span = 1
-            while j + span < len(labels) and _same_spanner(label, labels[j + span], lowest):
+            while j + span < len(labels) and _same_spanner(span_id, ids[j + span], lowest):
                 span += 1
             if blank:
                 content: list[dict] = []
@@ -571,11 +571,9 @@ def _spanner_rows(
     return rows
 
 
-def _same_spanner(a: Any, b: Any, lowest: bool) -> bool:
-    """Whether two adjacent columns' spanner labels are one spanner cell."""
-    if lowest:
-        return a is not None and b is not None and a == b
-    return ("" if a is None else a) == ("" if b is None else b)
+def _same_spanner(a: str | None, b: str | None, lowest: bool) -> bool:
+    """Whether two adjacent columns belong to the same spanner cell."""
+    return a == b and (a is not None or not lowest)
 
 
 def _build_tbody(
