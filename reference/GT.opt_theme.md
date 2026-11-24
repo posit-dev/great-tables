@@ -4,7 +4,7 @@ Apply a theme to the table and choose its color mode.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L388-L449)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L402-L465)
 
 ``` python
 GT.opt_theme(
@@ -21,7 +21,7 @@ The [opt_theme()](../reference/GT.opt_theme.md#great_tables.GT.opt_theme) method
 The [Theme](../reference/Theme.md#great_tables.Theme) to apply. If `None`, the theme already on the table is left as it is.
 
 `mode: ThemeMode | None = None`  
-The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the table is left as it is.
+The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the table is left as it is. An `"auto"` table stays light when a background color is set for light mode only (with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options), [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize), or a theme option with no value in the theme's `dark=`).
 
 ## Returns
 

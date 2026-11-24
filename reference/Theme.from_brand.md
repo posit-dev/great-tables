@@ -4,7 +4,7 @@ Build a [Theme](../reference/Theme.md#great_tables.Theme) from a brand.yml file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L210-L315)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L212-L317)
 
 ``` python
 Theme.from_brand(

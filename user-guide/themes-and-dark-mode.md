@@ -79,7 +79,7 @@ gt_small.opt_theme(mode="light")
 
 Use `mode="dark"` for a table on a page that is always dark but doesn't say so, and `mode="light"` for a table that should stay light on a dark page.
 
-A table with a background color set through [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) or [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize) stays light in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so switching would give pale stripes on a dark table. `mode="dark"` still forces dark. A background set in a [Theme](../reference/Theme.md#great_tables.Theme) does not pin the table, because a theme can carry its own dark colors.
+A table with a background color set through [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) or [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize) stays light in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so switching would give pale stripes on a dark table. `mode="dark"` still forces dark. The same goes for a background option set in a [Theme](../reference/Theme.md#great_tables.Theme), unless the theme's `dark=` gives that option a value of its own: then the table has a color for each mode, and it follows the page.
 
 ## Writing a Theme
 
@@ -151,13 +151,13 @@ gt_small.opt_theme(navy)
 | row_7         | 777000.0  | grapefruit | None     |
 | row_8         | 8880000.0 | honeydew   | 0.44     |
 
-The built-in dark theme supplies a background, text, border, strong border, and stripe color. A theme's light color tokens are not used in dark mode. A theme that sets `background` and has no `dark=` still goes dark with the built-in dark background, and `mode="light"` keeps it light. Spacing, fonts, the accent, and any color option the theme sets directly carry over to dark mode unless `dark=` replaces them.
+The built-in dark theme supplies a background, text, border, strong border, and stripe color. A theme's light color tokens are not used in dark mode. A theme that sets `background` and has no `dark=` still goes dark with the built-in dark background, and `mode="light"` keeps it light. Spacing, fonts, the accent, and any color option the theme sets directly carry over to dark mode unless `dark=` replaces them. A border or line color that carries over is blended toward the dark text color, since a color chosen for a light table (black lines, say) would barely show on a dark one. The same is done for border colors set with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options). Give the option a value in `dark=` to choose the dark color yourself.
 
 ## What Wins
 
 When several things set the same option, the first of these that exists is used:
 
-1.  A value set with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) or an `opt_*()` method. It applies in both modes.
+1.  A value set with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options) or an `opt_*()` method. It applies in both modes (a border color is blended in dark mode, as described above).
 2.  In dark mode, the option in the theme's `dark=`.
 3.  The option in the theme.
 4.  In dark mode, for an option fed by a color token: the token in the theme's `dark=`, then the built-in dark token.
@@ -291,7 +291,9 @@ Each argument can also be a `brand_yml.Brand` object. With no argument, [Theme.f
   - A text color on a cell with no fill is blended toward the section's text color in dark mode, and is left as written in light mode.
   - A cell with both a fill and a text color is left as written, and so is a fill from [data_color()](../reference/GT.data_color.md#great_tables.GT.data_color) with its defaults.
   - A fill that is translucent or a keyword (`transparent`, `inherit`, and so on) is left alone.
-  - `~~GT.data_color(autocolor_text=False)` fills get no contrast text, so in dark mode they show the table's light text.
+  - `~~GT.data_color(autocolor_text=False)` fills keep the table's text color in light mode. In dark mode they get a text color chosen for contrast with the fill, so that light fills don't show the table's light text.
+  - Border colors from [style.borders()](../reference/style.borders.md#great_tables.style.borders) are blended toward the section's text color in dark mode, as text colors are.
+  - Email HTML (`inline_css=True`) keeps the text and border colors you set as written, in both modes.
 - **Forced dark can lower contrast.** In `mode="dark"`, text on a mid-tone fill that you set (the header of an [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize) table, for example) uses the dark theme's text color. It can have lower contrast than in light mode.
 - **Content in a cell keeps its own colors.** Plots from extension packages, raw HTML or SVG, and images inside a cell are not adapted to dark mode.
 - **[as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) needs CSS custom properties.** Its output only renders as intended where the renderer supports them. `as_raw_html(inline_css=True)` writes literal styles instead, for one mode.

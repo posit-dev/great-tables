@@ -11411,7 +11411,9 @@ custom property:
 :   A `Theme` with the values to use instead when the table is shown in dark mode. It can hold
     only the color tokens `background`, `foreground`, `border`, `border_strong` and `stripe`,
     and color options that are written to the table's stylesheet (such as
-    `table_body_hlines_color`).
+    `table_body_hlines_color`). A background option of the theme with no value here keeps an
+    `"auto"` table light, and a border color option with no value here is blended toward the
+    text color in dark mode.
 
 <code>[**options]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Any]{.doc-parameter-annotation}</code>
 
@@ -12044,7 +12046,9 @@ color scheme of the page the table is shown in.
 <code>[mode]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [ThemeMode | None]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [None]{.doc-parameter-default}</code>
 
 :   The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the
-    table is left as it is.
+    table is left as it is. An `"auto"` table stays light when a background color is set for
+    light mode only (with `tab_options()`, `opt_stylize()`, or a theme option with no value in
+    the theme's `dark=`).
 :::
 
 ## Returns {.doc-returns}
@@ -26703,8 +26707,9 @@ for a table that should stay light on a dark page.
 
 A table with a background color set through `~~GT.tab_options()` or `~~GT.opt_stylize()` stays light
 in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so
-switching would give pale stripes on a dark table. `mode="dark"` still forces dark. A background set
-in a `Theme` does not pin the table, because a theme can carry its own dark colors.
+switching would give pale stripes on a dark table. `mode="dark"` still forces dark. The same goes for
+a background option set in a `Theme`, unless the theme's `dark=` gives that option a value of its own:
+then the table has a color for each mode, and it follows the page.
 
 ## Writing a Theme
 
@@ -26764,13 +26769,17 @@ The built-in dark theme supplies a background, text, border, strong border, and 
 theme's light color tokens are not used in dark mode. A theme that sets `background` and has no
 `dark=` still goes dark with the built-in dark background, and `mode="light"` keeps it light. Spacing,
 fonts, the accent, and any color option the theme sets directly carry over to dark mode unless
-`dark=` replaces them.
+`dark=` replaces them. A border or line color that carries over is blended toward the dark text
+color, since a color chosen for a light table (black lines, say) would barely show on a dark one. The
+same is done for border colors set with `~~GT.tab_options()`. Give the option a value in `dark=` to
+choose the dark color yourself.
 
 ## What Wins
 
 When several things set the same option, the first of these that exists is used:
 
-1. A value set with `~~GT.tab_options()` or an `opt_*()` method. It applies in both modes.
+1. A value set with `~~GT.tab_options()` or an `opt_*()` method. It applies in both modes (a border
+   color is blended in dark mode, as described above).
 2. In dark mode, the option in the theme's `dark=`.
 3. The option in the theme.
 4. In dark mode, for an option fed by a color token: the token in the theme's `dark=`, then the
@@ -26931,8 +26940,12 @@ environment variable to be set, so pass a path when you can.
     * A cell with both a fill and a text color is left as written, and so is a fill from
       `~~GT.data_color()` with its defaults.
     * A fill that is translucent or a keyword (`transparent`, `inherit`, and so on) is left alone.
-    * `~~GT.data_color(autocolor_text=False)` fills get no contrast text, so in dark mode they show
-      the table's light text.
+    * `~~GT.data_color(autocolor_text=False)` fills keep the table's text color in light mode. In
+      dark mode they get a text color chosen for contrast with the fill, so that light fills don't
+      show the table's light text.
+    * Border colors from `style.borders()` are blended toward the section's text color in dark mode,
+      as text colors are.
+    * Email HTML (`inline_css=True`) keeps the text and border colors you set as written, in both modes.
 * **Forced dark can lower contrast.** In `mode="dark"`, text on a mid-tone fill that you set (the
   header of an `~~GT.opt_stylize()` table, for example) uses the dark theme's text color. It can have
   lower contrast than in light mode.

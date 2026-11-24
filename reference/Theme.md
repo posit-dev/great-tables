@@ -4,7 +4,7 @@ A set of design tokens and table options that style a table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L87-L315)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L87-L317)
 
 ``` python
 Theme(
@@ -62,7 +62,7 @@ The font or fonts of the table, as a single name or a list of names in order of 
 The base font size of the table, as a CSS length or a number of pixels.
 
 `dark: Theme | None = None`  
-A [Theme](../reference/Theme.md#great_tables.Theme) with the values to use instead when the table is shown in dark mode. It can hold only the color tokens `background`, `foreground`, `border`, `border_strong` and `stripe`, and color options that are written to the table's stylesheet (such as `table_body_hlines_color`).
+A [Theme](../reference/Theme.md#great_tables.Theme) with the values to use instead when the table is shown in dark mode. It can hold only the color tokens `background`, `foreground`, `border`, `border_strong` and `stripe`, and color options that are written to the table's stylesheet (such as `table_body_hlines_color`). A background option of the theme with no value here keeps an `"auto"` table light, and a border color option with no value here is blended toward the text color in dark mode.
 
 `**options: Any`  
 Any option accepted by [GT.tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options), for example `data_row_padding`.
@@ -106,7 +106,7 @@ Build a [Theme](../reference/Theme.md#great_tables.Theme) from a brand.yml file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L210-L315)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L212-L317)
 
 ``` python
 from_brand(
