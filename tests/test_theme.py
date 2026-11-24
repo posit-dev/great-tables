@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 import pytest
 
@@ -52,7 +54,8 @@ def test_theme_dark_accepts_color_tokens_and_stylesheet_color_options():
 @pytest.mark.parametrize(
     "tokens, message",
     [
-        ({"stripe": "rgba(0,0,0,.1)"}, "stripe"),
+        ({"stripe": "oklch(70% 0.1 200)"}, "stripe"),
+        ({"background": "rgb(1, 2)"}, "rgb"),
         ({"background": 123}, "background"),
         ({"foreground": "currentcolor"}, "foreground"),
         ({"foreground": "not-a-color"}, "foreground"),
@@ -71,6 +74,8 @@ def test_theme_rejects_bad_colors(tokens: dict, message: str):
     [
         {"background": "navy", "foreground": "#EEE", "stripe": "#FFFFFF0F"},
         {"background": "transparent", "stripe": "currentColor"},
+        {"background": "rgb(253, 246, 227)", "foreground": "hsl(192 81% 14%)"},
+        {"stripe": "rgba(0,0,0,.1)"},
         {"border": "rgb(0 0 0 / 20%)", "border_strong": "var(--x)", "accent": "oklch(70% 0.1 200)"},
     ],
 )
@@ -122,6 +127,30 @@ def test_from_brand_rejects_markup():
         Theme.from_brand(brand)
 
 
+def test_from_brand_accepts_color_functions():
+    brand_yml = pytest.importorskip("brand_yml")
+    brand = brand_yml.Brand.from_yaml_str(
+        'color:\n  background: "rgb(253, 246, 227)"\n  foreground: "hsl(192 81% 14%)"\n'
+    )
+    theme = Theme.from_brand(brand)
+    assert theme.tokens == {"background": "rgb(253, 246, 227)", "foreground": "hsl(192 81% 14%)"}
+
+
+@pytest.mark.parametrize(
+    "dark, field",
+    [
+        (False, "The brand's field `color.background`"),
+        (True, "The dark brand's field `color.background`"),
+    ],
+)
+def test_from_brand_names_the_field_it_cannot_use(dark: bool, field: str):
+    brand_yml = pytest.importorskip("brand_yml")
+    bad = brand_yml.Brand.from_yaml_str('color:\n  background: "oklch(70% 0.1 200)"\n')
+    good = brand_yml.Brand.from_yaml_str('color:\n  background: "#FFFFFF"\n')
+    with pytest.raises(ValueError, match=re.escape(field)):
+        Theme.from_brand(good, dark=bad) if dark else Theme.from_brand(bad)
+
+
 def test_theme_rejects_interactive_options():
     with pytest.raises(ValueError, match="opt_interactive"):
         Theme(ihtml_use_search=True)
@@ -143,12 +172,32 @@ def test_opt_theme_stores_theme_and_mode(gt: GT):
     assert out.opt_theme(mode="light")._theme is theme  # None leaves theme alone
     assert out.opt_theme(Theme())._theme_mode == "dark"  # None leaves mode alone
 
+    removed = out.opt_theme(False)
+    assert removed._theme is None and removed._theme_mode == "dark"  # False removes the theme
+    assert removed.as_raw_html() == gt.opt_theme(mode="dark").as_raw_html()
+
 
 def test_opt_theme_rejects_bad_arguments(gt: GT):
     with pytest.raises(ValueError, match="mode"):
         gt.opt_theme(mode="night")
     with pytest.raises(TypeError, match="Theme"):
         gt.opt_theme("dark")
+
+
+def test_theme_repr_and_eq():
+    theme = Theme(border="#cccccc", font="Inter", data_row_padding=2, dark=Theme(stripe="#222222"))
+    assert repr(theme) == (
+        "Theme(border='#cccccc', font=['Inter'], data_row_padding='2px', "
+        "dark=Theme(stripe='#222222'))"
+    )
+    assert repr(Theme()) == "Theme()"
+    assert eval(repr(theme)) == theme
+
+    assert Theme(border="#cccccc") == Theme(border="#cccccc")
+    assert Theme(border="#cccccc") != Theme(border="#dddddd")
+    assert Theme(border="#cccccc") != Theme(border="#cccccc", dark=Theme(border="#000000"))
+    assert Theme(data_row_padding="2px") != Theme(heading_padding="2px")
+    assert Theme() != "Theme()"
 
 
 def test_theme_ignores_none_options():
@@ -400,3 +449,8 @@ def test_from_brand_without_brand_yml(monkeypatch):
     monkeypatch.setitem(sys.modules, "brand_yml", None)
     with pytest.raises(ImportError, match=r"great_tables\[brand\]"):
         Theme.from_brand("_brand.yml")
+
+
+def test_theme_font_with_a_quote_is_escaped(gt: GT):
+    html = gt.opt_theme(Theme(font="O'Reilly Sans")).as_raw_html()
+    assert "--gt-font-family: 'O\\'Reilly Sans', -apple-system," in html
