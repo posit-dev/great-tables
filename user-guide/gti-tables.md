@@ -3174,4 +3174,4 @@ The formats' buttons are in the order [i_export()](../reference/GTI.i_export.md#
 
 ## Using the table from Python and in apps
 
-Python can read what readers do with a [GTI](../reference/GTI.md#great_tables.GTI) table and change it: in a notebook, with the table as a widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app makes itself, with Flask, Django or FastHTML, can show it. See [GTI in Python and Apps](gti-in-python-and-apps.md).
+Python can read what readers do with a [GTI](../reference/GTI.md#great_tables.GTI) table and change it: in a notebook, with the table as a widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app makes itself, with Flask, Django or FastHTML, can show it. See [GTI in Python and Apps](gti-in-python-and-apps.md), where a marimo notebook and a Streamlit and a Panel app with a [GTI](../reference/GTI.md#great_tables.GTI) table can be run in the browser, to see a selection reach Python and Python sort the table.

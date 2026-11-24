@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="favicon.ico" />
+    <!-- Preload is necessary because we show these images when we disconnect from the server,
+    but at that point we cannot load these images from the server -->
+    <link rel="preload" href="assets/gradient-yHQUC_QB.png" as="image" />
+    <link rel="preload" href="assets/noise-60BoTA8O.png" as="image" />
+    <!-- Preload the fonts -->
+    <link rel="preload" href="assets/Lora-VariableFont_wght-CZceb_kH.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="assets/PTSans-Regular-Bam3NpBI.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="assets/PTSans-Bold-C_DwAp7Z.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="assets/FiraMono-Regular-CEsLFVD9.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="assets/FiraMono-Medium-D5MAsWEG.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="assets/FiraMono-Bold-C6PDArdf.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="a marimo app" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <script data-marimo="true">
+      function __resizeIframe(obj) {
+        const scrollbarHeight = 20; // Max between windows, mac, and linux
+
+        function setHeight() {
+          // Guard against race condition where iframe isn't ready
+          if (!obj.contentWindow?.document?.documentElement) {
+            return;
+          }
+          const element = obj.contentWindow.document.documentElement;
+          // If there is no vertical scrollbar, we don't need to resize the iframe
+          if (element.scrollHeight === element.clientHeight) {
+            return;
+          }
+
+          // Create a new height that includes the scrollbar height if it's visible
+          const hasHorizontalScrollbar = element.scrollWidth > element.clientWidth;
+          const newHeight = element.scrollHeight + (hasHorizontalScrollbar ? scrollbarHeight : 0);
+
+          // Only update the height if it's different from the current height
+          if (obj.style.height !== `${newHeight}px`) {
+            obj.style.height = `${newHeight}px`;
+          }
+        }
+
+        // Resize the iframe to the height of the content and bottom scrollbar height
+        setHeight();
+
+        // Resize the iframe when the content changes
+        const resizeObserver = new ResizeObserver((_entries) => {
+          setHeight();
+        });
+        // Only observe if iframe content is ready
+        if (obj.contentWindow?.document?.body) {
+          resizeObserver.observe(obj.contentWindow.document.body);
+        }
+      }
+    </script>
+    <marimo-filename hidden>notebook.py</marimo-filename>
+    <!-- TODO(Trevor): Legacy, required by VS Code plugin. Remove when plugin is updated (see marimo/server/_templates/template.py) -->
+    <marimo-version data-version="{{ version }}" hidden></marimo-version>
+    <marimo-user-config data-config="{{ user_config }}" hidden></marimo-user-config>
+    <marimo-server-token data-token="{{ server_token }}" hidden></marimo-server-token>
+    <!-- /TODO -->
+    <title>cars</title>
+    <script type="module" crossorigin src="assets/index-s-M1OXjs.js"></script>
+    <link rel="modulepreload" crossorigin href="assets/rolldown-runtime-B0Z9INg1.js">
+    <link rel="modulepreload" crossorigin href="assets/react-DVplv7_D.js">
+    <link rel="modulepreload" crossorigin href="assets/compiler-runtime-BrajqUja.js">
+    <link rel="modulepreload" crossorigin href="assets/useEvent-Dfcbgjhg.js">
+    <link rel="modulepreload" crossorigin href="assets/react-dom-_LrxgvjW.js">
+    <link rel="modulepreload" crossorigin href="assets/schemas-Dv42wLFq.js">
+    <link rel="modulepreload" crossorigin href="assets/isObject-BCaOs5rp.js">
+    <link rel="modulepreload" crossorigin href="assets/isSymbol-oX0TOjjx.js">
+    <link rel="modulepreload" crossorigin href="assets/now-Cmx0b_zA.js">
+    <link rel="modulepreload" crossorigin href="assets/debounce-aFmHgJZY.js">
+    <link rel="modulepreload" crossorigin href="assets/isArrayLikeObject-DnwgSs_Z.js">
+    <link rel="modulepreload" crossorigin href="assets/_baseMerge-CQpUq7ep.js">
+    <link rel="modulepreload" crossorigin href="assets/objects-snlMn4yk.js">
+    <link rel="modulepreload" crossorigin href="assets/useEventListener-D9cftcHj.js">
+    <link rel="modulepreload" crossorigin href="assets/invariant-Ci2dTZ72.js">
+    <link rel="modulepreload" crossorigin href="assets/config-VPSq73n8.js">
+    <link rel="modulepreload" crossorigin href="assets/utils-B4K466FK.js">
+    <link rel="modulepreload" crossorigin href="assets/session-DqoWmb7X.js">
+    <link rel="modulepreload" crossorigin href="assets/Deferred-CrTnjj37.js">
+    <link rel="modulepreload" crossorigin href="assets/config-DX8Y2WbJ.js">
+    <link rel="modulepreload" crossorigin href="assets/clsx-DB0hHKMi.js">
+    <link rel="modulepreload" crossorigin href="assets/cn-ldLVeaqm.js">
+    <link rel="modulepreload" crossorigin href="assets/jsx-runtime-B74pBk57.js">
+    <link rel="modulepreload" crossorigin href="assets/fullscreen-B9tHcfpV.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-iaThVDkA.js">
+    <link rel="modulepreload" crossorigin href="assets/menu-items-BrwnTgyK.js">
+    <link rel="modulepreload" crossorigin href="assets/use-restore-focus-BxEGwIbk.js">
+    <link rel="modulepreload" crossorigin href="assets/createLucideIcon-DfJ2oMlA.js">
+    <link rel="modulepreload" crossorigin href="assets/circle-DXf-VWZG.js">
+    <link rel="modulepreload" crossorigin href="assets/button-COI-NGrx.js">
+    <link rel="modulepreload" crossorigin href="assets/check-BQNapYaf.js">
+    <link rel="modulepreload" crossorigin href="assets/I18nProvider-Cg2I_s1_.js">
+    <link rel="modulepreload" crossorigin href="assets/useNumberFormatter-D7O_26UI.js">
+    <link rel="modulepreload" crossorigin href="assets/select-DTBn5eTb.js">
+    <link rel="modulepreload" crossorigin href="assets/toast-BGzLGnvw.js">
+    <link rel="modulepreload" crossorigin href="assets/tooltip-C9TuY18o.js">
+    <link rel="modulepreload" crossorigin href="assets/paths-bkIFVj8h.js">
+    <link rel="modulepreload" crossorigin href="assets/useLifecycle-Mq4gc5kS.js">
+    <link rel="modulepreload" crossorigin href="assets/toDate-DOj9Q6uC.js">
+    <link rel="modulepreload" crossorigin href="assets/database-zap-B_PMVg8T.js">
+    <link rel="modulepreload" crossorigin href="assets/alert-dialog-BaPGzeOK.js">
+    <link rel="modulepreload" crossorigin href="assets/arrays-BqUx5USx.js">
+    <link rel="modulepreload" crossorigin href="assets/once-Haz_uxEL.js">
+    <link rel="modulepreload" crossorigin href="assets/numbers-Mk3-CcoU.js">
+    <link rel="modulepreload" crossorigin href="assets/useDebounce-B_ccBZTp.js">
+    <link rel="modulepreload" crossorigin href="assets/input-BoBxR50a.js">
+    <link rel="modulepreload" crossorigin href="assets/use-toast-Wu434mLr.js">
+    <link rel="modulepreload" crossorigin href="assets/requests-lt0JK8Jt.js">
+    <link rel="modulepreload" crossorigin href="assets/uuid-k9DpjH68.js">
+    <link rel="modulepreload" crossorigin href="assets/write-secret-modal-DzKAInL2.js">
+    <link rel="modulepreload" crossorigin href="assets/plus-C5silF6g.js">
+    <link rel="modulepreload" crossorigin href="assets/trash-2-DcgaW8fn.js">
+    <link rel="modulepreload" crossorigin href="assets/preload-helper-uBIymjUX.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-Cny7_yZb.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-DBMV4gqt.js">
+    <link rel="modulepreload" crossorigin href="assets/capabilities-BJvf-MD4.js">
+    <link rel="modulepreload" crossorigin href="assets/cjs-C49f7GXV.js">
+    <link rel="modulepreload" crossorigin href="assets/createReducer-DgRODTW6.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-qhAY4L2r.js">
+    <link rel="modulepreload" crossorigin href="assets/marked.esm-B_3iMIUq.js">
+    <link rel="modulepreload" crossorigin href="assets/strings-B2vv-ENv.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-BOfh4hMd.js">
+    <link rel="modulepreload" crossorigin href="assets/badge-crT3E0Rm.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-DtH-7lot.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-BmExfiwX.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-1tmpVXyz.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-LSsCJjA3.js">
+    <link rel="modulepreload" crossorigin href="assets/dist-DusFODSa.js">
+    <link rel="modulepreload" crossorigin href="assets/stex-Dc5bKD4z.js">
+    <link rel="modulepreload" crossorigin href="assets/useTheme-COhSHkCj.js">
+    <link rel="modulepreload" crossorigin href="assets/useAsyncData-C7aJJz0Y.js">
+    <link rel="modulepreload" crossorigin href="assets/purify.es--06brOip.js">
+    <link rel="modulepreload" crossorigin href="assets/cells-BRkCaSsh.js">
+    <link rel="modulepreload" crossorigin href="assets/coerce-CpE6kUdX.js">
+    <link rel="modulepreload" crossorigin href="assets/get-DjNf4SIX.js">
+    <link rel="modulepreload" crossorigin href="assets/_hasPath-BmRQipI0.js">
+    <link rel="modulepreload" crossorigin href="assets/hasIn-yw4sIeJR.js">
+    <link rel="modulepreload" crossorigin href="assets/_baseSet-Bpdo9AvU.js">
+    <link rel="modulepreload" crossorigin href="assets/pick-DKIID_Mo.js">
+    <link rel="modulepreload" crossorigin href="assets/state-BAJYRhmO.js">
+    <link rel="modulepreload" crossorigin href="assets/state-C3oDoyFe.js">
+    <link rel="modulepreload" crossorigin href="assets/LazyAnyLanguageCodeMirror-CKcCbG2G.js">
+    <link rel="modulepreload" crossorigin href="assets/copy-D8O_CYCG.js">
+    <link rel="modulepreload" crossorigin href="assets/micromark-factory-space-D9Dr-k4J.js">
+    <link rel="modulepreload" crossorigin href="assets/chunk-YOKDWASO-BIpRENEC.js">
+    <link rel="modulepreload" crossorigin href="assets/markdown-renderer-BG3sp2rs.js">
+    <link rel="modulepreload" crossorigin href="assets/copy-Djr5m5ac.js">
+    <link rel="modulepreload" crossorigin href="assets/copy-icon-BIiRXh_3.js">
+    <link rel="modulepreload" crossorigin href="assets/useRunCells-B2vUhREg.js">
+    <link rel="modulepreload" crossorigin href="assets/RenderHTML-BbOqmHy3.js">
+    <link rel="modulepreload" crossorigin href="assets/blob-D5nfNHOo.js">
+    <link rel="modulepreload" crossorigin href="assets/kbd-pdKBv96t.js">
+    <link rel="modulepreload" crossorigin href="assets/useInstallPackage-iX1eufdl.js">
+    <link rel="modulepreload" crossorigin href="assets/errors-DCrsa1nH.js">
+    <link rel="modulepreload" crossorigin href="assets/api-BeC_VSGv.js">
+    <link rel="modulepreload" crossorigin href="assets/share-BZW3tzEX.js">
+    <link rel="modulepreload" crossorigin href="assets/events-CbeVJ6OD.js">
+    <link rel="modulepreload" crossorigin href="assets/state-_Qai_QyX.js">
+    <link rel="modulepreload" crossorigin href="assets/pair-CaQyK6En.js">
+    <link rel="modulepreload" crossorigin href="assets/ErrorBoundary-Gl5nCA8C.js">
+    <link rel="modulepreload" crossorigin href="assets/config-BOKzA3tF.js">
+    <link rel="modulepreload" crossorigin href="assets/chevron-right-eAtVhbNZ.js">
+    <link rel="modulepreload" crossorigin href="assets/dropdown-menu-C1rnl-0o.js">
+    <link rel="modulepreload" crossorigin href="assets/html-to-image-DK9Zl1lU.js">
+    <link rel="modulepreload" crossorigin href="assets/download-DCJXy66H.js">
+    <link rel="modulepreload" crossorigin href="assets/switch-CTaiAjrz.js">
+    <link rel="modulepreload" crossorigin href="assets/tabs-BuQlZFbt.js">
+    <link rel="modulepreload" crossorigin href="assets/table-DG7Ap4H4.js">
+    <link rel="modulepreload" crossorigin href="assets/eye-off-CxVozGAC.js">
+    <link rel="modulepreload" crossorigin href="assets/refresh-cw-Qw1f8Jhy.js">
+    <link rel="modulepreload" crossorigin href="assets/tree-actions-GM5E_bUs.js">
+    <link rel="modulepreload" crossorigin href="assets/ellipsis-63DyBLHQ.js">
+    <link rel="modulepreload" crossorigin href="assets/external-link-UrX9KO36.js">
+    <link rel="modulepreload" crossorigin href="assets/spinner-DyNE-o8o.js">
+    <link rel="modulepreload" crossorigin href="assets/message-circle-C3rKm8_a.js">
+    <link rel="modulepreload" crossorigin href="assets/hat-glasses-C8RhSVii.js">
+    <link rel="modulepreload" crossorigin href="assets/package-GSoSTiIK.js">
+    <link rel="modulepreload" crossorigin href="assets/datasource-Cq6x_5ML.js">
+    <link rel="modulepreload" crossorigin href="assets/alert-DTaqCu_d.js">
+    <link rel="modulepreload" crossorigin href="assets/state-XsPO8hNi.js">
+    <link rel="modulepreload" crossorigin href="assets/cell-link-LSth_8hT.js">
+    <link rel="modulepreload" crossorigin href="assets/MarimoErrorOutput-D60XkCny.js">
+    <link rel="modulepreload" crossorigin href="assets/useDateFormatter-DA-62E-Y.js">
+    <link rel="modulepreload" crossorigin href="assets/en-US-Buu61juQ.js">
+    <link rel="modulepreload" crossorigin href="assets/isValid-q_Ad80ug.js">
+    <link rel="modulepreload" crossorigin href="assets/dates-BbFQ2oE4.js">
+    <link rel="modulepreload" crossorigin href="assets/defaultLocale-CNPGWpMu.js">
+    <link rel="modulepreload" crossorigin href="assets/precisionRound-Bq_nmf5u.js">
+    <link rel="modulepreload" crossorigin href="assets/defaultLocale-D5bOh7g6.js">
+    <link rel="modulepreload" crossorigin href="assets/vega-loader.browser-CLRkNgm7.js">
+    <link rel="modulepreload" crossorigin href="assets/tooltip-mT3CGest.js">
+    <link rel="modulepreload" crossorigin href="assets/react-icons.esm-D6tfmvq8.js">
+    <link rel="modulepreload" crossorigin href="assets/extends-CvVTau-c.js">
+    <link rel="modulepreload" crossorigin href="assets/objectWithoutPropertiesLoose-Do6ywDBO.js">
+    <link rel="modulepreload" crossorigin href="assets/useIframeCapabilities-CwTkczVN.js">
+    <link rel="modulepreload" crossorigin href="assets/error-banner-Cd69vvyX.js">
+    <link rel="modulepreload" crossorigin href="assets/utils-CaQYvazl.js">
+    <link rel="modulepreload" crossorigin href="assets/formats-yZ06h1Pl.js">
+    <link rel="modulepreload" crossorigin href="assets/table-vrvqpuKJ.js">
+    <link rel="modulepreload" crossorigin href="assets/react-resizable-panels.browser.esm-Dbe0MrFr.js">
+    <link rel="modulepreload" crossorigin href="assets/JsonOutput-D6HIIsCb.js">
+    <link rel="modulepreload" crossorigin href="assets/chart-no-axes-column-C4_v6fQW.js">
+    <link rel="modulepreload" crossorigin href="assets/square-function-_W_Lo0P4.js">
+    <link rel="modulepreload" crossorigin href="assets/spec-BfSBcO5B.js">
+    <link rel="modulepreload" crossorigin href="assets/semaphore-BjoL5P0h.js">
+    <link rel="modulepreload" crossorigin href="assets/fileToBase64-BgBraYAr.js">
+    <link rel="modulepreload" crossorigin href="assets/useBoolean-BDD6_xQQ.js">
+    <link rel="modulepreload" crossorigin href="assets/code-xml-SQaZqvcO.js">
+    <link rel="modulepreload" crossorigin href="assets/file-headphone-Dl35U6h3.js">
+    <link rel="modulepreload" crossorigin href="assets/file-BPBVl9pl.js">
+    <link rel="modulepreload" crossorigin href="assets/image-wZvTj8WY.js">
+    <link rel="modulepreload" crossorigin href="assets/file-icons-CdJgUy-I.js">
+    <link rel="modulepreload" crossorigin href="assets/globe-UdPdIbF7.js">
+    <link rel="modulepreload" crossorigin href="assets/esm-CI_o7NhW.js">
+    <link rel="modulepreload" crossorigin href="assets/useAddCell-GR7eEQrT.js">
+    <link rel="modulepreload" crossorigin href="assets/readonly-python-code-DCSMIsTX.js">
+    <link rel="modulepreload" crossorigin href="assets/data-grid-types-DgHVN_Zz.js">
+    <link rel="modulepreload" crossorigin href="assets/glide-utils-CIrAxdjv.js">
+    <link rel="modulepreload" crossorigin href="assets/column-preview-Cm2D6vyX.js">
+    <link rel="modulepreload" crossorigin href="assets/square-BPmgQFnh.js">
+    <link rel="modulepreload" crossorigin href="assets/triangle-alert-DmIqR8sY.js">
+    <link rel="modulepreload" crossorigin href="assets/prop-types-Djf4O40e.js">
+    <link rel="modulepreload" crossorigin href="assets/es-Cqst59WX.js">
+    <link rel="modulepreload" crossorigin href="assets/package-data-dv4FBHxR.js">
+    <link rel="modulepreload" crossorigin href="assets/markdown-export-DzhB1FrN.js">
+    <link rel="modulepreload" crossorigin href="assets/renderShortcut-BkVJQ_Zh.js">
+    <link rel="modulepreload" crossorigin href="assets/bundle.esm-D3tw5rqW.js">
+    <link rel="modulepreload" crossorigin href="assets/icons-CiZ_8zS-.js">
+    <link rel="modulepreload" crossorigin href="assets/useDeepCompareMemoize-DFIVN9dn.js">
+    <link rel="modulepreload" crossorigin href="assets/pathUtils-DPmlLd-r.js">
+    <link rel="modulepreload" crossorigin href="assets/floating-outline-XD9FAV-f.js">
+    <link rel="stylesheet" crossorigin href="assets/cells-0PFKL3SH.css">
+    <link rel="stylesheet" crossorigin href="assets/markdown-renderer-DjIHoF9Z.css">
+    <link rel="stylesheet" crossorigin href="assets/JsonOutput-B0GmlMnR.css">
+    <link rel="stylesheet" crossorigin href="assets/index-Bcdzex-3.css">
+  <marimo-wasm hidden=""></marimo-wasm>
+    <script>
+        if (window.location.protocol === 'file:') {
+            alert('Warning: This file must be served by an HTTP server to function correctly.');
+        }
+    </script>
+    
+    <style>
+        #save-button {
+            display: none !important;
+        }
+        #filename-input {
+            display: none !important;
+        }
+    </style>
+    
+<script data-marimo="true">
+    Object.defineProperty(window, "__MARIMO_EXPORT_CONTEXT__", {
+        value: Object.freeze({
+            trusted: true,
+            notebookCode: "# /// script\n# dependencies = [\"great-tables @ ../public/wheels/great_tables-1.2.1.dev161%2Bga01d213d6-py3-none-any.whl\", \"anywidget\", \"pandas==3.0.2\"]\n# \n# [tool.marimo.export]\n# lock_kind = \"observed\"\n# ///\n\nimport marimo\n\n__generated_with = \"0.25.2\"\napp = marimo.App()\n\n\n@app.cell\ndef _():\n    import marimo as mo\n\n    from great_tables import GT, GTI, data\n    from great_tables.marimo import mo_gti\n\n    cars = data.gtcars[[\"mfr\", \"model\", \"year\", \"hp\", \"msrp\"]]\n    table = mo_gti(\n        GTI(cars)\n        .fmt_integer(\"hp\")\n        .fmt_currency(\"msrp\", decimals=0)\n        .i_cols_filter(columns=\"mfr\", type=\"facet\")\n        .i_selection(\"multiple\")\n    )\n    table\n    return GT, mo, table\n\n\n@app.cell\ndef _(mo, table):\n    def fastest(_):\n        table.sort = \"-hp\"\n        table.selection = []\n\n    fastest_button = mo.ui.button(label=\"Fastest first\", on_click=fastest)\n    fastest_button\n    return\n\n\n@app.cell\ndef _(GT, mo, table):\n    chosen = table.view(selected=True)\n    mo.vstack(\n        [\n            mo.md(f\"{len(chosen)} of {len(table.value['rows'] or [])} cars selected\"),\n            GT(chosen).fmt_integer(\"hp\").fmt_currency(\"msrp\", decimals=0),\n        ]\n    )\n    return\n\n\nif __name__ == \"__main__\":\n    app.run()\n",
+        }),
+        writable: false,
+        configurable: false,
+    });
+</script>
+<marimo-code hidden="">%23%20%2F%2F%2F%20script%0A%23%20dependencies%20%3D%20%5B%22great-tables%20%40%20..%2Fpublic%2Fwheels%2Fgreat_tables-1.2.1.dev161%252Bga01d213d6-py3-none-any.whl%22%2C%20%22anywidget%22%2C%20%22pandas%3D%3D3.0.2%22%5D%0A%23%20%0A%23%20%5Btool.marimo.export%5D%0A%23%20lock_kind%20%3D%20%22observed%22%0A%23%20%2F%2F%2F%0A%0Aimport%20marimo%0A%0A__generated_with%20%3D%20%220.25.2%22%0Aapp%20%3D%20marimo.App()%0A%0A%0A%40app.cell%0Adef%20_()%3A%0A%20%20%20%20import%20marimo%20as%20mo%0A%0A%20%20%20%20from%20great_tables%20import%20GT%2C%20GTI%2C%20data%0A%20%20%20%20from%20great_tables.marimo%20import%20mo_gti%0A%0A%20%20%20%20cars%20%3D%20data.gtcars%5B%5B%22mfr%22%2C%20%22model%22%2C%20%22year%22%2C%20%22hp%22%2C%20%22msrp%22%5D%5D%0A%20%20%20%20table%20%3D%20mo_gti(%0A%20%20%20%20%20%20%20%20GTI(cars)%0A%20%20%20%20%20%20%20%20.fmt_integer(%22hp%22)%0A%20%20%20%20%20%20%20%20.fmt_currency(%22msrp%22%2C%20decimals%3D0)%0A%20%20%20%20%20%20%20%20.i_cols_filter(columns%3D%22mfr%22%2C%20type%3D%22facet%22)%0A%20%20%20%20%20%20%20%20.i_selection(%22multiple%22)%0A%20%20%20%20)%0A%20%20%20%20table%0A%20%20%20%20return%20GT%2C%20mo%2C%20table%0A%0A%0A%40app.cell%0Adef%20_(mo%2C%20table)%3A%0A%20%20%20%20def%20fastest(_)%3A%0A%20%20%20%20%20%20%20%20table.sort%20%3D%20%22-hp%22%0A%20%20%20%20%20%20%20%20table.selection%20%3D%20%5B%5D%0A%0A%20%20%20%20fastest_button%20%3D%20mo.ui.button(label%3D%22Fastest%20first%22%2C%20on_click%3Dfastest)%0A%20%20%20%20fastest_button%0A%20%20%20%20return%0A%0A%0A%40app.cell%0Adef%20_(GT%2C%20mo%2C%20table)%3A%0A%20%20%20%20chosen%20%3D%20table.view(selected%3DTrue)%0A%20%20%20%20mo.vstack(%0A%20%20%20%20%20%20%20%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20mo.md(f%22%7Blen(chosen)%7D%20of%20%7Blen(table.value%5B'rows'%5D%20or%20%5B%5D)%7D%20cars%20selected%22)%2C%0A%20%20%20%20%20%20%20%20%20%20%20%20GT(chosen).fmt_integer(%22hp%22).fmt_currency(%22msrp%22%2C%20decimals%3D0)%2C%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20)%0A%20%20%20%20return%0A%0A%0Aif%20__name__%20%3D%3D%20%22__main__%22%3A%0A%20%20%20%20app.run()%0A</marimo-code><link rel="canonical" href="https://posit-dev.github.io/great-tables/demos/marimo/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="cars">
+<meta property="og:description" content="a marimo app">
+<meta property="og:url" content="https://posit-dev.github.io/great-tables/demos/marimo/">
+<meta property="og:site_name" content="Great Tables">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cars">
+<meta name="twitter:description" content="a marimo app">
+</head>
+  <body>
+    <div id="root"></div>
+    <script data-marimo="true">
+      Object.defineProperty(window, "__MARIMO_MOUNT_CONFIG__", {
+        value: Object.freeze({
+            "filename": "notebook.py",
+            "cwd": "",
+            "lspWorkspace": null,
+            "mode": "read",
+            "version": "0.25.2",
+            "serverToken": "unused",
+            "config": {"ai": {"allow_provider_config": true, "custom_providers": {}, "enabled": true, "models": {"custom_models": [], "displayed_models": []}}, "completion": {"activate_on_typing": true, "auto_close_pairs": true, "copilot": false, "signature_hint_on_typing": false}, "diagnostics": {"sql_linter": true}, "display": {"cell_output": "below", "code_editor_font_size": 14, "code_lens": true, "dataframes": "rich", "default_table_max_columns": 50, "default_table_page_size": 10, "default_width": "medium", "reference_highlighting": true, "theme": "light"}, "formatting": {"line_length": 79}, "keymap": {"overrides": {}, "preset": "default"}, "language_servers": {"pylsp": {"enable_flake8": false, "enable_mypy": true, "enable_pydocstyle": false, "enable_pyflakes": false, "enable_pylint": false, "enable_ruff": true, "enabled": false}}, "mcp": {"mcpServers": {}, "presets": []}, "package_management": {"manager": "pip"}, "runtime": {"auto_instantiate": false, "auto_reload": "off", "default_csv_encoding": "utf-8", "default_sql_output": "auto", "on_cell_change": "autorun", "output_max_bytes": 8000000, "reactive_tests": true, "show_tracebacks": false, "std_stream_max_bytes": 1000000, "watcher_on_save": "lazy"}, "save": {"autosave": "off", "autosave_delay": 1000, "format_on_save": false}, "server": {"browser": "default", "follow_symlink": false}, "snippets": {"custom_paths": [], "include_default_snippets": true}},
+            "configOverrides": {},
+            "appConfig": {"sql_output": "auto", "width": "compact"},
+            "layout": null,
+            "view": {"showAppCode": false},
+            "notebook": null,
+            "session": null,
+            "runtimeConfig": null
+        }),
+        writable: false,
+        configurable: false,
+      });
+    </script>
+  </body>
+</html>

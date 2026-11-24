@@ -1,6 +1,6 @@
 # GTI in Python and Apps
 
-An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime included once, however many tables the page has.
+An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime included once, however many tables the page has. The marimo, Streamlit and Panel examples can each be run here, in the browser, without installing anything.
 
 ## Using the table from Python
 
@@ -43,18 +43,22 @@ In a [marimo](https://marimo.io) notebook (or one run as an app), `mo_gti()`, fr
 
 ``` python
 import marimo as mo
-from great_tables import GTI, data
+
+from great_tables import GT, GTI, data
 from great_tables.marimo import mo_gti
 
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
 table = mo_gti(
-    GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
+    GTI(cars)
+    .fmt_integer("hp")
+    .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
 )
 table
 ```
 
-Then, in other cells:
+Then, in other cells, a button that sorts the table by horsepower, and the cars selected, as a table of their own:
 
 ``` python
 def fastest(_):
@@ -66,11 +70,16 @@ fastest_button
 ```
 
 ``` python
-mo.vstack([
-    mo.md(f"{len(table.value['selection'])} of {len(table.value['rows'] or [])} cars selected"),
-    table.view(selected=True),
-])
+chosen = table.view(selected=True)
+mo.vstack(
+    [
+        mo.md(f"{len(chosen)} of {len(table.value['rows'] or [])} cars selected"),
+        GT(chosen).fmt_integer("hp").fmt_currency("msrp", decimals=0),
+    ]
+)
 ```
+
+Here's that notebook, run as an app in the browser (with marimo's WebAssembly export, and these docs' Great Tables). Select a few cars, filter by manufacturer, or click "Fastest first":
 
 `table.view()` gives the rows kept as a DataFrame of the data's library (and `table.view(selected=True)` the rows selected). The rows are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) or a table that starts with a search: their rows are `None` until the browser has shown the table. They're also `None` after the table's view is set (as by the button), until the browser has applied it. Running the table's cell again makes a new table, which starts as it's made. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the notebook for each page instead, and its rows are always found in Python.
 
@@ -117,50 +126,69 @@ The table works in the browser as it does anywhere else, so the server isn't ask
 
 ## Using the table in a Streamlit app
 
-In a [Streamlit](https://streamlit.io) app, [st_gti()](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti), from `great_tables.streamlit` (installed with `pip install great_tables[streamlit]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) and gives its state: its [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes runs the app again, with the table's new state. `update_gti()`, called in a widget's callback, sets its query, search, sort and selection from the app.
+In a [Streamlit](https://streamlit.io) app, [st_gti()](../reference/streamlit.st_gti.md#great_tables.streamlit.st_gti), from `great_tables.streamlit` (installed with `pip install great_tables[streamlit]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) and gives its state: its [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes runs the app again, with the table's new state. `update_gti()`, called in a widget's callback, sets its query, search, sort and selection from the app. Here, the cars selected are charted, and shown as a table of their own (a [GT](../reference/GT.md#great_tables.GT) table's HTML, with `st.html()`):
 
 ``` python
 import streamlit as st
-from great_tables import GTI, data
+
+from great_tables import GT, GTI, data
 from great_tables.streamlit import st_gti, update_gti
+
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
 
 st.button("Fastest first", on_click=update_gti, args=("cars",), kwargs={"sort": "-hp"})
 table = (
-    GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
+    GTI(cars)
+    .fmt_integer("hp")
+    .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
 )
 state = st_gti(table, key="cars")
 st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")
+
+chosen = cars.iloc[state.selection]
+st.bar_chart(chosen, x="model", y="hp")
+st.html(GT(chosen).fmt_integer("hp").fmt_currency("msrp", decimals=0).as_raw_html())
 ```
+
+Here's that app, run in the browser (with [stlite](https://github.com/whitphx/stlite), and these docs' Great Tables):
 
 The table keeps its view and selection by its `key` as the app runs again, as long as it's rendered the same. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page, which runs it again; make it once, with `st.cache_resource`, so that it isn't rendered again each time.
 
 ## Using the table in a Panel app
 
-In a [Panel](https://panel.holoviz.org) app or notebook, [GTIPane](../reference/panel.GTIPane.md#great_tables.panel.GTIPane), from `great_tables.panel` (installed with `pip install great_tables[panel]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) as a Panel component, whose state is in its parameters: [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`, which can be set to a column name, `"-hp"`, too), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes sets them, so that they can be used with `pn.bind()` or watched like any other parameter; and setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table.
+In a [Panel](https://panel.holoviz.org) app or notebook, [GTIPane](../reference/panel.GTIPane.md#great_tables.panel.GTIPane), from `great_tables.panel` (installed with `pip install great_tables[panel]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)) as a Panel component, whose state is in its parameters: [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search) and [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`, which can be set to a column name, `"-hp"`, too), the data `rows` kept (in the order shown) and the rows in its `selection`. Each change the reader makes sets them, so that they can be used with `pn.bind()` or watched like any other parameter; and setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table. Here, the cars selected are shown as a table of their own, bound to the table's `rows` and `selection`:
 
 ``` python
 import panel as pn
-from great_tables import GTI, data
+
+from great_tables import GT, GTI, data
 from great_tables.panel import GTIPane
 
 pn.extension()
 
-cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
 table = GTIPane(
-    GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
+    GTI(cars)
+    .fmt_integer("hp")
+    .fmt_currency("msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_selection("multiple")
 )
 
 
 def chosen(rows, selection):
-    return f"{len(selection)} of {len(rows or [])} cars selected"
+    picked = GT(cars.iloc[selection]).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    return pn.Column(f"{len(selection)} of {len(rows or [])} cars selected", pn.pane.HTML(picked))
 
 
 fastest = pn.widgets.Button(name="Fastest first")
 fastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))
 pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()
 ```
+
+Here's that app, run in the browser (converted with `panel convert`, with these docs' Great Tables):
 
 `table.data()` gives the rows kept as a DataFrame of the data's library (and `table.data(selected=True)` the rows selected). The `rows` are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive) or a table that starts with a search: their `rows` are `None` until the browser has shown the table. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page instead, and its `rows` are always found in Python.
 

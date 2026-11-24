@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Great Tables in a Streamlit app</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.3/build/stlite.css">
+<link rel="canonical" href="https://posit-dev.github.io/great-tables/demos/streamlit/">
+<meta name="description" content="Easily generate information-rich, publication-quality tables from Python.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Great Tables in a Streamlit app">
+<meta property="og:description" content="Easily generate information-rich, publication-quality tables from Python.">
+<meta property="og:url" content="https://posit-dev.github.io/great-tables/demos/streamlit/">
+<meta property="og:site_name" content="Great Tables">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Great Tables in a Streamlit app">
+<meta name="twitter:description" content="Easily generate information-rich, publication-quality tables from Python.">
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.3/build/stlite.js";
+
+// (By its full URL, as stlite's worker would find a relative one from its own)
+const wheel = new URL("../wheels/great_tables-1.2.1.dev161+ga01d213d6-py3-none-any.whl", location.href).href;
+mount(
+  { requirements: [wheel, "pandas"], entrypoint: "app.py", files: { "app.py": "import streamlit as st\n\nfrom great_tables import GT, GTI, data\nfrom great_tables.streamlit import st_gti, update_gti\n\ncars = data.gtcars[[\"mfr\", \"model\", \"year\", \"hp\", \"msrp\"]]\n\nst.button(\"Fastest first\", on_click=update_gti, args=(\"cars\",), kwargs={\"sort\": \"-hp\"})\ntable = (\n    GTI(cars)\n    .fmt_integer(\"hp\")\n    .fmt_currency(\"msrp\", decimals=0)\n    .i_cols_filter(columns=\"mfr\", type=\"facet\")\n    .i_selection(\"multiple\")\n)\nstate = st_gti(table, key=\"cars\")\nst.write(f\"{len(state.selection)} of {len(state.rows or [])} cars selected\")\n\nchosen = cars.iloc[state.selection]\nst.bar_chart(chosen, x=\"model\", y=\"hp\")\nst.html(GT(chosen).fmt_integer(\"hp\").fmt_currency(\"msrp\", decimals=0).as_raw_html())\n" } },
+  document.getElementById("root"),
+);
+</script>
+</body>
+</html>
