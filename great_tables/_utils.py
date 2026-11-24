@@ -106,8 +106,19 @@ class OrderedSet(AbstractSet[Any]):
         return f"{cls_name}({lst!r})"
 
 
+def _css_font_name(name: str) -> str:
+    """A font name for a CSS `font-family` list: quoted when it has a space or a quote (escaping any
+    `\\` and `'` in it), and kept as it is when it's quoted already."""
+    if len(name) > 1 and name[0] == name[-1] and name[0] in "'\"":
+        return name
+    if not any(c in name for c in " '\\"):
+        return name
+    escaped = name.replace("\\", "\\\\").replace("'", "\\'")
+    return f"'{escaped}'"
+
+
 def _as_css_font_family_attr(fonts: list[str], value_only: bool = False) -> str:
-    fonts_w_spaces: list[str] = [f"'{x}'" if " " in x else x for x in fonts]
+    fonts_w_spaces: list[str] = [_css_font_name(x) for x in fonts]
 
     fonts_str = ", ".join(fonts_w_spaces)
 
