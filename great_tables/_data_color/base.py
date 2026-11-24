@@ -20,7 +20,16 @@ from great_tables._tbl_data import (
 from great_tables.loc import body
 from great_tables.style import fill, text
 
-from .constants import ALL_PALETTES, COLOR_NAME_TO_HEX, DEFAULT_PALETTE
+from .constants import ALL_PALETTES, DEFAULT_PALETTE
+from .palettes import GradientPalette
+from .utils import (
+    RGBColor,
+    _add_alpha,  # noqa: F401 (gt-extras imports it from here)
+    _float_to_hex,
+    _hex_to_rgb,
+    _html_color,
+    rgb_to_hex,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -28,7 +37,6 @@ if TYPE_CHECKING:
     from great_tables._types import GTSelf
 
 
-RGBColor: TypeAlias = tuple[int, int, int]
 ContrastAlgo: TypeAlias = Literal["apca", "wcag"]
 
 # Coefficients for the SAPC APCA (Accessible Perceptual Contrast Algorithm); these values are
@@ -573,9 +581,6 @@ def _map_data_colors(
     Map the values of a column (given by `column=`) or of a row (given by `row=`) to colors.
     """
 
-    # TODO: there is a circular import in palettes (which imports functions from this module)
-    from great_tables._data_color.palettes import GradientPalette
-
     # Name the values in error messages
     label = f"column '{column}'" if column is not None else f"row {row}"
 
@@ -848,8 +853,7 @@ def _alpha_composite_with_white(color: str) -> str:
     result_b = max(0, min(255, result_b))
 
     # Convert back to hex format
-    # TODO: After refactor, use rgb_to_hex (now in palettes.py)
-    return f"#{result_r:02X}{result_g:02X}{result_b:02X}"
+    return rgb_to_hex((result_r, result_g, result_b)).upper()
 
 
 def _get_wcag_contrast_ratio(color_1: str, color_2: str) -> float:
@@ -955,32 +959,6 @@ def _relative_luminance_apca(rgb: RGBColor) -> float:
     return lum
 
 
-def _hex_to_rgb(hex_color: str) -> RGBColor:
-    """
-    Convert a hexadecimal color value to RGB.
-
-    Parameters
-    ----------
-    hex_color
-        The hexadecimal color value.
-
-    Returns
-    -------
-    RGBColor
-        The RGB values.
-    """
-
-    # If the hexadecimal color value is in the #RRGGBBAA format, then we need to remove the
-    # alpha value from it before converting it to RGB
-    if len(hex_color) == 9:
-        hex_color = hex_color[:-2]
-
-    # Convert the hexadecimal color value to RGB
-    rgb = tuple(int(hex_color[i : i + 2], 16) for i in (1, 3, 5))
-
-    return rgb  # type: ignore
-
-
 def _relative_luminance(rgb: RGBColor) -> float:
     """
     Calculate the relative luminance of an RGB color.
@@ -1025,155 +1003,6 @@ def _srgb(x: int) -> float:
     x_frac = x_frac / 12.92 if x_frac <= 0.03928 else ((x_frac + 0.055) / 1.055) ** 2.4
 
     return x_frac
-
-
-def _html_color(colors: list[str], alpha: float | None = None) -> list[str]:
-    """
-    Normalize HTML colors.
-
-    Input colors can be color names (e.g., `"green"`, `"steelblue"`, etc.) or colors in hexadecimal
-    format with or without an alpha component (either #RRGGBB or #RRGGBBAA). Output will be a list
-    of hexadecimal colors of the same length as the input but it will contain #RRGGBB and #RRGGBBAA
-    colors.
-    """
-
-    # Expand any shorthand hexadecimal color values to the `RRGGBB` form
-    colors = [_expand_short_hex(hex_color=color) for color in colors]
-
-    # If not classified as hexadecimal, assume other values are named colors to be handled separately
-    all_hex_colors = all(_is_hex_col(colors=colors))
-
-    if not all_hex_colors:
-        # Translate named colors to hexadecimal values
-        colors = _color_name_to_hex(colors=colors)
-
-    # If `alpha` is not None, then we need to add the alpha value to the
-    # color value but only if it doesn't already exist
-    if alpha is not None:
-        colors = _add_alpha(colors=colors, alpha=alpha)
-
-    return colors
-
-
-def _add_alpha(colors: list[str], alpha: float) -> list[str]:
-    # If `alpha` is an integer, then convert it to a float
-    if isinstance(alpha, int):
-        alpha = float(alpha)
-
-    # If `alpha` is not between 0 and 1, then throw an error
-    if alpha < 0 or alpha > 1:
-        raise ValueError(
-            f"Invalid alpha value provided ({alpha}). Please ensure that alpha is a value between 0 and 1."
-        )
-
-    # Loop through the indices of the colors and add the alpha value to each one
-    for i in range(len(colors)):
-        color = colors[i]
-        if color == "#FFFFFF00":
-            continue
-
-        # If the color value is already in the `#RRGGBBAA` format, then we need to remove the
-        # alpha value from it before adding the new alpha value
-        if len(color) == 9:
-            color = color[:-2]
-
-        # Add the alpha value to the color value
-        colors[i] = color + _float_to_hex(alpha)
-
-    return colors
-
-
-def _float_to_hex(x: float) -> str:
-    """
-    Convert a float to a hexadecimal value.
-
-    Parameters
-    ----------
-    x
-        The float value to convert.
-
-    Returns
-    -------
-    str
-        The hexadecimal value.
-    """
-
-    # Convert the float to an integer and convert to a hexadecimal value
-    x_hex = hex(int(x * 255)).upper()
-
-    # Remove the leading '0x' from the hexadecimal value
-    x_hex = x_hex[2:]
-
-    # If the hexadecimal value is only one character long, then add a leading '0'
-    if len(x_hex) == 1:
-        x_hex = "0" + x_hex
-
-    return x_hex
-
-
-def _color_name_to_hex(colors: list[str]) -> list[str]:
-    # If any of the colors are in the color_name_dict, then replace them with the
-    # corresponding hexadecimal value
-
-    hex_colors: list[str] = []
-
-    for color in colors:
-        if _is_hex_col([color])[0]:
-            hex_colors.append(color)
-        else:
-            try:
-                hex_colors.append(COLOR_NAME_TO_HEX[color.lower()])
-            except KeyError:
-                raise ValueError(
-                    f"Invalid color name provided ({color}). Please ensure that all colors are valid CSS3 or X11 color names."
-                )
-
-    return hex_colors
-
-
-def _color_name_list() -> list[str]:
-    return list(COLOR_NAME_TO_HEX)
-
-
-def _is_short_hex(color: str) -> bool:
-    import re
-
-    pattern = r"^#[0-9a-fA-F]{3}([0-9a-fA-F])?$"
-    return re.match(pattern, color) is not None
-
-
-def _is_hex_col(colors: list[str]) -> list[bool]:
-    import re
-
-    return [bool(re.match(r"^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$", color)) for color in colors]
-
-
-def _is_standard_hex_col(colors: list[str]) -> list[bool]:
-    import re
-
-    return [bool(re.match(r"^#[0-9a-fA-F]{6}$", color)) for color in colors]
-
-
-def _expand_short_hex(hex_color: str) -> str:
-    """
-    Expands a short hexadecimal color value to the full 6-digit hexadecimal color value.
-
-    Args:
-        hex_color (str): The short hexadecimal color value to expand.
-
-    Returns:
-        str: The expanded 6-digit hexadecimal color value.
-    """
-    # If the hex color is not a short hexadecimal color value, return the original value
-    if not _is_short_hex(color=hex_color):
-        return hex_color
-
-    # Get the hex color without the leading '#'
-    hex_color = hex_color[1:]
-
-    # Return the expanded 6-digit hexadecimal color value
-    expanded = "#" + "".join(x * 2 for x in hex_color)
-    return expanded.upper()
 
 
 def _rescale_numeric(

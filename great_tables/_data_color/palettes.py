@@ -12,12 +12,7 @@ from typing import TypedDict
 
 from great_tables._utils import pairwise
 
-from .base import RGBColor, _hex_to_rgb, _html_color
-
-
-def rgb_to_hex(rgb: RGBColor) -> str:
-    return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
-
+from .utils import RGBColor, _hex_to_rgb, _html_color, rgb_to_hex
 
 # CIELAB conversions -------------------------------------------------------------------------------
 #

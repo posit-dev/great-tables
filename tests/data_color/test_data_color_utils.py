@@ -7,27 +7,31 @@ from typing import Any
 import numpy as np
 import pytest
 from great_tables._data_color.base import (
-    _add_alpha,
     _alpha_composite_with_white,
-    _color_name_to_hex,
-    _expand_short_hex,
-    _float_to_hex,
     _get_domain_factor,
     _get_apca_contrast,
     _get_domain_numeric,
     _get_wcag_contrast_ratio,
-    _hex_to_rgb,
-    _html_color,
     _ideal_fgnd_color,
-    _is_hex_col,
-    _is_short_hex,
-    _is_standard_hex_col,
     _relative_luminance,
     _relative_luminance_apca,
     _rescale_numeric,
     _srgb,
 )
 from great_tables._data_color.palettes import GradientPalette
+from great_tables._data_color.utils import (
+    _add_alpha,
+    _color_name_list,
+    _color_name_to_hex,
+    _expand_short_hex,
+    _float_to_hex,
+    _hex_to_rgb,
+    _html_color,
+    _is_hex_col,
+    _is_short_hex,
+    _is_standard_hex_col,
+    rgb_to_hex,
+)
 from great_tables._tbl_data import is_na, DataFrameLike
 
 from tests.utils import DataFrameConstructor
@@ -562,13 +566,34 @@ def test_add_alpha_strips_existing_alpha():
 
 
 def test_color_name_list_returns_list_of_strings():
-    from great_tables._data_color.base import _color_name_list
-
     result = _color_name_list()
     assert isinstance(result, list)
     assert len(result) > 0
     assert all(isinstance(name, str) for name in result)
     assert "red" in result
+
+
+@pytest.mark.parametrize(
+    ("rgb", "hex_color"),
+    [
+        ((255, 0, 0), "#ff0000"),
+        ((0, 255, 0), "#00ff00"),
+        ((0, 0, 255), "#0000ff"),
+        ((255, 255, 255), "#ffffff"),
+        ((0, 0, 0), "#000000"),
+        ((1, 171, 205), "#01abcd"),
+    ],
+)
+def test_rgb_to_hex(rgb: tuple[int, int, int], hex_color: str) -> None:
+    assert rgb_to_hex(rgb) == hex_color
+
+
+def test_base_keeps_helpers_imported_by_gt_extras():
+    # gt-extras imports these from `great_tables._data_color.base`, so they stay importable there
+    from great_tables._data_color import base, utils
+
+    assert base._add_alpha is utils._add_alpha
+    assert base._html_color is utils._html_color
 
 
 def test_coeff_sequence_lookup_returns_correct_coeff():
