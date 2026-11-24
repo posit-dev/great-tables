@@ -51,6 +51,10 @@ def pick_scheme(text: str, dark: bool) -> str:
     return text
 
 
+# (A border color set for both modes, blended in dark mode: the literal CSS has it as given)
+BLEND = re.compile(r"color-mix\(in srgb, ([^()]+?) 35%, currentcolor\)")
+
+
 def resolved_css(data: GT, dark: bool = False) -> str:
     """The table's rules with the custom properties that its CSS declares (in the order it does)
     filled in, for the light or dark scheme."""
@@ -177,10 +181,12 @@ def test_dark_scheme_resolves_to_literal_dark_css(gt: GT, config: str):
     if config in PINNED:
         assert theme_declarations(data)[1] is None
     else:
-        assert resolved_css(data, dark=True) == compile_scss(
+        assert BLEND.sub(r"\1", resolved_css(data, dark=True)) == compile_scss(
             forced, id="abc", compress=False, variables=False
         )
-    assert resolved_css(forced) == compile_scss(forced, id="abc", compress=False, variables=False)
+    assert BLEND.sub(r"\1", resolved_css(forced)) == compile_scss(
+        forced, id="abc", compress=False, variables=False
+    )
 
 
 @pytest.mark.parametrize(
@@ -198,10 +204,23 @@ def test_table_with_own_backgrounds_stays_light_in_auto_mode(gt: GT, pin):
     assert '<html lang="en">' in data.as_raw_html(make_page=True)
 
 
-def test_backgrounds_from_a_theme_do_not_pin_auto_mode(gt: GT):
+def test_background_from_a_theme_pins_auto_mode_without_a_dark_value(gt: GT):
     data = gt.opt_theme(Theme(heading_background_color="#FF0000"))
+    assert SWITCHING not in compile_scss(data, id="abc", variables=True)
+    assert theme_declarations(data)[1] is None
+    assert '<html lang="en">' in data.as_raw_html(make_page=True)
+
+
+def test_background_from_a_theme_with_a_dark_value_follows_the_page(gt: GT):
+    data = gt.opt_theme(
+        Theme(
+            heading_background_color="#FF0000",
+            dark=Theme(heading_background_color="#400000"),
+        )
+    )
     assert SWITCHING in compile_scss(data, id="abc", variables=True)
     assert '<html lang="en" style="color-scheme: light dark">' in data.as_raw_html(make_page=True)
+    assert "light-dark(#FF0000, #400000)" in compile_scss(data, id="abc", variables=True)
 
 
 def test_forced_dark_still_applies_to_a_table_with_own_backgrounds(gt: GT):
@@ -250,7 +269,44 @@ def test_explicit_option_is_not_overridden_in_dark(gt: GT):
         Theme(dark=Theme(table_body_hlines_color="#222222"))
     )
     _, dark = theme_declarations(themed)
-    assert "--gt-table-body-hlines-color" not in dark
+    # (Blended, as a border color set for both modes is)
+    assert dark["--gt-table-body-hlines-color"] == "color-mix(in srgb, #000000 35%, currentcolor)"
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        lambda gt: gt.tab_options(table_body_hlines_color="black", table_border_top_color="red"),
+        lambda gt: gt.opt_theme(
+            Theme(table_body_hlines_color="black", table_border_top_color="red")
+        ),
+    ],
+)
+def test_border_colors_set_for_both_modes_are_blended_in_dark(gt: GT, config):
+    data = config(gt)
+    css = compile_scss(data, id="abc", compress=False, variables=True)
+    assert (
+        "    --gt-table-body-hlines-color: light-dark(black, "
+        "color-mix(in srgb, black 35%, currentcolor));"
+    ) in css
+    assert (
+        "    --gt-table-border-top-color: light-dark(red, color-mix(in srgb, red 35%, currentcolor));"
+    ) in css
+    forced = compile_scss(data.opt_theme(mode="dark"), id="abc", compress=False, variables=True)
+    assert "  --gt-table-body-hlines-color: color-mix(in srgb, black 35%, currentcolor);" in forced
+    # (In light mode, and in literal CSS, the color is as given)
+    assert resolved_css(data).count("color-mix(") == 0
+    literal = compile_scss(data.opt_theme(mode="dark"), id="abc", compress=False, variables=False)
+    assert "color-mix(" not in literal
+
+
+def test_border_color_with_a_dark_value_is_not_blended(gt: GT):
+    data = gt.opt_theme(
+        Theme(table_body_hlines_color="black", dark=Theme(table_body_hlines_color="#555555"))
+    )
+    _, dark = theme_declarations(data)
+    assert dark["--gt-table-body-hlines-color"] == "#555555"
+    assert "color-mix(" not in compile_scss(data, id="abc", variables=True)
 
 
 def test_table_without_id_uses_class_scope(gt: GT):
@@ -497,12 +553,43 @@ def test_data_color_cells_are_unchanged(gt: GT):
     assert "--_gt-text" not in gt.data_color(columns="x").as_raw_html().split("</style>")[1]
 
 
-def test_data_color_without_autocolor_text_is_unchanged(gt: GT):
-    html = gt.data_color(
-        columns="x", palette=["navy", "lightcyan"], autocolor_text=False
-    ).as_raw_html()
-    assert "--_gt-text" not in html.split("</style>")[1]
-    assert "light-dark(" not in html.split("</style>")[1]
+def test_data_color_without_autocolor_text_gets_contrast_text_in_dark_only(gt: GT):
+    styled = gt.data_color(columns="x", palette=["navy", "lightcyan"], autocolor_text=False)
+    body = styled.as_raw_html().split("</style>")[1]
+    assert (
+        "color: light-dark(currentcolor, var(--_gt-text-light)); background-color: #000080;" in body
+    )
+    assert (
+        "color: light-dark(currentcolor, var(--_gt-text-dark)); background-color: #e0ffff;" in body
+    )
+
+
+def test_cell_border_color_is_blended_in_dark_only(gt: GT):
+    styled = gt.tab_style(style=style.borders(sides=["top", "left"]), locations=loc.body(rows=[0]))
+    blend = "light-dark(#000000, color-mix(in srgb, #000000 35%, currentcolor))"
+    assert (
+        f"border-top: 1px solid #000000;border-left: 1px solid #000000; "
+        f"border-top-color: {blend}; border-left-color: {blend};"
+    ) in styled.as_raw_html()
+
+
+@pytest.mark.parametrize("mode", ["light", "dark"])
+def test_inline_css_cell_border_color_is_as_written(gt: GT, mode: str):
+    pytest.importorskip("css_inline")
+    styled = gt.tab_style(style=style.borders(sides="top", color="red"), locations=loc.body())
+    html = styled.opt_theme(mode=mode).as_raw_html(inline_css=True)
+    assert "border-top: 1px solid red" in html
+    assert "light-dark(" not in html and "color-mix(" not in html
+
+
+@pytest.mark.parametrize(("mode", "text"), [("light", None), ("dark", "#333333")])
+def test_inline_css_data_color_without_autocolor_text(gt: GT, mode: str, text: str | None):
+    pytest.importorskip("css_inline")
+    styled = gt.data_color(columns="x", palette=["lightcyan", "lightcyan"], autocolor_text=False)
+    html = styled.opt_theme(mode=mode).as_raw_html(inline_css=True)
+    assert "light-dark(" not in html and "currentcolor" not in html
+    cells = re.findall(r'<td class="gt_row[^"]*" style="([^"]*)"', html)
+    assert all(("color: #333333;" in cell) == (text is not None) for cell in cells)
 
 
 def test_style_fill_over_data_color_without_autocolor_text_gets_contrast_text(gt: GT):

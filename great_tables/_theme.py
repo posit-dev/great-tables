@@ -126,7 +126,9 @@ class Theme:
         A `Theme` with the values to use instead when the table is shown in dark mode. It can hold
         only the color tokens `background`, `foreground`, `border`, `border_strong` and `stripe`,
         and color options that are written to the table's stylesheet (such as
-        `table_body_hlines_color`).
+        `table_body_hlines_color`). A background option of the theme with no value here keeps an
+        `"auto"` table light, and a border color option with no value here is blended toward the
+        text color in dark mode.
     **options
         Any option accepted by `GT.tab_options()`, for example `data_row_padding`.
 
@@ -385,6 +387,18 @@ def is_color_option(name: str, default_options: Options) -> bool:
     return getattr(default_options, name).scss and name.endswith(("_color", "_color_light"))
 
 
+def is_border_color_option(name: str, default_options: Options) -> bool:
+    """Whether an option is the color of a border or of lines between cells (written to the table's
+    stylesheet)."""
+    return is_color_option(name, default_options) and ("_border_" in name or "lines_" in name)
+
+
+def dark_blend(color: str) -> str:
+    """A color blended toward the text color, for use in dark mode: a color chosen for a light table
+    (black lines, dark text) would vanish on a dark one."""
+    return f"color-mix(in srgb, {color} 35%, currentcolor)"
+
+
 def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None = None) -> GTSelf:
     """
     Apply a theme to the table and choose its color mode.
@@ -401,7 +415,9 @@ def opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None =
         The `Theme` to apply. If `None`, the theme already on the table is left as it is.
     mode
         The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the
-        table is left as it is.
+        table is left as it is. An `"auto"` table stays light when a background color is set for
+        light mode only (with `tab_options()`, `opt_stylize()`, or a theme option with no value in
+        the theme's `dark=`).
 
     Returns
     -------
@@ -570,14 +586,20 @@ def follows_preference(data: GTData) -> bool:
     makes, the viewer's preference).
 
     Only a table in `"auto"` mode does, and not one with a background color set explicitly (with
-    `tab_options()` or `opt_stylize()`), as those colors were chosen for a light table.
+    `tab_options()` or `opt_stylize()`, or as a theme's option with no value in its `dark=` theme),
+    as those colors were chosen for a light table.
     """
     if data._theme_mode != "auto":
         return False
 
+    theme = data._theme
+    light = theme.options if theme is not None else {}
+    dark = theme.dark.options if theme is not None and theme.dark is not None else {}
+
     default = Options()
     return not any(
         is_user_set(getattr(data._options, name), getattr(default, name))
+        or (name in light and name not in dark)
         for name in FONT_COLOR_VARS
         if hasattr(default, name)
     )

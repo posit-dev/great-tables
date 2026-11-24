@@ -18,9 +18,11 @@ from ._theme import (
     LIGHT,
     TOKEN_OPTIONS,
     TOKEN_VARS,
+    dark_blend,
     fills_foreground,
     follows_preference,
     foreground_option,
+    is_border_color_option,
     mode_tokens,
     render_mode,
     resolve_options,
@@ -314,16 +316,29 @@ def dark_public_declarations(data: GTData, options: Options) -> dict[str, str]:
             continue
         declarations[TOKEN_VARS[token]] = _normalized(value) if token == "foreground" else value
 
-    if theme is not None and theme.dark is not None:
-        default = Options()
-        for name in theme.dark.options:
-            info = getattr(options, name)
-            if is_user_set(getattr(data._options, name), getattr(default, name)):
-                continue
-            if info.value is None:
-                continue
-            key, value = _option_declaration(name, info.value)
-            declarations[key] = value
+    default = Options()
+    from_dark = set(theme.dark.options) if theme is not None and theme.dark is not None else set()
+    for name in from_dark:
+        info = getattr(options, name)
+        if is_user_set(getattr(data._options, name), getattr(default, name)):
+            continue
+        if info.value is None:
+            continue
+        key, value = _option_declaration(name, info.value)
+        declarations[key] = value
+
+    # (A border color set for both modes, with `tab_options()` or a theme's option, is blended
+    # toward the text color in dark mode, as it would vanish on the dark background)
+    from_theme = set(theme.options) if theme is not None else set()
+    for f in fields(Options):
+        info = getattr(options, f.name)
+        if info.value is None or not is_border_color_option(f.name, default):
+            continue
+        if is_user_set(getattr(data._options, f.name), getattr(default, f.name)) or (
+            f.name in from_theme and f.name not in from_dark
+        ):
+            key, value = _option_declaration(f.name, info.value)
+            declarations[key] = dark_blend(value)
 
     return declarations
 

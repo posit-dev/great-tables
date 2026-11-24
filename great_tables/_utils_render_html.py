@@ -21,10 +21,10 @@ from ._gt_data import (
 )
 from ._html import HTML, Tag, TagList, css
 from ._spanners import spanners_print_matrix
-from ._styles import CellStyleFill, CellStyleText, _FillWithoutContrastText
+from ._styles import CellStyleBorders, CellStyleFill, CellStyleText, _FillWithoutContrastText
 from ._tbl_data import TblData, _get_cell, cast_frame_to_string, replace_null_frame
 from ._text import BaseText, _process_text
-from ._theme import CSS_COLOR_KEYWORDS, foreground_option
+from ._theme import CSS_COLOR_KEYWORDS, dark_blend, foreground_option
 from ._utils import heading_has_subtitle, heading_has_title, seq_groups
 
 if TYPE_CHECKING:
@@ -124,11 +124,12 @@ def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None
     The declaration that makes a cell's literal colors work in dark mode, and where it goes: after
     the style entry at the index given, or before all of them (`None`). `None` if there is none.
 
-    A fill with no text color gets the table's text color for its brightness, unless `data_color()`
-    made it with `autocolor_text=False`; it goes first, so that any color the user wrote wins. A
-    text color with no fill is blended toward the inherited text color in dark mode only
-    (`light-dark()` picks by the table's `color-scheme`), right after that color. Colors that
-    aren't plain strings, or that can't be parsed, add nothing.
+    A fill with no text color gets the table's text color for its brightness; it goes first, so
+    that any color the user wrote wins. A fill that `data_color()` made with `autocolor_text=False`
+    gets it in dark mode only (`light-dark()` picks by the table's `color-scheme`), and keeps the
+    inherited text color in light mode. A text color with no fill is blended toward the inherited
+    text color in dark mode only, right after that color. Colors that aren't plain strings, or that
+    can't be parsed, add nothing.
     """
     fills = [el for el in style_entries if isinstance(el, CellStyleFill)]
     texts = [i for i, el in enumerate(style_entries) if isinstance(el, CellStyleText) and el.color]
@@ -136,8 +137,6 @@ def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None
     if fills and not texts:
         # (The last fill is the one drawn)
         fill = fills[-1]
-        if isinstance(fill, _FillWithoutContrastText):
-            return None
 
         # (Only an opaque color has a brightness: a keyword or a translucent color shows what is
         # behind or around it)
@@ -152,23 +151,47 @@ def _dark_aware_color(style_entries: list[Any]) -> tuple[int | None, str] | None
         except ValueError:
             option = None
 
-        if option == "table_font_color":
-            return None, "color: var(--_gt-text-dark);"
-        if option == "table_font_color_light":
-            return None, "color: var(--_gt-text-light);"
+        if option is None:
+            return None
+        text = TEXT_VARS[option]
+        if isinstance(fill, _FillWithoutContrastText):
+            # (`currentcolor` in `color` is the inherited color)
+            return None, f"color: light-dark(currentcolor, {text});"
+        return None, f"color: {text};"
 
     elif texts and not fills and isinstance(style_entries[texts[-1]].color, str):
         color = style_entries[texts[-1]].color
-        blend = f"color: light-dark({color}, color-mix(in srgb, {color} 35%, currentcolor));"
-        return texts[-1], blend
+        return texts[-1], f"color: light-dark({color}, {dark_blend(color)});"
 
     return None
+
+
+TEXT_VARS = {
+    "table_font_color": "var(--_gt-text-dark)",
+    "table_font_color_light": "var(--_gt-text-light)",
+}
+
+
+def _dark_aware_borders(entry: CellStyleBorders) -> str:
+    """The declarations that blend a cell's border color toward its text color in dark mode only
+    (as the default black would vanish on a dark table), each with a leading space, or `""`."""
+    color = entry.color
+    if not isinstance(color, str) or color.strip().lower() in CSS_COLOR_KEYWORDS:
+        return ""
+    sides = [entry.sides] if isinstance(entry.sides, str) else entry.sides
+    if "all" in sides:
+        sides = ["top", "bottom", "left", "right"]
+    blend = f"light-dark({color}, {dark_blend(color)})"
+    return "".join(f" border-{side}-color: {blend};" for side in sides)
 
 
 def _flatten_styles(styles: Styles, wrap: bool = False) -> str | None:
     # flatten all StyleInfo.styles lists
     style_entries = list(chain.from_iterable(x.styles for x in styles))
     rendered_styles = [el._to_html_style() for el in style_entries]
+    for i, el in enumerate(style_entries):
+        if isinstance(el, CellStyleBorders) and rendered_styles[i]:
+            rendered_styles[i] += _dark_aware_borders(el)
 
     dark_aware = _dark_aware_color(style_entries)
     if dark_aware is not None:
