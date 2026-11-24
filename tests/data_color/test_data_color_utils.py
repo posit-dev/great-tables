@@ -581,10 +581,19 @@ def test_color_name_list_returns_list_of_strings():
         ((0, 0, 255), "#0000ff"),
         ((255, 255, 255), "#ffffff"),
         ((0, 0, 0), "#000000"),
+        ((1, 171, 205), "#01abcd"),
     ],
 )
 def test_rgb_to_hex(rgb: tuple[int, int, int], hex_color: str) -> None:
     assert rgb_to_hex(rgb) == hex_color
+
+
+def test_base_keeps_helpers_imported_by_gt_extras():
+    # gt-extras imports these from `great_tables._data_color.base`, so they stay importable there
+    from great_tables._data_color import base, utils
+
+    assert base._add_alpha is utils._add_alpha
+    assert base._html_color is utils._html_color
 
 
 def test_coeff_sequence_lookup_returns_correct_coeff():
