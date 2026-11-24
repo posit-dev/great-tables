@@ -4,7 +4,7 @@ Apply a theme to the table and choose its color mode.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L403-L466)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L443-L516)
 
 ``` python
 GT.opt_theme(
@@ -17,8 +17,8 @@ The [opt_theme()](../reference/GT.opt_theme.md#great_tables.GT.opt_theme) method
 
 ## Parameters
 
-`theme: Theme | None = None`  
-The [Theme](../reference/Theme.md#great_tables.Theme) to apply. If `None`, the theme already on the table is left as it is.
+`theme: Theme | Literal[False] | None = None`  
+The [Theme](../reference/Theme.md#great_tables.Theme) to apply. If `None`, the theme already on the table is left as it is, and if `False`, it is removed (the mode stays as it is unless `mode=` is given).
 
 `mode: ThemeMode | None = None`  
 The color mode, one of `"auto"`, `"light"` or `"dark"`. If `None`, the mode already on the table is left as it is. An `"auto"` table stays light when a background color is set for light mode only (with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options), [opt_stylize()](../reference/GT.opt_stylize.md#great_tables.GT.opt_stylize), or a theme option with no value in the theme's `dark=`).
@@ -33,9 +33,9 @@ The GT object is returned. This is the same object that the method is called on 
 Using select columns from the [exibble](../reference/data.exibble.md#great_tables.data.exibble) dataset, let's create a table and choose its color mode with [opt_theme()](../reference/GT.opt_theme.md#great_tables.GT.opt_theme).
 
 ``` python
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
-gt_tbl = GT(exibble[["num", "char", "currency", "row"]], rowname_col="row")
+gt_tbl = GT(data.pl.exibble.select("num", "char", "currency", "row"), rowname_col="row")
 
 gt_tbl.opt_theme(mode="dark")
 ```

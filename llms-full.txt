@@ -11534,7 +11534,7 @@ custom property:
 A theme that sets a border color and font, with its own colors for dark mode.
 
 ```{python}
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
 theme = Theme(
     border="#CCCCCC",
@@ -11542,7 +11542,7 @@ theme = Theme(
     dark=Theme(background="#101418", border="#2A3038"),
 )
 
-GT(exibble[["num", "char", "currency"]]).opt_theme(theme)
+GT(data.pl.exibble.select("num", "char", "currency")).opt_theme(theme)
 ```
 
 from_brand(cls, brand: str | Path | Brand | None = None, dark: str | Path | Brand | None = None) -> Theme
@@ -11613,11 +11613,11 @@ typography:
 Building a theme from it and applying the theme to a table looks like this.
 
 ```python
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
 theme = Theme.from_brand("_brand.yml")
 
-GT(exibble).opt_theme(theme)
+GT(data.pl.exibble).opt_theme(theme)
 ```
 
 The result is the same as the theme made directly with
@@ -11693,11 +11693,11 @@ typography:
 Building a theme from it and applying the theme to a table looks like this.
 
 ```python
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
 theme = Theme.from_brand("_brand.yml")
 
-GT(exibble).opt_theme(theme)
+GT(data.pl.exibble).opt_theme(theme)
 ```
 
 The result is the same as the theme made directly with
@@ -12132,7 +12132,7 @@ to the `style=` and `color=` arguments.
 gt_tbl.opt_stylize(style=2, color="green")
 ```
 
-opt_theme(self: GTSelf, theme: Theme | None = None, mode: ThemeMode | None = None) -> GTSelf
+opt_theme(self: GTSelf, theme: Theme | Literal[False] | None = None, mode: ThemeMode | None = None) -> GTSelf
 
 Apply a theme to the table and choose its color mode.
 
@@ -12148,9 +12148,10 @@ color scheme of the page the table is shown in.
 ## Parameters {.doc-parameters}
 
 ::: {.doc-definition-items}
-<code>[theme]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Theme | None]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [None]{.doc-parameter-default}</code>
+<code>[theme]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [Theme | Literal[False] | None]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [None]{.doc-parameter-default}</code>
 
-:   The `Theme` to apply. If `None`, the theme already on the table is left as it is.
+:   The `Theme` to apply. If `None`, the theme already on the table is left as it is, and if
+    `False`, it is removed (the mode stays as it is unless `mode=` is given).
 
 <code>[mode]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [ThemeMode | None]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [None]{.doc-parameter-default}</code>
 
@@ -12175,9 +12176,9 @@ Using select columns from the `exibble` dataset, let's create a table and choose
 mode with `opt_theme()`.
 
 ```{python}
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
-gt_tbl = GT(exibble[["num", "char", "currency", "row"]], rowname_col="row")
+gt_tbl = GT(data.pl.exibble.select("num", "char", "currency", "row"), rowname_col="row")
 
 gt_tbl.opt_theme(mode="dark")
 ```
@@ -19433,7 +19434,7 @@ and may change in the future. Using `GT` on a **Polars** DataFrame will always w
 
 What `.style` gives you is a `GT` table, so anything you'd do to a `GT` table can follow it. That
 includes making it interactive: `GTI.from_gt()` turns it into a `GTI` table, which readers can sort,
-search, and page through (see [Interactive Tables](24-interactive-tables.qmd)).
+search, and page through (see [Interactive Tables](25-interactive-tables.qmd)).
 
 ```{python}
 from great_tables import GTI
@@ -20044,7 +20045,7 @@ For example, you can use a lambda function:
 ```
 
 Inputs like strings, integers, and Polars selectors are also supported. For more information, see
-[Column Selection](./18-column-selection.qmd).
+[Column Selection](./19-column-selection.qmd).
 
 Between spanners, relabeling, and reordering, you have full control over how your column labels
 communicate the structure of your data. These tools let you transform raw DataFrame column names
@@ -21547,7 +21548,7 @@ methods do not cover. Your function can return plain text or HTML strings for ri
 can express in Python (lookups, conditional logic, external API calls) can become a cell formatter.
 If you find yourself writing the same custom formatter repeatedly, consider wrapping it in a
 reusable function and sharing it across tables. This is exactly the pattern described in the
-[Extending Great Tables](./22-extensions.qmd) page.
+[Extending Great Tables](./23-extensions.qmd) page.
 
 The formatting methods in **Great Tables** cover a wide spectrum of data types and presentation
 needs. From scientific notation to country flags, from boolean indicators to custom functions, you
@@ -22292,7 +22293,7 @@ gt_weather.tab_style(
 )
 ```
 
-See [Column Selection](./18-column-selection.qmd) for details on selecting columns.
+See [Column Selection](./19-column-selection.qmd) for details on selecting columns.
 
 ### Using a Function
 
@@ -22539,7 +22540,7 @@ styling works well alongside the cell-level techniques covered on the previous p
 ## All Locations Example
 
 Below is a comprehensive example that shows most of the `loc` specifiers being used (the
-[Location Selection](./20-location-selection.qmd) page lists them all). Each table
+[Location Selection](./21-location-selection.qmd) page lists them all). Each table
 part receives a distinct background color so you can see exactly which region each specifier
 targets.
 
@@ -23477,7 +23478,7 @@ When the option you need doesn't exist, `~~GT.opt_css()` lets you add your own C
 table. Give the table an ID with `~~GT.with_id()` (or `GT(id=...)`) so that the rules can be scoped
 to it without affecting other tables on the page.
 
-To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).
+To give a table a reusable theme, with colors that follow light and dark pages, see [Themes and Dark Mode](./17-themes-and-dark-mode.qmd).
 
 
 ### Premade Themes
@@ -23665,7 +23666,362 @@ the specific `~~GT.tab_options()` argument names. For full control, you can alwa
 `~~GT.tab_options()` directly, but these convenience methods cover the most frequent customization
 needs in just a single method call.
 
-For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./29-themes-and-dark-mode.qmd).
+For a theme you write yourself, and for tables that follow light and dark pages, see [Themes and Dark Mode](./17-themes-and-dark-mode.qmd).
+
+
+### Themes and Dark Mode
+
+A table follows the light or dark look of the page it is shown in, with no code from you. When you
+want to change more than that, a `Theme` is a reusable set of colors, fonts, and `~~GT.tab_options()`
+values that you apply to one table with `~~GT.opt_theme()`. This page covers the automatic light and
+dark behavior, how to write a theme, which value wins when several apply, the CSS variables that make
+this work in HTML, and how to build a theme from a [brand.yml](https://posit-dev.github.io/brand-yml/)
+file.
+
+The examples use a small piece of `exibble`.
+
+```{python}
+from great_tables import GT, Theme, data
+
+small = data.pl.exibble.select("num", "char", "currency", "row")
+
+gt_small = GT(small, rowname_col="row").tab_header("A small table")
+```
+
+## Automatic Light and Dark
+
+By default a table is in `"auto"` mode. It is light, and it turns dark when the page around it is
+dark. It reads that from two places:
+
+* The page's own theme, when the page is one of these hosts: JupyterLab and Notebook 7, VS Code
+  notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. When themes
+  are nested, the nearest one wins, so a `data-bs-theme="light"` section of a dark page keeps its
+  table light.
+* The page's color scheme, the CSS `color-scheme` property. A page declares `dark` to be dark, or
+  `light dark` to follow the reader's system setting. The pages that Great Tables makes (with
+  `~~GT.show()` or `as_raw_html(make_page=True)`) declare `light dark`.
+
+A page that says neither stays light, so a default table is never dark on a light page.
+
+You do not need to do anything for this. The table below is a default table, so it changes with the
+page it is shown in.
+
+```{python}
+gt_small
+```
+
+`~~GT.opt_theme()` takes a `mode=` to pin the table instead:
+
+* `"light"`: always the light colors.
+* `"dark"`: always the dark colors.
+* `"auto"`: the default.
+
+```{python}
+gt_small.opt_theme(mode="dark")
+```
+
+```{python}
+gt_small.opt_theme(mode="light")
+```
+
+Use `mode="dark"` for a table on a page that is always dark but doesn't say so, and `mode="light"`
+for a table that should stay light on a dark page.
+
+A table with a background color set through `~~GT.tab_options()` or `~~GT.opt_stylize()` stays light
+in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so
+switching would give pale stripes on a dark table. `mode="dark"` still forces dark. The same goes for
+a background option set in a `Theme`, unless the theme's `dark=` gives that option a value of its own:
+then the table has a color for each mode, and it follows the page.
+
+## Writing a Theme
+
+A `Theme` holds values for a few tokens, plus any option that `~~GT.tab_options()` accepts. Give only
+what you want to change. Everything else keeps its built-in value.
+
+| Argument        | CSS variable               | What it sets                                                                  |
+| --------------- | -------------------------- | ----------------------------------------------------------------------------- |
+| `background`    | `--gt-color-background`    | The table background. Sections without a color of their own use it.           |
+| `foreground`    | `--gt-color-foreground`    | The text color on that background.                                            |
+| `border`        | `--gt-color-border`        | The lines and borders that are light gray (`#D3D3D3`) by default.             |
+| `border_strong` | `--gt-color-border-strong` | The top and bottom table borders.                                             |
+| `stripe`        | `--gt-color-stripe`        | The background of striped rows.                                               |
+| `accent`        | `--gt-color-accent`        | For your own CSS. Interactive tables' controls get it as `--gt-i-accent`.     |
+| `font`          | `--gt-font-family`         | The font, one name or a list. It goes ahead of the default font stack.        |
+| `font_size`     | `--gt-font-size`           | The base font size, as a CSS length or a number of pixels.                    |
+
+Any other argument is the name of a `~~GT.tab_options()` option, checked the same way. An unknown
+name raises an error.
+
+A theme that sets `background` but not `foreground` keeps the built-in text colors, and the table
+picks the light or the dark one for that background, as it does for
+`~~GT.tab_options(table_background_color=...)`.
+
+```{python}
+compact = Theme(
+    border="#9AA5B1",
+    font="Georgia",
+    data_row_padding="3px",
+    column_labels_font_weight="bold",
+)
+
+gt_small.opt_theme(compact)
+```
+
+There are no tokens for spacing, since the default padding differs by table part. Set the padding
+options (`data_row_padding`, `column_labels_padding`, and so on) in the theme instead.
+
+A table has one theme at a time: a second `~~GT.opt_theme()` call with a theme replaces the first.
+`opt_theme(False)` removes the theme, and leaves the mode as it is.
+
+### Colors for dark mode
+
+`dark=` takes a second `Theme` with the values to use in dark mode. It can hold the five color tokens
+(`background`, `foreground`, `border`, `border_strong`, `stripe`) and color options that are written
+to the table's stylesheet, such as `table_body_hlines_color`. Anything else (a padding or a font, for
+example) raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
+
+```{python}
+navy = Theme(
+    border="#9AA5B1",
+    font="Georgia",
+    dark=Theme(background="#101418", border="#2A3038"),
+)
+
+gt_small.opt_theme(navy)
+```
+
+The built-in dark theme supplies a background, text, border, strong border, and stripe color. A
+theme's light color tokens are not used in dark mode. A theme that sets `background` and has no
+`dark=` still goes dark with the built-in dark background, and `mode="light"` keeps it light. Spacing,
+fonts, the accent, and any color option the theme sets directly carry over to dark mode unless
+`dark=` replaces them. A border or line color that carries over is blended toward the dark text
+color, since a color chosen for a light table (black lines, say) would barely show on a dark one. The
+same is done for border colors set with `~~GT.tab_options()`. Give the option a value in `dark=` to
+choose the dark color yourself.
+
+## What Wins
+
+When several things set the same option, the first of these that exists is used:
+
+1. A value set with `~~GT.tab_options()` or an `opt_*()` method. It applies in both modes (a border
+   color is blended in dark mode, as described above).
+2. In dark mode, the option in the theme's `dark=`.
+3. The option in the theme.
+4. In dark mode, for an option fed by a color token: the token in the theme's `dark=`, then the
+   built-in dark token.
+5. The token in the theme.
+6. The built-in value.
+
+Setting an option to its default value with `~~GT.tab_options()` still counts as setting it.
+
+Values from `~~GT.tab_options()` and the `opt_*()` methods are absolute. They are not scaled from the
+theme. `~~GT.opt_vertical_padding()`, `~~GT.opt_horizontal_padding()`, and `~~GT.opt_table_font()`
+with `add=True` compute from the built-in values, and what they compute then replaces the theme's
+value. Below, the theme asks for `3px` of padding, and the `scale=2` in `opt_vertical_padding()`
+doubles the built-in `8px`, so the rows get `16px`.
+
+```{python}
+gt_small.opt_theme(Theme(data_row_padding="3px")).opt_vertical_padding(scale=2)
+```
+
+The order of the calls does not matter. A theme is stored apart from the table's options, so
+`~~GT.opt_theme()` before or after `~~GT.tab_options()` gives the same table.
+
+## CSS Variables
+
+In HTML, every option that is written to the table's stylesheet is a CSS variable on that table. The
+name is `--gt-` followed by the option name, with underscores turned into hyphens: `data_row_padding`
+is `--gt-data-row-padding`, and `table_body_hlines_color` is `--gt-table-body-hlines-color`. The
+tokens use the names in the table above. These options are not part of the stylesheet and have no
+variable: the footnote marks, order, and spec (`footnotes_marks`, `footnotes_order`,
+`footnotes_spec_ref`, `footnotes_spec_ftr`); the source note separator and multiline setting
+(`source_notes_sep`, `source_notes_multiline`); the container options (`container_width`,
+`container_height`, `container_padding_x`, `container_padding_y`, `container_overflow_x`,
+`container_overflow_y`); the Quarto options (`quarto_disable_processing`, `quarto_use_bootstrap`);
+the options that say whether a part is included or shown (`table_border_top_include`,
+`table_border_bottom_include`, `row_striping_include_stub`, `row_striping_include_table_body`,
+`column_labels_hidden`, `row_group_as_column`); `table_id`, `table_caption`, and
+`table_additional_css`; and the `ihtml_*` options. `table_font_names` has no variable of its own: it
+is written through `--gt-font-family`.
+
+`--gt-color-accent` is not read by any CSS. A static table has no accent, and an interactive table
+reads `--gt-i-accent`: a theme's `accent` is written to that variable on the interactive table's
+element, and page CSS can set `--gt-i-accent` itself.
+
+A table declares a variable only for a value that was set from Python. Every other value is a
+fallback in the CSS, so page CSS can set the variables on a parent of the table, and this works for
+anything the Python code left alone. The page below sets a border color and tighter padding on every
+table inside `.tight`.
+
+```{=html}
+<style>
+.tight {
+    --gt-color-border: #C0392B;
+    --gt-data-row-padding: 2px;
+}
+</style>
+```
+
+::: {.tight}
+
+```{python}
+gt_small
+```
+
+:::
+
+A value set from Python wins over the page's CSS, because the table declares it on its own element.
+In the next table `data_row_padding` is set in Python, so the `2px` from the page CSS is not used,
+while the border color from the page still is.
+
+::: {.tight}
+
+```{python}
+gt_small.tab_options(data_row_padding="10px")
+```
+
+:::
+
+The same holds for a theme: its values count as set from Python. A table cannot be restyled from page
+CSS for any value its theme sets.
+
+Text colors are not picked again for a background set in page CSS. Python picks the text color of
+each part of the table for the background that part has in Python, so page CSS that sets a background
+should set the text color with it. `--gt-color-foreground` is the text color, in both modes, of every
+part whose background was not set from Python. The page below makes every table inside `.ink` dark.
+
+```{=html}
+<style>
+.ink {
+    --gt-color-background: #101418;
+    --gt-color-foreground: #E6E6E6;
+}
+</style>
+```
+
+::: {.ink}
+
+```{python}
+gt_small
+```
+
+:::
+
+There is no text color variable for a single part of the table. A part whose background is set only
+in page CSS (with `--gt-heading-background-color`, say) keeps the text color picked for the table's
+background, so set that background from Python, with `~~GT.tab_options()`, to have its text color
+picked for it.
+
+Custom properties are inherited. A table placed inside another table (for example, one pasted into a
+cell as raw HTML) reads the variables that Python set on the outer table. The row details of
+interactive tables are the exception: the outer table's variables are reset around them. That reset
+also blocks page CSS, so a variable that the outer table sets does not reach a table in its row
+details from the page either.
+
+## brand.yml
+
+If your organization describes its colors and fonts in a brand.yml file, `Theme.from_brand()` turns
+it into a `Theme`. This needs the [brand_yml](https://pypi.org/project/brand-yml/) package, which is
+installed with `pip install great_tables[brand]`. Without it, `Theme.from_brand()` raises an
+`ImportError` that names the extra.
+
+Take this `_brand.yml`.
+
+```yaml
+color:
+  palette:
+    navy: "#001F3F"
+  background: "#FDF6E3"
+  foreground: "#073642"
+  primary: navy
+typography:
+  fonts:
+    - family: Inter
+      source: system
+  base:
+    family: Inter
+    size: 14px
+```
+
+Pass its path to `Theme.from_brand()` and apply the result like any other theme.
+
+```python
+from great_tables import GT, Theme, data
+
+theme = Theme.from_brand("_brand.yml")
+
+GT(data.pl.exibble).opt_theme(theme)
+```
+
+These fields are used:
+
+| brand.yml field          | `Theme` argument |
+| ------------------------ | ---------------- |
+| `color.background`       | `background`     |
+| `color.foreground`       | `foreground`     |
+| `color.primary`          | `accent`         |
+| `typography.base.family` | `font`           |
+| `typography.base.size`   | `font_size`      |
+
+A color that names an entry of `color.palette` becomes that entry's color. A field the file does not
+have is left out of the theme. The `border`, `border_strong`, and `stripe` tokens are not taken from
+the brand, so they keep their built-in values. Font files and Google Font imports are not loaded; only
+the family name is used.
+
+A brand.yml file has one set of colors. For dark mode, pass a second file with `dark=`. Only its
+`background` and `foreground` are used, as the colors of the theme's `dark=`.
+
+```python
+theme = Theme.from_brand("_brand.yml", dark="_brand-dark.yml")
+```
+
+Each argument can also be a `brand_yml.Brand` object. With no argument, `Theme.from_brand()` leaves
+the search for a file to `brand_yml`. In `brand_yml` 0.2.0 that needs the `BRAND_YML_PATH`
+environment variable to be set, so pass a path when you can.
+
+## Limits
+
+* **Colors you set on cells are not themed.** Literal colors from `~~GT.tab_style()`,
+  `~~GT.data_color()`, and `~~GT.opt_stylize()` are written as you gave them, in both modes. A few
+  cases are adjusted so the text stays readable:
+    * A cell with a fill and no text color gets a text color chosen for contrast with the fill. In
+      light mode this changes cells whose fill is dark or mid-tone (red, blue, or green, for example),
+      not only dark fills. A text color you write with `style.css()` still wins.
+    * A text color on a cell with no fill is blended toward the section's text color in dark mode, and
+      is left as written in light mode.
+    * A cell with both a fill and a text color is left as written, and so is a fill from
+      `~~GT.data_color()` with its defaults.
+    * A fill that is translucent or a keyword (`transparent`, `inherit`, and so on) is left alone.
+    * `~~GT.data_color(autocolor_text=False)` fills keep the table's text color in light mode. In
+      dark mode they get a text color chosen for contrast with the fill, so that light fills don't
+      show the table's light text.
+    * Border colors from `style.borders()` are blended toward the section's text color in dark mode,
+      as text colors are.
+    * Email HTML (`inline_css=True`) keeps the text and border colors you set as written, in both modes.
+* **Forced dark can lower contrast.** In `mode="dark"`, text on a mid-tone fill that you set (the
+  header of an `~~GT.opt_stylize()` table, for example) uses the dark theme's text color. It can have
+  lower contrast than in light mode.
+* **Content in a cell keeps its own colors.** Plots from extension packages, raw HTML or SVG, and
+  images inside a cell are not adapted to dark mode.
+* **`as_raw_html()` needs CSS custom properties.** Its output only renders as intended where the
+  renderer supports them. `as_raw_html(inline_css=True)` writes literal styles instead, for one mode.
+* **Some output has one mode.** Email HTML (`inline_css=True`), images, LaTeX, Word, and Typst output
+  cannot follow a preference. In email HTML, `"auto"` gives the light table and `"dark"` the dark
+  one. Output made through gridwell (`as_gridwell()`, and `gtsave()` to formats such as SVG or Word)
+  and LaTeX ignores the mode and is light, even with `mode="dark"`; the theme values those outputs
+  can express, such as border colors, still apply.
+* **Quarto renders use literal styles unless the format is HTML.** HTML shown in a Quarto render is
+  written the same way as email HTML when the format is not HTML, and for any format when Quarto
+  does not report it (older Quarto versions).
+* **Iframes and shadow roots do not see the host's theme.** A table in a shadow root follows the
+  color scheme it inherits from the page, and a table in an iframe follows the color scheme of the
+  iframe's own page (light, if that page does not declare one).
+* **Other dark pages get a light table.** Colab and Databricks give no theme signal. Sites built with
+  Sphinx or MkDocs may have a dark theme of their own, but the table follows it only if the theme
+  sets `color-scheme`. Add `color-scheme: dark` to the page's dark CSS, or use `mode="dark"` if the
+  page is always dark.
+* **Older browsers show the light table.** Switching needs CSS `light-dark()` (in browsers since
+  2024); in a browser without it, an `"auto"` table is always light.
 
 
 ### Nanoplots
@@ -24944,7 +25300,7 @@ adding new behavior.
 ## Extending with Plots
 
 Embedded plots in tables (also known as sparklines) are a powerful tool. So much so that some
-plotting is already built in, called [nanoplots](./17-nanoplots.qmd). But there are endless plot
+plotting is already built in, called [nanoplots](./18-nanoplots.qmd). But there are endless plot
 types you could want in your great tables, and for these `~~GT.fmt()` is your friend.
 
 When deciding between nanoplots and custom plot extensions, consider what you need. Nanoplots handle
@@ -25205,7 +25561,7 @@ There are two ways to make an interactive table, and they render it with the sam
   filters they get, which columns they can hide, move, or pin, how they can export the rows, how
   the table is first shown, and whether their view is kept for the next visit. A control bar below
   the table brings these together. `GTI.from_gt()` turns a `GT` table into a `GTI` one.
-  [GTI Tables](25-gti-tables.qmd) is about them.
+  [GTI Tables](26-gti-tables.qmd) is about them.
 
 If you're publishing a table and want readers to be able to sort, search and page through it,
 `opt_interactive()` is all you need. If the table is a focal point of the page (a lookup tool, a
@@ -25390,7 +25746,7 @@ each cell based on the underlying value, and the colors follow the data when you
 Each column uses its own independent scale: orange for `HP` and blue for `MSRP`. The scales are
 computed from the full dataset, so a cell keeps its color when you filter by `Make`. (A `GTI` table
 can color them again from the rows a filter keeps instead: see
-[Colors from the rows kept](25-gti-tables.qmd#colors-from-the-rows-kept).)
+[Colors from the rows kept](26-gti-tables.qmd#colors-from-the-rows-kept).)
 
 ### Multiple columns, shared scale
 
@@ -25419,16 +25775,16 @@ Pass `domain=` to lock the color range across columns so they share a common sca
 
 When readers need more than `opt_interactive()` gives them, make the table a `GTI` table: its
 filters, column profiles, grouping, linked tables and the explorer preset are in
-[GTI Tables](25-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
+[GTI Tables](26-gti-tables.qmd). Reading and setting an interactive table's view from Python (in a
 notebook, in marimo, or in a Shiny, Streamlit, Panel or Solara app, which take `opt_interactive()`
-tables too) is in [GTI in Python and Apps](26-gti-in-python-and-apps.qmd), as is showing tables in
+tables too) is in [GTI in Python and Apps](27-gti-in-python-and-apps.qmd), as is showing tables in
 pages an app makes itself, with Flask, Django or FastHTML.
 
 
 ### GTI Tables
 
 When readers need more than `~~GT.opt_interactive()` gives them (see
-[Making Tables Interactive](24-interactive-tables.qmd)), make the table a `GTI` table. Here, the
+[Making Tables Interactive](25-interactive-tables.qmd)), make the table a `GTI` table. Here, the
 `Make` column gets a list of its values to choose from and `HP` a range, the table is first shown
 with the most powerful cars at the top, and readers can download the rows they've filtered as CSV.
 
@@ -25692,7 +26048,7 @@ checked, only they're exported.
 
 The selection stays as the rows are sorted, searched, filtered and paged. It's what links tables
 together (see [Linked tables](#linked-tables)), and Python can read it, with the table as a widget
-or in an app (see [GTI in Python and Apps](26-gti-in-python-and-apps.qmd)).
+or in an app (see [GTI in Python and Apps](27-gti-in-python-and-apps.qmd)).
 
 ## Keeping the view
 
@@ -26242,13 +26598,13 @@ readers can export the rows they've selected instead.
 Python can read what readers do with a `GTI` table and change it: in a notebook, with the table as a
 widget, in a marimo notebook, and in Shiny, Streamlit, Panel and Solara apps; and a page an app
 makes itself, with Flask, Django or FastHTML, can show it. See
-[GTI in Python and Apps](26-gti-in-python-and-apps.qmd).
+[GTI in Python and Apps](27-gti-in-python-and-apps.qmd).
 
 
 ### GTI in Python and Apps
 
 An interactive table works in the browser on its own, but Python can also read what readers do with
-it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](25-gti-tables.qmd)) as a
+it, and change it: in a notebook, with a `GTI` table (see [GTI Tables](26-gti-tables.qmd)) as a
 widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara
 apps. These take a `GTI` table or a `GT` table with `opt_interactive()`, get its view and
 selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows
@@ -26781,332 +27137,4 @@ table().show()
   <gt-tabblen mood="zen" arms="open" bubble="top" cell-trick="zen" intro='[["wait", 800], ["say", "Simple is better than complex.", 3500]]'></gt-tabblen>
 </div>
 ```
-
-
-
-## Styling and Presentation
-
-### Themes and Dark Mode
-
-A table follows the light or dark look of the page it is shown in, with no code from you. When you
-want to change more than that, a `Theme` is a reusable set of colors, fonts, and `~~GT.tab_options()`
-values that you apply to one table with `~~GT.opt_theme()`. This page covers the automatic light and
-dark behavior, how to write a theme, which value wins when several apply, the CSS variables that make
-this work in HTML, and how to build a theme from a [brand.yml](https://posit-dev.github.io/brand-yml/)
-file.
-
-The examples use a small piece of `exibble`.
-
-```{python}
-from great_tables import GT, Theme, data
-
-small = data.pl.exibble.select("num", "char", "currency", "row")
-
-gt_small = GT(small, rowname_col="row").tab_header("A small table")
-```
-
-## Automatic Light and Dark
-
-By default a table is in `"auto"` mode. It is light, and it turns dark when the page around it is
-dark. It reads that from two places:
-
-* The page's own theme, when the page is one of these hosts: JupyterLab and Notebook 7, VS Code
-  notebooks, Quarto, marimo, or a page using Bootstrap 5.3's `data-bs-theme` attribute. When themes
-  are nested, the nearest one wins, so a `data-bs-theme="light"` section of a dark page keeps its
-  table light.
-* The page's color scheme, the CSS `color-scheme` property. A page declares `dark` to be dark, or
-  `light dark` to follow the reader's system setting. The pages that Great Tables makes (with
-  `~~GT.show()` or `as_raw_html(make_page=True)`) declare `light dark`.
-
-A page that says neither stays light, so a default table is never dark on a light page.
-
-You do not need to do anything for this. The table below is a default table, so it changes with the
-page it is shown in.
-
-```{python}
-gt_small
-```
-
-`~~GT.opt_theme()` takes a `mode=` to pin the table instead:
-
-* `"light"`: always the light colors.
-* `"dark"`: always the dark colors.
-* `"auto"`: the default.
-
-```{python}
-gt_small.opt_theme(mode="dark")
-```
-
-```{python}
-gt_small.opt_theme(mode="light")
-```
-
-Use `mode="dark"` for a table on a page that is always dark but doesn't say so, and `mode="light"`
-for a table that should stay light on a dark page.
-
-A table with a background color set through `~~GT.tab_options()` or `~~GT.opt_stylize()` stays light
-in `"auto"` mode. Those colors were picked for a light table, and they apply in both modes, so
-switching would give pale stripes on a dark table. `mode="dark"` still forces dark. The same goes for
-a background option set in a `Theme`, unless the theme's `dark=` gives that option a value of its own:
-then the table has a color for each mode, and it follows the page.
-
-## Writing a Theme
-
-A `Theme` holds values for a few tokens, plus any option that `~~GT.tab_options()` accepts. Give only
-what you want to change. Everything else keeps its built-in value.
-
-| Argument        | CSS variable               | What it sets                                                                  |
-| --------------- | -------------------------- | ----------------------------------------------------------------------------- |
-| `background`    | `--gt-color-background`    | The table background. Sections without a color of their own use it.           |
-| `foreground`    | `--gt-color-foreground`    | The text color on that background.                                            |
-| `border`        | `--gt-color-border`        | The lines and borders that are light gray (`#D3D3D3`) by default.             |
-| `border_strong` | `--gt-color-border-strong` | The top and bottom table borders.                                             |
-| `stripe`        | `--gt-color-stripe`        | The background of striped rows.                                               |
-| `accent`        | `--gt-color-accent`        | For your own CSS. Interactive tables' controls get it as `--gt-i-accent`.     |
-| `font`          | `--gt-font-family`         | The font, one name or a list. It goes ahead of the default font stack.        |
-| `font_size`     | `--gt-font-size`           | The base font size, as a CSS length or a number of pixels.                    |
-
-Any other argument is the name of a `~~GT.tab_options()` option, checked the same way. An unknown
-name raises an error.
-
-A theme that sets `background` but not `foreground` keeps the built-in text colors, and the table
-picks the light or the dark one for that background, as it does for
-`~~GT.tab_options(table_background_color=...)`.
-
-```{python}
-compact = Theme(
-    border="#9AA5B1",
-    font="Georgia",
-    data_row_padding="3px",
-    column_labels_font_weight="bold",
-)
-
-gt_small.opt_theme(compact)
-```
-
-There are no tokens for spacing, since the default padding differs by table part. Set the padding
-options (`data_row_padding`, `column_labels_padding`, and so on) in the theme instead.
-
-### Colors for dark mode
-
-`dark=` takes a second `Theme` with the values to use in dark mode. It can hold the five color tokens
-(`background`, `foreground`, `border`, `border_strong`, `stripe`) and color options that are written
-to the table's stylesheet, such as `table_body_hlines_color`. Anything else (a padding or a font, for
-example) raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
-
-```{python}
-navy = Theme(
-    border="#9AA5B1",
-    font="Georgia",
-    dark=Theme(background="#101418", border="#2A3038"),
-)
-
-gt_small.opt_theme(navy)
-```
-
-The built-in dark theme supplies a background, text, border, strong border, and stripe color. A
-theme's light color tokens are not used in dark mode. A theme that sets `background` and has no
-`dark=` still goes dark with the built-in dark background, and `mode="light"` keeps it light. Spacing,
-fonts, the accent, and any color option the theme sets directly carry over to dark mode unless
-`dark=` replaces them. A border or line color that carries over is blended toward the dark text
-color, since a color chosen for a light table (black lines, say) would barely show on a dark one. The
-same is done for border colors set with `~~GT.tab_options()`. Give the option a value in `dark=` to
-choose the dark color yourself.
-
-## What Wins
-
-When several things set the same option, the first of these that exists is used:
-
-1. A value set with `~~GT.tab_options()` or an `opt_*()` method. It applies in both modes (a border
-   color is blended in dark mode, as described above).
-2. In dark mode, the option in the theme's `dark=`.
-3. The option in the theme.
-4. In dark mode, for an option fed by a color token: the token in the theme's `dark=`, then the
-   built-in dark token.
-5. The token in the theme.
-6. The built-in value.
-
-Setting an option to its default value with `~~GT.tab_options()` still counts as setting it.
-
-Values from `~~GT.tab_options()` and the `opt_*()` methods are absolute. They are not scaled from the
-theme. `~~GT.opt_vertical_padding()`, `~~GT.opt_horizontal_padding()`, and `~~GT.opt_table_font()`
-with `add=True` compute from the built-in values, and what they compute then replaces the theme's
-value. Below, the theme asks for `3px` of padding, and the `scale=2` in `opt_vertical_padding()`
-doubles the built-in `8px`, so the rows get `16px`.
-
-```{python}
-gt_small.opt_theme(Theme(data_row_padding="3px")).opt_vertical_padding(scale=2)
-```
-
-The order of the calls does not matter. A theme is stored apart from the table's options, so
-`~~GT.opt_theme()` before or after `~~GT.tab_options()` gives the same table.
-
-## CSS Variables
-
-In HTML, every option that is written to the table's stylesheet is a CSS variable on that table. The
-name is `--gt-` followed by the option name, with underscores turned into hyphens: `data_row_padding`
-is `--gt-data-row-padding`, and `table_body_hlines_color` is `--gt-table-body-hlines-color`. The
-tokens use the names in the table above. These options are not part of the stylesheet and have no
-variable: the footnote marks, order, and spec (`footnotes_marks`, `footnotes_order`,
-`footnotes_spec_ref`, `footnotes_spec_ftr`); the source note separator and multiline setting
-(`source_notes_sep`, `source_notes_multiline`); the container options (`container_width`,
-`container_height`, `container_padding_x`, `container_padding_y`, `container_overflow_x`,
-`container_overflow_y`); the Quarto options (`quarto_disable_processing`, `quarto_use_bootstrap`);
-the options that say whether a part is included or shown (`table_border_top_include`,
-`table_border_bottom_include`, `row_striping_include_stub`, `row_striping_include_table_body`,
-`column_labels_hidden`, `row_group_as_column`); `table_id`, `table_caption`, and
-`table_additional_css`; and the `ihtml_*` options. `table_font_names` has no variable of its own: it
-is written through `--gt-font-family`.
-
-`--gt-color-accent` is not read by any CSS. A static table has no accent, and an interactive table
-reads `--gt-i-accent`: a theme's `accent` is written to that variable on the interactive table's
-element, and page CSS can set `--gt-i-accent` itself.
-
-A table declares a variable only for a value that was set from Python. Every other value is a
-fallback in the CSS, so page CSS can set the variables on a parent of the table, and this works for
-anything the Python code left alone. The page below sets a border color and tighter padding on every
-table inside `.tight`.
-
-```{=html}
-<style>
-.tight {
-    --gt-color-border: #C0392B;
-    --gt-data-row-padding: 2px;
-}
-</style>
-```
-
-::: {.tight}
-
-```{python}
-gt_small
-```
-
-:::
-
-A value set from Python wins over the page's CSS, because the table declares it on its own element.
-In the next table `data_row_padding` is set in Python, so the `2px` from the page CSS is not used,
-while the border color from the page still is.
-
-::: {.tight}
-
-```{python}
-gt_small.tab_options(data_row_padding="10px")
-```
-
-:::
-
-The same holds for a theme: its values count as set from Python. A table cannot be restyled from page
-CSS for any value its theme sets.
-
-Custom properties are inherited. A table placed inside another table (for example, one pasted into a
-cell as raw HTML) reads the variables that Python set on the outer table. The row details of
-interactive tables are the exception: the outer table's variables are reset around them. That reset
-also blocks page CSS, so a variable that the outer table sets does not reach a table in its row
-details from the page either.
-
-## brand.yml
-
-If your organization describes its colors and fonts in a brand.yml file, `Theme.from_brand()` turns
-it into a `Theme`. This needs the [brand_yml](https://pypi.org/project/brand-yml/) package, which is
-installed with `pip install great_tables[brand]`. Without it, `Theme.from_brand()` raises an
-`ImportError` that names the extra.
-
-Take this `_brand.yml`.
-
-```yaml
-color:
-  palette:
-    navy: "#001F3F"
-  background: "#FDF6E3"
-  foreground: "#073642"
-  primary: navy
-typography:
-  fonts:
-    - family: Inter
-      source: system
-  base:
-    family: Inter
-    size: 14px
-```
-
-Pass its path to `Theme.from_brand()` and apply the result like any other theme.
-
-```python
-from great_tables import GT, Theme, data
-
-theme = Theme.from_brand("_brand.yml")
-
-GT(data.pl.exibble).opt_theme(theme)
-```
-
-These fields are used:
-
-| brand.yml field          | `Theme` argument |
-| ------------------------ | ---------------- |
-| `color.background`       | `background`     |
-| `color.foreground`       | `foreground`     |
-| `color.primary`          | `accent`         |
-| `typography.base.family` | `font`           |
-| `typography.base.size`   | `font_size`      |
-
-A color that names an entry of `color.palette` becomes that entry's color. A field the file does not
-have is left out of the theme. The `border`, `border_strong`, and `stripe` tokens are not taken from
-the brand, so they keep their built-in values. Font files and Google Font imports are not loaded; only
-the family name is used.
-
-A brand.yml file has one set of colors. For dark mode, pass a second file with `dark=`. Only its
-`background` and `foreground` are used, as the colors of the theme's `dark=`.
-
-```python
-theme = Theme.from_brand("_brand.yml", dark="_brand-dark.yml")
-```
-
-Each argument can also be a `brand_yml.Brand` object. With no argument, `Theme.from_brand()` leaves
-the search for a file to `brand_yml`. In `brand_yml` 0.2.0 that needs the `BRAND_YML_PATH`
-environment variable to be set, so pass a path when you can.
-
-## Limits
-
-* **Colors you set on cells are not themed.** Literal colors from `~~GT.tab_style()`,
-  `~~GT.data_color()`, and `~~GT.opt_stylize()` are written as you gave them, in both modes. A few
-  cases are adjusted so the text stays readable:
-    * A cell with a fill and no text color gets a text color chosen for contrast with the fill. In
-      light mode this changes cells whose fill is dark or mid-tone (red, blue, or green, for example),
-      not only dark fills. A text color you write with `style.css()` still wins.
-    * A text color on a cell with no fill is blended toward the section's text color in dark mode, and
-      is left as written in light mode.
-    * A cell with both a fill and a text color is left as written, and so is a fill from
-      `~~GT.data_color()` with its defaults.
-    * A fill that is translucent or a keyword (`transparent`, `inherit`, and so on) is left alone.
-    * `~~GT.data_color(autocolor_text=False)` fills keep the table's text color in light mode. In
-      dark mode they get a text color chosen for contrast with the fill, so that light fills don't
-      show the table's light text.
-    * Border colors from `style.borders()` are blended toward the section's text color in dark mode,
-      as text colors are.
-    * Email HTML (`inline_css=True`) keeps the text and border colors you set as written, in both modes.
-* **Forced dark can lower contrast.** In `mode="dark"`, text on a mid-tone fill that you set (the
-  header of an `~~GT.opt_stylize()` table, for example) uses the dark theme's text color. It can have
-  lower contrast than in light mode.
-* **Content in a cell keeps its own colors.** Plots from extension packages, raw HTML or SVG, and
-  images inside a cell are not adapted to dark mode.
-* **`as_raw_html()` needs CSS custom properties.** Its output only renders as intended where the
-  renderer supports them. `as_raw_html(inline_css=True)` writes literal styles instead, for one mode.
-* **Some output has one mode.** Email HTML (`inline_css=True`), images, LaTeX, Word, and Typst output
-  cannot follow a preference. In email HTML, `"auto"` gives the light table and `"dark"` the dark
-  one. Output made through gridwell (`as_gridwell()`, and `gtsave()` to formats such as SVG or Word)
-  and LaTeX ignores the mode and is light, even with `mode="dark"`; the theme values those outputs
-  can express, such as border colors, still apply.
-* **Quarto renders use literal styles unless the format is HTML.** HTML shown in a Quarto render is
-  written the same way as email HTML when the format is not HTML, and for any format when Quarto
-  does not report it (older Quarto versions).
-* **Iframes and shadow roots do not see the host's theme.** A table in a shadow root follows the
-  color scheme it inherits from the page, and a table in an iframe follows the color scheme of the
-  iframe's own page (light, if that page does not declare one).
-* **Other dark pages get a light table.** Colab and Databricks give no theme signal. Sites built with
-  Sphinx or MkDocs may have a dark theme of their own, but the table follows it only if the theme
-  sets `color-scheme`. Add `color-scheme: dark` to the page's dark CSS, or use `mode="dark"` if the
-  page is always dark.
-* **Older browsers show the light table.** Switching needs CSS `light-dark()` (in browsers since
-  2024); in a browser without it, an `"auto"` table is always light.
 

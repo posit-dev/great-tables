@@ -125,6 +125,8 @@ gt_small.opt_theme(compact)
 
 There are no tokens for spacing, since the default padding differs by table part. Set the padding options (`data_row_padding`, `column_labels_padding`, and so on) in the theme instead.
 
+A table has one theme at a time: a second [opt_theme()](../reference/GT.opt_theme.md#great_tables.GT.opt_theme) call with a theme replaces the first. `opt_theme(False)` removes the theme, and leaves the mode as it is.
+
 ### Colors for dark mode
 
 `dark=` takes a second [Theme](../reference/Theme.md#great_tables.Theme) with the values to use in dark mode. It can hold the five color tokens (`background`, `foreground`, `border`, `border_strong`, `stripe`) and color options that are written to the table's stylesheet, such as `table_body_hlines_color`. Anything else (a padding or a font, for example) raises an error, because it cannot vary by mode in CSS. A `dark` theme cannot have its own `dark=`.
@@ -229,6 +231,26 @@ gt_small.tab_options(data_row_padding="10px")
 | row_8         | 8880000.0 | honeydew   | 0.44     |
 
 The same holds for a theme: its values count as set from Python. A table cannot be restyled from page CSS for any value its theme sets.
+
+Text colors are not picked again for a background set in page CSS. Python picks the text color of each part of the table for the background that part has in Python, so page CSS that sets a background should set the text color with it. `--gt-color-foreground` is the text color, in both modes, of every part whose background was not set from Python. The page below makes every table inside `.ink` dark.
+
+``` python
+gt_small
+```
+
+| A small table |           |            |          |
+|---------------|-----------|------------|----------|
+|               | num       | char       | currency |
+| row_1         | 0.1111    | apricot    | 49.95    |
+| row_2         | 2.222     | banana     | 17.95    |
+| row_3         | 33.33     | coconut    | 1.39     |
+| row_4         | 444.4     | durian     | 65100.0  |
+| row_5         | 5550.0    | None       | 1325.81  |
+| row_6         | None      | fig        | 13.255   |
+| row_7         | 777000.0  | grapefruit | None     |
+| row_8         | 8880000.0 | honeydew   | 0.44     |
+
+There is no text color variable for a single part of the table. A part whose background is set only in page CSS (with `--gt-heading-background-color`, say) keeps the text color picked for the table's background, so set that background from Python, with [tab_options()](../reference/GT.tab_options.md#great_tables.GT.tab_options), to have its text color picked for it.
 
 Custom properties are inherited. A table placed inside another table (for example, one pasted into a cell as raw HTML) reads the variables that Python set on the outer table. The row details of interactive tables are the exception: the outer table's variables are reset around them. That reset also blocks page CSS, so a variable that the outer table sets does not reach a table in its row details from the page either.
 

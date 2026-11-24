@@ -4,7 +4,7 @@ A set of design tokens and table options that style a table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L88-L318)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L97-L356)
 
 ``` python
 Theme(
@@ -72,7 +72,7 @@ Any option accepted by [GT.tab_options()](../reference/GT.tab_options.md#great_t
 A theme that sets a border color and font, with its own colors for dark mode.
 
 ``` python
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
 theme = Theme(
     border="#CCCCCC",
@@ -80,7 +80,7 @@ theme = Theme(
     dark=Theme(background="#101418", border="#2A3038"),
 )
 
-GT(exibble[["num", "char", "currency"]]).opt_theme(theme)
+GT(data.pl.exibble.select("num", "char", "currency")).opt_theme(theme)
 ```
 
 | num       | char       | currency |
@@ -106,7 +106,7 @@ Build a [Theme](../reference/Theme.md#great_tables.Theme) from a brand.yml file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L213-L318)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_theme.py#L233-L356)
 
 ``` python
 from_brand(
@@ -163,11 +163,11 @@ typography:
 Building a theme from it and applying the theme to a table looks like this.
 
 ``` python
-from great_tables import GT, Theme, exibble
+from great_tables import GT, Theme, data
 
 theme = Theme.from_brand("_brand.yml")
 
-GT(exibble).opt_theme(theme)
+GT(data.pl.exibble).opt_theme(theme)
 ```
 
 The result is the same as the theme made directly with `Theme(background="#FDF6E3", foreground="#073642", accent="#001F3F", font="Inter", font_size="14px")`. A second brand file can supply colors for dark mode with `Theme.from_brand("_brand.yml", dark="_brand-dark.yml")`.
