@@ -6,6 +6,7 @@ JupyterLab (packages/gti/e2e/hosts.spec.ts).
 
 from __future__ import annotations
 
+import json
 import sys
 
 import pandas as pd
@@ -18,6 +19,7 @@ pytest.importorskip("anywidget")
 from great_tables import GT, GTI  # noqa: E402
 from great_tables._gti._render import JS_DIR, _load_runtime, render_gti_element  # noqa: E402
 from great_tables._gti._widget import GTIWidget, _esm, render_widget_table  # noqa: E402
+from tests.utils import DEMOS, docs_code  # noqa: E402
 
 DATA = {
     "char": ["apricot", "banana", "coconut", "durian", "fig"],
@@ -283,3 +285,49 @@ def test_extras_install_narwhals(extra):
         "optional-dependencies"
     ]
     assert "narwhals" in extras[extra]
+
+
+NOTEBOOK = DEMOS / "widget" / "cars.ipynb"
+
+
+def notebook_code() -> list[str]:
+    """The docs' notebook's code cells, after the one that installs Great Tables."""
+    cells = json.loads(NOTEBOOK.read_text(encoding="utf-8"))["cells"]
+    code = ["".join(cell["source"]) for cell in cells if cell["cell_type"] == "code"]
+    assert code[0].startswith("%pip install")
+    return code[1:]
+
+
+def run_cell(code: str, namespace: dict):
+    """Run a cell, as a notebook does, giving its last line's value (or `None`, for a statement)."""
+    *body, last = code.splitlines()
+    exec("\n".join(body), namespace)
+    try:
+        return eval(last, namespace)
+    except SyntaxError:
+        exec(last, namespace)
+
+
+def test_demo_notebook(capsys):
+    # (Its cells run in turn, with two cars selected after the table is shown)
+    table, chosen, set_view = notebook_code()
+    namespace = {}
+    widget = run_cell(table, namespace)
+    assert isinstance(widget, GTIWidget) and len(widget.rows) == 47
+    show(widget, rows=list(range(47)), selection=[0, 2])
+    shown = run_cell(chosen, namespace)
+    assert capsys.readouterr().out == "2 of 47 cars selected\n"
+    assert isinstance(shown, GT)
+    html = shown.as_raw_html()
+    assert "Ford" in html and "458 Spider" in html and "$447,000" in html
+    assert run_cell(set_view, namespace) is None
+    assert widget.query == 'mfr in ("Ferrari", "Lamborghini")'
+    assert widget._view["sort"] == [{"column": "hp", "descending": True}]
+    assert widget.selection == []
+
+
+def test_demo_notebook_is_the_docs():
+    # (The code shown is the notebook's, which the docs run in JupyterLite)
+    assert [code + "\n" for code in notebook_code()] == docs_code(
+        "27-gti-in-python-and-apps.qmd", "Using the table from Python"
+    )
