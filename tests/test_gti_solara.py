@@ -7,6 +7,7 @@ notebook (packages/gti/e2e/hosts.spec.ts).
 
 from __future__ import annotations
 
+import runpy
 from typing import Any
 
 import pandas as pd
@@ -17,6 +18,7 @@ solara = pytest.importorskip("solara")
 from great_tables import GT, GTI  # noqa: E402
 from great_tables._gti._widget import GTIWidget  # noqa: E402
 from great_tables.solara import GTITable  # noqa: E402
+from tests.utils import DEMOS, docs_code  # noqa: E402
 
 DATA = pd.DataFrame(
     {
@@ -254,3 +256,30 @@ def test_kernel_mode_rows_are_pythons():
     query.set('kind in ("odd")')
     assert rows[-1] == list(range(1, 50, 2))
     rc.close()
+
+
+DEMO = DEMOS / "solara" / "app.py"
+
+
+def test_demo_app():
+    # (The docs' demo, as it's run: with two cars selected, then sorted by the button)
+    import ipyvuetify
+    import ipywidgets
+
+    app = runpy.run_path(str(DEMO))
+    rc, widget = render(app["Page"]())
+    rc.find(ipywidgets.Widget, children=["0 of 47 cars selected"]).assert_single()
+    show(widget(), rows=list(range(47)), selection=[0, 2])
+    rc.find(ipywidgets.Widget, children=["2 of 47 cars selected"]).assert_single()
+    html = rc.find(solara.widgets.HTML).widget.unsafe_innerHTML
+    assert "Ford" in html and "458 Spider" in html and "$447,000" in html
+    rc.find(ipyvuetify.Btn, children=["Fastest first"]).widget.click()
+    assert [app["sort"].value, app["selection"].value] == [["-hp"], []]
+    assert widget()._view["sort"] == [{"column": "hp", "descending": True}]
+    rc.close()
+
+
+def test_demo_app_is_the_docs():
+    # (The code shown is the app that's run)
+    (code,) = docs_code("27-gti-in-python-and-apps.qmd", "Using the table in a Solara app")
+    assert code == DEMO.read_text(encoding="utf-8")
