@@ -38,6 +38,22 @@ NOTEBOOK = Path("_notebooks", "cars.ipynb")
 # (great-docs copies a page with this front matter as it is, rather than putting it in the site)
 RAW_PAGE = "---\nlayout: raw\n---\n"
 
+# (The docs' theme, which `<gt-demo>` gives an app's page as `?theme=dark`, as JavaScript)
+THEME = 'new URLSearchParams(location.search).get("theme") === "dark" ? "dark" : "light"'
+
+# (JupyterLite's theme is a setting, so the page sets its default, in the config it's started
+# with: after `config-utils.js` writes it, and before its app's bundle, which reads it, is run)
+JUPYTERLITE_THEME = """
+        const themes = { dark: "JupyterLab Dark", light: "JupyterLab Light" };
+        const config = document.getElementById("jupyter-config-data");
+        const data = JSON.parse(config.textContent);
+        const plugin = "@jupyterlab/apputils-extension:themes";
+        data.settingsOverrides = {
+          ...data.settingsOverrides,
+          [plugin]: { ...data.settingsOverrides?.[plugin], theme: themes[THEME] },
+        };
+        config.textContent = JSON.stringify(data);""".replace("THEME", THEME)
+
 STLITE_PAGE = """\
 <!doctype html>
 <html lang="en">
@@ -55,7 +71,12 @@ import {{ mount }} from "https://cdn.jsdelivr.net/npm/@stlite/browser@{version}/
 // (By its full URL, as stlite's worker would find a relative one from its own)
 const wheel = new URL("../wheels/{wheel}", location.href).href;
 mount(
-  {{ requirements: [wheel, "pandas"], entrypoint: "app.py", files: {{ "app.py": {source} }} }},
+  {{
+    requirements: [wheel, "pandas"],
+    entrypoint: "app.py",
+    files: {{ "app.py": {source} }},
+    streamlitConfig: {{ "theme.base": {theme} }},
+  }},
   document.getElementById("root"),
 );
 </script>
@@ -93,6 +114,7 @@ def build_streamlit(wheel: str) -> None:
         version=STLITE_VERSION,
         wheel=wheel,
         source=json.dumps(source).replace("</", "<\\/"),
+        theme=THEME,
     )
     (OUT / "streamlit").mkdir()
     (OUT / "streamlit" / "index.html").write_text(page, encoding="utf-8")
@@ -149,6 +171,14 @@ def build_marimo(wheel: str) -> None:
     (OUT / "marimo" / "CLAUDE.md").unlink(missing_ok=True)
     shutil.rmtree(OUT / "marimo" / "test-results", ignore_errors=True)
 
+    # (The page's theme, which is in the config it's mounted with, is the docs')
+    page = OUT / "marimo" / "index.html"
+    html, n = re.subn(
+        r'"theme": "(?:light|dark|system)"', f'"theme": {THEME}', page.read_text(encoding="utf-8")
+    )
+    assert n == 1, "marimo's export should set its theme once"
+    page.write_text(html, encoding="utf-8")
+
 
 def build_widget(wheel: str) -> None:
     # (JupyterLite, run in an environment of its own, from which it takes the extensions the
@@ -199,6 +229,16 @@ def build_widget(wheel: str) -> None:
     # Quarto would render them)
     for settings in (OUT / "widget").rglob("jupyter-lite.ipynb"):
         settings.unlink()
+
+    for app in ("notebooks", "tree"):
+        page = OUT / "widget" / app / "index.html"
+        html, n = re.subn(
+            r"await import\(\s*'[^']*config-utils\.js[^']*'\s*\);",
+            lambda found: found[0] + JUPYTERLITE_THEME,
+            page.read_text(encoding="utf-8"),
+        )
+        assert n == 1, f"JupyterLite's {app} page should load its config once"
+        page.write_text(html, encoding="utf-8")
 
 
 def run(*args: str | Path, cwd: Path | None = None) -> None:
