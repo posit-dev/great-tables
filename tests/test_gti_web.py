@@ -8,13 +8,16 @@ packages/gti/e2e/hosts.spec.ts.
 from __future__ import annotations
 
 import hashlib
+import runpy
+import shutil
 
 import pandas as pd
 import pytest
 
 from great_tables import GT, GTI
 from great_tables._gti._render import JS_DIR, _load_runtime
-from great_tables.web import runtime_tags, write_runtime
+from great_tables.web import RUNTIME_FILES, runtime_tags, write_runtime
+from tests.utils import DEMOS, docs_code
 
 DATA = pd.DataFrame({"char": ["apricot", "banana"], "num": [1.0, 2.0]})
 
@@ -179,3 +182,27 @@ def test_fasthtml_route_returns_a_table():
     assert elements(client.get("/one").text) == 1
     assert "<div>After</div>" in client.get("/two").text
     assert interactive.__ft__() == interactive.__html__() == interactive.as_raw_html()
+
+
+DEMO = DEMOS / "flask" / "app.py"
+
+
+def test_demo_app(tmp_path, monkeypatch):
+    # (The docs' demo, run from another folder than its own: its runtime is written where Flask
+    # serves it from, beside the app, and linked to once for both tables)
+    pytest.importorskip("flask")
+    shutil.copy(DEMO, tmp_path / "app.py")
+    monkeypatch.chdir(tmp_path.parent)
+    client = runpy.run_path(str(tmp_path / "app.py"))["app"].test_client()
+    page = client.get("/").text
+    assert runtime_tags(url="/static/gti/") in page
+    assert elements(page) == 2 and JS not in page
+    assert "Ford" in page and "$447,000" in page
+    for name in RUNTIME_FILES:
+        assert client.get(f"/static/gti/{name}").data == (JS_DIR / name).read_bytes()
+
+
+def test_demo_app_is_the_docs():
+    # (The code shown is the app that's run)
+    (code,) = docs_code("27-gti-in-python-and-apps.qmd", "Using the table in a page an app makes")
+    assert code == DEMO.read_text(encoding="utf-8")
