@@ -726,15 +726,28 @@ function opacity(color: string): number {
   return match[2] === "%" ? value / 100 : value;
 }
 
-// The colour behind an element: the first background that isn't transparent, out from it
-function backdropColor(el: Element): string {
+// The colour behind an element: the first background that isn't transparent, out from it (kept in
+// `known` for each element passed, for the elements around it that have the same ones)
+function backdropColor(el: Element, known?: Map<Element, string>): string {
+  const passed: Element[] = [];
+  let color = "Canvas";
   for (let node: Element | null = el; node !== null; node = node.parentElement) {
-    const color = getComputedStyle(node).backgroundColor;
-    if (!isTransparent(color)) {
-      return color;
+    const seen = known?.get(node);
+    if (seen !== undefined) {
+      color = seen;
+      break;
+    }
+    passed.push(node);
+    const own = getComputedStyle(node).backgroundColor;
+    if (!isTransparent(own)) {
+      color = own;
+      break;
     }
   }
-  return "Canvas";
+  for (const node of passed) {
+    known?.set(node, color);
+  }
+  return color;
 }
 
 // What fills what's behind a table, to be done again as the page's colours change: as a theme's
@@ -877,6 +890,13 @@ function profileSlot(th: HTMLTableCellElement): HTMLElement {
 
 // The narrowest a column can be made: 2em of its label
 const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComputedStyle(th).fontSize) || 16));
+
+// How a table fits a narrow container (an "auto" table whose columns have priorities drops them,
+// rather than being stacked)
+function responsiveOf(spec: Spec): Spec["layout"]["responsive"] {
+  const { responsive } = spec.layout;
+  return responsive === "auto" && spec.columns.some((column) => column.priority != null) ? "collapse" : responsive;
+}
 
 // A column label's description (its dtype, and its profile's summary), which a screen reader
 // reads on the label itself, not with each of its cells: hidden, as its name is the label's text
@@ -1066,9 +1086,7 @@ export class GtTable extends HTMLElement {
     if (this.scrollsDown) {
       this.fillRows([...this.stuckTop, ...this.stuckBottom]);
     }
-    for (const cell of this.table?.querySelectorAll<HTMLTableCellElement>(":scope > * > tr > .gt-i-pinned") ?? []) {
-      this.fill(cell);
-    }
+    this.fill(this.table?.querySelectorAll<HTMLTableCellElement>(":scope > * > tr > .gt-i-pinned") ?? []);
   };
   /** The element's handler for `/`, which opens the bar's search. */
   private slashKey: ((event: KeyboardEvent) => void) | null = null;
@@ -1281,6 +1299,8 @@ export class GtTable extends HTMLElement {
   private pointer = "";
   /** Whether the rows under rows open are left out, as the rows are measured. */
   private measuring = false;
+  /** Whether rows were hidden as the table was set up, before their borders were drawn. */
+  private undrawn = false;
   /** The runs of columns readers can move (by index in the spec; see `order.ts`). */
   private runs: number[][] = [];
   /**
@@ -1876,6 +1896,7 @@ export class GtTable extends HTMLElement {
     }
     this.markMissing(spec);
     this.addColors(spec);
+    this.prepage(spec);
     // (Before column widths are measured, since the cells' borders change)
     this.setLayout(table, spec);
     this.setDisplay(spec);
@@ -2342,13 +2363,27 @@ export class GtTable extends HTMLElement {
 
   // A body that scrolls within a height (which gti.css applies by the element's attribute), and a
   // table wider than its container that scrolls sideways with its stub pinned
+  // A table of pages has only its first page shown as it's set up: each step that reads its layout
+  // after a change would otherwise have every row laid out again, and, on a page whose cells take
+  // their borders from the table (as Bootstrap's do), styled again too, which takes seconds with
+  // thousands of rows. `render()` measures the columns with every row shown, once, and then shows
+  // the page the view has. (Not a table that drops columns, which fits its container with every
+  // row shown)
+  private prepage(spec: Spec): void {
+    const size = this.pageSizeValue === undefined ? (spec.pagination.enabled ? spec.pagination.page_size : null) : this.pageSizeValue;
+    if (!this.movable || this.remote || size === null || this.order.length <= size || responsiveOf(spec) === "collapse") {
+      return;
+    }
+    // (Without the rows under rows open, which are added once the table is set up)
+    this.measuring = true;
+    this.place(null, size, 1);
+    this.measuring = false;
+    this.undrawn = true;
+  }
+
   private setLayout(table: HTMLTableElement, spec: Spec): void {
     const { height } = spec.layout;
-    let { responsive } = spec.layout;
-    // (An "auto" table whose columns have priorities drops them, rather than being stacked)
-    if (responsive === "auto" && spec.columns.some((column) => column.priority != null)) {
-      responsive = "collapse";
-    }
+    const responsive = responsiveOf(spec);
     this.toggleAttribute("data-gti-scroll", height !== null);
     if (height === null) {
       this.style.removeProperty("--gt-i-height");
@@ -2753,7 +2788,8 @@ export class GtTable extends HTMLElement {
    */
   private addPinning(table: HTMLTableElement, spec: Spec, mode: ResponsiveMode): void {
     this.responsive = mode;
-    // (Every row is shown on hydration)
+    // (Every row, whether or not it's shown, as those past a table's first page aren't on
+    // hydration: each keeps its cells' marks)
     const { placed, columns: width } = placeCells(Array.from(table.rows));
     const tbody = this.tbody;
     const stub = placed.filter(
@@ -3033,20 +3069,22 @@ export class GtTable extends HTMLElement {
       const crowded =
         columns + ends > this.stubColumns && (before[columns] ?? 0) + (after[width - ends] ?? 0) > scroller.clientWidth / 2;
       const kept = crowded ? this.stubColumns : columns;
+      const pinned: HTMLTableCellElement[] = [];
       for (const p of starts) {
         p.cell.classList.toggle("gt-i-pinned", p.c1 < kept);
         if (p.c1 < kept) {
           setStyle(p.cell, "inset-inline-start", `${(before[p.c0] ?? 0) - padStart}px`);
-          this.fill(p.cell);
+          pinned.push(p.cell);
         }
       }
       for (const p of endings) {
         p.cell.classList.toggle("gt-i-pinned", !crowded);
         if (!crowded) {
           setStyle(p.cell, "inset-inline-end", `${(after[p.c1 + 1] ?? 0) - padEnd}px`);
-          this.fill(p.cell);
+          pinned.push(p.cell);
         }
       }
+      this.fill(pinned);
       this.edgeCell = starts.find((p) => p.c1 === kept - 1)?.cell ?? null;
       this.endEdge = crowded ? null : (endings.find((p) => p.c0 === width - ends)?.cell ?? null);
       // (What has focus is kept clear of them)
@@ -3072,22 +3110,36 @@ export class GtTable extends HTMLElement {
   }
 
   // A pinned cell hides the cells that scroll under it: one without a background, or with one
-  // that's see-through (a stripe), is filled with what's behind it (in gti.css, while pinned)
-  private fill(cell: HTMLTableCellElement): void {
-    const style = getComputedStyle(cell);
-    const filled = cell.classList.contains("gt-i-filled");
-    if (!filled && (style.backgroundImage || "none") !== "none") {
-      // (The author's)
-      return;
+  // that's see-through (a stripe), is filled with what's behind it (in gti.css, while pinned). The
+  // cells' styles are all read before any cell is changed, so that the page's styles are worked
+  // out once, rather than once for each cell (in each row of a table of thousands, as it's
+  // hydrated)
+  private fill(cells: Iterable<HTMLTableCellElement>): void {
+    const known = new Map<Element, string>();
+    const fills: [HTMLTableCellElement, string | null][] = [];
+    for (const cell of cells) {
+      const style = getComputedStyle(cell);
+      const filled = cell.classList.contains("gt-i-filled");
+      if (!filled && (style.backgroundImage || "none") !== "none") {
+        // (The author's)
+        continue;
+      }
+      const color = style.backgroundColor;
+      if (opacity(color) >= 1) {
+        fills.push([cell, null]);
+        continue;
+      }
+      const behind = backdropColor(cell.parentElement as Element, known);
+      fills.push([cell, `linear-gradient(${color || "transparent"}, ${color || "transparent"}), linear-gradient(${behind}, ${behind})`]);
     }
-    const color = style.backgroundColor;
-    if (opacity(color) >= 1) {
-      cell.classList.remove("gt-i-filled");
-      return;
+    for (const [cell, fill] of fills) {
+      if (fill === null) {
+        cell.classList.remove("gt-i-filled");
+      } else {
+        setStyle(cell, "--gt-i-fill", fill);
+        cell.classList.add("gt-i-filled");
+      }
     }
-    const behind = backdropColor(cell.parentElement as Element);
-    setStyle(cell, "--gt-i-fill", `linear-gradient(${color || "transparent"}, ${color || "transparent"}), linear-gradient(${behind}, ${behind})`);
-    cell.classList.add("gt-i-filled");
   }
 
   private queuePin(): void {
@@ -4233,6 +4285,7 @@ export class GtTable extends HTMLElement {
     // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
     // spanner) take their columns in the rows below. Per column, the row its last label ends before
     const ends: number[] = [];
+    const made: Resizer[] = [];
     rows.forEach((tr, r) => {
       let index = 0;
       for (const th of tr.children as HTMLCollectionOf<HTMLTableCellElement>) {
@@ -4250,14 +4303,21 @@ export class GtTable extends HTMLElement {
           !th.classList.contains("gt-i-select") &&
           spec.columns[index - lead]?.resizable !== false
         ) {
-          this.addResizer(th, index);
+          made.push(this.makeResizer(th, index));
         }
         index += colspan;
       }
     });
+    // (Put in once they're all measured: each one put in before the next label is measured would
+    // have the table laid out again, with every row of a table of thousands, as it's hydrated)
+    for (const { th, handle } of made) {
+      th.classList.add("gt-i-resizable");
+      th.append(handle);
+    }
   }
 
-  private addResizer(th: HTMLTableCellElement, index: number): void {
+  // A label's resize handle, measured (and to be put in it)
+  private makeResizer(th: HTMLTableCellElement, index: number): Resizer {
     const handle = this.ownerDocument.createElement("span");
     handle.className = "gt-i-resizer";
     handle.tabIndex = 0;
@@ -4267,8 +4327,6 @@ export class GtTable extends HTMLElement {
     handle.setAttribute("aria-label", `Resize ${labelText(th) || `column ${index + 1}`}`);
     const resizer: Resizer = { handle, th, index };
     this.showWidth(resizer, this.rect(th).width);
-    th.classList.add("gt-i-resizable");
-    th.append(handle);
     this.resizers.push(resizer);
 
     handle.addEventListener("pointerdown", (event) => this.dragWidth(resizer, handle, event));
@@ -4296,6 +4354,7 @@ export class GtTable extends HTMLElement {
       }
     });
     handle.addEventListener("dblclick", () => this.userResetWidth(resizer));
+    return resizer;
   }
 
   // Drag a column's edge, from a press on a handle along it (`grip`: the column's own, or the
@@ -9729,6 +9788,14 @@ export class GtTable extends HTMLElement {
     if (widths === null) {
       return;
     }
+    // (The handles were measured as the table was set up, with its first page alone, if it has
+    // pages)
+    for (const resizer of this.resizers) {
+      const width = widths.columns[resizer.index];
+      if (width !== undefined) {
+        this.showWidth(resizer, width);
+      }
+    }
     let colgroup = authored;
     if (colgroup === null) {
       colgroup = this.ownerDocument.createElement("colgroup");
@@ -9814,6 +9881,11 @@ export class GtTable extends HTMLElement {
     this.measuring = true;
     this.place(null, null, 1);
     this.measuring = false;
+    // (With the borders of the rows hidden as the table was set up drawn, as the others' are)
+    if (this.undrawn) {
+      this.undrawn = false;
+      this.borders?.redraw();
+    }
     const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr:not(.gt-i-details)"));
     const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
     const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
@@ -10521,6 +10593,7 @@ export class GtTable extends HTMLElement {
     this.expanding = false;
     this.pointer = "";
     this.measuring = false;
+    this.undrawn = false;
     this.runs = [];
     this.columnAt = [];
     this.placeOf = [];
