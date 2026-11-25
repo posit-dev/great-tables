@@ -27,8 +27,6 @@ With **Great Tables** anyone can make wonderful-looking tables in Python. The ph
 
 <div align="center">
 <a href="https://posit-dev.github.io/great-tables/examples/"><img src="https://posit-dev.github.io/great-tables/assets/readme_showcase.webp" width="880px" alt="An animation that cycles through eight tables made with Great Tables: country populations with flags and nanoplots, S&P 500 months with line and bar nanoplots, the fastest cars in gtcars with spanners and a footnote, a heatmap of solar zenith angles, Paris Métro stations with line logos, gas-phase reaction rates with chemical formulas, best-selling pizzas with summary rows, and an interactive table of Ontario's municipalities with column filters and profiles."></a>
-<br>
-<sub>Every table here is made with <b>Great Tables</b> from its own datasets (<a href="https://github.com/posit-dev/great-tables/blob/main/scripts/make_readme_showcase.py">see the code</a>).</sub>
 </div>
 
 ## What You Can Do
@@ -117,11 +115,19 @@ cars = data.pl.gtcars.select(
 
 <div align="center">
 <a href="https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html"><img src="https://posit-dev.github.io/great-tables/assets/readme_gti_demo.webp" width="880px" alt="An animation of a GTI table of the cars in gtcars being used: the cars are sorted by horsepower, filtered to convertibles with the Body column's filter, searched for Ferrari, the two cars left are downloaded as a CSV file, and the filters are shown as text, before the view is reset. Profiles of the HP and Price columns change with the rows shown."></a>
-<br>
-<sub>A <code>GTI</code> table, sorted, filtered, searched, and downloaded as CSV in the browser (<a href="https://github.com/posit-dev/great-tables/blob/main/scripts/make_readme_gti_demo.py">see the code</a>).</sub>
 </div>
 
-The table works on its own in the browser (in a notebook, a Quarto document, or a saved HTML file), and in Python apps, where the app can read and set what the reader filters, sorts, and selects. See [Interactive Tables](https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html) in the User Guide to get started.
+Beyond that, a few more `i_*()` methods give readers:
+
+- **Filters and profiles** for each column: facets, ranges, dates, and text, with small charts of each column's values that follow the rows kept (`i_cols_filter()`, `i_cols_profile()`).
+- **A starting view**, set as a filter query, a sort, and row groups, like `i_view(filter='mfr in ("Ferrari", "Lamborghini")', sort="-hp")`. Readers can see the view as that same text and edit it.
+- **Row selection, row details, and linked tables**: details (a text or a whole `GT` table) open under a row, and the rows selected in one table filter another on the same page, with no server (`i_selection()`, `i_row_details()`, `i_link()`).
+- **Wide tables made to fit**: pinned columns, and narrow screens that scroll the table, stack its rows as cards, or hide the less important columns (`i_cols_pin()`, `i_responsive()`).
+- **Exports** of the rows shown, or only those selected, to the clipboard or as CSV, TSV, or JSON files (`i_export()`).
+
+The table works on its own in the browser: in a notebook, a Quarto document, or a saved HTML file. It also works in Python apps, where the app can read and set what the reader filters, sorts, and selects. There's a notebook widget, and components for marimo, Shiny, Streamlit, Panel, and Solara. Flask, Django, and FastHTML can serve it in their own pages. An existing `GT` table can also get sorting, searching, and paging with `opt_interactive()`.
+
+To get started, see [Making Tables Interactive](https://posit-dev.github.io/great-tables/user-guide/interactive-tables.html) in the User Guide. [GTI Tables](https://posit-dev.github.io/great-tables/user-guide/gti-tables.html) goes through each feature. [GTI in Python and Apps](https://posit-dev.github.io/great-tables/user-guide/gti-in-python-and-apps.html) has an app for each framework, and most of them run right in your browser.
 
 ## Datasets
 
