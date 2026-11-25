@@ -514,9 +514,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    .i_as_widget()</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>widget</span></code></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    .i_as_widget()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>widget</span></code></pre></div>
+<p>With <a href="../reference/GTI.i_responsive.html#great_tables.GTI.i_responsive" class="gdls-link gdls-code">i_responsive()</a> set to <code>"scroll"</code>, the table scrolls sideways in a narrow container (as on a phone), rather than its rows being stacked as cards (see <a href="../user-guide/gti-tables.html#narrow-containers">Narrow containers</a>), as each app’s table on this page does.</p>
 <p>Then, in another cell (as the browser gives Python the table’s state once the cell is done), the cars selected, as a table of their own:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chosen <span class="op">=</span> widget.view(selected<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(chosen)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(widget.rows)<span class="sc">}</span><span class="ss"> cars selected"</span>)</span>
@@ -527,7 +529,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>widget.selection <span class="op">=</span> []</span></code></pre></div>
 <p><code>widget.on_change(callback)</code> calls <code>callback(widget)</code> after each change the reader makes. A change made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in another cell.</p>
 <p>Here’s that notebook, run in the browser (in <a href="https://jupyterlite.readthedocs.io">JupyterLite</a>, with these docs’ Great Tables). Run its cells in turn, select a few cars, and then run the cells below the table. It’s also in Great Tables’ repository, as <a href="https://github.com/posit-dev/great-tables/blob/main/demos/widget/cars.ipynb"><code>demos/widget/cars.ipynb</code></a>, which can be <a href="https://colab.research.google.com/github/posit-dev/great-tables/blob/main/demos/widget/cars.ipynb">opened in Colab</a>.</p>
-<gt-demo src="../demos/widget/notebooks/index.html?path=_notebooks/cars.ipynb" poster="../assets/demos/widget.webp" height="900" label="The notebook" size="35 MB" action="Open this notebook"></gt-demo>
+<gt-demo src="../demos/widget/notebooks/index.html?path=_notebooks/cars.ipynb" poster="../assets/demos/widget.webp" poster-dark="../assets/demos/widget-dark.webp" height="900" label="The notebook" size="35 MB" action="Open this notebook"></gt-demo>
 </section>
 <section id="using-the-table-in-a-marimo-notebook-or-app" class="level1">
 <h1>Using the table in a marimo notebook or app</h1>
@@ -544,8 +546,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>table</span></code></pre></div>
 <p>Then, in other cells, a button that sorts the table by horsepower, and the cars selected, as a table of their own:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fastest(_):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    table.sort <span class="op">=</span> <span class="st">"-hp"</span></span>
@@ -561,7 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    ]</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <p>Here’s that notebook, run as an app in the browser (with marimo’s WebAssembly export, and these docs’ Great Tables). Select a few cars, filter by manufacturer, or click “Fastest first”:</p>
-<gt-demo src="../demos/marimo/" poster="../assets/demos/marimo.webp" height="760" label="The marimo notebook" size="40 MB"></gt-demo>
+<gt-demo src="../demos/marimo/" poster="../assets/demos/marimo.webp" poster-dark="../assets/demos/marimo-dark.webp" height="760" label="The marimo notebook" size="40 MB"></gt-demo>
 <p><code>table.view()</code> gives the rows kept as a DataFrame of the data’s library (and <code>table.view(selected=True)</code> the rows selected). The rows are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <a href="../reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> or a table that starts with a search: their rows are <code>None</code> until the browser has shown the table. They’re also <code>None</code> after the table’s view is set (as by the button), until the browser has applied it. Running the table’s cell again makes a new table, which starts as it’s made. A table whose rows are kept in Python (with <a href="../reference/GTI.i_scale.html#great_tables.GTI.i_scale" class="gdls-link gdls-code">i_scale()</a>) asks the notebook for each page instead, and its rows are always found in Python.</p>
 </section>
 <section id="using-the-table-in-a-shiny-app" class="level1">
@@ -585,20 +588,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            GTI(data.pl.gtcars.select([<span class="st">"mfr"</span>, <span class="st">"model"</span>, <span class="st">"year"</span>, <span class="st">"hp"</span>, <span class="st">"msrp"</span>]))</span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@render.text</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> chosen():</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> <span class="bu">input</span>.cars_selection()</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(rows)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(<span class="bu">input</span>.cars_rows())<span class="sc">}</span><span class="ss"> cars selected"</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">@reactive.effect</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@reactive.event</span>(<span class="bu">input</span>.fastest)</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _():</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        update_gti(<span class="st">"cars"</span>, sort<span class="op">=</span><span class="st">"-hp"</span>, selection<span class="op">=</span>[])</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">@render.text</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> chosen():</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        rows <span class="op">=</span> <span class="bu">input</span>.cars_selection()</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(rows)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(<span class="bu">input</span>.cars_rows())<span class="sc">}</span><span class="ss"> cars selected"</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">@reactive.effect</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@reactive.event</span>(<span class="bu">input</span>.fastest)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _():</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        update_gti(<span class="st">"cars"</span>, sort<span class="op">=</span><span class="st">"-hp"</span>, selection<span class="op">=</span>[])</span>
 <span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> App(app_ui, server)</span></code></pre></div>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> App(app_ui, server)</span></code></pre></div>
 <p>The table works in the browser as it does anywhere else, so the server isn’t asked for each page, sort or search; a table rendered again starts with the view it’s given.</p>
 </section>
 <section id="using-the-table-in-a-streamlit-app" class="level1">
@@ -618,15 +622,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> st_gti(table, key<span class="op">=</span><span class="st">"cars"</span>)</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>st.write(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(state.selection)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(state.rows <span class="kw">or</span> [])<span class="sc">}</span><span class="ss"> cars selected"</span>)</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>chosen <span class="op">=</span> cars.iloc[state.selection]</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>st.bar_chart(chosen, x<span class="op">=</span><span class="st">"model"</span>, y<span class="op">=</span><span class="st">"hp"</span>)</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>st.html(GT(chosen).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>).as_raw_html())</span></code></pre></div>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>state <span class="op">=</span> st_gti(table, key<span class="op">=</span><span class="st">"cars"</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>st.write(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(state.selection)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(state.rows <span class="kw">or</span> [])<span class="sc">}</span><span class="ss"> cars selected"</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>chosen <span class="op">=</span> cars.iloc[state.selection]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>st.bar_chart(chosen, x<span class="op">=</span><span class="st">"model"</span>, y<span class="op">=</span><span class="st">"hp"</span>)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>st.html(GT(chosen).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>).as_raw_html())</span></code></pre></div>
 <p>Here’s that app, run in the browser (with <a href="https://github.com/whitphx/stlite">stlite</a>, and these docs’ Great Tables):</p>
-<gt-demo src="../demos/streamlit/" poster="../assets/demos/streamlit.webp" height="900" label="The Streamlit app" size="45 MB"></gt-demo>
+<gt-demo src="../demos/streamlit/" poster="../assets/demos/streamlit.webp" poster-dark="../assets/demos/streamlit-dark.webp" height="900" label="The Streamlit app" size="45 MB"></gt-demo>
 <p>The table keeps its view and selection by its <code>key</code> as the app runs again, as long as it’s rendered the same. A table whose rows are kept in Python (with <a href="../reference/GTI.i_scale.html#great_tables.GTI.i_scale" class="gdls-link gdls-code">i_scale()</a>) asks the app for each page, which runs it again; make it once, with <code>st.cache_resource</code>, so that it isn’t rendered again each time.</p>
 </section>
 <section id="using-the-table-in-a-panel-app" class="level1">
@@ -646,17 +651,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chosen(rows, selection):</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    picked <span class="op">=</span> GT(cars.iloc[selection]).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pn.Column(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows <span class="kw">or</span> [])<span class="sc">}</span><span class="ss"> cars selected"</span>, pn.pane.HTML(picked))</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chosen(rows, selection):</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    picked <span class="op">=</span> GT(cars.iloc[selection]).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pn.Column(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows <span class="kw">or</span> [])<span class="sc">}</span><span class="ss"> cars selected"</span>, pn.pane.HTML(picked))</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>fastest <span class="op">=</span> pn.widgets.Button(name<span class="op">=</span><span class="st">"Fastest first"</span>)</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>fastest.on_click(<span class="kw">lambda</span> _: table.param.update(sort<span class="op">=</span>[<span class="st">"-hp"</span>], selection<span class="op">=</span>[]))</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()</span></code></pre></div>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>fastest <span class="op">=</span> pn.widgets.Button(name<span class="op">=</span><span class="st">"Fastest first"</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>fastest.on_click(<span class="kw">lambda</span> _: table.param.update(sort<span class="op">=</span>[<span class="st">"-hp"</span>], selection<span class="op">=</span>[]))</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>pn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()</span></code></pre></div>
 <p>Here’s that app, run in the browser (converted with <code>panel convert</code>, with these docs’ Great Tables):</p>
 <gt-demo src="../demos/panel/" poster="../assets/demos/panel.webp" height="760" label="The Panel app" size="35 MB"></gt-demo>
 <p><code>table.data()</code> gives the rows kept as a DataFrame of the data’s library (and <code>table.data(selected=True)</code> the rows selected). The <code>rows</code> are found by the browser, as the table works there. Before the table is shown, Python finds them, except for a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table with <a href="../reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> or a table that starts with a search: their <code>rows</code> are <code>None</code> until the browser has shown the table. A table whose rows are kept in Python (with <a href="../reference/GTI.i_scale.html#great_tables.GTI.i_scale" class="gdls-link gdls-code">i_scale()</a>) asks the app for each page instead, and its <code>rows</code> are always found in Python.</p>
@@ -676,26 +682,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    .fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    .i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    .i_selection(<span class="st">"multiple"</span>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>sort <span class="op">=</span> solara.reactive([])</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>selection <span class="op">=</span> solara.reactive([])</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> solara.reactive([])</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    .i_responsive(<span class="st">"scroll"</span>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>sort <span class="op">=</span> solara.reactive([])</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>selection <span class="op">=</span> solara.reactive([])</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> solara.reactive([])</span>
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fastest():</span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    sort.<span class="bu">set</span>([<span class="st">"-hp"</span>])</span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    selection.<span class="bu">set</span>([])</span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fastest():</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    sort.<span class="bu">set</span>([<span class="st">"-hp"</span>])</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    selection.<span class="bu">set</span>([])</span>
 <span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="at">@solara.component</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Page():</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    solara.Button(<span class="st">"Fastest first"</span>, on_click<span class="op">=</span>fastest)</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    GTITable(table, sort<span class="op">=</span>sort, selection<span class="op">=</span>selection, on_rows<span class="op">=</span>rows.<span class="bu">set</span>)</span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    solara.Text(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection.value)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows.value)<span class="sc">}</span><span class="ss"> cars selected"</span>)</span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> GT(cars.iloc[selection.value]).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    solara.HTML(unsafe_innerHTML<span class="op">=</span>chosen.as_raw_html())</span></code></pre></div>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="at">@solara.component</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> Page():</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    solara.Button(<span class="st">"Fastest first"</span>, on_click<span class="op">=</span>fastest)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    GTITable(table, sort<span class="op">=</span>sort, selection<span class="op">=</span>selection, on_rows<span class="op">=</span>rows.<span class="bu">set</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    solara.Text(<span class="ss">f"</span><span class="sc">{</span><span class="bu">len</span>(selection.value)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(rows.value)<span class="sc">}</span><span class="ss"> cars selected"</span>)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    chosen <span class="op">=</span> GT(cars.iloc[selection.value]).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    solara.HTML(unsafe_innerHTML<span class="op">=</span>chosen.as_raw_html())</span></code></pre></div>
 <p>Saved as <code>app.py</code>, it’s run with <code>solara run app.py</code> (with Great Tables, Solara and Pandas installed), or with <a href="https://docs.astral.sh/uv/">uv</a>, which installs them for the app:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run <span class="at">--with</span> <span class="st">"great_tables[solara]"</span> <span class="at">--with</span> pandas <span class="dt">\</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  solara run app.py</span></code></pre></div>
@@ -733,7 +740,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="at">@app.route</span>(<span class="st">"/"</span>)</span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> index():</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> GTI(cars).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> GTI(cars).fmt_integer(<span class="st">"hp"</span>).fmt_currency(<span class="st">"msrp"</span>, decimals<span class="op">=</span><span class="dv">0</span>).i_responsive(<span class="st">"scroll"</span>)</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    tables <span class="op">=</span> [table.i_cols_filter(columns<span class="op">=</span><span class="st">"mfr"</span>, <span class="bu">type</span><span class="op">=</span><span class="st">"facet"</span>), table.i_selection(<span class="st">"multiple"</span>)]</span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> render_template_string(</span>
 <span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        PAGE,</span>

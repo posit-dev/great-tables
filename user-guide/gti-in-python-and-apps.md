@@ -16,10 +16,13 @@ widget = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
     .i_as_widget()
 )
 widget
 ```
+
+With [i_responsive()](../reference/GTI.i_responsive.md#great_tables.GTI.i_responsive) set to `"scroll"`, the table scrolls sideways in a narrow container (as on a phone), rather than its rows being stacked as cards (see [Narrow containers](gti-tables.md#narrow-containers)), as each app's table on this page does.
 
 Then, in another cell (as the browser gives Python the table's state once the cell is done), the cars selected, as a table of their own:
 
@@ -58,6 +61,7 @@ table = mo_gti(
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 table
 ```
@@ -110,6 +114,7 @@ def server(input, output, session):
             GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
             .i_cols_filter(columns="mfr", type="facet")
             .i_selection("multiple")
+            .i_responsive("scroll")
         )
 
     @render.text
@@ -147,6 +152,7 @@ table = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 state = st_gti(table, key="cars")
 st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")
@@ -179,6 +185,7 @@ table = GTIPane(
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 
 
@@ -213,6 +220,7 @@ table = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 
 sort = solara.reactive([])
@@ -278,7 +286,7 @@ PAGE = """
 
 @app.route("/")
 def index():
-    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0).i_responsive("scroll")
     tables = [table.i_cols_filter(columns="mfr", type="facet"), table.i_selection("multiple")]
     return render_template_string(
         PAGE,

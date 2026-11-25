@@ -23,6 +23,15 @@
         await import(
           '../config-utils.js?_=858dd40'
         );
+        const themes = { dark: "JupyterLab Dark", light: "JupyterLab Light" };
+        const config = document.getElementById("jupyter-config-data");
+        const data = JSON.parse(config.textContent);
+        const plugin = "@jupyterlab/apputils-extension:themes";
+        data.settingsOverrides = {
+          ...data.settingsOverrides,
+          [plugin]: { ...data.settingsOverrides?.[plugin], theme: themes[new URLSearchParams(location.search).get("theme") === "dark" ? "dark" : "light"] },
+        };
+        config.textContent = JSON.stringify(data);
       }.call(this));
     </script>
     <style>

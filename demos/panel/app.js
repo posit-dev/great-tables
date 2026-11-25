@@ -27,10 +27,10 @@ async function startApplication() {
     await self.pyodide.runPythonAsync(`
       import micropip
       try:
-          await micropip.install(['https://cdn.holoviz.org/panel/wheels/bokeh-3.10.2-py3-none-any.whl', 'https://cdn.holoviz.org/panel/1.11.0/dist/wheels/panel-1.11.0-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev174+gde9adaa0b-py3-none-any.whl', 'pandas'])
+          await micropip.install(['https://cdn.holoviz.org/panel/wheels/bokeh-3.10.2-py3-none-any.whl', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev189+geb4f70780-py3-none-any.whl', 'pandas'])
       except Exception as e:
           print(f'Retrying with Bokeh from PyPI, since installing from the CDN failed: {e}')
-          await micropip.install(['bokeh==3.10.2', 'https://cdn.holoviz.org/panel/1.11.0/dist/wheels/panel-1.11.0-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev174+gde9adaa0b-py3-none-any.whl', 'pandas'])
+          await micropip.install(['bokeh==3.10.2', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev189+geb4f70780-py3-none-any.whl', 'pandas'])
     `);
   } catch(e) {
     console.log(e)
@@ -42,7 +42,7 @@ async function startApplication() {
   console.log("Environment loaded!");
   self.postMessage({type: 'status', msg: 'Executing code'})
   try {
-    const [docs_json, render_items, root_ids] = await self.pyodide.runPythonAsync(`\nimport asyncio\n\nfrom panel.io.pyodide import init_doc, write_doc\n\ninit_doc()\n\nimport panel as pn\n\nfrom great_tables import GT, GTI, data\nfrom great_tables.panel import GTIPane\n\npn.extension()\n\ncars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]\ntable = GTIPane(\n    GTI(cars)\n    .fmt_integer("hp")\n    .fmt_currency("msrp", decimals=0)\n    .i_cols_filter(columns="mfr", type="facet")\n    .i_selection("multiple")\n)\n\n\ndef chosen(rows, selection):\n    picked = GT(cars.iloc[selection]).fmt_integer("hp").fmt_currency("msrp", decimals=0)\n    return pn.Column(f"{len(selection)} of {len(rows or [])} cars selected", pn.pane.HTML(picked))\n\n\nfastest = pn.widgets.Button(name="Fastest first")\nfastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))\npn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()\n\n\nawait write_doc()`)
+    const [docs_json, render_items, root_ids] = await self.pyodide.runPythonAsync(`\nimport asyncio\n\nfrom panel.io.pyodide import init_doc, write_doc\n\ninit_doc()\n\nimport panel as pn\n\nfrom great_tables import GT, GTI, data\nfrom great_tables.panel import GTIPane\n\npn.extension()\n\ncars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]\ntable = GTIPane(\n    GTI(cars)\n    .fmt_integer("hp")\n    .fmt_currency("msrp", decimals=0)\n    .i_cols_filter(columns="mfr", type="facet")\n    .i_selection("multiple")\n    .i_responsive("scroll")\n)\n\n\ndef chosen(rows, selection):\n    picked = GT(cars.iloc[selection]).fmt_integer("hp").fmt_currency("msrp", decimals=0)\n    return pn.Column(f"{len(selection)} of {len(rows or [])} cars selected", pn.pane.HTML(picked))\n\n\nfastest = pn.widgets.Button(name="Fastest first")\nfastest.on_click(lambda _: table.param.update(sort=["-hp"], selection=[]))\npn.Column(fastest, table, pn.bind(chosen, table.param.rows, table.param.selection)).servable()\n\n\nawait write_doc()`)
     self.postMessage({
       type: 'render',
       docs_json: docs_json,
