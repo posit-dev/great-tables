@@ -3,8 +3,9 @@
 //   python demos/build.py && node demos/posters.mjs [venue ...]
 //
 // Each app in `_demos/` is run in Chromium (with Playwright, from packages/gti), with two cars
-// selected, and its page saved as `assets/demos/<venue>.webp`. Then what it downloaded is printed,
-// for the size the docs give. The apps that need a server (Solara's and Flask's, which the docs show
+// selected, and its page saved as `assets/demos/<venue>.webp`; an app that follows the docs' theme
+// is also saved in its dark theme, as `<venue>-dark.webp`. Then what it downloaded is printed, for
+// the size the docs give. The apps that need a server (Solara's and Flask's, which the docs show
 // only as these images) are run with `python` (as found on the PATH, or as $PYTHON), from `demos/`.
 
 import { spawn } from "node:child_process";
@@ -56,12 +57,18 @@ const selectInPage = async (page) => {
   await boxes.nth(2).click();
 };
 
-// (Each as wide as the docs' page, and as high as its frame there, or the whole page)
+// (Each as wide as the docs' page, and as high as its frame there, or the whole page; and in the
+// docs' dark theme too, for those that follow it, as `?theme=dark`)
 const VENUES = {
-  streamlit: { height: 900, steps: selectTwo },
+  streamlit: { height: 900, steps: selectTwo, dark: true },
   panel: { height: 760, steps: selectTwo },
-  marimo: { height: 760, steps: selectTwo },
-  widget: { height: 900, path: "widget/notebooks/index.html?path=_notebooks/cars.ipynb", steps: runNotebook },
+  marimo: { height: 760, steps: selectTwo, dark: true },
+  widget: {
+    height: 900,
+    path: "widget/notebooks/index.html?path=_notebooks/cars.ipynb",
+    steps: runNotebook,
+    dark: true,
+  },
   solara: {
     height: 760,
     serve: (port) => ["-m", "solara", "run", "solara/app.py", "--host", "127.0.0.1", "--port", port, "--production", "--no-open"],
@@ -131,11 +138,18 @@ const serve = async (args) => {
 
 const browser = await chromium.launch();
 try {
-  for (const [venue, { height, path, serve: args, steps, fullPage }] of Object.entries(VENUES)) {
+  const posters = Object.entries(VENUES).flatMap(([venue, options]) =>
+    ["light", ...(options.dark ? ["dark"] : [])].map((theme) => [venue, theme, options]),
+  );
+  for (const [venue, theme, { height, path, serve: args, steps, fullPage }] of posters) {
     if (ONLY.length > 0 && !ONLY.includes(venue)) {
       continue;
     }
-    const context = await browser.newContext({ viewport: { width: WIDTH, height }, deviceScaleFactor: 2 });
+    const context = await browser.newContext({
+      viewport: { width: WIDTH, height },
+      deviceScaleFactor: 2,
+      colorScheme: theme,
+    });
     const page = await context.newPage();
     let bytes = 0;
     // (Of the context, so as to have what the apps' workers download too)
@@ -144,7 +158,9 @@ try {
     });
     const running = args ? await serve(args) : null;
     try {
-      await page.goto(running ? running.url : `${base}/${path ?? `${venue}/`}`);
+      const url = new URL(running ? running.url : `${base}/${path ?? `${venue}/`}`);
+      url.searchParams.set("theme", theme);
+      await page.goto(url.href);
       await steps(page);
       await page.waitForTimeout(2000);
       await page.evaluate(() => document.activeElement?.blur());
@@ -158,9 +174,9 @@ try {
         canvas.getContext("2d").drawImage(image, 0, 0);
         return canvas.toDataURL("image/webp", 0.8).split(",")[1];
       }, png.toString("base64"));
-      const file = join(ROOT, "assets", "demos", `${venue}.webp`);
+      const file = join(ROOT, "assets", "demos", `${venue}${theme === "dark" ? "-dark" : ""}.webp`);
       writeFileSync(file, Buffer.from(webp, "base64"));
-      console.log(`${venue}: ${(bytes / 1e6).toFixed(1)} MB downloaded; ${file}`);
+      console.log(`${venue} (${theme}): ${(bytes / 1e6).toFixed(1)} MB downloaded; ${file}`);
     } finally {
       running?.app.kill();
       await context.close();
