@@ -22,10 +22,13 @@ jobs:
           activate-environment: true
       - name: Install dependencies
         run: |
+          # marimo is pinned for the docs' marimo demo: each release renames the files of its
+          # export, which a reader's cached copy of the demo would then fail to load. Bump it
+          # with a check of the demo in a browser.
           uv pip install \
             "great-docs[svg] @ git+https://github.com/posit-dev/great-docs.git@main" \
             polars pandas numpy pyarrow plotnine gt-extras pointblank "ibis-framework[duckdb]" \
-            ".[extra,widget,streamlit,panel,marimo,solara]" shiny
+            ".[extra,widget,streamlit,panel,marimo,solara]" shiny "marimo==0.26.0"
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       - name: Build the live app demos
