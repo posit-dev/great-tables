@@ -2,11 +2,11 @@
   "content": [
     {
       "content": null,
-      "created": "2026-11-25T17:42:15.783299Z",
+      "created": "2026-11-25T23:04:48.533666Z",
       "format": null,
       "hash": null,
       "hash_algorithm": null,
-      "last_modified": "2026-11-25T17:42:14.332566Z",
+      "last_modified": "2026-11-25T23:04:46.708852Z",
       "mimetype": null,
       "name": "cars.ipynb",
       "path": "_notebooks/cars.ipynb",
@@ -15,11 +15,11 @@
       "writable": true
     }
   ],
-  "created": "2026-11-25T17:42:15.783299Z",
+  "created": "2026-11-25T23:04:48.533666Z",
   "format": "json",
   "hash": null,
   "hash_algorithm": null,
-  "last_modified": "2026-11-25T17:42:15.783299Z",
+  "last_modified": "2026-11-25T23:04:48.533666Z",
   "mimetype": null,
   "name": "_notebooks",
   "path": "_notebooks",
