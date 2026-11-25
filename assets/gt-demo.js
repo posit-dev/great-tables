@@ -12,6 +12,7 @@
 //   height   the frame's height, in pixels (720 by default)
 //   label    what the app is, for the frame's title and the poster's description
 //   size     about how much the app downloads the first time it's run
+//   action   the poster's button ("Run this app" by default)
 
 (() => {
   const STYLE = `
@@ -107,7 +108,7 @@
       start.className = "start";
       const button = document.createElement("button");
       button.type = "button";
-      button.textContent = "▶ Run this app";
+      button.textContent = `▶ ${this.getAttribute("action") || "Run this app"}`;
       const note = document.createElement("p");
       note.className = "note";
       note.textContent = `Runs Python in your browser${size ? `: about ${size} the first time` : ""}`;
