@@ -19,7 +19,7 @@ PAGE = """
 
 @app.route("/")
 def index():
-    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0).i_responsive("scroll")
     tables = [table.i_cols_filter(columns="mfr", type="facet"), table.i_selection("multiple")]
     return render_template_string(
         PAGE,
