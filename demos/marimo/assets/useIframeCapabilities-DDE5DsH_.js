@@ -1,0 +1,1 @@
+import{t as e}from"./compiler-runtime-9wvElW8N.js";import{t}from"./capabilities-ML2ieXdx.js";var n=e();function r(){let e=(0,n.c)(1),r;return e[0]===Symbol.for(`react.memo_cache_sentinel`)?(r=t(),e[0]=r):r=e[0],r}export{r as t};

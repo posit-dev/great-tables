@@ -1,0 +1,1 @@
+"use strict";(self.rspackChunk_JUPYTERLAB_CORE_OUTPUT=self.rspackChunk_JUPYTERLAB_CORE_OUTPUT||[]).push([[1104],{96259(r,e,E){E.r(e);var R=E(31179);E.d(e,{IServiceWorkerManager:()=>R.IServiceWorkerManager,SERVICE_WORKER_BROADCAST_CHANNEL_ID:()=>R.SERVICE_WORKER_BROADCAST_CHANNEL_ID,ServiceWorkerManager:()=>R.ServiceWorkerManager,WORKER_NAME:()=>R.WORKER_NAME})}}]);

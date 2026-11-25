@@ -1,0 +1,1 @@
+import{a as e}from"./rolldown-runtime-BWaJ3C7D.js";import{t}from"./react-CaKr0epQ.js";var n=(0,e(t(),1).createContext)({isSelected:!1});function r(e){return e===``?`''`:/^[\w@%+=:,./-]+$/.test(e)?e:`'${e.replaceAll(`'`,`'"'"'`)}'`}export{n,r as t};

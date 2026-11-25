@@ -1,0 +1,23 @@
+{
+  "title": "REPL extension settings",
+  "description": "REPL extension settings.",
+  "jupyter.lab.toolbars": {
+    "ConsolePanel": [
+      {
+        "name": "copyShareableLink",
+        "command": "repl:copy-shareable-link",
+        "rank": 9990
+      },
+      { "name": "liteIcon", "rank": 10000 }
+    ]
+  },
+  "properties": {
+    "toolbar": {
+      "title": "Console panel toolbar items",
+      "type": "array",
+      "default": []
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

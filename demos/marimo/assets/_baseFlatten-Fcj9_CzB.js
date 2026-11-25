@@ -1,0 +1,1 @@
+import{J as e,U as t,k as n,p as r}from"./isArrayLikeObject-DH7ctiDt.js";var i=e?e.isConcatSpreadable:void 0;function a(e){return t(e)||n(e)||!!(i&&e&&e[i])}function o(e,t,n,i,s){var c=-1,l=e.length;for(n||=a,s||=[];++c<l;){var u=e[c];t>0&&n(u)?t>1?o(u,t-1,n,i,s):r(s,u):i||(s[s.length]=u)}return s}export{o as t};

@@ -1,18 +1,19 @@
 # GTI in Python and Apps
 
-An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime included once, however many tables the page has. The marimo, Streamlit and Panel examples can each be run here, in the browser, without installing anything.
+An interactive table works in the browser on its own, but Python can also read what readers do with it, and change it: in a notebook, with a [GTI](../reference/GTI.md#great_tables.GTI) table (see [GTI Tables](gti-tables.md)) as a widget; in a marimo notebook or app, as a UI element; and in Shiny, Streamlit, Panel and Solara apps. These take a [GTI](../reference/GTI.md#great_tables.GTI) table or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive), get its view and selection, and can set them. A page an app makes itself (with Flask, Django or FastHTML) shows the table as it works in the browser, with its runtime included once, however many tables the page has. The notebook, marimo, Streamlit and Panel examples can each be run here, in the browser, without installing anything; the Solara and Flask apps, which need a server, are shown as they look when they're run.
 
 ## Using the table from Python
 
 In a notebook, [i_as_widget()](../reference/GTI.i_as_widget.md#great_tables.GTI.i_as_widget) shows the table as a widget (with [anywidget](https://anywidget.dev), installed with `pip install great_tables[widget]`), whose view and selection Python can read and set: what the reader searched for, filtered and sorted by, the rows that leaves, and the rows they selected. The table still works in the browser; the widget tells Python what it shows.
 
 ``` python
-from great_tables import GTI, data
+from great_tables import GT, GTI, data
 
-cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "mpg_c", "msrp"])
-
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
 widget = (
     GTI(cars)
+    .fmt_integer("hp")
+    .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
     .i_as_widget()
@@ -20,22 +21,25 @@ widget = (
 widget
 ```
 
-Then, in another cell (as the browser gives Python the table's state once the cell is done):
+Then, in another cell (as the browser gives Python the table's state once the cell is done), the cars selected, as a table of their own:
 
 ``` python
-widget.query            # the filters, as a query in text: 'mfr in ("Ferrari")'
-widget.search           # the search
-widget.sort             # the sort, e.g., ["-hp"]
-widget.rows             # the data rows kept, in the order shown (numbered from 0)
-widget.view()           # those rows, as a DataFrame of the data's library
-widget.view(selected=True)  # the rows selected
-
-widget.query = 'mfr in ("Ferrari", "Lamborghini")'
-widget.sort = "-hp"
-widget.selection = [0, 3]
+chosen = widget.view(selected=True)
+print(f"{len(chosen)} of {len(widget.rows)} cars selected")
+GT(chosen).fmt_integer("hp").fmt_currency("msrp", decimals=0)
 ```
 
-Setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table as shown, and `widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in another cell.
+`widget.query` is the filters, as a query in text (e.g., `'mfr in ("Ferrari")'`), `widget.search` the search and `widget.sort` the sort (e.g., `["-hp"]`). `widget.rows` is the data rows kept, in the order shown (numbered from 0), and `widget.view()` gives those rows as a DataFrame of the data's library (and `widget.view(selected=True)` the rows selected). Setting [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) or `selection` changes the table as shown:
+
+``` python
+widget.query = 'mfr in ("Ferrari", "Lamborghini")'
+widget.sort = "-hp"
+widget.selection = []
+```
+
+`widget.on_change(callback)` calls `callback(widget)` after each change the reader makes. A change made from Python is applied by the browser after the cell runs, so ask for the rows it leaves in another cell.
+
+Here's that notebook, run in the browser (in [JupyterLite](https://jupyterlite.readthedocs.io), with these docs' Great Tables). Run its cells in turn, select a few cars, and then run the cells below the table. It's also in Great Tables' repository, as [`demos/widget/cars.ipynb`](https://github.com/posit-dev/great-tables/blob/main/demos/widget/cars.ipynb), which can be [opened in Colab](https://colab.research.google.com/github/posit-dev/great-tables/blob/main/demos/widget/cars.ipynb).
 
 ## Using the table in a marimo notebook or app
 
@@ -194,27 +198,55 @@ Here's that app, run in the browser (converted with `panel convert`, with these 
 
 ## Using the table in a Solara app
 
-In a [Solara](https://solara.dev) app or notebook, the [GTITable](../reference/solara.GTITable.md#great_tables.solara.GTITable) component, from `great_tables.solara` (installed with `pip install great_tables[solara]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)), whose [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`) and `selection` are the app's values, as with Solara's own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (`on_query=`, `on_sort=`, …). One that isn't given starts as the table has it. The data rows kept (in the order shown) are given to `on_rows=`.
+In a [Solara](https://solara.dev) app or notebook, the [GTITable](../reference/solara.GTITable.md#great_tables.solara.GTITable) component, from `great_tables.solara` (installed with `pip install great_tables[solara]`), shows an interactive table (a [GTI](../reference/GTI.md#great_tables.GTI) table, or a [GT](../reference/GT.md#great_tables.GT) table with [opt_interactive()](../reference/GT.opt_interactive.md#great_tables.GT.opt_interactive)), whose [query](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.query), [search](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.search), [sort](../reference/streamlit.GTIState.md#great_tables.streamlit.GTIState.sort) (a list, e.g., `["-hp"]`) and `selection` are the app's values, as with Solara's own components. Each can be a reactive variable, which each change the reader makes sets and which changes the table when the app sets it, or a value with a callback (`on_query=`, `on_sort=`, …). One that isn't given starts as the table has it. The data rows kept (in the order shown) are given to `on_rows=`. Here, the cars selected are shown as a table of their own (a [GT](../reference/GT.md#great_tables.GT) table's HTML, with `solara.HTML()`):
 
 ``` python
 import solara
-from great_tables import GTI, data
+
+from great_tables import GT, GTI, data
 from great_tables.solara import GTITable
 
-cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
-table = GTI(cars).i_cols_filter(columns="mfr", type="facet").i_selection("multiple")
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
+table = (
+    GTI(cars)
+    .fmt_integer("hp")
+    .fmt_currency("msrp", decimals=0)
+    .i_cols_filter(columns="mfr", type="facet")
+    .i_selection("multiple")
+)
 
 sort = solara.reactive([])
 selection = solara.reactive([])
 rows = solara.reactive([])
 
 
+def fastest():
+    sort.set(["-hp"])
+    selection.set([])
+
+
 @solara.component
 def Page():
-    solara.Button("Fastest first", on_click=lambda: (sort.set(["-hp"]), selection.set([])))
+    solara.Button("Fastest first", on_click=fastest)
     GTITable(table, sort=sort, selection=selection, on_rows=rows.set)
     solara.Text(f"{len(selection.value)} of {len(rows.value)} cars selected")
+
+    chosen = GT(cars.iloc[selection.value]).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    solara.HTML(unsafe_innerHTML=chosen.as_raw_html())
 ```
+
+Saved as `app.py`, it's run with `solara run app.py` (with Great Tables, Solara and Pandas installed), or with [uv](https://docs.astral.sh/uv/), which installs them for the app:
+
+``` bash
+uv run --with "great_tables[solara]" --with pandas \
+  solara run app.py
+```
+
+It's also in Great Tables' repository, as [`demos/solara/app.py`](https://github.com/posit-dev/great-tables/blob/main/demos/solara/app.py). Run, with two cars selected, it looks like this:
+
+![The Solara app, with two cars selected](../assets/demos/solara.webp)
+
+The Solara app, with two cars selected
 
 The component keeps the table's view as the app renders again, as long as it's given the same table or one rendered the same. A table whose rows are kept in Python (with [i_scale()](../reference/GTI.i_scale.md#great_tables.GTI.i_scale)) asks the app for each page, and its rows are found in Python; make it once (at the module's top level, as here, or with `solara.use_memo()`), so that it isn't rendered again each time.
 
@@ -222,17 +254,18 @@ The component keeps the table's view as the app renders again, as long as it's g
 
 An app that makes its own pages, with templates (as [Flask](https://flask.palletsprojects.com) and [Django](https://www.djangoproject.com) apps do) or with [FastHTML](https://fastht.ml), shows an interactive table as its HTML, which [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html) gives: the table's `<gt-table>` element, followed by the runtime that makes it interactive (its JavaScript and CSS). The table works in the browser, as in an HTML file, without asking the app for anything. A table put in a Jinja template (as Flask's are, `{ table }`) or in a FastHTML component (`Div(table)`), or returned by a FastHTML route on its own, is shown as its HTML, as it is.
 
-A page with several tables needs the runtime only once: [runtime_tags()](../reference/web.runtime_tags.md#great_tables.web.runtime_tags), from `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it, with `as_raw_html(runtime="none")`. With `url=`, the tags link to the runtime's files, which [write_runtime()](../reference/web.write_runtime.md#great_tables.web.write_runtime) writes for the app to serve (as Flask serves its `static` folder), so that a browser keeps them as it does any other file.
+A page with several tables needs the runtime only once: [runtime_tags()](../reference/web.runtime_tags.md#great_tables.web.runtime_tags), from `great_tables.web`, gives it, for the page's `<head>`, and each table is then given without it, with `as_raw_html(runtime="none")`. With `url=`, the tags link to the runtime's files, which [write_runtime()](../reference/web.write_runtime.md#great_tables.web.write_runtime) writes for the app to serve, so that a browser keeps them as it does any other file. Here, they're written to the folder Flask serves as `/static/` (`app.static_folder`, beside the app, wherever it's run from):
 
 ``` python
 from flask import Flask, render_template_string
 from markupsafe import Markup
+
 from great_tables import GTI, data
 from great_tables.web import runtime_tags, write_runtime
 
-cars = data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"])
-write_runtime("static/gti")
+cars = data.gtcars[["mfr", "model", "year", "hp", "msrp"]]
 app = Flask(__name__)
+write_runtime(f"{app.static_folder}/gti")
 
 PAGE = """
 <!DOCTYPE html>
@@ -245,16 +278,30 @@ PAGE = """
 
 @app.route("/")
 def index():
-    tables = [
-        GTI(cars).i_cols_filter(columns="mfr", type="facet"),
-        GTI(cars).i_selection("multiple"),
-    ]
+    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    tables = [table.i_cols_filter(columns="mfr", type="facet"), table.i_selection("multiple")]
     return render_template_string(
         PAGE,
         runtime=runtime_tags(url="/static/gti/"),
         tables=[Markup(table.as_raw_html(runtime="none")) for table in tables],
     )
+
+
+if __name__ == "__main__":
+    app.run()
 ```
+
+Saved as `app.py`, it's run with `python app.py` (or `flask --app app.py run`, with Great Tables, Flask and Pandas installed), or with [uv](https://docs.astral.sh/uv/):
+
+``` bash
+uv run --with great_tables --with flask --with pandas app.py
+```
+
+It's also in Great Tables' repository, as [`demos/flask/app.py`](https://github.com/posit-dev/great-tables/blob/main/demos/flask/app.py). Its page, with two cars selected in the second table, looks like this:
+
+![The Flask app's page, with two cars selected in its second table](../assets/demos/flask.webp)
+
+The Flask app's page, with two cars selected in its second table
 
 Django makes what's put in a template a string before it's shown, so a table is given as its HTML, marked safe (with `mark_safe(table.as_raw_html())`, or `{ table_html|safe }` in the template); the runtime's tags are shown as they are. In FastHTML, the HTML of a table without its runtime is given as `NotStr(table.as_raw_html(runtime="none"))`, and the tags as one of the app's headers (`fast_app(hdrs=(runtime_tags(),))`).
 

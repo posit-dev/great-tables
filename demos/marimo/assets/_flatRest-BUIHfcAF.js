@@ -1,0 +1,1 @@
+import{L as e,N as t}from"./isArrayLikeObject-DH7ctiDt.js";import{t as n}from"./_baseFlatten-Fcj9_CzB.js";function r(e){return e!=null&&e.length?n(e,1):[]}function i(n){return e(t(n,void 0,r),n+``)}export{r as n,i as t};

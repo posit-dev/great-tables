@@ -1,0 +1,28 @@
+{
+  "great-tables": {
+    "releases": {
+      "1.2.1.dev174+gde9adaa0b": [
+        {
+          "comment_text": "",
+          "digests": {
+            "md5": "65b8299cd0d10956e610a51e941488d0",
+            "sha256": "01c387ba0e82663fc39a10897564cf96c107a17b00720d2690b36682d8849a8e"
+          },
+          "downloads": -1,
+          "filename": "great_tables-1.2.1.dev174+gde9adaa0b-py3-none-any.whl",
+          "has_sig": false,
+          "md5_digest": "65b8299cd0d10956e610a51e941488d0",
+          "packagetype": "bdist_wheel",
+          "python_version": "py3",
+          "requires_python": ">=3.10",
+          "size": 2308100,
+          "upload_time": "2026-11-25T13:27:52.670238Z",
+          "upload_time_iso_8601": "2026-11-25T13:27:52.670238Z",
+          "url": "./great_tables-1.2.1.dev174+gde9adaa0b-py3-none-any.whl",
+          "yanked": false,
+          "yanked_reason": null
+        }
+      ]
+    }
+  }
+}

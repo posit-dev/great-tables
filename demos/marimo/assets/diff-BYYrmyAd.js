@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-BWaJ3C7D.js";var t=e({diff:()=>r}),n={"+":`inserted`,"-":`deleted`,"@":`meta`},r={name:`diff`,token:function(e){var t=e.string.search(/[\t ]+?$/);if(!e.sol()||t===0)return e.skipToEnd(),(`error `+(n[e.string.charAt(0)]||``)).replace(/ $/,``);var r=n[e.peek()]||e.skipToEnd();return t===-1?e.skipToEnd():e.pos=t,r}};export{t as n,r as t};

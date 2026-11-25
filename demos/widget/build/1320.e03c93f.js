@@ -1,0 +1,2 @@
+"use strict";(self.rspackChunk_JUPYTERLAB_CORE_OUTPUT=self.rspackChunk_JUPYTERLAB_CORE_OUTPUT||[]).push([[1320],{44987(e,r,s){var n={"+":"inserted","-":"deleted","@":"meta"};s.d(r,{},{diff:{name:"diff",token:function(e){var r=e.string.search(/[\t ]+?$/);if(!e.sol()||0===r)return e.skipToEnd(),("error "+(n[e.string.charAt(0)]||"")).replace(/ $/,"");var s=n[e.peek()]||e.skipToEnd();return -1===r?e.skipToEnd():e.pos=r,s}}})}}]);
+//# sourceMappingURL=1320.e03c93f.js.map

@@ -1,0 +1,1 @@
+import{Fn as e,Rn as t,St as n}from"./fullscreen-BFh3RA8N.js";import{s as r}from"./useEventListener-C20Iz_A4.js";var i=t(null);function a(){let t=e(i);return r(t,`useRequestClient() requires setting requestClientAtom.`),t}function o(){let e=n.get(i);return r(e,`getRequestClient() requires requestClientAtom to be set.`),e}export{i as n,a as r,o as t};

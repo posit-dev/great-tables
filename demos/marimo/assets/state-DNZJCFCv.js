@@ -1,0 +1,1 @@
+import{Rn as e}from"./fullscreen-BFh3RA8N.js";import{_ as t}from"./useEventListener-C20Iz_A4.js";function n(){try{return window.__MARIMO_MOUNT_CONFIG__.version}catch{return t.warn(`Failed to get version from mount config`),null}}var r=n()||`latest`,i=e(r),a=e(!0),o=e(null);export{o as n,a as r,i as t};

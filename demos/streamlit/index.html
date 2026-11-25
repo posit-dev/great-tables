@@ -22,7 +22,7 @@
 import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.12.3/build/stlite.js";
 
 // (By its full URL, as stlite's worker would find a relative one from its own)
-const wheel = new URL("../wheels/great_tables-1.2.1.dev161+ga01d213d6-py3-none-any.whl", location.href).href;
+const wheel = new URL("../wheels/great_tables-1.2.1.dev174+gde9adaa0b-py3-none-any.whl", location.href).href;
 mount(
   { requirements: [wheel, "pandas"], entrypoint: "app.py", files: { "app.py": "import streamlit as st\n\nfrom great_tables import GT, GTI, data\nfrom great_tables.streamlit import st_gti, update_gti\n\ncars = data.gtcars[[\"mfr\", \"model\", \"year\", \"hp\", \"msrp\"]]\n\nst.button(\"Fastest first\", on_click=update_gti, args=(\"cars\",), kwargs={\"sort\": \"-hp\"})\ntable = (\n    GTI(cars)\n    .fmt_integer(\"hp\")\n    .fmt_currency(\"msrp\", decimals=0)\n    .i_cols_filter(columns=\"mfr\", type=\"facet\")\n    .i_selection(\"multiple\")\n)\nstate = st_gti(table, key=\"cars\")\nst.write(f\"{len(state.selection)} of {len(state.rows or [])} cars selected\")\n\nchosen = cars.iloc[state.selection]\nst.bar_chart(chosen, x=\"model\", y=\"hp\")\nst.html(GT(chosen).fmt_integer(\"hp\").fmt_currency(\"msrp\", decimals=0).as_raw_html())\n" } },
   document.getElementById("root"),

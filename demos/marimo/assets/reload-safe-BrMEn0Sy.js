@@ -1,0 +1,1 @@
+import{_ as e}from"./useEventListener-C20Iz_A4.js";import{t}from"./use-toast-B1oMBlNq.js";function n(){try{window.location.reload()}catch(n){e.error(`Failed to reload page`,n),t({title:`Failed to reload page`,description:`Please refresh the page manually.`})}}export{n as t};

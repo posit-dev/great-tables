@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) Jupyter Development Team.
+  Distributed under the terms of the Modified BSD License.
+-->
+<html>
+  <head>
+    <script>
+      // Handle workspace URLs by extracting the workspace name and redirecting to lab with query parameter
+      (function () {
+        const pathname = window.location.pathname;
+        const workspaceMatch = pathname.match(/\/doc\/workspaces\/([^\/]+)/);
+
+        if (workspaceMatch) {
+          // Extract workspace name from URL
+          const workspaceName = workspaceMatch[1];
+          const baseUrl = window.location.origin + window.location.pathname.replace(/\/workspaces\/[^\/]+.*$/, '');
+          const redirectUrl = `${baseUrl}/lab/index.html?workspace=${encodeURIComponent(workspaceName)}`;
+
+          console.log('Workspace redirect:', redirectUrl);
+          window.location.href = redirectUrl;
+        } else {
+          // Fallback: redirect to /lab by default
+          window.location.href = window.location.href.replace(
+            /(\/|\/index.html)?$/,
+            '/../../lab/index.html'
+          );
+        }
+      }.call(this));
+    </script>
+  <link rel="canonical" href="https://posit-dev.github.io/great-tables/demos/widget/doc/workspaces/">
+<meta name="description" content="Easily generate information-rich, publication-quality tables from Python.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Great Tables">
+<meta property="og:description" content="Easily generate information-rich, publication-quality tables from Python.">
+<meta property="og:url" content="https://posit-dev.github.io/great-tables/demos/widget/doc/workspaces/">
+<meta property="og:site_name" content="Great Tables">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Great Tables">
+<meta name="twitter:description" content="Easily generate information-rich, publication-quality tables from Python.">
+</head>
+</html>
