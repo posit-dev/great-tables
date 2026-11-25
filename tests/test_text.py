@@ -121,6 +121,22 @@ def test_md_html_valid_link_forms_unchanged():
     assert Md("[a](<http://x.com/u v>)").to_html() == '<a href="http://x.com/u%20v">a</a>'
     # Link syntax inside code spans stays literal
     assert Md("`[a](b c)`").to_html() == "<code>[a](b c)</code>"
+    # Link syntax inside fenced code blocks stays literal too
+    assert Md("```\n[a](b c)\n```").to_html() == "<pre><code>[a](b c)\n</code></pre>\n"
+
+
+def test_md_html_link_with_escaped_char_in_url():
+    # An escaped closing parenthesis does not end the destination scan, so the
+    # space after it is still encoded and the escape itself is left to the parser
+    assert (
+        Md("[a](http://x.com/a\\)b c)").to_html() == '<a href="http://x.com/a)b%20c">a</a>'
+    )
+
+
+def test_md_html_unterminated_link_left_as_text():
+    # Without a closing parenthesis there is no destination to encode
+    assert Md("[a](b c").to_html() == "[a](b c"
+    assert Md("before [a](b c").to_html() == "before [a](b c"
 
 
 def test_html_to_latex_strips_tags():
