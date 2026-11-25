@@ -97,7 +97,7 @@ def main() -> None:
         for rows in counts:
             for paged in [True, False]:
                 gti = table(rows, kind, paged)
-                html = page_html(render_gti_html(gti))
+                html = page_html(render_gti_html(gti), gti)
                 name = f"{kind}-{rows}-{'paged' if paged else 'one-page'}.html"
                 (OUT / name).write_text(html, encoding="utf-8")
                 data = html.encode("utf-8")
