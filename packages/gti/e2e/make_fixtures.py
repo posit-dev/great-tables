@@ -383,6 +383,24 @@ def pin_html(
     return render_gti_html(gti, runtime="none")
 
 
+def pin_pages_html(table_id: str) -> str:
+    # A GTI table of exibble five times over (40 rows), 5 rows to a page, with char moved to the
+    # start and pinned there, and text that doesn't wrap: datetime's value in the last row alone
+    # (on the last page) is long. Wider than its container.
+    data = pd.concat([exibble] * 5, ignore_index=True).drop(columns="group")
+    data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
+    data.loc[len(data) - 1, "datetime"] = "2018-08-08 08:08, the last row's, longer than the rest"
+    gti = (
+        GTI(data, rowname_col="row", id=table_id)
+        .cols_move_to_start("char")
+        .opt_row_striping()
+        .i_pagination(page_size=5)
+        .i_display(wrap=False)
+        .i_cols_pin("char")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def hide_html(table_id: str) -> str:
     # The pinned columns' table (char pinned at the start, fctr at the end, under "Ends" with
     # currency), whose data columns readers can hide, first shown without datetime; with set
@@ -1148,8 +1166,8 @@ def main() -> None:
         # Pinned columns (at the start and the end), in a container 480px wide: with group
         # headings; with groups shown as a column, in a body that scrolls (in one 640px wide, with
         # room for that column); in a body that scrolls, with the group headings stuck (with no
-        # background of their own, from the page's CSS); right to left; and with a filter on every
-        # column
+        # background of their own, from the page's CSS); right to left; with a filter on every
+        # column; and (char at the start alone) on pages, with a long value on the last
         "pin.html": page(
             '<div style="width: 480px">' + pin_html("pn") + "</div>\n" + runtime_src,
             head=styles,
@@ -1174,6 +1192,10 @@ def main() -> None:
         ),
         "pin-filters.html": page(
             '<div style="width: 480px">' + pin_html("pn", filters=True) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "pin-pages.html": page(
+            '<div style="width: 480px">' + pin_pages_html("pp") + "</div>\n" + runtime_src,
             head=styles,
         ),
         # Tables under a CSS zoom of 1.25: with the control bar; with the pinned columns, in a

@@ -315,4 +315,44 @@ test.describe("pinned columns", () => {
     }
     expect(errors).toEqual([]);
   });
+
+  test("are pinned in the rows of the page shown, in columns measured with every row", async ({ page }) => {
+    const errors = await ready(page, "pin-pages.html");
+    // The stub and char cells placed where they stick, in the rows shown and those hidden: the
+    // other pages' rows aren't placed as the table is set up (which would take seconds, with
+    // thousands of them), but as they're shown
+    const pinned = () =>
+      el(page).evaluate((node) => [
+        node.querySelectorAll('tbody > tr:not([hidden]) > .gt-i-pinned[style*="inset-inline-start"]').length,
+        node.querySelectorAll('tbody > tr[hidden] > .gt-i-pinned[style*="inset-inline-start"]').length,
+      ]);
+    expect(await pinned()).toEqual([10, 0]);
+    expect((await fills(page)).stale).toEqual([]);
+    // datetime is as wide as its value on the last page, and its handle says so
+    const datetime = label(page, "datetime");
+    const width = async () => {
+      const box = await rect(datetime);
+      return box.right - box.left;
+    };
+    const before = await width();
+    const now = Number(await datetime.locator(".gt-i-resizer").getAttribute("aria-valuenow"));
+    expect(Math.abs(now - before)).toBeLessThanOrEqual(1);
+
+    await el(page).evaluate((node) => ((node as unknown as { page: number }).page = 8));
+    const last = row(page, "row_40");
+    await expect(last).toBeVisible();
+    expect(await pinned()).toEqual([10, 10]);
+    expect((await fills(page)).stale).toEqual([]);
+    expect(await width()).toBeCloseTo(before, 0);
+    const cut = await last.locator('td[headers~="pp-datetime"]').evaluate((td) => td.scrollWidth - td.clientWidth);
+    expect(cut).toBeLessThanOrEqual(0);
+    // (The stub and char stay in view, as the rest scroll under them)
+    await scrollTo(page, 2000);
+    const view = await port(scroller(page));
+    const char = await rect(last.locator("> *").nth(1));
+    expect((await rect(last.locator("> *").first())).left).toBeCloseTo(view.left, 0);
+    expect(char.right).toBeLessThan(view.right);
+    expect(char.left).toBeGreaterThan(view.left);
+    expect(errors).toEqual([]);
+  });
 });
