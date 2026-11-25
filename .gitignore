@@ -138,3 +138,6 @@ dev-skills/
 !ACCESSIBILITY.md
 !README.md
 !ROADMAP.md
+
+# The runtime the Flask demo writes for itself to serve
+/demos/flask/static/
