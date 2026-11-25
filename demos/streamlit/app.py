@@ -12,6 +12,7 @@ table = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 state = st_gti(table, key="cars")
 st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")

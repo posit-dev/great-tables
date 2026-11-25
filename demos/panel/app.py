@@ -12,6 +12,7 @@ table = GTIPane(
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 
 

@@ -7,12 +7,17 @@
 //     label="The Streamlit app" size="45 MB"></gt-demo>
 //
 // Attributes:
-//   src      the app's page (also opened, as the full page, by the link below the frame)
-//   poster   an image of the app
-//   height   the frame's height, in pixels (720 by default)
-//   label    what the app is, for the frame's title and the poster's description
-//   size     about how much the app downloads the first time it's run
-//   action   the poster's button ("Run this app" by default)
+//   src          the app's page (also opened, as the full page, by the link below the frame)
+//   poster       an image of the app
+//   poster-dark  an image of the app in its dark theme, shown when the docs' theme is dark
+//   height       the frame's height, in pixels (720 by default)
+//   label        what the app is, for the frame's title and the poster's description
+//   size         about how much the app downloads the first time it's run
+//   action       the poster's button ("Run this app" by default)
+//
+// The app's page is given the docs' theme, as `?theme=dark` (or `light`), for an app that follows
+// it (as one with a `poster-dark` does). It's the theme the app starts in: changing the docs' theme
+// then changes the poster and the frame, but not an app that's running.
 
 (() => {
   const STYLE = `
@@ -73,6 +78,21 @@
       color: #2b2b33;
       background: rgba(255, 255, 255, 0.85);
     }
+    .dark {
+      background: #1e1e1e;
+    }
+    .dark .note {
+      color: #e6e6e6;
+      background: rgba(30, 30, 30, 0.85);
+    }
+    /* (On a phone, the poster is shown whole, as it's as wide as the page it was made in, rather
+       than cut to the frame's height; the app, once run, has that height) */
+    @media (max-width: 575px) {
+      .poster {
+        height: auto !important;
+        aspect-ratio: var(--poster-ratio);
+      }
+    }
     .links {
       margin: 0.4rem 0 0;
       font-size: 0.9rem;
@@ -97,11 +117,12 @@
       const style = document.createElement("style");
       style.textContent = STYLE;
       const frame = document.createElement("div");
-      frame.className = "frame";
+      frame.className = "frame poster";
       frame.style.height = `${height}px`;
+      // (The posters are 900 pixels wide, as `demos/posters.mjs` makes them, and the frame's height)
+      frame.style.setProperty("--poster-ratio", `900 / ${height}`);
 
       const poster = document.createElement("img");
-      poster.src = this.getAttribute("poster") || "";
       poster.alt = `${label}, as it looks once it's run`;
       poster.loading = "lazy";
       const start = document.createElement("div");
@@ -118,22 +139,45 @@
       const links = document.createElement("p");
       links.className = "links";
       const full = document.createElement("a");
-      full.href = src;
       full.target = "_blank";
       full.rel = "noopener";
       full.textContent = "Open full page ↗";
       links.append(full);
 
+      // (The app's page, in the docs' theme)
+      const themed = () => {
+        const url = new URL(src, document.baseURI);
+        url.searchParams.set("theme", isDark() ? "dark" : "light");
+        return url.href;
+      };
+      const paint = () => {
+        const dark = isDark();
+        frame.classList.toggle("dark", dark);
+        poster.src = (dark && this.getAttribute("poster-dark")) || this.getAttribute("poster") || "";
+        full.href = themed();
+      };
+      paint();
+      const watch = new MutationObserver(paint);
+      for (const node of [document.documentElement, document.body]) {
+        watch.observe(node, { attributes: true, attributeFilter: ["class"] });
+      }
+
       button.addEventListener("click", () => {
         const app = document.createElement("iframe");
-        app.src = src;
+        app.src = themed();
         app.title = `${label}, running in your browser`;
+        frame.classList.remove("poster");
         frame.replaceChildren(app);
         app.focus();
       });
       root.append(style, frame, links);
     }
   }
+
+  // (As the docs mark their dark theme)
+  const isDark = () =>
+    document.documentElement.classList.contains("quarto-dark") ||
+    document.body.classList.contains("quarto-dark");
 
   customElements.define("gt-demo", GtDemo);
 })();

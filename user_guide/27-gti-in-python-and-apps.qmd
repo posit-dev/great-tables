@@ -39,10 +39,15 @@ widget = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
     .i_as_widget()
 )
 widget
 ```
+
+With `~~GTI.i_responsive()` set to `"scroll"`, the table scrolls sideways in a narrow container (as
+on a phone), rather than its rows being stacked as cards (see
+[Narrow containers](26-gti-tables.qmd#narrow-containers)), as each app's table on this page does.
 
 Then, in another cell (as the browser gives Python the table's state once the cell is done), the
 cars selected, as a table of their own:
@@ -77,7 +82,7 @@ which can be
 [opened in Colab](https://colab.research.google.com/github/posit-dev/great-tables/blob/main/demos/widget/cars.ipynb).
 
 ```{=html}
-<gt-demo src="../demos/widget/notebooks/index.html?path=_notebooks/cars.ipynb" poster="../assets/demos/widget.webp" height="900" label="The notebook" size="35 MB" action="Open this notebook"></gt-demo>
+<gt-demo src="../demos/widget/notebooks/index.html?path=_notebooks/cars.ipynb" poster="../assets/demos/widget.webp" poster-dark="../assets/demos/widget-dark.webp" height="900" label="The notebook" size="35 MB" action="Open this notebook"></gt-demo>
 ```
 
 ## Using the table in a marimo notebook or app
@@ -104,6 +109,7 @@ table = mo_gti(
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 table
 ```
@@ -134,7 +140,7 @@ Here's that notebook, run as an app in the browser (with marimo's WebAssembly ex
 docs' Great Tables). Select a few cars, filter by manufacturer, or click "Fastest first":
 
 ```{=html}
-<gt-demo src="../demos/marimo/" poster="../assets/demos/marimo.webp" height="760" label="The marimo notebook" size="40 MB"></gt-demo>
+<gt-demo src="../demos/marimo/" poster="../assets/demos/marimo.webp" poster-dark="../assets/demos/marimo-dark.webp" height="760" label="The marimo notebook" size="40 MB"></gt-demo>
 ```
 
 `table.view()` gives the rows kept as a DataFrame of the data's library (and
@@ -174,6 +180,7 @@ def server(input, output, session):
             GTI(data.pl.gtcars.select(["mfr", "model", "year", "hp", "msrp"]))
             .i_cols_filter(columns="mfr", type="facet")
             .i_selection("multiple")
+            .i_responsive("scroll")
         )
 
     @render.text
@@ -218,6 +225,7 @@ table = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 state = st_gti(table, key="cars")
 st.write(f"{len(state.selection)} of {len(state.rows or [])} cars selected")
@@ -231,7 +239,7 @@ Here's that app, run in the browser (with [stlite](https://github.com/whitphx/st
 docs' Great Tables):
 
 ```{=html}
-<gt-demo src="../demos/streamlit/" poster="../assets/demos/streamlit.webp" height="900" label="The Streamlit app" size="45 MB"></gt-demo>
+<gt-demo src="../demos/streamlit/" poster="../assets/demos/streamlit.webp" poster-dark="../assets/demos/streamlit-dark.webp" height="900" label="The Streamlit app" size="45 MB"></gt-demo>
 ```
 
 The table keeps its view and selection by its `key` as the app runs again, as long as it's rendered
@@ -265,6 +273,7 @@ table = GTIPane(
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 
 
@@ -317,6 +326,7 @@ table = (
     .fmt_currency("msrp", decimals=0)
     .i_cols_filter(columns="mfr", type="facet")
     .i_selection("multiple")
+    .i_responsive("scroll")
 )
 
 sort = solara.reactive([])
@@ -397,7 +407,7 @@ PAGE = """
 
 @app.route("/")
 def index():
-    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0)
+    table = GTI(cars).fmt_integer("hp").fmt_currency("msrp", decimals=0).i_responsive("scroll")
     tables = [table.i_cols_filter(columns="mfr", type="facet"), table.i_selection("multiple")]
     return render_template_string(
         PAGE,
