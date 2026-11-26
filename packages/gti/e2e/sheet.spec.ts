@@ -63,11 +63,24 @@ test.describe("on a touch screen", () => {
     await sheet(page).getByRole("searchbox").fill("five");
     await expect.poll(async () => dataRows(await visible(page))).toEqual([4, 12, 20]);
     await expect(sheet(page).locator(".gt-i-info-rows")).toHaveText("1–3 of 3 rows (filtered from 24)");
-    // (The search shows in the bar once it closes)
+    // (The search stays folded once it closes, its button saying there's one, with the page controls
+    // in the bar; and shows in the bar once there's room)
     await sheet(page).getByRole("button", { name: "Done" }).tap();
     await expect(sheet(page)).toBeHidden();
     await expect(opener(page)).toBeFocused();
+    await expect(bar(page).getByRole("searchbox")).toBeHidden();
+    await expect(bar(page).getByRole("button", { name: "Next page" })).toBeVisible();
+    const accent = await bar(page).evaluate((bar) => getComputedStyle(bar).getPropertyValue("--gt-i-accent").trim() || "#1f6feb");
+    const color = await page.evaluate((accent) => {
+      const probe = document.createElement("i");
+      probe.style.color = accent;
+      document.body.append(probe);
+      return getComputedStyle(probe).color;
+    }, accent);
+    await expect(opener(page)).toHaveCSS("border-top-color", color);
+    await widen(page, "760px");
     await expect(bar(page).getByRole("searchbox")).toHaveValue("five");
+    await expect(bar(page).getByRole("searchbox")).toBeVisible();
     expect(errors).toEqual([]);
   });
 
@@ -144,10 +157,19 @@ test("with a mouse, a bar with little room folds too, on one line, and a long pr
   await expect(bar(page).locator('[data-gti-bar="query"]')).toBeHidden();
   await expect(bar(page).locator('[data-gti-bar="keys"]')).toBeHidden();
   expect((await bar(page).boundingBox())?.height).toBeLessThan(40);
-  // (The shortcuts are in the info panel, and the sheet opens on a click)
+  // (Nor are the shortcuts, or the naming of the parts, in the info panel)
   await bar(page).getByRole("button", { name: "Table info" }).click();
-  await expect(bar(page).locator('[data-gti-info="keys"]')).toBeVisible();
+  await expect(bar(page).locator(".gt-i-info:visible")).toHaveCount(1);
+  await expect(bar(page).locator('[data-gti-info="keys"]')).toBeHidden();
+  await expect(bar(page).locator('[data-gti-info="parts"]')).toBeHidden();
   await page.keyboard.press("Escape");
+  // (`/` opens the sheet's search)
+  await el(page).locator("tbody td").first().click();
+  await page.keyboard.press("/");
+  await expect(sheet(page)).toBeVisible();
+  await expect(sheet(page).getByRole("searchbox")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(sheet(page)).toBeHidden();
   await opener(page).click();
   await expect(sheet(page)).toBeVisible();
   await expect(sheet(page).getByRole("group", { name: "Search" })).toBeVisible();
