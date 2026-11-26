@@ -572,7 +572,7 @@ class GT(
                 f"{type(self).__name__!r} object has no attribute {name!r}", name=name, obj=self
             )
 
-    def _render_formats(self, context: str) -> Self:
+    def _render_formats(self, context: str, condense_floats: bool = False) -> Self:
         new_body = self._body.copy()
 
         # TODO: this body method performs a mutation. Should we make a copy of body?
@@ -587,6 +587,7 @@ class GT(
             data_tbl=self._tbl_data,
             formatted_cells=formatted_cells,
             context=context,
+            condense_floats=condense_floats,
         )
 
         # Update group row labels with formatted values when a row_group column exists
@@ -594,10 +595,10 @@ class GT(
 
         return result._replace(_stub=new_stub)
 
-    def _build_data(self, context: str) -> Self:
+    def _build_data(self, context: str, condense_floats: bool = False) -> Self:
         # Build the body of the table by generating a dictionary
         # of lists with cells initially set to nan values
-        built = self._render_formats(context)
+        built = self._render_formats(context, condense_floats=condense_floats)
 
         # Perform column merging
         built = perform_col_merge(built, context=context)
