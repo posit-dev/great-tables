@@ -4886,6 +4886,16 @@ def test_fmt_markdown_na_value_returns_na():
     assert result[1] is None or str(result[1]) in ("None", "null", "")
 
 
+def test_fmt_markdown_table():
+    # a Markdown table in a cell is rendered as an HTML table
+    df = pl.DataFrame({"text": ["| A | B |\n|---|---|\n| 1 | 2 |"]})
+    gt = GT(df).fmt_markdown(columns="text")
+    result = _get_column_of_values(gt, column_name="text", context="html")
+    assert result[0].startswith("<table>")
+    assert "<th>A</th>" in result[0]
+    assert "<td>1</td>" in result[0]
+
+
 def test_fmt_markdown_latex_context():
     # return _md_latex(str(x)) when context == "latex"
     df = pl.DataFrame({"text": ["**bold**"]})
