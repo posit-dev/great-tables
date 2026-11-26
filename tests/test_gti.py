@@ -512,6 +512,18 @@ def test_render_compact_keeps_the_authors_padding():
     assert gt._options.summary_row_padding.value == "8px"
 
 
+def test_render_condenses_long_floats(frame_constructor):
+    df = frame_constructor({"x": [1.5207923835712901e-21, 13135.722895, 0.1 + 0.2], "y": [1, 2, 3]})
+    _, trs = split_gti_html(render_gti_html(GT(df), runtime="none"))
+
+    cells = [re.findall(r"<td[^>]*>(.*?)</td>", tr)[0] for tr in trs]
+    assert cells == ["1.52079E-21", "13135.722895", "0.3"]
+    # (But not in the static table, nor where a formatter set the text)
+    assert "1.5207923835712901e-21" in GT(df).as_raw_html()
+    formatted = render_gti_html(GT(df).fmt_scientific("x", decimals=3), runtime="none")
+    assert "1.521" in formatted and "1.52079E-21" not in formatted
+
+
 def test_render_nowrap_marks_the_element():
     gt = GT(DF)
     assert render_gti_html(gt, runtime="none").startswith("<gt-table>\n")
