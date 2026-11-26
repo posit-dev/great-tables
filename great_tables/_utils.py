@@ -232,13 +232,18 @@ def _flatten_list(x: Any) -> list[Any]:
 # yet since that would result in a circular import. This will be fixed in the future (when HTML
 # escaping is implemented).
 def _migrate_unformatted_to_output(
-    data: GTData, data_tbl: TblData, formatted_cells: set[tuple[str, int]], context: str
+    data: GTData,
+    data_tbl: TblData,
+    formatted_cells: set[tuple[str, int]],
+    context: str,
+    condense_floats: bool = False,
 ) -> GTData:
     """
     Escape unformatted cells so they are safe for a specific output context.
 
     A cell only counts as formatted if a formatter produced a value for it, so cells that every
-    formatter skipped (e.g., non-missing cells targeted by `sub_missing()`) are escaped too.
+    formatter skipped (e.g., non-missing cells targeted by `sub_missing()`) are escaped too. With
+    `condense_floats=`, an unformatted float is shown as `_condensed_float()` has it.
     """
 
     # Get all visible cells in the table
@@ -257,13 +262,37 @@ def _migrate_unformatted_to_output(
         if cell_value is None or is_na(data_tbl, cell_value):
             continue
 
-        cell_value_str = str(cell_value)
+        if condense_floats and isinstance(cell_value, float):
+            cell_value_str = _condensed_float(cell_value)
+        else:
+            cell_value_str = str(cell_value)
         new_values.setdefault(col, {})[row] = _process_text(cell_value_str, context=context)
 
     for col, values in new_values.items():
         data._body.body = _set_cells(data._body.body, col, values)
 
     return data
+
+
+# (Longer than this, a float's shortest text is condensed)
+CONDENSED_FLOAT_LENGTH = 12
+
+
+def _condensed_float(value: float) -> str:
+    """
+    A float as text: its shortest text that reads back as the float, unless that's longer than
+    `CONDENSED_FLOAT_LENGTH`, when it's rounded to 6 significant digits (which drops the noise of
+    floating point, as in `0.00015800000000000002`), or for a whole number that's short enough
+    without it, shown without its `.0` (`10617809600`). Either way, in scientific notation the
+    exponent is marked with an `E` (as in `1.52079E-21`).
+    """
+    text = str(value)
+    if len(text) > CONDENSED_FLOAT_LENGTH:
+        whole = f"{value:.0f}"
+        if value.is_integer() and len(whole) <= CONDENSED_FLOAT_LENGTH:
+            return whole
+        return format(value, ".6G")
+    return text.replace("e", "E")
 
 
 # Get a list of tuples for all visible cells in the table
