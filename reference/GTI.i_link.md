@@ -4,7 +4,7 @@ Link the table to others on the page, so that the rows selected in one filter th
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1922-L2003)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1925-L2006)
 
 ``` python
 GTI.i_link(

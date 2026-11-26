@@ -4,7 +4,7 @@ Create a **Great Tables** object.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gt.py#L272-L734)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gt.py#L272-L735)
 
 ``` python
 GT(

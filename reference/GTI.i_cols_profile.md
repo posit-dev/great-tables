@@ -4,7 +4,7 @@ Show how the columns' values are spread, in a small plot under their labels.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1336-L1438)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1339-L1441)
 
 ``` python
 GTI.i_cols_profile(

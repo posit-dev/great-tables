@@ -13646,7 +13646,10 @@ Set how the table's rows look, and whether its parts are named.
 <code>[wrap]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [bool]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[True]{.va}]{.doc-parameter-default}</code>
 
 :   Whether the text in cells wraps. Without wrapping, the text is on one line, cut short
-    (with an ellipsis) if it doesn't fit, so that every row is the same height.
+    (with an ellipsis) if it doesn't fit, so that every row is the same height. A column of
+    text is then only as wide as all but the longest tenth of its cells' text needs (and
+    its label), and no wider than 20 times the font size, with a tooltip showing a cut
+    cell's text (its first 150 characters) as the pointer rests on it, or as it's tapped.
 
 <code>[monospace]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [bool]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[False]{.va}]{.doc-parameter-default}</code>
 
@@ -26007,6 +26010,12 @@ gtcars_wide = (
 
 gtcars_wide
 ```
+
+On one line, a column of text is as wide as most of its cells need, rather than as wide as its
+longest: the longest tenth of them are cut short, and a cut cell shows its text in a tooltip as the
+pointer rests on it (or as it's tapped). Numbers left unformatted are kept short in any interactive
+table, wrapped or not: a long float, such as `0.00015800000000000002` or `1.5207923835712901e-21`, is
+shown to 6 significant digits, as `0.000158` or `1.52079E-21`.
 
 Scrolling is one of three ways `~~GTI.i_responsive()` fits a table to a narrow container; the
 others, stacking the rows as cards and dropping columns, are in

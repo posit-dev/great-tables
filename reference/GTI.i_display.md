@@ -4,7 +4,7 @@ Set how the table's rows look, and whether its parts are named.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L685-L757)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L685-L760)
 
 ``` python
 GTI.i_display(
@@ -26,7 +26,7 @@ Whether the row under the pointer (or the row tapped, on a touch screen) is high
 Whether the rows are compact, with half of their usual padding above and below (where it hasn't been set, as with `tab_options(data_row_padding=)`).
 
 `wrap: bool = True`  
-Whether the text in cells wraps. Without wrapping, the text is on one line, cut short (with an ellipsis) if it doesn't fit, so that every row is the same height.
+Whether the text in cells wraps. Without wrapping, the text is on one line, cut short (with an ellipsis) if it doesn't fit, so that every row is the same height. A column of text is then only as wide as all but the longest tenth of its cells' text needs (and its label), and no wider than 20 times the font size, with a tooltip showing a cut cell's text (its first 150 characters) as the pointer rests on it, or as it's tapped.
 
 `monospace: bool = False`  
 Whether the column labels and the cells are in a monospaced font, for a table that's a look at data more than a presentation of it (as in `GTI(preset="explorer")`). The title, the notes and the controls keep the table's font.

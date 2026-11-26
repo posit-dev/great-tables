@@ -2091,6 +2091,8 @@ gtcars_wide
 | Wraith | Rolls-Royce | 2016 | Base Coupe | coupe | 624 | 5600 | 590 | 1500 | 13 | 21 | rwd | 8a | United Kingdom | \$304,350 |
 | Source: the gtcars dataset. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 
+On one line, a column of text is as wide as most of its cells need, rather than as wide as its longest: the longest tenth of them are cut short, and a cut cell shows its text in a tooltip as the pointer rests on it (or as it's tapped). Numbers left unformatted are kept short in any interactive table, wrapped or not: a long float, such as `0.00015800000000000002` or `1.5207923835712901e-21`, is shown to 6 significant digits, as `0.000158` or `1.52079E-21`.
+
 Scrolling is one of three ways [i_responsive()](../reference/GTI.i_responsive.md#great_tables.GTI.i_responsive) fits a table to a narrow container; the others, stacking the rows as cards and dropping columns, are in [Narrow containers](#narrow-containers).
 
 ## Pinned columns

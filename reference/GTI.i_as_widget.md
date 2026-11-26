@@ -4,7 +4,7 @@ Show the table as a widget, whose view and selection can be read and set from Py
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L2064-L2158)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L2067-L2161)
 
 ``` python
 GTI.i_as_widget()
