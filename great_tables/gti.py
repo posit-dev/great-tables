@@ -703,7 +703,10 @@ class GTI(GT):
             it hasn't been set, as with `tab_options(data_row_padding=)`).
         wrap
             Whether the text in cells wraps. Without wrapping, the text is on one line, cut short
-            (with an ellipsis) if it doesn't fit, so that every row is the same height.
+            (with an ellipsis) if it doesn't fit, so that every row is the same height. A column of
+            text is then only as wide as all but the longest tenth of its cells' text needs (and
+            its label), and no wider than 20 times the font size, with a tooltip showing a cut
+            cell's text (its first 150 characters) as the pointer rests on it, or as it's tapped.
         monospace
             Whether the column labels and the cells are in a monospaced font, for a table that's a
             look at data more than a presentation of it (as in `GTI(preset="explorer")`). The
