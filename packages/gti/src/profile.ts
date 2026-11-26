@@ -1,27 +1,35 @@
 /**
  * Column profiles: under a column's label, a plot of the values in the rows the search and filters
- * keep (a histogram of its numbers or dates, or bars for its most common values), and how many of
+ * keep (a histogram of its numbers or dates, or a strip of its most common values), and how many of
  * them are missing.
  *
  * A profile's bars are set by the whole column (a histogram's bins span its range, and "top" has
  * the values most rows have), so that they stay put as rows are filtered; only their counts change.
+ * A column with missing values has a bar of them too, last.
  */
 
 import { dateKey } from "./filter";
 import type { ProfileSpec } from "./spec";
 
-/** The most bins a histogram has, and the most values "top" shows (before a bar for the others). */
+/** The most bins a histogram has, and the most values "top" shows (before bars for the others). */
 export const BINS = 20;
 export const TOP = 5;
 
 const DAY = 864e5;
 
 /**
- * A bar: of a histogram's bin, from `low` up to `high` (numbers, or times in ms), or of one of
- * "top"'s values (`low` and `high` NaN), or its other values (`rank` -1). A bar of one value (all
- * of "top"'s but the others', and a histogram's whole number or day, if a row has it) has its rank.
+ * What a bar is of: a histogram's bin, or one of "top"'s values (`"value"`); "top"'s other values
+ * in more than one row each (`"others"`), or in one row each (`"unique"`); or the missing values.
+ */
+export type BarKind = "value" | "others" | "unique" | "missing";
+
+/**
+ * A bar: of a histogram's bin, from `low` up to `high` (numbers, or times in ms), or else `low` and
+ * `high` NaN. A bar of one value (each of "top"'s values, and a histogram's whole number or day,
+ * if a row has it) has its rank; the others' rank is -1.
  */
 export interface Bar {
+  kind: BarKind;
   rank: number;
   low: number;
   high: number;
@@ -67,12 +75,17 @@ export class Profile {
   readonly bars: Bar[] = [];
   /** Whether a histogram's values are times (in ms), rather than numbers. */
   readonly times: boolean;
-  /** How many values "top"'s last bar has, if it's of the others; else 0. */
+  /** How many values "top"'s bars of the others, and of the values in one row each, have (or 0). */
   readonly others: number = 0;
+  readonly uniques: number = 0;
+  /** Whether "top" has too many values to show, each in one row (and so shows none of them). */
+  readonly unique: boolean = false;
   /** A data row with each rank (-1 for none). */
   readonly rowOf: Int32Array;
-  // Each rank's bar (-1 for none, for a value a histogram can't place)
+  // Each rank's bar (-1 for none, for a value a histogram can't place), and the missing values' bar
+  // (-1 for none)
   private readonly barOf: Int32Array;
+  private readonly missingBar: number = -1;
 
   constructor(
     readonly spec: ProfileSpec,
@@ -94,16 +107,29 @@ export class Profile {
     this.times = values?.some((value) => typeof value === "string") ?? false;
 
     if (values === null) {
-      // The values most rows have (the first of those with as many), then the others
+      // The values most rows have (the first of those with as many), then the others: all of them,
+      // if there's only one more than it shows; else those in more than one row, then the rest
       const order = counts.map((_, rank) => rank).sort((a, b) => (counts[b] as number) - (counts[a] as number) || a - b);
-      const shown = order.length > TOP + 1 ? TOP : order.length;
-      order.forEach((rank, i) => {
-        this.barOf[rank] = Math.min(i, shown);
-        if (i <= shown) {
-          this.bars.push({ rank: i < shown ? rank : -1, low: NaN, high: NaN });
-        }
-      });
-      this.others = order.length - shown;
+      const many = order.length > TOP + 1;
+      const repeated = many ? order.filter((rank) => (counts[rank] as number) > 1) : order;
+      const shown = repeated.length > TOP + 1 ? TOP : repeated.length;
+      const singles = order.slice(repeated.length);
+      this.others = repeated.length - shown;
+      this.uniques = singles.length > 1 ? singles.length : 0;
+      this.unique = many && repeated.length === 0;
+      const add = (kind: BarKind, group: number[]) => {
+        group.forEach((rank) => (this.barOf[rank] = this.bars.length));
+        this.bars.push({ kind, rank: kind === "value" ? (group[0] as number) : -1, low: NaN, high: NaN });
+      };
+      repeated.slice(0, shown).forEach((rank) => add("value", [rank]));
+      if (this.others > 0) {
+        add("others", repeated.slice(shown));
+      }
+      // (A value in one row, alone, has a bar of its own)
+      if (singles.length > 0) {
+        add(singles.length === 1 ? "value" : "unique", singles);
+      }
+      this.missingBar = this.addMissing(ranks);
       return;
     }
 
@@ -117,6 +143,7 @@ export class Profile {
       }
     }
     if (low > high) {
+      this.missingBar = this.addMissing(ranks);
       return;
     }
     // (A bin per whole number, or day, if they're few; else as many as fit, of equal width)
@@ -125,7 +152,7 @@ export class Profile {
     const n = whole ? Math.round((high - low) / unit) + 1 : low === high ? 1 : BINS;
     const width = whole ? unit : (high - low) / n;
     for (let i = 0; i < n; i++) {
-      this.bars.push({ rank: -1, low: low + i * width, high: whole ? low + i * width : i === n - 1 ? high : low + (i + 1) * width });
+      this.bars.push({ kind: "value", rank: -1, low: low + i * width, high: whole ? low + i * width : i === n - 1 ? high : low + (i + 1) * width });
     }
     xs.forEach((x, rank) => {
       if (Number.isFinite(x)) {
@@ -137,6 +164,16 @@ export class Profile {
         }
       }
     });
+    this.missingBar = this.addMissing(ranks);
+  }
+
+  // A bar of the missing values (and those a histogram can't place), if a row has one: its index
+  private addMissing(ranks: readonly (number | null)[]): number {
+    if (!ranks.some((rank) => rank === null || (this.barOf[rank] as number) < 0)) {
+      return -1;
+    }
+    this.bars.push({ kind: "missing", rank: -1, low: NaN, high: NaN });
+    return this.bars.length - 1;
   }
 
   /** The counts of the rows `kept` has (all of them, for `null`). */
@@ -151,6 +188,7 @@ export class Profile {
       const bar = rank === null ? -1 : (this.barOf[rank] ?? -1);
       if (rank === null || bar < 0) {
         counts.missing++;
+        counts.bars[this.missingBar] = (counts.bars[this.missingBar] as number) + 1;
         return;
       }
       counts.bars[bar] = (counts.bars[bar] as number) + 1;
