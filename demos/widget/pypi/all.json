@@ -1,24 +1,24 @@
 {
   "great-tables": {
     "releases": {
-      "1.2.1.dev200+gd7ac7cf7a": [
+      "1.2.1.dev206+g19451ea9b": [
         {
           "comment_text": "",
           "digests": {
-            "md5": "0c470992950a4812c7ce46edf8984724",
-            "sha256": "b61916934dcf3bedb729b4711528f3a4b9906a38b180881b720a4dc1a7b29baf"
+            "md5": "212ea9bfc9fba60a1042a891d3ba1460",
+            "sha256": "4d4be259cf933017b9609969a792c46d090b441f4ec7e6bab1e4051ff6cbc919"
           },
           "downloads": -1,
-          "filename": "great_tables-1.2.1.dev200+gd7ac7cf7a-py3-none-any.whl",
+          "filename": "great_tables-1.2.1.dev206+g19451ea9b-py3-none-any.whl",
           "has_sig": false,
-          "md5_digest": "0c470992950a4812c7ce46edf8984724",
+          "md5_digest": "212ea9bfc9fba60a1042a891d3ba1460",
           "packagetype": "bdist_wheel",
           "python_version": "py3",
           "requires_python": ">=3.10",
-          "size": 2305369,
-          "upload_time": "2026-11-26T03:27:29.900257Z",
-          "upload_time_iso_8601": "2026-11-26T03:27:29.900257Z",
-          "url": "./great_tables-1.2.1.dev200+gd7ac7cf7a-py3-none-any.whl",
+          "size": 2305465,
+          "upload_time": "2026-11-26T04:55:14.947518Z",
+          "upload_time_iso_8601": "2026-11-26T04:55:14.947518Z",
+          "url": "./great_tables-1.2.1.dev206+g19451ea9b-py3-none-any.whl",
           "yanked": false,
           "yanked_reason": null
         }
