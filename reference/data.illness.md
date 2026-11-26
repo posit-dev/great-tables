@@ -58,13 +58,6 @@ This is a dataset with 39 rows and 11 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import illness
-
-GTI(illness, preset="explorer").i_responsive("scroll")
-```
-
 | test | units | day_3 | day_4 | day_5 | day_6 | day_7 | day_8 | day_9 | norm_l | norm_u |
 |----|----|----|----|----|----|----|----|----|----|----|
 | Viral load | copies per mL | 12000.0 | 4200.0 | 1600.0 | 830.0 | 760.0 | 520.0 | 250.0 | None | None |

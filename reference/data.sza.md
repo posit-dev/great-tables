@@ -21,13 +21,6 @@ This is a dataset with 816 rows and 4 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import sza
-
-GTI(sza, preset="explorer").i_responsive("scroll")
-```
-
 | latitude | month | tst  | sza  |
 |----------|-------|------|------|
 | 20       | jan   | 0400 | None |

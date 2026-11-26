@@ -21,13 +21,6 @@ This is a dataset with 1,431 rows and 10 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import gibraltar
-
-GTI(gibraltar, preset="explorer").i_responsive("scroll")
-```
-
 | date | time | temp | dew_point | humidity | wind_dir | wind_speed | wind_gust | pressure | condition |
 |----|----|----|----|----|----|----|----|----|----|
 | 2023-05-01 | 00:20 | 18.9 | 12.8 | 0.68 | W | 6.7 | 0.0 | 1015.2 | Fair |

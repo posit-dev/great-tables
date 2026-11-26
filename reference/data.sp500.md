@@ -19,13 +19,6 @@ This is a dataset with 16,607 rows and 7 columns.
 
 Here are the first 10,000 of its 16,607 rows (from 1976 to 2015), as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. It's a large table (10,000 rows of 7 columns), so it can take a few seconds to load, and longer on a phone.
 
-``` python
-from great_tables import GTI
-from great_tables.data import sp500
-
-GTI(sp500.head(10000), preset="explorer").i_responsive("scroll")
-```
-
 | date       | open      | high      | low       | close     | volume       | adj_close |
 |------------|-----------|-----------|-----------|-----------|--------------|-----------|
 | 2015-12-31 | 2060.5901 | 2062.54   | 2043.62   | 2043.9399 | 2655330000.0 | 2043.9399 |

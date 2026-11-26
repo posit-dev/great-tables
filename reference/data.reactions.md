@@ -44,13 +44,6 @@ This is a dataset with 1,683 rows and 39 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. It's a large table (1,683 rows of 39 columns), so it can take a few seconds to load, and longer on a phone.
 
-``` python
-from great_tables import GTI
-from great_tables.data import reactions
-
-GTI(reactions, preset="explorer").i_responsive("scroll")
-```
-
 | cmpd_name | cmpd_mwt | cmpd_formula | cmpd_type | cmpd_smiles | cmpd_inchi | cmpd_inchikey | OH_k298 | OH_uncert | OH_u_fac | OH_A | OH_B | OH_n | OH_t_low | OH_t_high | O3_k298 | O3_uncert | O3_u_fac | O3_A | O3_B | O3_n | O3_t_low | O3_t_high | NO3_k298 | NO3_uncert | NO3_u_fac | NO3_A | NO3_B | NO3_n | NO3_t_low | NO3_t_high | Cl_k298 | Cl_uncert | Cl_u_fac | Cl_A | Cl_B | Cl_n | Cl_t_low | Cl_t_high |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | methane | 16.04 | CH4 | normal alkane | C | InChI=1S/CH4/h1H4 | VNWKTOKETHGBQD-UHFFFAOYSA-N | 6.36E-15 | 0.1 | None | 3.62E-13 | 1200.35 | 2.17994 | 200.0 | 2025.0 | None | None | None | None | None | None | None | None | None | None | None | None | None | None | None | None | 1E-13 | 0.15 | None | 6.6E-12 | 1240.0 | None | 200.0 | 300.0 |

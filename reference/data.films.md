@@ -22,13 +22,6 @@ This is a dataset with 1,851 rows and 8 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import films
-
-GTI(films, preset="explorer").i_responsive("scroll")
-```
-
 | year | title | original_title | director | languages | countries_of_origin | run_time | imdb_url |
 |----|----|----|----|----|----|----|----|
 | 1946 | The Lovers | Amanti in fuga | Giacomo Gentilomo | it | IT | 1h 30m | https://www.imdb.com/title/tt0038297/ |

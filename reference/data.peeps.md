@@ -26,13 +26,6 @@ This is a dataset with 100 rows and 14 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import peeps
-
-GTI(peeps, preset="explorer").i_responsive("scroll")
-```
-
 | name_given | name_family | address | city | state_prov | postcode | country | email_addr | phone_number | country_code | gender | dob | height_cm | weight_kg |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | Ruth | Conte | 4299 Bobcat Drive | Baileys Crossroads | MD | 22041 | USA | rcconte@example.com | 240-783-7630 | 1 | female | 1949-03-16 | 153 | 76.4 |

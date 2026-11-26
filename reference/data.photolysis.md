@@ -24,17 +24,6 @@ This is a dataset with 34 rows and 10 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. The `wavelength_nm` and `sigma_298_cm2` columns hold long lists of values, so they're cut short; widen either column to see more of them.
 
-``` python
-from great_tables import GTI
-from great_tables.data import photolysis
-
-(
-    GTI(photolysis, preset="explorer")
-    .cols_width({"wavelength_nm": "240px", "sigma_298_cm2": "240px"})
-    .i_responsive("scroll")
-)
-```
-
     /home/runner/work/great-tables/great-tables/great_tables/_render_checks.py:37: RenderWarning: Rendering table with .cols_width() in Quarto may result in unexpected behavior. This is because Quarto performs custom table processing. Either use all percentage widths, or set .tab_options(quarto_disable_processing=True) to disable Quarto table processing.
       warnings.warn(
 

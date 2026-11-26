@@ -29,13 +29,6 @@ This is a dataset with 314 rows and 11 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import metro
-
-GTI(metro, preset="explorer").i_responsive("scroll")
-```
-
 | name | caption | lines | connect_rer | connect_tramway | connect_transilien | connect_other | passengers | latitude | longitude | location |
 |----|----|----|----|----|----|----|----|----|----|----|
 | Argentine | None | 1 | None | None | None | None | 2079212 | 48.875278 | 2.29 | Paris 16th, Paris 17th |

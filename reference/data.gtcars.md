@@ -29,13 +29,6 @@ This is a dataset with 47 rows and 15 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import gtcars
-
-GTI(gtcars, preset="explorer").i_responsive("scroll")
-```
-
 | mfr | model | year | trim | bdy_style | hp | hp_rpm | trq | trq_rpm | mpg_c | mpg_h | drivetrain | trsmn | ctry_origin | msrp |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | Ford | GT | 2017 | Base Coupe | coupe | 647.0 | 6250.0 | 550.0 | 5900.0 | 11.0 | 18.0 | rwd | 7a | United States | 447000.0 |

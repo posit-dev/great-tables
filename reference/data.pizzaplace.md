@@ -68,13 +68,6 @@ This is a dataset with 49,574 rows and 7 columns.
 
 Here are the first 2,000 of its 49,574 rows, as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import pizzaplace
-
-GTI(pizzaplace.head(2000), preset="explorer").i_responsive("scroll")
-```
-
 | id          | date       | time     | name         | size | type    | price |
 |-------------|------------|----------|--------------|------|---------|-------|
 | 2015-000001 | 2015-01-01 | 11:38:36 | hawaiian     | M    | classic | 13.25 |

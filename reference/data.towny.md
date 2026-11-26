@@ -27,13 +27,6 @@ This is a dataset with 414 rows and 25 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import towny
-
-GTI(towny, preset="explorer").i_responsive("scroll")
-```
-
 | name | website | status | csd_type | census_div | latitude | longitude | land_area_km2 | population_1996 | population_2001 | population_2006 | population_2011 | population_2016 | population_2021 | density_1996 | density_2001 | density_2006 | density_2011 | density_2016 | density_2021 | pop_change_1996_2001_pct | pop_change_2001_2006_pct | pop_change_2006_2011_pct | pop_change_2011_2016_pct | pop_change_2016_2021_pct |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
 | Addington Highlands | https://addingtonhighlands.ca | lower-tier | township | Lennox and Addington | 45.0 | -77.25 | 1293.99 | 2429 | 2402 | 2512 | 2517 | 2318 | 2534 | 1.88 | 1.86 | 1.94 | 1.95 | 1.79 | 1.96 | -0.0111 | 0.0458 | 0.002 | -0.0791 | 0.0932 |

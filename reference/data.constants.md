@@ -20,13 +20,6 @@ This is a dataset with 354 rows and 6 columns.
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
-``` python
-from great_tables import GTI
-from great_tables.data import constants
-
-GTI(constants, preset="explorer").i_responsive("scroll")
-```
-
 | name | value | uncert | sf_value | sf_uncert | units |
 |----|----|----|----|----|----|
 | alpha particle-electron mass ratio | 7294.3 | 2.4E-07 | 12 | 2 | None |
