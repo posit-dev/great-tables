@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 384" width="760" height="384" role="img" xml:space="preserve">
 <title>The parts of a GTI table</title>
-<desc>A schematic GTI table with its parts labelled. The table GT made (column labels and body) is drawn in gray; the parts GTI adds are in teal: the status line above the table, the column controls and column profiles under the labels, the row numbers, the height handle at the foot of the body, the filter tokens, and the control bar below the table with its search, keyboard shortcuts, page controls and counter, filters-as-text button, panels, and undo and redo.</desc>
+<desc>A schematic GTI table with its parts labeled. The table GT made (column labels and body) is drawn in gray; the parts GTI adds are in teal: the status line above the table, the column controls and column profiles under the labels, the row numbers, the height handle at the foot of the body, the filter tokens, and the control bar below the table with its search, keyboard shortcuts, page controls and counter, filters-as-text button, panels, and undo and redo.</desc>
 <rect width="760" height="384" fill="#ffffff"/>
 <rect x="584" y="12" width="10" height="10" rx="2" fill="#848689"/>
 <rect x="584" y="28" width="10" height="10" rx="2" fill="#0b7a64"/>
