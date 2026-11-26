@@ -1095,17 +1095,40 @@ def test_frame_rendering(df: DataFrameLike, snapshot):
 def test_copy_keeps_dtypes(
     matrix_df: DataFrameLike, copy: Callable[[DataFrameLike], DataFrameLike]
 ):
-    if copy is copy_frame and isinstance(matrix_df, pa.Table):
-        # pa.array() can't rebuild a chunked list column holding a null.
-        # NOTE: GT never calls copy_frame()
-        with pytest.raises(TypeError):
-            copy_frame(matrix_df)
-        matrix_df = matrix_df.drop_columns("list")
-
     res = copy(matrix_df)
 
     assert res is not matrix_df
     assert_frame_equal(res, matrix_df)
+    # (Including a categorical's order, and the schema's metadata)
+    if isinstance(matrix_df, pa.Table):
+        assert res.schema.equals(matrix_df.schema, check_metadata=True)
+
+
+def test_copy_frame_keeps_pyarrow_schema():
+    # A table in more than one chunk, whose schema has metadata and a column that can't be null
+    schema = pa.schema(
+        [
+            pa.field("x", pa.dictionary(pa.int8(), pa.string(), ordered=True), nullable=False),
+            pa.field("y", pa.list_(pa.int64())),
+        ],
+        metadata={"source": "test"},
+    )
+    batch = pa.record_batch(
+        [
+            pa.array(["b", "a"]).dictionary_encode().cast(schema.field("x").type),
+            pa.array([[1], None]),
+        ],
+        schema=schema,
+    )
+    table = pa.Table.from_batches([batch, batch])
+
+    res = copy_frame(table)
+
+    assert res is not table
+    assert res.equals(table, check_metadata=True)
+    assert res.schema.field("x").type.ordered
+    assert not res.schema.field("x").nullable
+    assert res.column("y").to_pylist() == [[1], None, [1], None]
 
 
 @pytest.mark.parametrize("copy", [copy_data, copy_frame])
