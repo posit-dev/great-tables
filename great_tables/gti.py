@@ -629,7 +629,8 @@ class GTI(GT):
         control bar folds its search, its filters as text and its "Columns" button into one
         "Filter & sort" button, which opens a sheet from the foot of the window with all of them,
         and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less.
-        There, a long press on a column's label opens a sheet for that column (to sort it, filter
+        A search stays in the sheet (the button is then in the accent color), and the keyboard
+        shortcuts and the naming of the table's parts are left out. There, a long press on a column's label opens a sheet for that column (to sort it, filter
         it, or hide it), while a tap still sorts by it.
 
         Parameters
