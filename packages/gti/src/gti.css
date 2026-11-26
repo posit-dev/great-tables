@@ -103,18 +103,92 @@ gt-table .gt-i-profile svg {
   height: 1.6em;
 }
 
+/*
+ * (A strip's parts are lighter than a histogram's bars, under their names, and their tracks fainter
+ * still; the parts of the values "top" doesn't show are fainter, the missing values' bar is red, as
+ * their cells are tinted, and the bar whose tooltip shows is stronger)
+ */
 gt-table .gt-i-profile rect {
   fill: currentColor;
   opacity: 0.45;
 }
 
-/* (The bar of the values "top" doesn't show is fainter; the bar whose tooltip shows is stronger) */
-gt-table .gt-i-profile rect.gt-i-profile-other {
-  opacity: 0.25;
+gt-table .gt-i-profile-top rect {
+  opacity: 0.3;
+}
+
+gt-table .gt-i-profile rect.gt-i-profile-track {
+  opacity: 0.08;
+}
+
+gt-table .gt-i-profile rect:is(.gt-i-profile-others, .gt-i-profile-unique) {
+  opacity: 0.18;
+}
+
+gt-table .gt-i-profile rect.gt-i-profile-missing {
+  fill: #d93025;
+  opacity: 0.6;
 }
 
 gt-table .gt-i-profile rect.gt-i-profile-on {
   opacity: 0.75;
+}
+
+gt-table .gt-i-profile-top rect.gt-i-profile-on {
+  opacity: 0.5;
+}
+
+/*
+ * A strip's names, each over its part, with as many whole letters as fit (the rest wrapped out of
+ * sight); and a histogram's mark under its missing values' bar
+ */
+gt-table .gt-i-profile-names {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1.6em;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+gt-table .gt-i-profile-names > span {
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+  padding-inline: 2px;
+  box-sizing: border-box;
+  line-height: 1.6em;
+  overflow-wrap: anywhere;
+}
+
+gt-table .gt-i-profile-null {
+  color: #d93025;
+  text-align: center;
+}
+
+gt-table .gt-i-profile > .gt-i-profile-null {
+  position: absolute;
+  top: calc(1.6em + 2px);
+  transform: translateX(-50%);
+}
+
+/* A column whose values are each in one row says so, in an outline, instead of a strip */
+gt-table .gt-i-profile-unique svg {
+  display: none;
+}
+
+gt-table .gt-i-profile-pill {
+  height: 1.6em;
+  overflow: hidden;
+  padding-inline: 0.5em;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  border-radius: 0.8em;
+  line-height: calc(1.6em - 2px);
+  text-align: center;
+  /* (Words that don't fit wrap out of sight: "100 unique" in a narrow column) */
+  white-space: normal;
 }
 
 /*
@@ -796,6 +870,16 @@ gt-table .gt-i-details-list + .gt-i-details-content {
 gt-table[data-gti-nowrap] :is(.gt_row, .gt_col_heading, .gt_column_spanner) {
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/*
+ * (Safari shows a cut cell's text in a tooltip of its own, over the one GTI shows: see
+ * `addCellTips()`. It doesn't for a cell whose text isn't directly in its lines, as it isn't with
+ * an empty block after it, which leaves the ellipsis as it is.)
+ */
+gt-table[data-gti-nowrap] .gt_row::after {
+  content: "";
+  display: block;
 }
 
 /* The column labels and the cells in a monospaced font (`i_display(monospace=True)`), as the dtypes are */
@@ -2163,6 +2247,15 @@ gt-table .gt-i-profile-chart {
   font-size: 0.85em;
 }
 
+/* (Its missing values' bar is apart, after the others, with its mark under it) */
+gt-table .gt-i-profile-apart {
+  grid-template-columns: auto 1fr 1em;
+}
+
+gt-table .gt-i-profile-chart > .gt-i-profile-null {
+  margin-top: 0.25em;
+}
+
 gt-table :is(.gt-i-profile-y, .gt-i-profile-x) {
   opacity: 0.8;
   font-variant-numeric: tabular-nums;
@@ -2202,12 +2295,17 @@ gt-table .gt-i-profile-plot > i {
   flex: 1;
 }
 
-gt-table .gt-i-profile-plot > i.gt-i-profile-on {
-  opacity: 0.85;
+gt-table .gt-i-profile-meter > i:is(.gt-i-profile-others, .gt-i-profile-unique) {
+  opacity: 0.25;
 }
 
-gt-table .gt-i-profile-meter > i.gt-i-profile-other {
-  opacity: 0.25;
+gt-table :is(.gt-i-profile-plot, .gt-i-profile-meter) > i.gt-i-profile-missing {
+  background: #d93025;
+  opacity: 0.6;
+}
+
+gt-table .gt-i-profile-plot > i.gt-i-profile-on {
+  opacity: 0.85;
 }
 
 gt-table .gt-i-profile-x {
