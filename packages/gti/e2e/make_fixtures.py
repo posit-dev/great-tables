@@ -673,12 +673,14 @@ def details_html(table_id: str, mode: str = "scroll", search: bool = True) -> st
 
 def profile_html(table_id: str, mode: str = "scroll") -> str:
     # exibble (8 rows, grp_b then grp_a), searchable and filtered by fctr (a facet), with
-    # profiles: num's histogram (with a NaN), char's most common values (with a missing value),
-    # fctr's (5 and the 3 others) and date's histogram (of datetimes), and none for currency.
-    # Optionally stacked in a narrow container
+    # profiles: num's histogram (with a NaN), char's most common values (each in one row, with a
+    # missing value), fctr's (each in one row), date's histogram (of datetimes), and kind's most
+    # common values (red in 2 rows, 6 others in 1 each), and none for currency. Optionally
+    # stacked in a narrow container
     data = exibble[["num", "char", "fctr", "date", "currency", "row", "group"]].assign(
-        date=lambda df: pd.to_datetime(df["date"])
-    )
+        date=lambda df: pd.to_datetime(df["date"]),
+        kind=["red", "red", "blue", "green", "gold", "pink", "teal", "gray"],
+    )[["num", "char", "fctr", "date", "kind", "currency", "row", "group"]]
     gti = (
         GTI(data, rowname_col="row", groupname_col="group", id=table_id)
         .fmt_number(columns="num", decimals=2)
@@ -687,7 +689,7 @@ def profile_html(table_id: str, mode: str = "scroll") -> str:
         .row_group_order(["grp_b", "grp_a"])
         .opt_table_font(font="monospace", add=False)
         .i_cols_filter("fctr", type="facet")
-        .i_cols_profile(["num", "char", "fctr", "date"])
+        .i_cols_profile(["num", "char", "fctr", "date", "kind"])
         .i_responsive(mode)  # type: ignore[arg-type]
     )
     return render_gti_html(gti, runtime="none")
