@@ -1138,7 +1138,9 @@ def _(df: PlDataFrame):
 def _(df: PyArrowTable):
     import pyarrow as pa
 
-    return pa.table({col: pa.array(df.column(col)) for col in df.column_names})
+    # (With the schema as it is: rebuilding each column with pa.array() drops a dictionary's
+    # `ordered` flag, and fails on a chunked list column holding a null)
+    return pa.Table.from_batches(df.to_batches(), schema=df.schema)
 
 
 # cast_frame_to_string ----
