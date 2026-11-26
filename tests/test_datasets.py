@@ -166,3 +166,62 @@ def test_official_datasets_and_star_import_dont_warn():
 def test_unknown_attribute_raises():
     with pytest.raises(AttributeError, match="has no attribute 'nope'"):
         data.nope
+
+
+@pytest.mark.parametrize("name", _DATASET_NAMES)
+def test_dataset_preview_is_a_whole_gti_table(name: str):
+    # (Each dataset's page shows it as a `GTI` table, in its docstring's preview: every column can
+    # be filtered, and a narrow page scrolls it rather than stacking it. It's the whole dataset, but
+    # for the first rows of `pizzaplace`, as all of it is slow to load, and of `sp500`, as all of it
+    # is too many lines of HTML for Quarto)
+    import ast
+    import re
+    import warnings
+    from typing import Any
+
+    from great_tables import GTI
+    from great_tables._gti._render import GTISizeWarning
+    from great_tables._gti._spec import build_spec
+
+    doc = getattr(data, name).__doc__
+    preview = doc[doc.index("\nPreview\n-------\n") :]
+    (code,) = re.findall(r"```\{python\}\n(.*?)```", preview, re.S)
+    *setup, last = ast.parse(code).body
+    assert isinstance(last, ast.Expr)
+    namespace: dict[str, Any] = {}
+    exec(compile(ast.Module(body=setup, type_ignores=[]), "<preview>", "exec"), namespace)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        gti = eval(compile(ast.Expression(body=last.value), "<preview>", "eval"), namespace)
+        html = gti._repr_html_()
+
+    # (Quarto fails on a cell's output of more than about 120,000 lines, with "Maximum call stack
+    # size exceeded", as it spreads the lines into the arguments of a call)
+    assert html.count("\n") < 110_000
+
+    # (A table big enough to warn of its size has the warning kept off the page, by its cell's
+    # `warning: false` option, and it's the only warning)
+    assert all(w.category is GTISizeWarning for w in caught)
+    assert bool(caught) == code.startswith("#| warning: false\n")
+
+    assert isinstance(gti, GTI)
+    assert gti._interactive.responsive == "scroll"
+    shown = gti._tbl_data
+    columns = {f["column"] for f in build_spec(gti._build_data(context="html"))["filters"]}
+    assert columns == set(shown.columns)
+
+    # (The preview says how many of the rows it shows, when it's not all of them, and that a large
+    # table can be slow to load)
+    nrows = len(getattr(data, name))
+    ncells = len(shown) * len(shown.columns)
+    prose = " ".join(preview.split())
+    if name in ("pizzaplace", "sp500"):
+        assert len(shown) < nrows
+        assert f"the first {len(shown):,} of its {nrows:,} rows" in prose
+    else:
+        assert len(shown) == nrows
+        assert "the dataset as an interactive table" in prose
+    if name == "pizzaplace":
+        assert ncells <= 16_000
+    large = f"It's a large table ({len(shown):,} rows of {len(shown.columns)} columns)"
+    assert (large in prose) == (ncells > 16_000)
