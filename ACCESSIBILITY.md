@@ -12,7 +12,7 @@ Column labels, spanners, row labels, row group headings, and summary row labels 
 (`<th>`) with a `scope`, and every data cell lists all of its headers in a `headers` attribute, so
 tables with spanners or a hierarchical stub are read correctly. This follows the W3C's
 [Tables Tutorial](https://www.w3.org/WAI/tutorials/tables/). A table with a title (`tab_header()`)
-is labelled by it, and described by its subtitle.
+is labeled by it, and described by its subtitle.
 
 `data_color()` picks a text color that contrasts with each fill (APCA by default, or WCAG 2 with
 `contrast_algo="wcag"`), and themes and dark mode do the same for filled cells that have no text
