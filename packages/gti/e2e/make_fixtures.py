@@ -100,6 +100,37 @@ def display_html(table_id: str, groups_as_column: bool = False, **options) -> st
     return render_gti_html(gt, runtime="none")
 
 
+def caps_html(table_id: str) -> str:
+    # 20 rows (row_1...) on one page, resizable, without text wrapping: title's text short but for two rows'
+    # (row_19's, 200 characters, and row_20's, 40), so that those two (10% of them) are cut; code's
+    # all as long (under a longer label); wide's all as long, and 30 characters, under a profile;
+    # and an image 400px wide in each of picture's cells
+    n = 20
+    title = [f"Title {i + 1}" for i in range(n)]
+    title[18] = " ".join(["a very long title"] * 12)[:200]
+    title[19] = "A title of forty characters, or so, here"
+    image = '<img alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="400" height="8">'
+    data = pl.DataFrame(
+        {
+            "row": [f"row_{i + 1}" for i in range(n)],
+            "title": title,
+            "code": [f"C-{i:03d}" for i in range(n)],
+            "wide": [f"{i:02d} wide text, as long as the rest" for i in range(n)],
+            "picture": [""] * n,
+        }
+    )
+    gti = (
+        GTI(data, rowname_col="row", id=table_id)
+        .cols_label(code="a code, all as long")
+        .fmt(lambda _: image, columns="picture")
+        .i_pagination(False)
+        .i_display(wrap=False)
+        .i_resizing()
+        .i_cols_profile(columns="wide")
+    )
+    return render_gti_html(gti, runtime="none")
+
+
 def resize_html(table_id: str, groups_as_column: bool = False) -> str:
     # The table to sort, searchable, 3 rows to a page, with a spanner and resize handles.
     gt = sort_gt(table_id, groups_as_column).tab_spanner(
@@ -385,11 +416,12 @@ def pin_html(
 
 def pin_pages_html(table_id: str) -> str:
     # A GTI table of exibble five times over (40 rows), 5 rows to a page, with char moved to the
-    # start and pinned there, and text that doesn't wrap: datetime's value in the last row alone
-    # (on the last page) is long. Wider than its container.
+    # start and pinned there, and text that doesn't wrap: datetime's value in the rows of the last
+    # page alone is long (in more of the rows than may be cut, but not too long, so that the column
+    # is as wide as it). Wider than its container.
     data = pd.concat([exibble] * 5, ignore_index=True).drop(columns="group")
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
-    data.loc[len(data) - 1, "datetime"] = "2018-08-08 08:08, the last row's, longer than the rest"
+    data.loc[len(data) - 5 :, "datetime"] = "2018-08-08 08:08, the last page's"
     gti = (
         GTI(data, rowname_col="row", id=table_id)
         .cols_move_to_start("char")
@@ -961,6 +993,7 @@ def main() -> None:
         "display-nowrap.html": page(
             display_html("d", use_text_wrapping=False) + "\n" + runtime_src, head=styles
         ),
+        "display-caps.html": page(caps_html("cp") + "\n" + runtime_src, head=styles),
         # Tables with resizable columns: with a spanner (and groups shown as a column), and
         # without text wrapping, with column widths set by the author.
         "resize.html": page(resize_html("r") + "\n" + runtime_src, head=styles),
