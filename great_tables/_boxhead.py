@@ -22,7 +22,7 @@ def cols_label(
     """
     Relabel one or more columns.
 
-    There are three important pieces to labelling:
+    There are three important pieces to labeling:
 
     * Each argument has the form: {name in data} = {new label}.
     * Multiple columns may be given the same label.
