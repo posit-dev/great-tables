@@ -13573,7 +13573,3 @@ GTI(countrypops, preset="explorer").i_responsive("scroll")
 | Zimbabwe                       | ZW             | ZWE            | 2020 | 15669666   |
 | Zimbabwe                       | ZW             | ZWE            | 2021 | 15993524   |
 | Zimbabwe                       | ZW             | ZWE            | 2022 | 16320537   |
-
-## Source
-
-<https://data.worldbank.org/indicator/SP.POP.TOTL>
