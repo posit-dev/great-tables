@@ -387,11 +387,11 @@ and the rows can be sorted, searched, and filtered by any column. It's a large t
 5 columns), so it can take a few seconds to load, and longer on a phone.
 
 ```{python}
+#| echo: false
 #| warning: false
-from great_tables import GTI
-from great_tables.data import countrypops
+from great_tables import GTI, data
 
-GTI(countrypops, preset="explorer").i_responsive("scroll")
+GTI(data.pl.countrypops, preset="explorer").i_responsive("scroll")
 ```
 """
 
@@ -431,10 +431,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import sza
+#| echo: false
+from great_tables import GTI, data
 
-GTI(sza, preset="explorer").i_responsive("scroll")
+GTI(data.pl.sza, preset="explorer").i_responsive("scroll")
 ```
 
 Source
@@ -484,10 +484,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import gtcars
+#| echo: false
+from great_tables import GTI, data
 
-GTI(gtcars, preset="explorer").i_responsive("scroll")
+GTI(data.pl.gtcars, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -518,11 +518,11 @@ by any column. It's a large table (10,000 rows of 7 columns), so it can take a f
 and longer on a phone.
 
 ```{python}
+#| echo: false
 #| warning: false
-from great_tables import GTI
-from great_tables.data import sp500
+from great_tables import GTI, data
 
-GTI(sp500.head(10000), preset="explorer").i_responsive("scroll")
+GTI(data.pl.sp500.head(10000), preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -634,10 +634,10 @@ Here are the first 2,000 of its 49,574 rows, as an interactive table. Each colum
 a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import pizzaplace
+#| echo: false
+from great_tables import GTI, data
 
-GTI(pizzaplace.head(2000), preset="explorer").i_responsive("scroll")
+GTI(data.pl.pizzaplace.head(2000), preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -673,10 +673,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import exibble
+#| echo: false
+from great_tables import GTI, data
 
-GTI(exibble, preset="explorer").i_responsive("scroll")
+GTI(data.pl.exibble, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -729,10 +729,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import towny
+#| echo: false
+from great_tables import GTI, data
 
-GTI(towny, preset="explorer").i_responsive("scroll")
+GTI(data.pl.towny, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -776,10 +776,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import peeps
+#| echo: false
+from great_tables import GTI, data
 
-GTI(peeps, preset="explorer").i_responsive("scroll")
+GTI(data.pl.peeps, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -819,10 +819,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import films
+#| echo: false
+from great_tables import GTI, data
 
-GTI(films, preset="explorer").i_responsive("scroll")
+GTI(data.pl.films, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -879,10 +879,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import metro
+#| echo: false
+from great_tables import GTI, data
 
-GTI(metro, preset="explorer").i_responsive("scroll")
+GTI(data.pl.metro, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -916,10 +916,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import gibraltar
+#| echo: false
+from great_tables import GTI, data
 
-GTI(gibraltar, preset="explorer").i_responsive("scroll")
+GTI(data.pl.gibraltar, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -954,10 +954,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import constants
+#| echo: false
+from great_tables import GTI, data
 
-GTI(constants, preset="explorer").i_responsive("scroll")
+GTI(data.pl.constants, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -1033,10 +1033,10 @@ Here is the dataset as an interactive table. Each column has its dtype and a pro
 and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import illness
+#| echo: false
+from great_tables import GTI, data
 
-GTI(illness, preset="explorer").i_responsive("scroll")
+GTI(data.pl.illness, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -1117,10 +1117,10 @@ and the rows can be sorted, searched, and filtered by any column. It's a large t
 39 columns), so it can take a few seconds to load, and longer on a phone.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import reactions
+#| echo: false
+from great_tables import GTI, data
 
-GTI(reactions, preset="explorer").i_responsive("scroll")
+GTI(data.pl.reactions, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -1167,11 +1167,11 @@ and the rows can be sorted, searched, and filtered by any column. The `wavelengt
 more of them.
 
 ```{python}
-from great_tables import GTI
-from great_tables.data import photolysis
+#| echo: false
+from great_tables import GTI, data
 
 (
-    GTI(photolysis, preset="explorer")
+    GTI(data.pl.photolysis, preset="explorer")
     .cols_width({"wavelength_nm": "240px", "sigma_298_cm2": "240px"})
     .i_responsive("scroll")
 )
@@ -1223,11 +1223,11 @@ and the rows can be sorted, searched, and filtered by any column. It's a large t
 29 columns), so it can take a few seconds to load, and longer on a phone.
 
 ```{python}
+#| echo: false
 #| warning: false
-from great_tables import GTI
-from great_tables.data import nuclides
+from great_tables import GTI, data
 
-GTI(nuclides, preset="explorer").i_responsive("scroll")
+GTI(data.pl.nuclides, preset="explorer").i_responsive("scroll")
 ```
 
 """
