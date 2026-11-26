@@ -41,7 +41,7 @@ Column labels
 
 Column profile
 : In a **GTI table**, a small plot under a **column label** showing how the column's values are
-  spread: a histogram for numbers and dates, and bars for the most common values of other
+  spread: a histogram for numbers and dates, and a strip of the most common values of other
   columns, with the share of missing values. Profiles follow the rows the **search** and
   **filters** keep. Added with `~~GTI.i_cols_profile()`.
 
