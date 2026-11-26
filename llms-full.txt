@@ -14723,11 +14723,16 @@ Show how the columns' values are spread, in a small plot under their labels.
 A column's profile is a plot under its label of the values in the rows the table shows:
 a histogram of its numbers or dates (`"histogram"`: how many rows have a value in each of
 up to 20 equal ranges, from the column's lowest value to its highest; or one per value,
-for whole numbers or days a few apart), or bars for its most common values (`"top"`: the
-5 that most rows have, with a bar for the others). Under the plot are the lowest and
-highest values the rows show (for a histogram) or the number of values they have (for the
-others), as the table formats them, and the share of the rows with a missing value.
-Pointing at a bar shows its values and its number of rows. As the reader searches and
+for whole numbers or days a few apart), or a strip of its most common values (`"top"`:
+each value's segment as wide as its share of the column's rows, and named in it if the
+name fits; the 5 that most rows have, with a segment for the other values in more than
+one row and one for the values in one row each). A column with missing values has a red
+bar of them too, last (marked "∅" under a histogram), and a column whose values are each
+in one row (with more than 6 of them) says how many there are rather than drawing a
+strip. Under the plot are the lowest and highest values the rows show (for a histogram)
+or the number of values they have (for the others), as the table formats them, and the
+share of the rows with a missing value. Pointing at a bar shows its values and its number
+of rows. As the reader searches and
 filters the table, the profiles show only the rows that are left (their ranges and
 values stay the same, so that they're easy to compare), but not as the table is sorted,
 or paged. Profiles are off by default, and aren't shown in a table stacked as cards.
@@ -26199,8 +26204,9 @@ column is then left out of the table.
 ## Column profiles
 
 With `~~GTI.i_cols_profile()`, columns get a small plot under their labels of how their values are
-spread: a histogram of numbers and dates, and bars for the most common values of the others, each
-with the share of rows that have a missing value. The plots follow the rows a search or filter
+spread: a histogram of numbers and dates, and a strip of the most common values of the others
+(each value's segment as wide as its share of the rows, with its name in it if that fits), each
+with the share of rows that have a missing value (and a red bar of them, last). The plots follow the rows a search or filter
 keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch
 the horsepower and prices narrow; point at a bar (or slide a finger along the plot) to see its
 values and its number of rows. A double click or double tap on a profile (or Enter on it) opens a larger view of it, with axes, the whole caption, and each bar's rows.
@@ -26218,7 +26224,10 @@ values and its number of rows. A double click or double tap on a profile (or Ent
 ```
 
 A profile's bars span the whole column, not just the rows that are left, so that they stay put as
-the reader filters (only their heights change). They aren't shown when the table is stacked as
+the reader filters (only their heights change). A strip has segments for the 5 values most rows
+have, one for the other values in more than one row, and one for the values in one row each; a
+column whose values are each in one row, like an ID or a name, says how many unique values the rows
+have instead. Profiles aren't shown when the table is stacked as
 cards in a narrow container.
 
 ## Choosing what readers can do with each column
@@ -26967,7 +26976,7 @@ Column labels
 
 Column profile
 : In a **GTI table**, a small plot under a **column label** showing how the column's values are
-  spread: a histogram for numbers and dates, and bars for the most common values of other
+  spread: a histogram for numbers and dates, and a strip of the most common values of other
   columns, with the share of missing values. Profiles follow the rows the **search** and
   **filters** keep. Added with `~~GTI.i_cols_profile()`.
 

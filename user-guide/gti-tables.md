@@ -2548,7 +2548,7 @@ The details are in the table's HTML, made as it's rendered, but aren't searched,
 
 ## Column profiles
 
-With [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile), columns get a small plot under their labels of how their values are spread: a histogram of numbers and dates, and bars for the most common values of the others, each with the share of rows that have a missing value. The plots follow the rows a search or filter keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch the horsepower and prices narrow; point at a bar (or slide a finger along the plot) to see its values and its number of rows. A double click or double tap on a profile (or Enter on it) opens a larger view of it, with axes, the whole caption, and each bar's rows.
+With [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_cols_profile), columns get a small plot under their labels of how their values are spread: a histogram of numbers and dates, and a strip of the most common values of the others (each value's segment as wide as its share of the rows, with its name in it if that fits), each with the share of rows that have a missing value (and a red bar of them, last). The plots follow the rows a search or filter keeps, so they show at a glance what's left. Here, choose a few makes in the `Make` filter and watch the horsepower and prices narrow; point at a bar (or slide a finger along the plot) to see its values and its number of rows. A double click or double tap on a profile (or Enter on it) opens a larger view of it, with axes, the whole caption, and each bar's rows.
 
 ``` python
 (
@@ -2613,7 +2613,7 @@ With [i_cols_profile()](../reference/GTI.i_cols_profile.md#great_tables.GTI.i_co
 | Rolls-Royce                   | Dawn           | 2016 | 563 | 575    | \$335,000   |
 | Rolls-Royce                   | Wraith         | 2016 | 624 | 590    | \$304,350   |
 
-A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). They aren't shown when the table is stacked as cards in a narrow container.
+A profile's bars span the whole column, not just the rows that are left, so that they stay put as the reader filters (only their heights change). A strip has segments for the 5 values most rows have, one for the other values in more than one row, and one for the values in one row each; a column whose values are each in one row, like an ID or a name, says how many unique values the rows have instead. Profiles aren't shown when the table is stacked as cards in a narrow container.
 
 ## Choosing what readers can do with each column
 

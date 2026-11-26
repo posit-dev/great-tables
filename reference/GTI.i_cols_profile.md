@@ -4,7 +4,7 @@ Show how the columns' values are spread, in a small plot under their labels.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1340-L1442)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1340-L1447)
 
 ``` python
 GTI.i_cols_profile(
@@ -13,7 +13,7 @@ GTI.i_cols_profile(
 )
 ```
 
-A column's profile is a plot under its label of the values in the rows the table shows: a histogram of its numbers or dates (`"histogram"`: how many rows have a value in each of up to 20 equal ranges, from the column's lowest value to its highest; or one per value, for whole numbers or days a few apart), or bars for its most common values (`"top"`: the 5 that most rows have, with a bar for the others). Under the plot are the lowest and highest values the rows show (for a histogram) or the number of values they have (for the others), as the table formats them, and the share of the rows with a missing value. Pointing at a bar shows its values and its number of rows. As the reader searches and filters the table, the profiles show only the rows that are left (their ranges and values stay the same, so that they're easy to compare), but not as the table is sorted, or paged. Profiles are off by default, and aren't shown in a table stacked as cards.
+A column's profile is a plot under its label of the values in the rows the table shows: a histogram of its numbers or dates (`"histogram"`: how many rows have a value in each of up to 20 equal ranges, from the column's lowest value to its highest; or one per value, for whole numbers or days a few apart), or a strip of its most common values (`"top"`: each value's segment as wide as its share of the column's rows, and named in it if the name fits; the 5 that most rows have, with a segment for the other values in more than one row and one for the values in one row each). A column with missing values has a red bar of them too, last (marked "∅" under a histogram), and a column whose values are each in one row (with more than 6 of them) says how many there are rather than drawing a strip. Under the plot are the lowest and highest values the rows show (for a histogram) or the number of values they have (for the others), as the table formats them, and the share of the rows with a missing value. Pointing at a bar shows its values and its number of rows. As the reader searches and filters the table, the profiles show only the rows that are left (their ranges and values stay the same, so that they're easy to compare), but not as the table is sorted, or paged. Profiles are off by default, and aren't shown in a table stacked as cards.
 
 Each call sets the profiles of the columns it's given, so that some columns can have one plot, and others another; a later call for a column replaces what an earlier one set.
 
