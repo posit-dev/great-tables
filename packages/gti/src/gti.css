@@ -2562,9 +2562,10 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
 /*
  * A bar with little room (`data-gti-narrow`, which the runtime sets where the table's container is
  * narrower than 30em, whatever the bar's own width, and on a touch screen, whose targets are
- * bigger, where the bar is 30em wide or less) folds the search (unless there's one), the filters
- * as text and the columns into the "Filter & sort" sheet's button, and the keyboard shortcuts into
- * the info panel (Home and End still go to the first and last pages), so that it stays one line
+ * bigger, where the bar is 30em wide or less) folds the search (even with a search in force, which
+ * the button then shows in the accent colour), the filters as text and the columns into the
+ * "Filter & sort" sheet's button, and leaves out the keyboard shortcuts (Home and End still go to
+ * the first and last pages), so that it stays one line
  */
 gt-table .gt-i-bar[data-gti-narrow] [data-gti-bar="sheet"] {
   display: inline-flex;
@@ -2577,12 +2578,23 @@ gt-table .gt-i-bar[data-gti-narrow] [data-gti-bar="sheet"] {
 }
 
 gt-table .gt-i-bar[data-gti-narrow] :is([data-gti-bar="query"], [data-gti-bar="columns"], [data-gti-bar="keys"], [data-gti-bar="first"], [data-gti-bar="last"]),
-gt-table[data-gti-sheet] .gt-i-bar[data-gti-narrow]:not([data-gti-searching]) .gt-i-bar-search {
+gt-table[data-gti-sheet] .gt-i-bar[data-gti-narrow] .gt-i-bar-search {
   display: none;
 }
 
-gt-table .gt-i-bar[data-gti-narrow] .gt-i-info > [data-gti-info="keys"]:not([hidden]) {
-  display: block;
+gt-table[data-gti-sheet] .gt-i-bar[data-gti-narrow][data-gti-searching] [data-gti-bar="sheet"] {
+  border-color: var(--gt-i-accent, #1f6feb);
+  color: var(--gt-i-accent, #1f6feb);
+}
+
+/* (Its page controls stay, with the search folded) */
+gt-table[data-gti-sheet] .gt-i-bar[data-gti-narrow][data-gti-searching] .gt-i-bar-pages {
+  display: flex;
+}
+
+/* (Nor are the shortcuts, or the naming of the parts, in its info panel: there's no room for them) */
+gt-table .gt-i-bar[data-gti-narrow] .gt-i-info > :is([data-gti-info="keys"], [data-gti-info="parts"]) {
+  display: none;
 }
 
 /* (Narrower, the button is only its icon, as the reset is: see above) */
