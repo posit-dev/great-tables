@@ -9814,6 +9814,10 @@ export class GtTable extends HTMLElement {
     }
     this.colgroup = colgroup;
     this.setWidths(widths);
+    // (The bars were aligned to the table as it was set up, with its first page alone, if it has
+    // pages: they follow its width now, as in `showColumns()`, rather than a frame later, as it's
+    // observed)
+    this.alignBars();
     this.observeLayout();
     // Text in a font that hasn't loaded yet has the wrong width
     const fonts = (this.ownerDocument as Partial<Document>).fonts;
