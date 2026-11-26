@@ -98,7 +98,8 @@ test("a finger along a column's profile reads its bars, without opening the shee
   for (const step of [0.25, 0.5, 0.75, 1]) {
     await touch("touchMove", box.x + 1 + step * (box.width - 2));
   }
-  await expect(tip).toHaveText("8.44M – 8.88M1 row (13%)");
+  // (To the missing values' bar, last)
+  await expect(tip).toHaveText("Missing1 row (13%)");
   // (Held past a long press)
   await page.waitForTimeout(700);
   await touch("touchEnd");
