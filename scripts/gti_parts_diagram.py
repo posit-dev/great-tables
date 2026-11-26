@@ -43,7 +43,7 @@ TEXT_SIZES = {SIZE_LABEL, SIZE_CAPTION, SIZE_NOTE, SIZE_BADGE}
 
 TITLE = "The parts of a GTI table"
 ALT = (
-    "A schematic GTI table with its parts labelled. The table GT made (column labels and body) is "
+    "A schematic GTI table with its parts labeled. The table GT made (column labels and body) is "
     "drawn in gray; the parts GTI adds are in teal: the status line above the table, the column "
     "controls and column profiles under the labels, the row numbers, the height handle at the foot "
     "of the body, the filter tokens, and the control bar below the table with its search, keyboard "

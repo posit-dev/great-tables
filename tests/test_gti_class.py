@@ -1136,8 +1136,8 @@ def test_i_cols_controls_display_false_ships_the_text_cells_would_show():
     facet = spec_of(gti.i_cols_filter(columns="kind", type="facet"))["query_columns"][0]
     assert facet["texts"][0] == "pear fruit"
     # (A label of HTML)
-    labelled = spec_of(query_gti().cols_label(kind=html("<em>Fruit</em>  kind")))
-    assert labelled["query_columns"][0]["label"] == "Fruit kind"
+    labeled = spec_of(query_gti().cols_label(kind=html("<em>Fruit</em>  kind")))
+    assert labeled["query_columns"][0]["label"] == "Fruit kind"
 
 
 def test_i_cols_controls_display_false_keeps_a_hidden_column_for_querying():

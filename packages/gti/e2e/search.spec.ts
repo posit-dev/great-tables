@@ -190,7 +190,7 @@ test("the search box lines up with the table, in its font", async ({ page }) => 
       fonts: [getComputedStyle(table).fontFamily, getComputedStyle(input).fontFamily],
     };
   });
-  // GT centres the table; the toolbar spans it, with the search box at its end
+  // GT centers the table; the toolbar spans it, with the search box at its end
   expect(boxes.toolbar.left).toBeCloseTo(boxes.table.left, 0);
   expect(boxes.toolbar.width).toBeCloseTo(boxes.table.width, 0);
   expect(boxes.input.right).toBeCloseTo(boxes.table.right, 0);

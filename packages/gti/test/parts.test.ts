@@ -13,7 +13,7 @@ describe("union()", () => {
 });
 
 describe("placeParts()", () => {
-  it("puts a name at its first place, centred on its part, with a line across the gap", () => {
+  it("puts a name at its first place, centered on its part, with a line across the gap", () => {
     const [placed] = placeParts([{ name: "a", boxes: [box(100, 100, 200, 120)], places: ["above"] }], [size], bounds);
     expect(placed?.label).toEqual(box(130, 86, 170, 96));
     expect(placed?.line).toEqual(box(149.5, 96, 150.5, 100));

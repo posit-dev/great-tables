@@ -294,7 +294,7 @@ test("highlights the text by what each part is, over the input's own", async ({ 
     punct: ["(", ",", ",", ",", ")"],
     error: [],
   });
-  // (In a monospaced font, and in colours of their own)
+  // (In a monospaced font, and in colors of their own)
   await expect(el(page).locator(".gt-i-query-text")).toHaveCSS("font-family", /monospace/);
   const colors = await el(page)
     .locator(".gt-i-query-mirror")
@@ -421,7 +421,7 @@ test("puts the suggestions above the text they're for, closing them on Escape", 
       return range.getBoundingClientRect().left;
     });
   expect(Math.abs(shown.left - start)).toBeLessThan(1);
-  // (Not over the table's own colours)
+  // (Not over the table's own colors)
   const background = await list(page).evaluate((node) => getComputedStyle(node).backgroundColor);
   expect(background).toBe("rgb(255, 255, 255)");
 
@@ -447,7 +447,7 @@ test("closes as focus leaves it, unless it's been changed", async ({ page }) => 
   expect(errors).toEqual([]);
 });
 
-test("uses lighter colours on a dark background", async ({ page }) => {
+test("uses lighter colors on a dark background", async ({ page }) => {
   const errors = await ready(page, "tokens.html");
   await page.evaluate(() => {
     document.body.style.background = "#111";
@@ -500,7 +500,7 @@ test("fits a narrow container, with long text scrolled under the input's", async
   expect(errors).toEqual([]);
 });
 
-// (In a table whose columns are labelled other than their names: num "Amount (€)", char "Café",
+// (In a table whose columns are labeled other than their names: num "Amount (€)", char "Café",
 // and fctr and currency both "Kind", currency only for querying)
 test("puts a column's name in place of its label as it's typed, which undo takes out", async ({ page, browserName }) => {
   const errors = await ready(page, "labels.html");

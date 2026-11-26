@@ -124,7 +124,7 @@ export function groupCells(page: Page) {
 /**
  * The lines drawn across a table, along a line through it (down at `x` px from the page's left, or
  * across from the table's left at `y` as a fraction of its height, `width` px long): runs of up to
- * 8px in a colour other than (nearly) white, with the cells' contents hidden. The table is shot as
+ * 8px in a color other than (nearly) white, with the cells' contents hidden. The table is shot as
  * it shows on the page. (Nearly white: WebKit draws faint seams between rows, and dithers gradients)
  */
 export async function borderLines(page: Page, table: Locator, at: { x?: number; y?: number; width?: number }): Promise<string[]> {
@@ -158,15 +158,15 @@ export async function borderLines(page: Page, table: Locator, at: { x?: number; 
     const runs: [string, number][] = [];
     for (let i = 0; i < pixels.length; i += 4) {
       const light = Math.min(pixels[i] as number, pixels[i + 1] as number, pixels[i + 2] as number) >= 240;
-      const colour = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
+      const color = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
       const last = runs[runs.length - 1];
-      if (last !== undefined && last[0] === colour) {
+      if (last !== undefined && last[0] === color) {
         last[1]++;
       } else {
-        runs.push([colour, 1]);
+        runs.push([color, 1]);
       }
     }
-    return runs.filter(([colour, n]) => n <= 8 && colour !== "255,255,255").map(([colour, n]) => `${colour} x${n}`);
+    return runs.filter(([color, n]) => n <= 8 && color !== "255,255,255").map(([color, n]) => `${color} x${n}`);
   }, png);
 }
 

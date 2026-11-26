@@ -713,7 +713,7 @@ function setStyle(el: HTMLElement, property: string, value: string): void {
 const isTransparent = (color: string) =>
   color === "" || color === "transparent" || /^rgba\(.*,\s*0\)$/.test(color) || /\/\s*0\)$/.test(color);
 
-// A computed colour's opacity, from 0 to 1
+// A computed color's opacity, from 0 to 1
 function opacity(color: string): number {
   if (isTransparent(color)) {
     return 0;
@@ -726,7 +726,7 @@ function opacity(color: string): number {
   return match[2] === "%" ? value / 100 : value;
 }
 
-// The colour behind an element: the first background that isn't transparent, out from it (kept in
+// The color behind an element: the first background that isn't transparent, out from it (kept in
 // `known` for each element passed, for the elements around it that have the same ones)
 function backdropColor(el: Element, known?: Map<Element, string>): string {
   const passed: Element[] = [];
@@ -750,7 +750,7 @@ function backdropColor(el: Element, known?: Map<Element, string>): string {
   return color;
 }
 
-// What fills what's behind a table, to be done again as the page's colours change: as a theme's
+// What fills what's behind a table, to be done again as the page's colors change: as a theme's
 // toggle changes a class or attribute of `<html>` or `<body>`, as the system's light or dark
 // scheme changes, or as a background behind a table finishes a transition
 const refills = new Set<(behind?: EventTarget | null) => void>();
@@ -1124,7 +1124,7 @@ export class GtTable extends HTMLElement {
   private bar: Bar | null = null;
   /**
    * Fill the sticky bar, the sticky header and rows, and the pinned cells with what's behind them
-   * again (as the page's colours change, or the background of `behind`, if it's behind the table).
+   * again (as the page's colors change, or the background of `behind`, if it's behind the table).
    */
   private refill = (behind?: EventTarget | null): void => {
     if (behind != null && !(behind instanceof Node && behind.contains(this))) {
@@ -2956,7 +2956,7 @@ export class GtTable extends HTMLElement {
   }
 
   // The sticky header, and sticky rows' cells, without a background are filled with what's behind
-  // the table (and marked, to be filled again as the page's colours change)
+  // the table (and marked, to be filled again as the page's colors change)
   private fillRows(trs: HTMLTableRowElement[]): void {
     const table = this.table as HTMLTableElement;
     const backdrop = backdropColor(table);
@@ -5214,7 +5214,7 @@ export class GtTable extends HTMLElement {
     this.prepend(toolbar);
     this.toolbar = toolbar;
     this.closeGap(toolbar, "top");
-    // In the table's font, lined up with the table (which GT may have centred or narrowed)
+    // In the table's font, lined up with the table (which GT may have centered or narrowed)
     toolbar.style.fontFamily = familyOf(table);
     this.observeLayout();
     return toolbar;
@@ -6948,7 +6948,7 @@ export class GtTable extends HTMLElement {
     };
     const escape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        // (Only the drag is cancelled: the panel stays open)
+        // (Only the drag is canceled: the panel stays open)
         event.preventDefault();
         event.stopPropagation();
         end(false);
@@ -8141,7 +8141,7 @@ export class GtTable extends HTMLElement {
     box.root.hidden = false;
     box.toggle.setAttribute("aria-expanded", "true");
     this.updateTokens();
-    // (Its highlights in colours for what's behind it, light or dark, as its text's is; the list, over
+    // (Its highlights in colors for what's behind it, light or dark, as its text's is; the list, over
     // the table, filled with it)
     const [r = 0, g = 0, b = 0] = (getComputedStyle(box.root).color.match(/[\d.]+/g) ?? []).map(Number);
     box.root.toggleAttribute("data-gti-dark", 0.2126 * r + 0.7152 * g + 0.0722 * b >= 128);
@@ -9101,12 +9101,12 @@ export class GtTable extends HTMLElement {
       bar.style.marginLeft = `${left}px`;
       bar.style.width = `${Math.max(0, Math.min(table.width, outer.width - left))}px`;
     }
-    // The control bar is no narrower than its controls need (where there's room), centred under a
+    // The control bar is no narrower than its controls need (where there's room), centered under a
     // narrower table
     if (this.bar !== null) {
       const width = Math.min(outer.width, Math.max(table.width, BAR_MIN_WIDTH));
-      const centre = table.left - outer.left + table.width / 2;
-      const at = Math.max(0, Math.min(centre - width / 2, outer.width - width));
+      const center = table.left - outer.left + table.width / 2;
+      const at = Math.max(0, Math.min(center - width / 2, outer.width - width));
       this.bar.root.style.marginLeft = `${at}px`;
       this.bar.root.style.width = `${width}px`;
       // (With little room, the bar folds, whatever the pointer and its own width; on a touch screen,

@@ -269,7 +269,7 @@ test.describe("a body that scrolls, by touch", () => {
 
 /**
  * The lines drawn across a table, along a line through it (`x` or `y`, as a fraction of its width
- * or height): runs of up to 8px in a colour other than (nearly) white, with the cells' contents
+ * or height): runs of up to 8px in a color other than (nearly) white, with the cells' contents
  * hidden. (Nearly white: WebKit draws faint seams between rows)
  */
 async function borderLines(page: Page, table: Locator, at: { x?: number; y?: number }): Promise<string[]> {
@@ -299,15 +299,15 @@ async function borderLines(page: Page, table: Locator, at: { x?: number; y?: num
       const runs: [string, number][] = [];
       for (let i = 0; i < pixels.length; i += 4) {
         const light = Math.min(pixels[i] as number, pixels[i + 1] as number, pixels[i + 2] as number) >= 240;
-        const colour = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
+        const color = light ? "255,255,255" : `${pixels[i]},${pixels[i + 1]},${pixels[i + 2]}`;
         const last = runs[runs.length - 1];
-        if (last !== undefined && last[0] === colour) {
+        if (last !== undefined && last[0] === color) {
           last[1]++;
         } else {
-          runs.push([colour, 1]);
+          runs.push([color, 1]);
         }
       }
-      return runs.filter(([colour, n]) => n <= 8 && colour !== "255,255,255").map(([colour, n]) => `${colour} x${n}`);
+      return runs.filter(([color, n]) => n <= 8 && color !== "255,255,255").map(([color, n]) => `${color} x${n}`);
     },
     { png, at },
   );

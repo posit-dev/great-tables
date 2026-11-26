@@ -293,16 +293,16 @@ def test_labels_and_body_html_are_drawn_in_every_format():
     assert f"1.23{TIMES}10⁻⁴" in out and "&lt;b&gt;not bold&lt;/b&gt;" in out
     ansi = table.render("ansi")
     assert "m² s₁" in ansi and "a < b & c" in ansi
-    labelled = table_of(
+    labeled = table_of(
         GT(exibble[["num"]].head(1))
         .tab_header(title=md("A *b* **c**"))
         .cols_label(num=html("N<sub>2</sub>"))
     )
     # Labels are drawn as styled text, not as their markup
     for fmt in TEXT_FORMATS:
-        drawn = labelled.render(fmt)
+        drawn = labeled.render(fmt)
         assert "*b*" not in drawn and "**c**" not in drawn and "<sub>" not in drawn, fmt
-    assert "N₂" in labelled.render("ansi") and "N₂" in labelled.render("html")
+    assert "N₂" in labeled.render("ansi") and "N₂" in labeled.render("html")
 
 
 def test_superscripts_are_the_characters_gridwell_draws():

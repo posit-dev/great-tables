@@ -1003,7 +1003,7 @@ def test_header_ids_are_sanitized_and_deduplicated():
     ids, _ = _header_attrs(gt.as_raw_html())
 
     # Ids have no spaces or markup, are prefixed by the (sanitized) table id, and a spanner
-    # labelled like a column gets a suffix
+    # labeled like a column gets a suffix
     assert set(ids) == {"t-1-num", "t-1-n2", "t-1-num-2", "t-1-A-B"}
 
 

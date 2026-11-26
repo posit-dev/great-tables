@@ -16,7 +16,7 @@ function row(page: Page, which: number | string) {
     .first();
 }
 
-/** For each cell of a body row: whether it's tinted, and its background colour. */
+/** For each cell of a body row: whether it's tinted, and its background color. */
 function cells(page: Page, which: number | string) {
   return row(page, which).evaluate((tr) =>
     Array.from(tr.children, (cell) => {

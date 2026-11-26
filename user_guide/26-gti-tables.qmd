@@ -64,7 +64,7 @@ the [API Reference](/reference/index.qmd#interactive-table-controls) has them al
 A `GTI` table is the table GT made, with a few parts added around it. Here they are in teal, on a
 table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
-![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+![A GTI table with its parts labeled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
 
 ```{=html}
 <script src="../assets/tabblen.js" defer></script>
@@ -204,7 +204,7 @@ shown, so a clause on a column without a filter, or with a filter of another typ
 While the query is open, each filtered column's name is shown under its label, and a click on one
 puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be
 typed in place of its name (unless another column has the same label): as its words joined by
-underscores, or as it is in backticks, so a column labelled `Country of origin` can be typed as
+underscores, or as it is in backticks, so a column labeled `Country of origin` can be typed as
 `country_of_origin`. The name is put in its place as the word ends. The URL and `i_view()` take
 only names.
 

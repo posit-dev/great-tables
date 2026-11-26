@@ -7,7 +7,7 @@ import { dataRows, ready, visible } from "./helpers";
 
 // Columns only for querying, in a GTI table of exibble three times over (24 rows, in two groups):
 // `fctr` (shown in upper case, with a facet filter), `date` (with a text filter) and `currency`
-// (with a range filter), labelled "Factor", "Day" and "Price", are left out of the table with
+// (with a range filter), labeled "Factor", "Day" and "Price", are left out of the table with
 // `display=False`. The rows a view keeps, and its code, should be what Python's `view_rows()` and
 // `query_code()` have for it, as make_fixtures.py has them (in query-only-cases.json).
 

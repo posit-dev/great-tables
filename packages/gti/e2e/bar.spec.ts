@@ -342,7 +342,7 @@ test("resets the view from a button that shows while there's something to reset"
   await el(page).locator("button.gt-i-sort").first().click();
   await expect(reset).toBeVisible();
   await expect(reset).toHaveText("Reset");
-  // (Just before the info button, in the accent colour)
+  // (Just before the info button, in the accent color)
   expect((await box(reset)).right).toBeLessThanOrEqual((await box(barButton(page, "Table info"))).left);
   expect(await reset.evaluate((node) => getComputedStyle(node, "::before").backgroundColor)).toBe("rgb(31, 111, 235)");
 
@@ -361,7 +361,7 @@ test("names its buttons with tooltips of its own, a moment after the mouse goes 
   await next.hover();
   await expect(tip).toBeVisible();
   await expect(tip).toHaveText("Next page (→)");
-  // (Above it, and centred on it)
+  // (Above it, and centered on it)
   const [shown, under] = [await box(tip), await box(next)];
   expect(shown.bottom).toBeLessThanOrEqual(under.top);
   expect((shown.left + shown.right) / 2).toBeCloseTo((under.left + under.right) / 2, 0);
@@ -689,7 +689,7 @@ test("keeps its page controls in place as the page and readout change", async ({
   expect(await at()).toEqual(first);
 });
 
-test("is at least 300px wide, centred under a narrower table", async ({ page }) => {
+test("is at least 300px wide, centered under a narrower table", async ({ page }) => {
   const errors = await ready(page, "bar-narrow.html");
   const table = await box(el(page).locator("table"));
   const shown = await box(bar(page));
@@ -784,7 +784,7 @@ test("sticks to the bottom of the view for a table of every row", async ({ page 
   expect(errors).toEqual([]);
 });
 
-test("fills its sticky bar again as the page's colours change", async ({ page }) => {
+test("fills its sticky bar again as the page's colors change", async ({ page }) => {
   const errors = await ready(page, "bar-sticky.html");
   await expect(bar(page)).toHaveAttribute("data-gti-stick", "");
   const fill = () => bar(page).evaluate((node) => getComputedStyle(node).backgroundColor);

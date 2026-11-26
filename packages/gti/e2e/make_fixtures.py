@@ -801,7 +801,7 @@ def colors_html(collapse: bool = False) -> str:
 def query_only_gti(table_id: str, filter: str | None = None, sort: str | None = None) -> GTI:
     # Exibble three times over (24 rows, in two groups), on one page, showing num and char; and
     # left out for querying, fctr (as a facet, of its text in capitals), date (as text, by the
-    # text of its dates) and currency (as a range), each labelled. With a search, CSV and code
+    # text of its dates) and currency (as a range), each labeled. With a search, CSV and code
     # export, and the view kept in the URL
     data = pd.concat([exibble] * 3, ignore_index=True)
     data = data.assign(row=[f"row_{i + 1}" for i in range(len(data))])
@@ -834,7 +834,7 @@ QUERY_ONLY_VIEWS = [
 
 
 def labels_html(table_id: str) -> str:
-    # Exibble (8 rows), on one page, whose columns with filters are labelled other than their
+    # Exibble (8 rows), on one page, whose columns with filters are labeled other than their
     # names: num ("Amount (€)", a range), char ("Café", text), and fctr and currency both "Kind"
     # (a facet, and a range left out for querying)
     gti = (
@@ -1301,7 +1301,7 @@ def main() -> None:
             + runtime_src,
             head=styles,
         ),
-        # Columns labelled other than their names, for the query box
+        # Columns labeled other than their names, for the query box
         "labels.html": page(labels_html("l") + "\n" + runtime_src, head=styles),
         # Columns only for querying: in a GTI table that shows two of exibble's columns
         "query-only.html": page(

@@ -221,7 +221,7 @@ test.describe("pinned columns", () => {
     expect(errors).toEqual([]);
   });
 
-  test("are filled again as the page's colours change, as are the sticky header and rows", async ({ page }) => {
+  test("are filled again as the page's colors change, as are the sticky header and rows", async ({ page }) => {
     const errors = await ready(page, "pin-scroll.html");
     await scrollTo(page, 100, 200);
     const light = await fills(page);

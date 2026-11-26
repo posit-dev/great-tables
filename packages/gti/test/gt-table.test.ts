@@ -970,7 +970,7 @@ describe("the search box", () => {
     return { el, input: searchBox(el) as HTMLInputElement, events };
   }
 
-  it("is a labelled search field in a toolbar before the table", async () => {
+  it("is a labeled search field in a toolbar before the table", async () => {
     const { el, input } = await mountSearch();
     const toolbar = el.firstElementChild as HTMLElement;
 
@@ -1479,7 +1479,7 @@ describe("the page controls", () => {
     return { el, events };
   }
 
-  it("is a labelled nav below the table, in the table's font", async () => {
+  it("is a labeled nav below the table, in the table's font", async () => {
     const { el } = await mountPager();
     const nav = pager(el);
     expect(nav.tagName).toBe("NAV");
@@ -2092,7 +2092,7 @@ describe("the control bar", () => {
     expect(bar(el)).toBeNull();
   });
 
-  it("is at least 300px wide, centred under a narrower table, within the element", async () => {
+  it("is at least 300px wide, centered under a narrower table, within the element", async () => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
       if (this instanceof GtTable) {
         return new DOMRect(0, 0, 800, 200);
@@ -6252,7 +6252,7 @@ describe("column resizing", () => {
     expect(el.querySelector(".gt-i-resizable")).toBeNull();
   });
 
-  it("puts a labelled, focusable splitter at the end of each column label", async () => {
+  it("puts a labeled, focusable splitter at the end of each column label", async () => {
     const el = await resizable();
     const all = handles(el);
     expect(all.map((handle) => handle.getAttribute("aria-label"))).toEqual([
@@ -6647,7 +6647,7 @@ describe("row selection", () => {
     el.selection = [];
   });
 
-  it("puts a labelled checkbox before each data row's cells", async () => {
+  it("puts a labeled checkbox before each data row's cells", async () => {
     const el = await selectable();
     for (const row of [0, 1, 2, 3, 4]) {
       const tr = el.rowElement(row) as HTMLTableRowElement;
@@ -7714,7 +7714,7 @@ describe("hiding columns", () => {
     expect([spanner.hidden, heading.colSpan]).toEqual([true, 1]);
     el.hiddenColumns = [];
     expect([spanner.colSpan, spanner.hidden, heading.colSpan]).toEqual([2, false, 3]);
-    // (Each labelled after its spanners)
+    // (Each labeled after its spanners)
     expect(Array.from(panel(el).querySelectorAll("label"), (label) => label.textContent)).toEqual([
       "Values – x",
       "Values – y",
@@ -9282,8 +9282,8 @@ describe("colors made again from the rows kept", () => {
   it("colors the rows a filter keeps", async () => {
     const el = await mountColored({}, { filters: [{ column: "y", type: "facet", values: ["a", "b", "c"] }] });
     el.filter = { and: [{ col: "y", op: "in", value: ["a", "c"] }] };
-    const grey = ramp(COLOR.palette)(1 / 3);
-    expect(colorsOf(el)).toEqual([FIRST, BLACK, [css(grey), css(textColor(grey, "apca"))], FIRST, WHITE]);
+    const gray = ramp(COLOR.palette)(1 / 3);
+    expect(colorsOf(el)).toEqual([FIRST, BLACK, [css(gray), css(textColor(gray, "apca"))], FIRST, WHITE]);
     el.filter = null;
     expect(colorsOf(el)).toEqual(BODY.map(() => FIRST));
   });

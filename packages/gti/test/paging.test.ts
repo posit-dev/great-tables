@@ -36,7 +36,7 @@ describe("pageItems()", () => {
     [16, [1, null, 15, 16, 17, null, 20]],
     [17, [1, null, 16, 17, 18, 19, 20]],
     [20, [1, null, 16, 17, 18, 19, 20]],
-  ])("gives page %d of 20 with its neighbours, the ends, and gaps", (page, expected) => {
+  ])("gives page %d of 20 with its neighbors, the ends, and gaps", (page, expected) => {
     expect(pageItems(page, 20)).toEqual(expected);
   });
 

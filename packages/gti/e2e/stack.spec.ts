@@ -98,7 +98,7 @@ test.describe("a table in a narrow container", () => {
       .evaluateAll((cells) =>
         cells
           .map((th) => ({ text: th.textContent ?? "", box: th.getBoundingClientRect() }))
-          // (By line, then along it: chips with buttons are taller, centred on their line)
+          // (By line, then along it: chips with buttons are taller, centered on their line)
           .sort((a, b) => a.box.top + a.box.bottom - b.box.top - b.box.bottom > 10 ? 1 : a.box.top + a.box.bottom - b.box.top - b.box.bottom < -10 ? -1 : a.box.left - b.box.left)
           .map(({ text }) => text),
       );
@@ -219,11 +219,11 @@ test.describe("a table that can be stacked, on a phone", () => {
   });
 });
 
-test("a stacked table with light text on a dark background keeps its colours", async ({ page }) => {
+test("a stacked table with light text on a dark background keeps its colors", async ({ page }) => {
   const errors = await ready(page, "stack-dark.html");
   await expect(el(page)).toHaveAttribute("data-gti-stacked", "");
-  // (The labels in the values' light colour, a little fainter, and the chips' and cards' borders
-  // grey, on either)
+  // (The labels in the values' light color, a little fainter, and the chips' and cards' borders
+  // gray, on either)
   const { value, before } = await cell(page, "char")
     .first()
     .evaluate((td) => ({ value: getComputedStyle(td).color, before: getComputedStyle(td, "::before").color }));

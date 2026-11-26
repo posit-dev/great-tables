@@ -558,7 +558,7 @@ gt-table :is(tr, td, th, col)[hidden] {
 
 /*
  * Row highlighting: a tint over the data row under the pointer, or the row tapped on a touch
- * screen, from the text colour (so it works on dark tables too). An inset shadow is drawn over the
+ * screen, from the text color (so it works on dark tables too). An inset shadow is drawn over the
  * cells' own backgrounds (striping, `tab_style()` fills), which still show through. Cells merged
  * across rows (row group labels, a hierarchical stub) aren't one row's, so they're left alone.
  */
@@ -572,7 +572,7 @@ gt-table[data-gti-highlight] tr.gt-i-marked > :not(.gt_stub_row_group, [rowspan]
   box-shadow: inset 0 0 0 100vmax color-mix(in srgb, currentColor 8%, transparent);
 }
 
-/* (Forced colours drop shadows) */
+/* (Forced colors drop shadows) */
 @media (forced-colors: active) {
   gt-table[data-gti-highlight] tr.gt-i-row:hover > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])),
   gt-table[data-gti-highlight] tr.gt-i-marked > :not(.gt_stub_row_group, [rowspan]:not([rowspan="1"])) {
@@ -1186,7 +1186,7 @@ gt-table .gt-i-bar::before {
   top: var(--gt-i-controls-top, calc(100% - var(--gt-i-line)));
   bottom: 0;
   box-sizing: border-box;
-  /* (In the text's colour, so that it shows on a dark page as on a light one) */
+  /* (In the text's color, so that it shows on a dark page as on a light one) */
   border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
   border-radius: calc(var(--gt-i-line) / 2);
   pointer-events: none;
@@ -1197,8 +1197,8 @@ gt-table .gt-i-bar::before {
 
 /*
  * While the table has focus (from a click in it, or a control in it), so that its keys go to it,
- * the outline takes the accent colour, with a faint glow around it (the accent mixed with the
- * text's colour, so that it's as clear on a dark page as on a light one)
+ * the outline takes the accent color, with a faint glow around it (the accent mixed with the
+ * text's color, so that it's as clear on a dark page as on a light one)
  */
 gt-table[data-gti-keys]:focus-within .gt-i-bar::before {
   --gt-i-focus: color-mix(in srgb, var(--gt-i-accent, #1f6feb) 75%, currentColor);
@@ -1234,7 +1234,7 @@ gt-table .gt-i-bar[data-gti-searching] [data-gti-bar="keys"] {
 }
 
 /*
- * The reset, while the view isn't the author's: a pill in an accent colour (`--gt-i-accent`),
+ * The reset, while the view isn't the author's: a pill in an accent color (`--gt-i-accent`),
  * shorter than the line
  */
 gt-table .gt-i-bar [data-gti-bar="reset"] {
@@ -1322,7 +1322,7 @@ gt-table[data-gti-parts] {
 
 /*
  * The names of the table's parts (see `showParts()`): over the table (and under its panels), which
- * works as ever under them, each part outlined in the accent colour with its name beside it
+ * works as ever under them, each part outlined in the accent color with its name beside it
  */
 gt-table .gt-i-parts {
   --gt-i-part: var(--gt-i-accent, #1f6feb);
@@ -1637,7 +1637,7 @@ gt-table .gt-i-tokens button:focus-visible {
 /*
  * The query box: on the tokens' line (in their place), a field of the filters as text, which is
  * drawn over a copy of it for its highlights (where the browser has them), with suggestions above
- * it and what's wrong with it below (in colours for a light background, or a dark one, each at
+ * it and what's wrong with it below (in colors for a light background, or a dark one, each at
  * least 4.5:1 against it). What can be typed, as the field's text is, is in a monospaced font.
  */
 gt-table .gt-i-query {
@@ -1826,7 +1826,7 @@ gt-table .gt-i-query-mirror::highlight(gt-i-query-fixed) {
 
 /*
  * The names of the columns with filters, while the query box is open (see `showNames()`): over
- * the table, each above its label (or over it), in the columns' colour, put in at the caret with
+ * the table, each above its label (or over it), in the columns' color, put in at the caret with
  * a click
  */
 gt-table .gt-i-names {
@@ -2563,7 +2563,7 @@ gt-table .gt-i-bar [data-gti-bar="sheet"] {
  * A bar with little room (`data-gti-narrow`, which the runtime sets where the table's container is
  * narrower than 30em, whatever the bar's own width, and on a touch screen, whose targets are
  * bigger, where the bar is 30em wide or less) folds the search (even with a search in force, which
- * the button then shows in the accent colour), the filters as text and the columns into the
+ * the button then shows in the accent color), the filters as text and the columns into the
  * "Filter & sort" sheet's button, and leaves out the keyboard shortcuts (Home and End still go to
  * the first and last pages), so that it stays one line
  */

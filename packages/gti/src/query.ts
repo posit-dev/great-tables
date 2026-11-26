@@ -775,7 +775,7 @@ export function queryProblem(
         ? clause.value.find((value) => value !== null && filter.rankOf(value) === undefined)
         : undefined;
     const typed = typedLabel(col);
-    const labelled =
+    const labeled =
       filter !== undefined
         ? []
         : Array.from(labels)
@@ -783,9 +783,9 @@ export function queryProblem(
             .map(([column]) => formatColumn(column));
     const message =
       filter === undefined
-        ? labelled.length === 0
+        ? labeled.length === 0
           ? `${name} isn't a column with a filter`
-          : `${name} is the label of ${opList(labelled, "and")}: use ${labelled.length === 1 ? "its name" : "one of their names"}`
+          : `${name} is the label of ${opList(labeled, "and")}: use ${labeled.length === 1 ? "its name" : "one of their names"}`
         : op !== "is null" && !OPS[filter.type].includes(op)
           ? `${name} has a ${filter.type} filter: use ${opList(OPS[filter.type])}`
           : seen.has(key)
