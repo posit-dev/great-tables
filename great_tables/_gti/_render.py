@@ -279,7 +279,8 @@ def _build(gt: GT) -> GTData:
         gt = _compact(gt)
     gt = _leave_out(gt, settings.query_only)
     gt = leave_out_details_column(gt)
-    return gt._build_data(context="html")
+    # (Long floats, as data often has them, would widen their columns)
+    return gt._build_data(context="html", condense_floats=True)
 
 
 def stack_css(data: GTData, spec: Spec, table_html: str) -> str:
