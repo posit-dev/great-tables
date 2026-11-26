@@ -393,10 +393,6 @@ from great_tables.data import countrypops
 
 GTI(countrypops, preset="explorer").i_responsive("scroll")
 ```
-
-Source
-------
-<https://data.worldbank.org/indicator/SP.POP.TOTL>
 """
 
 sza = _read_csv(_sza_fname, dtype=_sza_dtype)  # type: ignore
