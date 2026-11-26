@@ -23,6 +23,12 @@ Cell
   **summary rows**. Cells are the fundamental unit that **formatters**, **styles**, and
   **footnotes** act upon.
 
+Column controls
+: In a **GTI table**, the small controls under each **column label**: the column's dtype (with
+  `~~GTI.i_inspect()`), its sort arrows (with `~~GTI.i_sorting()`, on by default), and its
+  **filter** button (with `~~GTI.i_cols_filter()`). What readers can do with each column (sort,
+  search, resize, hide, move or group by it) is set with `~~GTI.i_cols_controls()`.
+
 Column header
 : The region directly above the **body** that contains all **column labels** and any
   **spanner labels**. It provides the labeling structure that maps data columns to their
@@ -33,6 +39,12 @@ Column labels
   column names from the input DataFrame, but they can be overridden with `cols_label()` or
   transformed with `cols_label_with()`. Targetable with `loc.column_labels()`.
 
+Column profile
+: In a **GTI table**, a small plot under a **column label** showing how the column's values are
+  spread: a histogram for numbers and dates, and bars for the most common values of other
+  columns, with the share of missing values. Profiles follow the rows the **search** and
+  **filters** keep. Added with `~~GTI.i_cols_profile()`.
+
 Column selector
 : An expression passed to a `columns=` parameter to identify which columns an operation
   should act on. Accepts a column name (string), a list of names, an integer index, a Polars
@@ -40,11 +52,28 @@ Column selector
   returns a boolean. Column selectors are used throughout the API in methods like
   `~~GT.fmt_number()`, `cols_align()`, `tab_style()`, and many others.
 
+Control bar
+: The row of controls just below a **GTI table** that brings together what readers can do with
+  the table as a whole: the **search** and keyboard shortcuts, the **page controls**, the
+  **query** button (`{ }`), the buttons that open the table's **panels**, undo and redo (see
+  **view state**), and a Reset button once the **view** has changed. A table made with
+  `opt_interactive()` has a **pager** instead.
+
 Data color
 : A technique for colorizing **cell** backgrounds based on data values, providing a visual
   encoding of magnitude or category directly in the table. Applied with `data_color()`, which
   supports custom palettes, ColorBrewer palettes, domain specification, and automatic
   contrasting text color.
+
+Filter
+: In an **interactive table**, a control that keeps only the rows matching a condition on one
+  column, opened from the column's filter button. A **GTI table** gets filters with
+  `~~GTI.i_cols_filter()`, of five types: `"text"`, `"facet"` (a checklist of values), `"range"`,
+  `"date"`, and `"bool"`. A row is shown when it passes every filter and the **search**.
+
+Filter tokens
+: In a **GTI table**, a token for each **filter** in use, shown below the table, that says
+  which rows the filter keeps. A token's ✕ removes its filter.
 
 Footer
 : The bottom region of the table, below the **body** and any **summary rows**. It contains
@@ -82,16 +111,39 @@ GT object
   enabling method chaining. Optional constructor arguments include `rowname_col` (to create a
   **stub**), `groupname_col` (to create **row groups**), `locale`, and `id`.
 
+GTI table
+: An **interactive table** made with `GTI()` rather than `GT()`, built like a **GT object** and
+  rendered as a table readers work with. Its `i_` methods set what readers can do with it, column
+  by column: which **filters** they get, which columns they can hide, move or pin, how they can
+  export the rows, and how the table is first shown (its **view**). `GTI.from_gt()` turns a `GT`
+  table into a `GTI` table.
+
 Header
 : The topmost region of the table, positioned above the **column header**. It contains the
   **title** and optionally a **subtitle**. Set with `tab_header()`. Targetable as a whole with
   `loc.header()`.
+
+Height handle
+: In a **GTI table** whose body scrolls within a set height (with `~~GTI.i_scroll()`), the handle
+  at the foot of the body that readers drag for a taller or shorter body. A double click on it
+  restores the set height.
 
 Hidden column
 : A column that is present in the underlying data but not rendered in the output table.
   Columns can be hidden with `cols_hide()` and restored with `cols_unhide()`. Hidden columns
   remain accessible for operations like **merged columns** patterns, **data color** mapping,
   and `from_column()` references.
+
+Interactive table
+: A table that readers can sort, search, filter, and page through in the browser, with no server
+  or other library needed. It's made either by adding `opt_interactive()` to a `GT` table's method
+  chain, for a published table that readers can browse, or as a **GTI table**, for a table that is
+  an interface. Both keep the table's formatting, styles, and structure.
+
+Linked tables
+: **GTI tables** on the same page that work together through `~~GTI.i_link()`: the rows a reader
+  selects in one (see **selection**) filter the others to the rows with the same values in a
+  shared column.
 
 Locale
 : A language/region identifier (e.g., `"en"`, `"de"`, `"fr-CA"`) that controls how **formatters**
@@ -118,10 +170,53 @@ Nanoplot
   reference areas, and automatic y-axis scaling across rows. Appearance is customized through
   `nanoplot_options()`.
 
+Page controls
+: In a **GTI table**'s **control bar**, the buttons for the first, previous, next, and last pages,
+  around the page counter ("1 / 2"), which can be clicked to type the page to go to. The page
+  size is set with `~~GTI.i_pagination()`.
+
+Pager
+: The page buttons and row count below a table made with `opt_interactive()`, in place of a
+  **GTI table**'s **control bar**. Its style is set with `opt_interactive(pagination_type=...)`.
+
+Panel
+: In a **GTI table**, a box opened from a button in the **control bar**: the Columns panel (to
+  hide and move columns), the grouping panel (to group the rows by a column), the export panel
+  (from `~~GTI.i_export()`), and the info panel, which says how the table is sorted and can go
+  back to the view it was first shown with.
+
+Pinned columns
+: In a wide **GTI table** that scrolls sideways, columns that stay in view, on the left (after the
+  **stub**, which always stays) or on the right. Set with `~~GTI.i_cols_pin()`.
+
 Preheader
 : Optional content rendered above the table element itself (before the **header**). Set via
   `tab_header(preheader=...)`. Accepts raw HTML strings and is useful for adding
   non-tabular content like badges or links that sit outside the table's visual boundaries.
+
+Preset
+: The settings a **GTI table** starts with, chosen with `GTI(preset=...)`: `"report"` (the
+  default), for a table to be read, or `"explorer"`, for looking through data, with every column
+  filtered, profiled, hideable and movable, compact monospaced rows, CSV export, and the
+  **row numbers** and **status line** of `~~GTI.i_inspect()`. The `i_` methods change a preset
+  as they would any table.
+
+Query
+: A **GTI table**'s **filters** written as text, such as `mfr in ("Ferrari") and hp >= 600`. The
+  `{ }` button in the **control bar** opens the query for readers to edit, and
+  `~~GTI.i_view(filter=...)` takes one to set the filters the table starts with.
+
+Responsive layout
+: How a **GTI table** fits a container narrower than itself, set with `~~GTI.i_responsive()`:
+  `"scroll"` (the table scrolls sideways), `"stack"` (each row becomes a card, below
+  `stack_below=` pixels), or `"collapse"` (columns are dropped by their priority from
+  `~~GTI.i_cols_priority()`, and each row gets a button showing what was dropped). The default,
+  `"auto"`, picks one from the table's columns.
+
+Row details
+: In a **GTI table**, more content for each row, shown under it when the reader clicks the arrow
+  by the row (or uses Expand all in the info **panel**). Made from each row's values by a
+  function given to `~~GTI.i_row_details()`, or taken from a column.
 
 Row group
 : A categorical label that divides the **body** into logical sections of rows. Row groups
@@ -129,11 +224,26 @@ Row group
   `groupname_col=` to `GT()` and ordered with `row_group_order()`. Targetable with
   `loc.row_groups()`.
 
+Row numbers
+: In a **GTI table** with `~~GTI.i_inspect()`, the number at the start of each row giving its
+  place in the data, which stays with the row as the table is sorted and filtered. A DataFrame's
+  rows are numbered from 0 and a database's from 1, unless `row_start=` says otherwise.
+
 Row selector
 : An expression passed to a `rows=` parameter to identify which rows an operation should act
   on. Accepts an integer index, a list of indices, a list of row names (when a **stub** is
   present), a Polars expression, or a callable. Row selectors are used in methods like
   `~~GT.fmt_number()`, `tab_style()`, `cols_merge()`, and others.
+
+Search
+: In an **interactive table**, a field that keeps the rows with what's typed in any searchable
+  column's cells, as the table shows them, ignoring case and accents. In a **GTI table** it's in
+  the **control bar** (with `~~GTI.i_search()`, on by default) and is opened with `/`.
+
+Selection
+: The rows a reader has selected in a **GTI table** with `~~GTI.i_selection()`, by clicking the
+  rows or their checkboxes (one row with `"single"`, any number with `"multiple"`). The selection
+  links **linked tables**, can be exported, and can be read from Python.
 
 Source note
 : Citation or attribution text displayed in the **footer**, below any **footnotes**. Added
@@ -146,6 +256,10 @@ Spanner label
   `tab_spanner_delim()` (which splits column names at a delimiter character), and relabeled with
   `tab_spanner_label_with()`. Spanners can be nested to any depth. Targetable with
   `loc.spanner_labels()`.
+
+Status line
+: In a **GTI table** with `~~GTI.i_inspect()`, the line just above the table saying what the data
+  is and how much of it is shown (e.g., "Polars DataFrame · 12 of 47 rows × 4 columns").
 
 Stub
 : A reserved leftmost column of the table that holds row labels, visually set apart from the
@@ -187,3 +301,14 @@ Title
 : The main heading text displayed at the top of the **header**. Set via
   `tab_header(title=...)`. Supports `md()` and `html()` formatting. Targetable with
   `loc.title()`.
+
+View
+: How a reader has a **GTI table** set up: its **filters**, sort, **search**, page, page size,
+  hidden columns, the column its rows are grouped by, and the height of a body that scrolls. The
+  view the table starts with is set with `~~GTI.i_view()`. See also **view state**.
+
+View state
+: A **GTI table**'s **view** as it's kept with `~~GTI.i_view_state()`: in the page's URL, so a
+  reloaded or shared page opens the table as it was, and optionally in the browser's storage
+  (`storage=True`). It also gives the **control bar** undo and redo buttons. Keeping the view in
+  the URL needs a table ID.
