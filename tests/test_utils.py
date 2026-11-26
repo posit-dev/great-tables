@@ -7,6 +7,7 @@ from great_tables import GT, exibble
 from great_tables._utils import (
     _assert_list_is_subset,
     _collapse_list_elements,
+    _condensed_float,
     _insert_into_list,
     _match_arg,
     OrderedSet,
@@ -426,3 +427,29 @@ def test_match_arg_accepts_unambiguous_abbreviation():
 
 def test_match_arg_prefers_exact_match_over_longer_option():
     assert _match_arg("red", ["red", "reddish"]) == "red"
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        # (Short enough already, with the exponent marked with an `E`)
+        (13135.722895, "13135.722895"),
+        (1e-05, "1E-05"),
+        (2.5e20, "2.5E+20"),
+        (float("inf"), "inf"),
+        # (Longer, and rounded to 6 significant digits)
+        (0.00015800000000000002, "0.000158"),
+        (0.1 + 0.2, "0.3"),
+        (1.5207923835712901e-21, "1.52079E-21"),
+        (127903530.75341, "1.27904E+08"),
+        (123456.789123, "123457"),
+        # (Or, for a whole number, without its `.0`, if that's short enough)
+        (10617809600.0, "10617809600"),
+        (-10617809600.0, "-10617809600"),
+        (-106178096000.0, "-1.06178E+11"),
+        (1e16, "1E+16"),
+        (-3.7000000000000005e-05, "-3.7E-05"),
+    ],
+)
+def test_condensed_float(value: float, expected: str):
+    assert _condensed_float(value) == expected
