@@ -8397,7 +8397,7 @@ Relabel one or more columns.
 
 ::: {.doc-text}
 
-There are three important pieces to labelling:
+There are three important pieces to labeling:
 
 * Each argument has the form: {name in data} = {new label}.
 * Multiple columns may be given the same label.
@@ -13781,7 +13781,8 @@ Whatever the mode, in a container narrower than 30em (480 pixels, at 16px text),
 control bar folds its search, its filters as text and its "Columns" button into one
 "Filter & sort" button, which opens a sheet from the foot of the window with all of them,
 and the table's sort and filters; on a touch screen, so does a bar that's 30em wide or less.
-There, a long press on a column's label opens a sheet for that column (to sort it, filter
+A search stays in the sheet (the button is then in the accent color), and the keyboard
+shortcuts and the naming of the table's parts are left out. There, a long press on a column's label opens a sheet for that column (to sort it, filter
 it, or hide it), while a tap still sorts by it.
 :::
 
@@ -20782,7 +20783,7 @@ formatting calls.
 While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these
 methods on scalar values or lists of values. These variants exist within the `vals` module. While
 arguments across these functions and their corresponding method aren't exactly the same, there are
-nonetheless many arguments that are shared amongst them. Here are some of the most commonly used
+nonetheless many arguments that are shared among them. Here are some of the most commonly used
 arguments:
 
 - `decimals=`: set a fixed precision of decimal places
@@ -22419,7 +22420,7 @@ targets.
 import polars as pl
 from great_tables import GT, data, loc, style
 
-# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and grey
+# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and gray
 brewer_colors = [
     "#a6cee3",
     "#1f78b4",
@@ -25377,7 +25378,7 @@ flags_df = pl.DataFrame(
 Everything above applies to the static HTML that **Great Tables** renders in notebooks, Quarto
 documents, and web pages, and to interactive tables made with `~~GT.opt_interactive()` too: the
 interactivity is added to the same table markup, so its header, stub, column labels, and spanners
-are kept as they are. Its controls are labelled buttons and inputs that can be used with the
+are kept as they are. Its controls are labeled buttons and inputs that can be used with the
 keyboard, a sorted column's label says how it's sorted, and the changes readers make (sorting,
 searching, filtering, or turning the page) are announced to screen readers.
 
@@ -25713,7 +25714,7 @@ the [API Reference](/reference/index.qmd#interactive-table-controls) has them al
 A `GTI` table is the table GT made, with a few parts added around it. Here they are in teal, on a
 table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
-![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
+![A GTI table with its parts labeled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg){.lightbox width="100%"}
 
 ```{=html}
 <script src="../assets/tabblen.js" defer></script>
@@ -25853,7 +25854,7 @@ shown, so a clause on a column without a filter, or with a filter of another typ
 While the query is open, each filtered column's name is shown under its label, and a click on one
 puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be
 typed in place of its name (unless another column has the same label): as its words joined by
-underscores, or as it is in backticks, so a column labelled `Country of origin` can be typed as
+underscores, or as it is in backticks, so a column labeled `Country of origin` can be typed as
 `country_of_origin`. The name is put in its place as the word ends. The URL and `i_view()` take
 only names.
 

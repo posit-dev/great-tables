@@ -12,7 +12,7 @@ Below is a comprehensive example that shows most of the `loc` specifiers being u
 import polars as pl
 from great_tables import GT, data, loc, style
 
-# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and grey
+# https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12 and gray
 brewer_colors = [
     "#a6cee3",
     "#1f78b4",

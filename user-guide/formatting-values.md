@@ -99,7 +99,7 @@ Per-row formatting like this is particularly useful for international datasets w
 
 ## Arguments Common to Several Formatting Methods/Functions
 
-While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these methods on scalar values or lists of values. These variants exist within the `vals` module. While arguments across these functions and their corresponding method aren't exactly the same, there are nonetheless many arguments that are shared amongst them. Here are some of the most commonly used arguments:
+While we can use the `fmt_*()` methods on a table, we can also use the functional versions of these methods on scalar values or lists of values. These variants exist within the `vals` module. While arguments across these functions and their corresponding method aren't exactly the same, there are nonetheless many arguments that are shared among them. Here are some of the most commonly used arguments:
 
 - `decimals=`: set a fixed precision of decimal places
 - `sep_mark=`, `dec_mark=`: set digit separators and the decimal symbol (defaults are `","` and `"."`)

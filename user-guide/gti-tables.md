@@ -141,7 +141,7 @@ Each of the `i_` methods has examples on its reference page (e.g., [i_cols_filte
 
 A [GTI](../reference/GTI.md#great_tables.GTI) table is the table GT made, with a few parts added around it. Here they are in teal, on a table that's filtered by `mfr`, sorted by `hp` and scrolls within a set height:
 
-![A GTI table with its parts labelled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg)
+![A GTI table with its parts labeled. The table GT made (its column labels and body) is in gray; the parts GTI adds are in teal: the status line, column controls, column profiles, row numbers, height handle, filter tokens, and the control bar with its search, keyboard shortcuts, page controls and counter, filters as text, panels, and undo and redo.](../assets/gti_parts_of_a_table.light.svg)
 
 ![](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cG9seWxpbmUgcG9pbnRzPSIxNSAzIDIxIDMgMjEgOSI+PC9wb2x5bGluZT48cG9seWxpbmUgcG9pbnRzPSI5IDIxIDMgMjEgMyAxNSI+PC9wb2x5bGluZT48bGluZSB4MT0iMjEiIHkxPSIzIiB4Mj0iMTQiIHkyPSIxMCI+PC9saW5lPjxsaW5lIHgxPSIzIiB5MT0iMjEiIHgyPSIxMCIgeTI9IjE0Ij48L2xpbmU+PC9zdmc+)
 
@@ -1715,7 +1715,7 @@ A row is shown when it passes every filter, and the search. The tokens below the
 
 The clauses are joined by `and`, and groups are written with `or`, `not` and parentheses (`temp >= 25 or (gusts in (true) and not condition contains "fair")`); `not in`, `not contains` and `is not null` can be written as such. A column name that isn't letters, digits and underscores goes in backticks. A query in [i_view()](../reference/GTI.i_view.md#great_tables.GTI.i_view) is checked against the columns' filters when the table is shown, so a clause on a column without a filter, or with a filter of another type, is an error.
 
-While the query is open, each filtered column's name is shown under its label, and a click on one puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be typed in place of its name (unless another column has the same label): as its words joined by underscores, or as it is in backticks, so a column labelled `Country of origin` can be typed as `country_of_origin`. The name is put in its place as the word ends. The URL and [i_view()](../reference/GTI.i_view.md#great_tables.GTI.i_view) take only names.
+While the query is open, each filtered column's name is shown under its label, and a click on one puts it in at the caret. Tab (or ↓) lists the columns where one can go. A column's label can be typed in place of its name (unless another column has the same label): as its words joined by underscores, or as it is in backticks, so a column labeled `Country of origin` can be typed as `country_of_origin`. The name is put in its place as the word ends. The URL and [i_view()](../reference/GTI.i_view.md#great_tables.GTI.i_view) take only names.
 
 ## Sorting by several columns, and the keyboard
 
