@@ -891,6 +891,56 @@ function profileSlot(th: HTMLTableCellElement): HTMLElement {
 // The narrowest a column can be made: 2em of its label
 const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComputedStyle(th).fontSize) || 16));
 
+// Without text wrapping, a column of text is fitted to no more than this many ems of its cells'
+// font, and to the text of all but this share of its cells, the longest (see `textCaps()`)
+const CAP_EMS = 20;
+const CAP_CUT = 0.1;
+// What a cell shows that isn't text, which its column is as wide as (but the button that opens
+// its row)
+const NOT_TEXT = "img, picture, video, canvas, iframe, object, embed, svg:not(.gt-i-icon), input, select, textarea, meter, progress, button:not(.gt-i-expand)";
+// The most of a cut cell's text its tooltip shows (in characters, before a "…")
+const CELL_TIP_CHARS = 150;
+
+// Each column's label of its own (not one spanning several columns), by the column's position
+// among the body cells
+function ownLabels(table: HTMLTableElement): Map<number, HTMLTableCellElement> {
+  const rows = Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"));
+  // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
+  // spanner) take their columns in the rows below. Per column, the row its last label ends before
+  const ends: number[] = [];
+  const labels = new Map<number, HTMLTableCellElement>();
+  rows.forEach((tr, r) => {
+    let index = 0;
+    for (const th of tr.children as HTMLCollectionOf<HTMLTableCellElement>) {
+      while ((ends[index] ?? 0) > r) {
+        index += 1;
+      }
+      const colspan = Number(th.getAttribute("colspan") ?? 1);
+      const rowspan = Number(th.getAttribute("rowspan") ?? 1);
+      for (let column = index; column < index + colspan; column++) {
+        ends[column] = r + rowspan;
+      }
+      if (colspan === 1 && r + rowspan >= rows.length) {
+        labels.set(index, th);
+      }
+      index += colspan;
+    }
+  });
+  return labels;
+}
+
+// A cell's padding and borders, across
+function sideWidths(style: CSSStyleDeclaration): number {
+  const sides = [style.paddingLeft, style.paddingRight, style.borderLeftWidth, style.borderRightWidth];
+  return sides.reduce((sum, side) => sum + (parseFloat(side) || 0), 0);
+}
+
+// Text cut to `CELL_TIP_CHARS` characters, with a "…" if it's cut
+function clipText(text: string): string {
+  const chars = Array.from(text);
+  return chars.length > CELL_TIP_CHARS ? `${chars.slice(0, CELL_TIP_CHARS).join("").trimEnd()}…` : text;
+}
+
 // How a table fits a narrow container (an "auto" table whose columns have priorities drops them,
 // rather than being stacked)
 function responsiveOf(spec: Spec): Spec["layout"]["responsive"] {
@@ -1036,6 +1086,8 @@ export class GtTable extends HTMLElement {
   private tipView: ProfileView | null = null;
   private tipBar = -1;
   private tipTimer: ReturnType<typeof setTimeout> | undefined = undefined;
+  /** Hides a cut cell's tooltip (see `addCellTips()`). */
+  private hideCellTip = (): void => {};
   private profilePanel: HTMLElement | null = null;
   private profileOpen: ProfileView | null = null;
   private profileBar = -1;
@@ -1128,8 +1180,15 @@ export class GtTable extends HTMLElement {
   private widthsFixed = false;
   /** Whether text doesn't wrap, in a table with columns the author sized, which it may overrun. */
   private cutsText = false;
-  /** Whether we made the table's layout fixed (with a width), to keep the author's column widths. */
+  /** Whether text doesn't wrap, so that the columns fitted to it are capped (see `textCaps()`). */
+  private capsText = false;
+  /**
+   * Whether we made the table's layout fixed (with a width), to keep the author's column widths,
+   * or to cap ours.
+   */
   private tableFitted = false;
+  /** What measures text, for `textCaps()` (`null` where there isn't a canvas). */
+  private measurer: CanvasRenderingContext2D | null | undefined = undefined;
   /** The element's width when the column widths were measured. */
   private fittedWidth = 0;
   private refitFrame = 0;
@@ -3293,11 +3352,15 @@ export class GtTable extends HTMLElement {
     this.toggleAttribute("data-gti-parts", parts === true);
     this.toggleAttribute("data-gti-highlight", highlight);
     this.cutsText = !wrap && this.table?.querySelector(":scope > colgroup") != null;
+    this.capsText = !wrap;
     if (this.cutsText) {
       this.fixWidths();
       this.observeLayout();
     }
     const tbody = this.tbody;
+    if (!wrap && tbody !== null) {
+      this.addCellTips(tbody);
+    }
     if (!highlight || tbody === null) {
       return;
     }
@@ -4277,37 +4340,14 @@ export class GtTable extends HTMLElement {
   // A resize handle for each column with a label of its own (not one spanning several columns),
   // unless the spec says it can't be resized
   private addResizers(table: HTMLTableElement, spec: Spec): void {
-    const rows = Array.from(
-      table.querySelectorAll<HTMLTableRowElement>(":scope > thead > tr.gt_col_headings"),
-    );
     // (The spec's columns come after the lead column and the row groups', if there are those)
     const lead = this.lead;
-    // Lay the labels out on the columns: labels spanning rows (the stubhead, columns without a
-    // spanner) take their columns in the rows below. Per column, the row its last label ends before
-    const ends: number[] = [];
     const made: Resizer[] = [];
-    rows.forEach((tr, r) => {
-      let index = 0;
-      for (const th of tr.children as HTMLCollectionOf<HTMLTableCellElement>) {
-        while ((ends[index] ?? 0) > r) {
-          index += 1;
-        }
-        const colspan = Number(th.getAttribute("colspan") ?? 1);
-        const rowspan = Number(th.getAttribute("rowspan") ?? 1);
-        for (let column = index; column < index + colspan; column++) {
-          ends[column] = r + rowspan;
-        }
-        if (
-          colspan === 1 &&
-          r + rowspan >= rows.length &&
-          !th.classList.contains("gt-i-select") &&
-          spec.columns[index - lead]?.resizable !== false
-        ) {
-          made.push(this.makeResizer(th, index));
-        }
-        index += colspan;
+    for (const [index, th] of ownLabels(table)) {
+      if (!th.classList.contains("gt-i-select") && spec.columns[index - lead]?.resizable !== false) {
+        made.push(this.makeResizer(th, index));
       }
-    });
+    }
     // (Put in once they're all measured: each one put in before the next label is measured would
     // have the table laid out again, with every row of a table of thousands, as it's hydrated)
     for (const { th, handle } of made) {
@@ -5712,6 +5752,103 @@ export class GtTable extends HTMLElement {
     for (const type of ["focusout", "pointerdown", "click"]) {
       root.addEventListener(type, hide);
     }
+  }
+
+  /**
+   * The tooltip of a cell whose text is cut: its text (up to `CELL_TIP_CHARS`), under it (or over
+   * it, without room below), a moment after the mouse goes onto it, or as it's tapped, till
+   * anything else is pressed (or it's tapped again), something scrolls, or Escape is pressed
+   */
+  private addCellTips(tbody: HTMLTableSectionElement): void {
+    const doc = this.ownerDocument;
+    const tip = element(doc, "div", "gt-i-tip gt-i-cell-tip", { "aria-hidden": "true" });
+    tip.hidden = true;
+    let shown: Element | null = null;
+    // (Where the cell was as its tooltip was placed)
+    let at = "";
+    const place = (cell: Element) => {
+      const box = this.rect(cell);
+      return `${box.left},${box.top}`;
+    };
+    // (The cell whose tooltip a touch hid, which its tap doesn't show again)
+    let pressed: Element | null = null;
+    let touch = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const cutCell = (event: Event) => {
+      const cell = (event.target as Element).closest(".gt_row");
+      return cell !== null && cell.scrollWidth > cell.clientWidth + 1 ? cell : null;
+    };
+    const listen = (on: boolean) => {
+      for (const type of ["pointerdown", "scroll", "keydown"]) {
+        (on ? doc.addEventListener : doc.removeEventListener).call(doc, type, away, true);
+      }
+    };
+    const hide = () => {
+      clearTimeout(timer);
+      if (shown !== null) {
+        shown = null;
+        tip.hidden = true;
+        listen(false);
+      }
+    };
+    const away = (event: Event) => {
+      if (event.type === "pointerdown") {
+        pressed = shown;
+      }
+      // (A scroll's event may come a frame after it, once the tooltip is placed)
+      if (event.type === "scroll" ? place(shown as Element) !== at : event.type !== "keydown" || (event as KeyboardEvent).key === "Escape") {
+        hide();
+      }
+    };
+    const show = (cell: Element) => {
+      hide();
+      if (!cell.isConnected) {
+        return;
+      }
+      shown = cell;
+      tip.textContent = clipText(labelText(cell));
+      tip.hidden = false;
+      if (tip.parentNode !== this) {
+        this.append(tip);
+      }
+      listen(true);
+      // (Measured at the element's start, where it has all of the element's width)
+      tip.style.left = "0";
+      const host = this.rect(this);
+      const box = this.rect(cell);
+      const { width, height } = this.rect(tip);
+      const below = box.bottom + TIP_GAP + height <= host.bottom || box.top - TIP_GAP - height < host.top;
+      const start = this.isRtl() ? box.right - width : box.left;
+      tip.style.left = `${Math.max(host.left, Math.min(start, host.right - width)) - host.left}px`;
+      tip.style.top = `${(below ? box.bottom + TIP_GAP : box.top - TIP_GAP - height) - host.top}px`;
+      at = place(cell);
+    };
+    this.hideCellTip = hide;
+    tbody.addEventListener("pointerover", (event) => {
+      const cell = cutCell(event);
+      if (event.pointerType !== "touch" && cell !== shown) {
+        hide();
+        if (cell !== null) {
+          timer = setTimeout(() => show(cell), TIP_DELAY_MS);
+        }
+      }
+    });
+    tbody.addEventListener("pointerout", (event) => {
+      const cell = (event.target as Element).closest(".gt_row");
+      if (event.pointerType !== "touch" && !cell?.contains(event.relatedTarget as Node | null)) {
+        hide();
+      }
+    });
+    tbody.addEventListener("pointerdown", (event) => {
+      touch = event.pointerType === "touch";
+    });
+    tbody.addEventListener("click", (event) => {
+      const cell = cutCell(event);
+      if (touch && cell !== null && cell !== pressed) {
+        show(cell);
+      }
+      pressed = null;
+    });
   }
 
   /** Make a panel, and the bar's button that opens it (a disclosure). */
@@ -9420,6 +9557,7 @@ export class GtTable extends HTMLElement {
     if (this.spec === null || this.tbody === null) {
       return;
     }
+    this.hideCellTip();
     // (A remote table's page, which may be coming, and supersedes one that is)
     this.askPage();
     // (Till the rows asked for come, those shown stay)
@@ -9770,9 +9908,10 @@ export class GtTable extends HTMLElement {
   }
 
   // Hiding rows would narrow columns sized to their content, so they keep the widths they have
-  // with every row shown; and text that doesn't wrap would widen columns the author sized
+  // with every row shown; and text that doesn't wrap would widen columns the author sized, and
+  // those fitted to it as far as their longest text
   private needsWidths(): boolean {
-    return this.cutsText || this.hidesRows();
+    return this.cutsText || this.capsText || this.hidesRows();
   }
 
   // Fix the column widths (those the author didn't set with `cols_width()`)
@@ -9877,6 +10016,7 @@ export class GtTable extends HTMLElement {
     table.style.removeProperty("min-width");
     if (this.tableFitted) {
       table.style.removeProperty("width");
+      table.style.removeProperty("table-layout");
       this.tableFitted = false;
     }
     this.empty?.remove();
@@ -9909,8 +10049,20 @@ export class GtTable extends HTMLElement {
     const colgroup = this.colgroup as HTMLTableColElement;
     const table = this.table as HTMLTableElement;
     const cols = Array.from(colgroup.children);
+    const caps = this.capsText ? this.textCaps(widths) : null;
+    let capped = false;
     for (const col of this.fittedCols) {
-      col.style.width = `${widths.columns[cols.indexOf(col)]}px`;
+      const i = cols.indexOf(col);
+      const width = widths.columns[i];
+      const cap = caps?.[i] ?? Number.POSITIVE_INFINITY;
+      col.style.width = `${width === undefined ? width : Math.min(width, cap)}px`;
+      if (width !== undefined && cap < width) {
+        capped = true;
+        const resizer = this.resizers.find((resizer) => resizer.index === i);
+        if (resizer !== undefined) {
+          this.showWidth(resizer, cap);
+        }
+      }
     }
     if (!colgroup.isConnected) {
       // (A <colgroup> goes before the table's rows, after any caption)
@@ -9923,8 +10075,12 @@ export class GtTable extends HTMLElement {
         !this.fittedCols.includes(col as HTMLElement) &&
         (widths.columns[i] ?? 0) > authoredWidth(col as HTMLElement, widths.table) + 1,
     );
-    if (this.cutsText && overrun) {
-      // (As wide as its columns, as in `freezeWidths()`)
+    if (capped || (this.cutsText && overrun)) {
+      // (As wide as its columns, as in `freezeWidths()`; a capped column's text is cut only in a
+      // fixed layout, which GT's has for the author's widths)
+      if (capped) {
+        table.style.tableLayout = "fixed";
+      }
       table.style.width = "0";
       this.tableFitted = true;
     } else {
@@ -9933,6 +10089,89 @@ export class GtTable extends HTMLElement {
     }
     this.fittedWidth = this.clientWidth;
     this.hideCols();
+  }
+
+  /**
+   * The widest each column (by its position among the body cells) is fitted to, for text that
+   * doesn't wrap, from the rows shown (every row, as measured; `null` where text can't be
+   * measured): wide enough for its label, and for the text of all but `CAP_CUT` of its cells (the
+   * longest, at the average width of its characters), but no wider than `CAP_EMS`. A column that
+   * shows more than text (an image, a plot), or is wider than its text, isn't capped; nor is any
+   * in a table wider than its columns, whose width the author set.
+   */
+  private textCaps(widths: { columns: number[]; table: number }): (number | null)[] | null {
+    const columns = widths.columns.length;
+    if (widths.table > widths.columns.reduce((sum, width) => sum + width, 0) + 1) {
+      return null;
+    }
+    if (this.measurer === undefined) {
+      this.measurer = this.ownerDocument.createElement("canvas").getContext?.("2d") ?? null;
+    }
+    const measurer = this.measurer;
+    if (measurer === null) {
+      return null;
+    }
+    // (The rows with a cell in every column, as `measureWidths()` measures)
+    const rows = Array.from(
+      (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr:not(.gt-i-details)"),
+    ).filter((tr) => tr.cells.length === columns && Array.from(tr.cells).every((cell) => cell.colSpan === 1));
+    const first = rows[0];
+    if (first === undefined) {
+      return null;
+    }
+    const labels = ownLabels(this.table as HTMLTableElement);
+    return widths.columns.map((width, i) => {
+      const texts: string[] = [];
+      for (const tr of rows) {
+        const cell = tr.cells[i] as HTMLTableCellElement;
+        if (cell.firstElementChild !== null && cell.querySelector(NOT_TEXT) !== null) {
+          return null;
+        }
+        texts.push((cell.textContent ?? "").replace(/\s+/g, " ").trim());
+      }
+      const lengths = Float64Array.from(texts, (text) => text.length).sort();
+      const keep = lengths[Math.max(0, Math.ceil((1 - CAP_CUT) * lengths.length) - 1)] ?? 0;
+      const longest = texts.find((text) => text.length === lengths[lengths.length - 1]) ?? "";
+      const style = getComputedStyle(first.cells[i] as HTMLTableCellElement);
+      // (Not every browser has the shorthand)
+      measurer.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+      // (The average over a sample of the text to be kept, evenly spaced)
+      const kept = texts.filter((text) => text.length <= keep);
+      const step = Math.ceil(kept.length / 200);
+      const sample = kept.filter((_, j) => j % step === 0);
+      const joined = sample.join("");
+      const charWidth = measurer.measureText(joined).width / Math.max(1, joined.length);
+      // (Nor narrower than the widest of them, as a column of short text in wider letters would be)
+      const widest = Math.max(0, ...sample.map((text) => measurer.measureText(text).width));
+      const sides = sideWidths(style);
+      const th = labels.get(i);
+      const label = th === undefined ? 0 : this.labelWidth(th);
+      // (A cell's text set in bold, or in another font, is wider than measured, by a little)
+      if (width > Math.max(sides + measurer.measureText(longest).width * 1.25 + 2, label + 2)) {
+        return null;
+      }
+      const most = CAP_EMS * (parseFloat(style.fontSize) || 16);
+      // (Text all about as long is kept whole, up to that)
+      const fit = keep === longest.length ? most : sides + Math.max(keep * charWidth, widest) + 1;
+      return Math.ceil(Math.min(most, Math.max(label, fit)));
+    });
+  }
+
+  // How wide a column label is on one line, with its controls (but not its profile, which is as
+  // wide as the column)
+  private labelWidth(th: HTMLTableCellElement): number {
+    const range = this.ownerDocument.createRange();
+    let width = 0;
+    for (const node of Array.from(th.childNodes)) {
+      const el = node.nodeType === Node.ELEMENT_NODE ? (node as HTMLElement) : null;
+      if (el?.matches(".gt-i-profile, .gt-i-resizer, .gt-i-about") === true) {
+        continue;
+      }
+      range.selectNodeContents(node);
+      // (With an element's padding, which the controls' row has for the resize handle)
+      width = Math.max(width, this.rect(range).width + (el === null ? 0 : sideWidths(getComputedStyle(el))));
+    }
+    return width + sideWidths(getComputedStyle(th));
   }
 
   // Alternate shown data rows (counted through the page's body, as GT counts through the table's)
