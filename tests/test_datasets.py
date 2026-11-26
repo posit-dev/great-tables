@@ -201,10 +201,14 @@ def test_dataset_preview_is_a_whole_gti_table(name: str):
 
     # (A table big enough to warn of its size has the warning kept off the page, by its cell's
     # `warning: false` option, and it's the only warning)
+    options = re.findall(r"^#\| (.*)$", code, re.M)
     assert all(w.category is GTISizeWarning for w in caught)
-    assert bool(caught) == code.startswith("#| warning: false\n")
+    assert bool(caught) == ("warning: false" in options)
 
+    # (The page shows the table, of a Polars DataFrame, but not the code that makes it)
+    assert "echo: false" in options
     assert isinstance(gti, GTI)
+    assert isinstance(gti._tbl_data, pl.DataFrame)
     assert gti._interactive.responsive == "scroll"
     shown = gti._tbl_data
     columns = {f["column"] for f in build_spec(gti._build_data(context="html"))["filters"]}
