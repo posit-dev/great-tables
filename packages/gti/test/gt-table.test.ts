@@ -8570,19 +8570,22 @@ describe("column profiles", () => {
   const mountProfiles = (options: TableOptions = {}) => mountTable(GROUPED, { profiles: PROFILES, ...options });
   const profile = (th: Element) => th.querySelector<HTMLElement>(":scope > .gt-i-profile");
   const caption = (el: GtTable, column: string) => profile(header(el, column))?.querySelector(".gt-i-profile-text")?.textContent;
-  const heights = (el: GtTable, column: string) =>
-    Array.from(profile(header(el, column))?.querySelectorAll("rect") ?? [], (rect) => Number(rect.getAttribute("height")));
+  // (A strip's parts' tracks aside)
+  const rects = (el: GtTable, column: string) =>
+    Array.from(profile(header(el, column))?.querySelectorAll("rect:not(.gt-i-profile-track)") ?? []);
+  const heights = (el: GtTable, column: string) => rects(el, column).map((rect) => Number(rect.getAttribute("height")));
   const pointer = (target: Element, type: string, init: PointerEventInit = {}) =>
     target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, pointerType: "mouse", ...init }));
   const shownTip = (el: GtTable) => {
     const tip = el.querySelector<HTMLElement>(":scope > .gt-i-profile-tip");
     return tip === null || tip.hidden ? null : `${tip.firstChild?.textContent}: ${tip.lastChild?.textContent}`;
   };
-  // (The mouse over a column's bar `i`, of a plot 10px a bar)
+  // (The mouse over the middle of a column's bar `i`, of a plot 1000px wide)
   const hover = (el: GtTable, column: string, i: number, init: PointerEventInit = {}) => {
     const svg = profile(header(el, column))?.querySelector("svg") as SVGSVGElement;
-    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 10 * svg.childElementCount, 10));
-    pointer(svg, "pointermove", { clientX: 10 * i + 5, ...init });
+    const rect = rects(el, column)[i] as SVGRectElement;
+    vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 1000, 10));
+    pointer(svg, "pointermove", { clientX: 1000 * (Number(rect.getAttribute("x")) + Number(rect.getAttribute("width")) / 2), ...init });
     return shownTip(el);
   };
   // Each bar's tooltip
@@ -8607,8 +8610,9 @@ describe("column profiles", () => {
     }
     expect(profile(header(el, "x"))?.classList.contains("gt-i-profile-histogram")).toBe(true);
     expect(profile(header(el, "y"))?.classList.contains("gt-i-profile-top")).toBe(true);
-    // (A bar per whole number from 5 to 20, and one per value of y)
-    expect(heights(el, "x")).toHaveLength(16);
+    // (A bar per whole number from 5 to 20, and x's missing values', and one per value of y)
+    expect(heights(el, "x")).toHaveLength(17);
+    expect(rects(el, "x")[16]?.getAttribute("class")).toBe("gt-i-profile-missing");
     expect(heights(el, "y")).toHaveLength(3);
     const stubhead = el.querySelector("thead th:not([id])") as HTMLTableCellElement;
     expect(profile(stubhead)?.childElementCount).toBe(0);
@@ -8628,14 +8632,91 @@ describe("column profiles", () => {
     expect(x[1]).toBe("6: 0 rows");
     expect(x[5]).toBe("10: 1 row (20%)");
     expect(x[15]).toBe("20: 2 rows (40%)");
+    expect(x[16]).toBe("Missing: 1 row (20%)");
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
     // (The bars go up to the most rows, a few rows' still seen)
     expect(heights(el, "x")[15]).toBe(1);
     expect(heights(el, "x")[0]).toBe(0.5);
     expect(heights(el, "x")[1]).toBe(0);
+    expect(heights(el, "x")[16]).toBe(0.5);
     // (y's values, as its cells show them, most rows' first)
     expect(titles(el, "y")).toEqual(["a: 3 rows (60%)", "b: 1 row (20%)", "c: 1 row (20%)"]);
     expect(caption(el, "y")).toBe("3 values");
+  });
+
+  it("draws a histogram's bins side by side, its missing values' bar apart, marked under it", async () => {
+    const el = await mountProfiles();
+    const root = profile(header(el, "x")) as HTMLElement;
+    expect(root.querySelector("svg")?.getAttribute("viewBox")).toBe("0 0 1 1");
+    // (17.5 bars wide: 16 bins, half a bin, then the missing values' bar; each 80% of its slot)
+    const boxes = rects(el, "x").map((rect) => [Number(rect.getAttribute("x")) * 17.5, Number(rect.getAttribute("width")) * 17.5]);
+    expect(boxes[0]?.[0]).toBeCloseTo(0.1);
+    expect(boxes[15]?.[0]).toBeCloseTo(15.1);
+    expect(boxes[16]?.[0]).toBeCloseTo(16.6);
+    expect(boxes.every(([, width]) => Math.abs((width as number) - 0.8) < 1e-9)).toBe(true);
+    const mark = root.querySelector<HTMLElement>(".gt-i-profile-null");
+    expect(mark?.textContent).toBe("∅");
+    expect(mark?.getAttribute("aria-hidden")).toBe("true");
+    expect(parseFloat(mark?.style.left ?? "")).toBeCloseTo((17 / 17.5) * 100);
+    // (The caption keeps clear of it)
+    expect((root.querySelector(".gt-i-profile-text") as HTMLElement).style.paddingRight).toMatch(/^calc\(/);
+    expect(root.querySelector(".gt-i-profile-names")).toBeNull();
+    // Not without missing values
+    const full = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "histogram", values: [5, 10, 20] }], queryRanks: { x: [2, 0, 1, 0, 2] } });
+    expect(rects(full, "x")).toHaveLength(16);
+    expect(profile(header(full, "x"))?.querySelector(".gt-i-profile-null")).toBeNull();
+  });
+
+  it("draws the most common values as a strip, each part as wide as its share of the column, with its name in it", async () => {
+    // (x's too, with its missing value)
+    const el = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "top", values: null }, PROFILES[1] as ProfileSpec] });
+    const spans = (column: string) =>
+      rects(el, column).map((rect) => {
+        const x = Number(rect.getAttribute("x"));
+        return [x, x + Number(rect.getAttribute("width"))].map((end) => Math.round(end * 1000) / 1000);
+      });
+    // (A sliver apart)
+    expect(spans("y")).toEqual([
+      [0.004, 0.596],
+      [0.604, 0.796],
+      [0.804, 0.996],
+    ]);
+    expect(heights(el, "y")).toEqual([1, 1, 1]);
+    // (Each over a track of its own)
+    const tracks = profile(header(el, "y"))?.querySelectorAll("rect.gt-i-profile-track") ?? [];
+    expect(Array.from(tracks, (track) => [track.getAttribute("x"), track.getAttribute("height")])).toEqual(
+      rects(el, "y").map((rect) => [rect.getAttribute("x"), "1"]),
+    );
+    const names = (column: string) =>
+      Array.from(profile(header(el, column))?.querySelectorAll<HTMLElement>(".gt-i-profile-names > span") ?? [], (name) => [
+        name.textContent,
+        Math.round(parseFloat(name.style.left)),
+        Math.round(parseFloat(name.style.width)),
+      ]);
+    expect(names("y")).toEqual([
+      ["a", 0, 59],
+      ["b", 60, 19],
+      ["c", 80, 19],
+    ]);
+    expect(profile(header(el, "y"))?.querySelector(".gt-i-profile-names")?.getAttribute("aria-hidden")).toBe("true");
+    // x's 20, 5 and 10, then its missing value, red, marked "∅"
+    expect(titles(el, "x")).toEqual(["20: 2 rows (40%)", "5: 1 row (20%)", "10: 1 row (20%)", "Missing: 1 row (20%)"]);
+    expect(rects(el, "x")[3]?.classList.contains("gt-i-profile-missing")).toBe(true);
+    expect(names("x").map(([name]) => name)).toEqual(["20", "5", "10", "∅"]);
+    expect(profile(header(el, "x"))?.querySelector(".gt-i-profile-null")).toBeNull();
+    // A part is filled as high as its share of its rows the rows kept have
+    el.search = "a";
+    expect(heights(el, "y")).toEqual([1, 0, 0]);
+    expect(heights(el, "x")).toEqual([0.5, 1, 0, 1]);
+  });
+
+  it("leaves out a name that wouldn't fit in its part", async () => {
+    const el = await mountTable(GROUPED, { profiles: [{ column: "y", plot: "top", values: null }], queryRanks: { y: [0, 0, 0, 0, 1] } });
+    expect(heights(el, "y")).toHaveLength(2);
+    expect(Array.from(profile(header(el, "y"))?.querySelectorAll(".gt-i-profile-names > span") ?? [], (name) => name.textContent)).toEqual([
+      "b",
+      "a",
+    ]);
   });
 
   it("names a histogram's bins of times in a time zone by its clock, as its cells show them", async () => {
@@ -8643,7 +8724,7 @@ describe("column profiles", () => {
     const zoned = ["2015-06-15T00:00:00+09:00", "2015-06-15T05:00:00+09:00", "2015-06-15T10:00:00+09:00"];
     const el = await mountTable(GROUPED, { profiles: [{ column: "x", plot: "histogram", values: zoned }] });
     const x = titles(el, "x");
-    expect(x).toHaveLength(20);
+    expect(x).toHaveLength(21);
     expect(x[0]).toBe("Jun 15, 2015, 12:00 AM – Jun 15, 2015, 12:30 AM: 1 row (20%)");
     expect(x[19]).toBe("Jun 15, 2015, 9:30 AM – Jun 15, 2015, 10:00 AM: 2 rows (40%)");
   });
@@ -8654,7 +8735,8 @@ describe("column profiles", () => {
     // (Rows 1, 3 and 4: 5, a missing value and 20)
     expect(caption(el, "x")).toBe("5 – 20 · 33% missing");
     expect(titles(el, "x")[15]).toBe("20: 1 row (33%)");
-    expect(heights(el, "x")).toHaveLength(16);
+    expect(titles(el, "x")[16]).toBe("Missing: 1 row (33%)");
+    expect(heights(el, "x")).toHaveLength(17);
     expect(caption(el, "y")).toBe("1 value");
     expect(heights(el, "y")).toEqual([1, 0, 0]);
     el.search = "zzz";
@@ -8691,12 +8773,13 @@ describe("column profiles", () => {
   it("counts again only when other rows are kept, not when the table is sorted or paged", async () => {
     const count = vi.spyOn(Profile.prototype, "count");
     const el = await mountProfiles({ pagination: { enabled: true } });
-    expect(count).toHaveBeenCalledTimes(2);
+    // (Each profile's whole column, then the rows kept)
+    expect(count).toHaveBeenCalledTimes(4);
     click(el, "x");
     el.page = 2;
-    expect(count).toHaveBeenCalledTimes(2);
-    el.search = "a";
     expect(count).toHaveBeenCalledTimes(4);
+    el.search = "a";
+    expect(count).toHaveBeenCalledTimes(6);
   });
 
   it("isn't part of a label's text, and doesn't sort the column when clicked", async () => {
@@ -8712,7 +8795,8 @@ describe("column profiles", () => {
     expect(caption(el, "x")).toBe("5 – 20 · 20% missing");
   });
 
-  // (The element, x's label and its plot (16 bars of 5px), and the tooltip, where they are)
+  // (The element, x's label and its plot (16 bins and the missing values' bar, in slots of 5px, the
+  // last half a slot apart), and the tooltip, where they are)
   const place = (host: DOMRect, th: DOMRect) => {
     vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
       return this.matches("gt-table")
@@ -8720,7 +8804,7 @@ describe("column profiles", () => {
         : this.matches("th")
           ? th
           : this.matches("svg")
-            ? new DOMRect(th.x + 5, th.bottom - 30, 80, 20)
+            ? new DOMRect(th.x + 5, th.bottom - 30, 87.5, 20)
             : this.matches(".gt-i-profile-tip")
               ? new DOMRect(0, 0, 60, 30)
               : new DOMRect();
@@ -8737,8 +8821,11 @@ describe("column profiles", () => {
     const el = await mountProfiles();
     place(new DOMRect(0, 0, 400, 300), new DOMRect(100, 50, 100, 60));
     const svg = profile(header(el, "x"))?.querySelector("svg") as SVGSVGElement;
-    // (Past the plot's end, the last bar's: 20, the bar of the most rows, its top at the plot's)
+    // (Past the plot's end, the last bar's: the missing values')
     pointer(svg, "pointermove", { clientX: 199 });
+    expect(shownTip(el)).toBe("Missing: 1 row (20%)");
+    // (Between it and the last bin, the nearer: 20, the bar of the most rows, its top at the plot's)
+    pointer(svg, "pointermove", { clientX: 186 });
     expect(shownTip(el)).toBe("20: 2 rows (40%)");
     expect(tipBox(el)).toEqual({
       tip: ["152.5px", "14px"],
@@ -8775,7 +8862,7 @@ describe("column profiles", () => {
     try {
       const root = profile(header(el, "x")) as HTMLElement;
       const svg = root.querySelector("svg") as SVGSVGElement;
-      vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 160, 10));
+      vi.spyOn(svg, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 175, 10));
       pointer(svg, "pointerdown", { pointerType: "touch", clientX: 2 });
       expect(shownTip(el)).toBe("5: 1 row (20%)");
       pointer(svg, "pointermove", { pointerType: "touch", clientX: 55 });
@@ -8838,10 +8925,16 @@ describe("column profiles", () => {
     expect((plot.children[1] as HTMLElement).style.height).toBe("0px");
     expect(plot.getAttribute("role")).toBe("img");
     expect(plot.getAttribute("aria-label")).toBe("Histogram of x");
+    // (Its missing values' bar apart, after it, marked under it)
+    expect(panel.querySelector(".gt-i-profile-chart")?.classList.contains("gt-i-profile-apart")).toBe(true);
+    const apart = panel.querySelectorAll(".gt-i-profile-plot")[1] as HTMLElement;
+    expect(Array.from(apart.children, (bar) => bar.className)).toEqual(["gt-i-profile-missing"]);
+    expect(apart.hasAttribute("tabindex")).toBe(false);
+    expect(texts(panel, ".gt-i-profile-chart > .gt-i-profile-null")).toEqual(["∅"]);
     // (Its bins, for assistive technology)
     const bins = texts(panel, "ul.gt-i-hidden > li");
-    expect(bins).toHaveLength(16);
-    expect([bins[0], bins[15]]).toEqual(["5: 1 row (20%)", "20: 2 rows (40%)"]);
+    expect(bins).toHaveLength(17);
+    expect([bins[0], bins[15], bins[16]]).toEqual(["5: 1 row (20%)", "20: 2 rows (40%)", "Missing: 1 row (20%)"]);
 
     // Its readout, of the bar the pointer is over, or the arrow keys move to
     const readout = () => panel.querySelector(".gt-i-profile-read")?.textContent;
@@ -8859,7 +8952,12 @@ describe("column profiles", () => {
     expect(readout()).toBe("11: 0 rows");
     key("End");
     key("ArrowRight");
+    expect(readout()).toBe("Missing: 1 row (20%)");
+    key("ArrowLeft");
     expect(readout()).toBe("20: 2 rows (40%)");
+    pointer(apart, "pointermove");
+    expect(readout()).toBe("Missing: 1 row (20%)");
+    expect(apart.firstElementChild?.classList.contains("gt-i-profile-on")).toBe(true);
     key("Home");
     key("ArrowLeft");
     expect(readout()).toBe("5: 1 row (20%)");
