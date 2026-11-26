@@ -822,6 +822,15 @@ function pageHighlight(name: string): Highlight | undefined {
   return highlight;
 }
 
+// An SVG rect, with attributes
+function svgRect(doc: Document, attributes: Record<string, string>): SVGRectElement {
+  const rect = doc.createElementNS(SVG_NS, "rect");
+  for (const [name, value] of Object.entries(attributes)) {
+    rect.setAttribute(name, value);
+  }
+  return rect;
+}
+
 function icon(doc: Document, name: keyof typeof ICONS): SVGSVGElement {
   const svg = doc.createElementNS(SVG_NS, "svg");
   svg.setAttribute("class", "gt-i-icon");
@@ -965,8 +974,9 @@ const percent = (part: number, whole: number) => (part / whole < 0.005 ? "<1%" :
 // How a histogram's bins' edges are written: numbers with enough digits to tell the bins apart
 // ("1.25K"), or dates (with their times, for bins shorter than a day)
 function edgeFormat(profile: Profile, lang: string | undefined): (x: number) => string {
-  const first = profile.bars[0];
-  const last = profile.bars[profile.bars.length - 1];
+  const bins = profile.bars.filter((bar) => bar.kind === "value");
+  const first = bins[0];
+  const last = bins[bins.length - 1];
   const width = first === undefined ? 0 : first.high - first.low;
   const most = Math.max(Math.abs(first?.low ?? 0), Math.abs(last?.high ?? 0));
   const options: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions = profile.times
@@ -990,21 +1000,40 @@ function edgeFormat(profile: Profile, lang: string | undefined): (x: number) => 
 // A share of a profile's rows ("3 rows (12%)")
 const share = (count: number, rows: number) => (count === 0 ? plural(0) : `${plural(count)} (${percent(count, rows)})`);
 
-// The bar of a plot of `n` across `box` nearest to `x`, a pointer's
-const barAt = (box: DOMRect, n: number, x: number) => Math.max(0, Math.min(n - 1, Math.floor(((x - box.left) / box.width) * n) || 0));
+// A bar's start and end, as shares of its plot's width
+type Extent = readonly [number, number];
+
+// The bar of a plot across `box` nearest to `x`, a pointer's, from the bars' spans
+function barAt(box: DOMRect, spans: readonly Extent[], x: number): number {
+  const t = (x - box.left) / box.width;
+  const off = (i: number) => Math.max((spans[i] as Extent)[0] - t, t - (spans[i] as Extent)[1], 0);
+  return spans.reduce((near, _, i) => (off(i) < off(near) ? i : near), 0);
+}
+
+// `n` bars of equal width, side by side
+const evenSpans = (n: number): Extent[] => Array.from({ length: n }, (_, i) => [i / n, (i + 1) / n]);
 
 /** A column's profile under its label (see `addProfiles()`). */
 interface ProfileView {
   profile: Profile;
-  /** The column's label and its text, the profile, its plot and bars, what they name, and its caption. */
+  /**
+   * The column's label and its text, the profile, its plot and bars (and their spans), what they
+   * name, and its caption; and, for a column whose values are each in one row, what says so.
+   */
   th: HTMLTableCellElement;
   label: string;
   root: HTMLElement;
   svg: SVGSVGElement;
   rects: SVGRectElement[];
+  spans: Extent[];
   names: string[];
   caption: HTMLElement;
-  /** The rows kept, as last counted (`null` before), and each bar's height, from 0 to 1. */
+  pill: HTMLElement | null;
+  /**
+   * Each bar's rows in the whole column, and the rows kept, as last counted (`null` before), and
+   * each bar's height, from 0 to 1.
+   */
+  whole: number[];
   counts: Counts | null;
   heights: number[];
   /** How a histogram's bins' edges are written (see `edgeFormat()`). */
@@ -3876,10 +3905,15 @@ export class GtTable extends HTMLElement {
   }
 
   // A profile under each profiled column's label (see `profile.ts`), and an empty one under the
-  // other labels in the bottom row, so that they line up. A profile is a button, opening its larger
-  // view (see `openProfile()`) on a double click or tap too; across it, the pointer shows the
-  // tooltip of the bar nearest it (see `showProfileTip()`). Its plot and caption are hidden from
-  // assistive technology, which has their summaries in the labels' descriptions
+  // other labels in the bottom row, so that they line up. A histogram has a bar for each bin (and
+  // one for the missing values, apart, marked "∅" under it); "top" is a strip, each value's part (or
+  // the others', those in one row each, or the missing values') as wide as its share of the whole
+  // column, and filled as high as its share of them the rows kept have, with its name in it if it
+  // fits; though a column whose values are each in one row has just that said, instead. A profile
+  // is a button, opening its larger view (see `openProfile()`) on a double click or tap too; across
+  // it, the pointer shows the tooltip of the bar nearest it (see `showProfileTip()`). Its plot and
+  // caption are hidden from assistive technology, which has their summaries in the labels'
+  // descriptions
   private addProfiles(table: HTMLTableElement, spec: Spec): void {
     const cells = labelCells(table);
     const doc = this.ownerDocument;
@@ -3904,7 +3938,7 @@ export class GtTable extends HTMLElement {
       root.tabIndex = 0;
       th.classList.add("gt-i-profiled");
       const svg = root.appendChild(doc.createElementNS(SVG_NS, "svg"));
-      svg.setAttribute("viewBox", `0 0 ${Math.max(1, profile.bars.length)} 1`);
+      svg.setAttribute("viewBox", "0 0 1 1");
       svg.setAttribute("preserveAspectRatio", "none");
       svg.setAttribute("aria-hidden", "true");
       const known = new Map<number, string>();
@@ -3919,6 +3953,26 @@ export class GtTable extends HTMLElement {
         return name;
       };
       const edge = edgeFormat(profile, lang);
+      const strip = profileSpec.plot === "top";
+      const { bars } = profile;
+      const whole = profile.count(null).bars;
+      const rows = Math.max(1, ranks.length);
+      // (A histogram's bins are side by side, and its missing values' bar half a bin after them)
+      const bins = bars.length - (bars[bars.length - 1]?.kind === "missing" ? 1 : 0);
+      const slots = bins + (bins < bars.length ? (bins > 0 ? 1.5 : 1) : 0);
+      let at = 0;
+      const spans = bars.map((bar, i): Extent => {
+        if (strip) {
+          const start = at;
+          at += (whole[i] as number) / rows;
+          const pad = Math.min(0.004, (at - start) / 4);
+          return [start + pad, at - pad];
+        }
+        const slot = i < bins ? i : slots - 1;
+        return [(slot + 0.1) / slots, (slot + 0.9) / slots];
+      });
+      // (Its names in its strip are over its plot, and its missing values' mark is under it)
+      const marks = strip && !profile.unique ? root.appendChild(element(doc, "div", "gt-i-profile-names", { "aria-hidden": "true" })) : null;
       // (Its description is its dtype so far, from `addDtypes()`)
       const view: ProfileView = {
         profile,
@@ -3927,8 +3981,11 @@ export class GtTable extends HTMLElement {
         root,
         svg,
         rects: [],
+        spans,
         names: [],
         caption: root,
+        pill: null,
+        whole,
         counts: null,
         heights: [],
         edge,
@@ -3936,32 +3993,58 @@ export class GtTable extends HTMLElement {
         dtype: about.textContent ?? "",
         valueName,
       };
-      profile.bars.forEach((bar, i) => {
-        const rect = svg.appendChild(doc.createElementNS(SVG_NS, "rect"));
-        rect.setAttribute("x", String(i + 0.1));
-        rect.setAttribute("width", "0.8");
-        rect.setAttribute("height", "0");
-        rect.classList.toggle("gt-i-profile-other", bar.rank === -1 && profileSpec.plot === "top");
+      bars.forEach((bar, i) => {
+        const [start, end] = spans[i] as Extent;
+        const box = { x: String(start), width: String(end - start) };
+        if (strip) {
+          svg.appendChild(svgRect(doc, { ...box, y: "0", height: "1", class: "gt-i-profile-track" }));
+        }
+        const rect = svg.appendChild(svgRect(doc, { ...box, height: "0" }));
+        if (bar.kind !== "value") {
+          rect.classList.add(`gt-i-profile-${bar.kind}`);
+        }
         view.rects.push(rect);
         view.names.push(
           bar.rank >= 0
             ? valueName(bar.rank)
-            : profileSpec.plot === "top"
+            : bar.kind === "others"
               ? `${profile.others} other values`
-              : bar.low === bar.high
-                ? edge(bar.low)
-                : `${edge(bar.low)} – ${edge(bar.high)}`,
+              : bar.kind === "unique"
+                ? `${profile.uniques} unique values`
+                : bar.kind === "missing"
+                  ? "Missing"
+                  : bar.low === bar.high
+                    ? edge(bar.low)
+                    : `${edge(bar.low)} – ${edge(bar.high)}`,
         );
+        // (A name that won't fit isn't put in)
+        if (marks !== null && end - start >= 0.08) {
+          const mark = marks.appendChild(element(doc, "span", ""));
+          mark.textContent = bar.kind === "value" ? (view.names[i] as string) : bar.kind === "missing" ? "∅" : bar.kind;
+          mark.style.left = `${start * 100}%`;
+          mark.style.width = `${(end - start) * 100}%`;
+        }
       });
+      if (profile.unique) {
+        root.classList.add("gt-i-profile-unique");
+        view.pill = root.appendChild(element(doc, "div", "gt-i-profile-pill", { "aria-hidden": "true" }));
+      }
       const caption = (view.caption = root.appendChild(element(doc, "div", "gt-i-profile-text", { "aria-hidden": "true" })));
+      if (!strip && bins < bars.length) {
+        const [start, end] = spans[bins] as Extent;
+        const mark = root.appendChild(element(doc, "span", "gt-i-profile-null", { "aria-hidden": "true" }));
+        mark.textContent = "∅";
+        mark.style.left = `${((start + end) / 2) * 100}%`;
+        caption.style.paddingRight = `calc(${(1 - start) * 100}% + 2px)`;
+      }
 
       // (Not over the caption, by the mouse, which has the caption's own tooltip; a touch's tooltip
       // stays a moment after it lifts, from under the finger)
       const point = (event: PointerEvent) => {
-        if (event.pointerType === "mouse" && caption.contains(event.target as Node)) {
+        if (profile.unique || (event.pointerType === "mouse" && caption.contains(event.target as Node))) {
           this.hideProfileTip();
         } else {
-          this.showProfileTip(view, barAt(this.rect(svg), view.rects.length, event.clientX / this.zoom()));
+          this.showProfileTip(view, barAt(this.rect(svg), spans, event.clientX / this.zoom()));
         }
       };
       root.addEventListener("pointerdown", point);
@@ -4002,12 +4085,14 @@ export class GtTable extends HTMLElement {
     this.profiled = this.matched;
     this.hideProfileTip();
     for (const view of this.profileViews) {
-      const { profile, rects, caption, about, dtype, valueName } = view;
+      const { profile, rects, caption, pill, about, dtype, valueName, whole } = view;
       const counts = (view.counts = profile.count(this.matched));
       const most = Math.max(1, ...counts.bars);
+      const strip = profile.spec.plot === "top";
       view.heights = counts.bars.map((count, i) => {
-        // (A bar of a few rows is still seen)
-        const height = count === 0 ? 0 : Math.max(count / most, 0.06);
+        // (A bar of a few rows is still seen; a strip's part is filled as high as its share of its
+        // rows the rows kept have)
+        const height = count === 0 ? 0 : Math.max(count / (strip ? (whole[i] as number) : most), 0.06);
         rects[i]?.setAttribute("y", String(1 - height));
         rects[i]?.setAttribute("height", String(height));
         return height;
@@ -4016,13 +4101,16 @@ export class GtTable extends HTMLElement {
       const values =
         counts.distinct === 0
           ? []
-          : profile.spec.plot === "top"
+          : strip
             ? [`${counts.distinct} ${counts.distinct === 1 ? "value" : "values"}`]
             : [...new Set([valueName(counts.low), valueName(counts.high)])];
       const missing = counts.missing > 0 ? `${percent(counts.missing, counts.rows)} missing` : "";
       const parts = (joint: string) => (counts.rows === 0 ? ["No rows"] : [values.join(joint), missing]).filter((part) => part !== "");
       caption.textContent = parts(" – ").join(" · ");
       caption.title = caption.textContent;
+      if (pill !== null) {
+        pill.textContent = `${counts.distinct} unique ${counts.distinct === 1 ? "value" : "values"}`;
+      }
       about.textContent = [dtype, ...parts(" to ")].filter((part) => part !== "").join(", ");
     }
     this.drawProfile();
@@ -4061,7 +4149,8 @@ export class GtTable extends HTMLElement {
     const th = this.rect(view.th);
     const plot = this.rect(view.svg);
     const { width, height } = this.rect(tip);
-    const x = plot.left + ((i + 0.5) / view.rects.length) * plot.width;
+    const [start, end] = view.spans[i] as Extent;
+    const x = plot.left + ((start + end) / 2) * plot.width;
     const above = th.top - TIP_GAP - height >= host.top || th.bottom + TIP_GAP + height > host.bottom;
     const top = above ? th.top - TIP_GAP - height : th.bottom + TIP_GAP;
     const left = Math.max(host.left, Math.min(x - width / 2, host.right - width));
@@ -4202,28 +4291,32 @@ export class GtTable extends HTMLElement {
       const rows = body.appendChild(element(doc, "div", "gt-i-profile-rows"));
       counts.bars.forEach((count, i) => {
         const meter = element(doc, "span", "gt-i-profile-meter");
-        meter.appendChild(element(doc, "i", profile.bars[i]?.rank === -1 ? "gt-i-profile-other" : "")).style.width = `${(count / most) * 100}%`;
+        const kind = profile.bars[i]?.kind;
+        meter.appendChild(element(doc, "i", kind === "value" ? "" : `gt-i-profile-${kind}`)).style.width = `${(count / most) * 100}%`;
         rows.append(text("span", "", names[i] as string), meter, text("span", "", share(count, counts.rows)));
       });
     } else if (n > 0) {
       // Its plot, with the most rows a bin has and 0 beside it, and its ends and middle under it (a
-      // bin's value, for bins of one value, else the edges)
-      const chart = body.appendChild(element(doc, "div", "gt-i-profile-chart"));
+      // bin's value, for bins of one value, else the edges); and its missing values' bar, apart,
+      // marked "∅" under it
+      const bins = profile.bars.filter((bar) => bar.kind === "value");
+      const m = bins.length;
+      const chart = body.appendChild(element(doc, "div", m < n ? "gt-i-profile-chart gt-i-profile-apart" : "gt-i-profile-chart"));
       const yAxis = element(doc, "div", "gt-i-profile-y");
       yAxis.append(text("span", "", String(most)), text("span", "", "0"));
       const plot = element(doc, "div", "gt-i-profile-plot", { tabindex: "0", role: "img", "aria-label": `Histogram of ${view.label}` });
-      const bars = counts.bars.map((count) => {
-        const bar = plot.appendChild(element(doc, "i", ""));
+      const apart = element(doc, "div", "gt-i-profile-plot");
+      const bars = counts.bars.map((count, i) => {
+        const bar = (i < m ? plot : apart).appendChild(element(doc, "i", i < m ? "" : "gt-i-profile-missing"));
         bar.style.height = count === 0 ? "0" : `max(2px, ${(count / most) * 100}%)`;
         return bar;
       });
-      const { bars: bins } = profile;
       const ends = bins.every((bin) => bin.low === bin.high)
-        ? [n > 1 ? names[0] : "", n % 2 === 1 ? names[(n - 1) / 2] : "", n > 1 ? names[n - 1] : ""]
-        : [view.edge((bins[0] as Bin).low), n % 2 === 0 ? view.edge((bins[n / 2] as Bin).low) : "", view.edge((bins[n - 1] as Bin).high)];
+        ? [m > 1 ? names[0] : "", m % 2 === 1 ? names[(m - 1) / 2] : "", m > 1 ? names[m - 1] : ""]
+        : [view.edge((bins[0] as Bin).low), m % 2 === 0 ? view.edge((bins[m / 2] as Bin).low) : "", view.edge((bins[m - 1] as Bin).high)];
       const xAxis = element(doc, "div", "gt-i-profile-x");
       xAxis.append(...ends.map((end) => text("span", "", end as string)));
-      chart.append(yAxis, plot, element(doc, "span", ""), xAxis);
+      chart.append(yAxis, plot, ...(m < n ? [apart, element(doc, "span", ""), xAxis, text("span", "gt-i-profile-null", "∅")] : [element(doc, "span", ""), xAxis]));
 
       // (Its bins are a list for assistive technology, which doesn't have the plot nor its readout)
       const readout = body.appendChild(element(doc, "p", "gt-i-profile-read", { "aria-hidden": "true" }));
@@ -4235,9 +4328,12 @@ export class GtTable extends HTMLElement {
         bars.forEach((bar, k) => bar.classList.toggle("gt-i-profile-on", k === i));
         readout.textContent = bin(i);
       };
-      const point = (event: PointerEvent) => read(barAt(this.rect(plot), n, event.clientX / this.zoom()));
+      const point = (event: PointerEvent) => read(barAt(this.rect(plot), evenSpans(m), event.clientX / this.zoom()));
       plot.addEventListener("pointerdown", point);
       plot.addEventListener("pointermove", point);
+      for (const type of ["pointerdown", "pointermove"]) {
+        apart.addEventListener(type, () => read(n - 1));
+      }
       plot.addEventListener("keydown", (event) => {
         const to = ({ ArrowLeft: this.profileBar - 1, ArrowRight: this.profileBar + 1, Home: 0, End: n - 1 } as Record<string, number>)[event.key];
         if (to !== undefined) {
