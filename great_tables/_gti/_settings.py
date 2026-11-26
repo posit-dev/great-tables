@@ -32,7 +32,7 @@ FilterType = Literal["auto", "text", "facet", "range", "date", "bool"]
 FILTER_TYPES: tuple[FilterType, ...] = ("auto", "text", "facet", "range", "date", "bool")
 
 # A column's profile, the plot under its label: as its kind suggests ("auto"), a histogram of its
-# numbers or dates, or bars for its most common values
+# numbers or dates, or a strip of its most common values
 ProfilePlot = Literal["auto", "histogram", "top"]
 
 PROFILE_PLOTS: tuple[ProfilePlot, ...] = ("auto", "histogram", "top")

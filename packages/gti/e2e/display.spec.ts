@@ -269,6 +269,25 @@ test.describe("column widths without text wrapping", () => {
     expect(errors).toEqual([]);
   });
 
+  test("keep Safari's own tooltip of a cut cell's text away, with the ellipsis", async ({ page }) => {
+    const errors = await capped(page);
+    // (Safari shows one only for text directly in a block's lines: an empty block after it takes
+    // the cell's lines away, and adds no height)
+    const after = await cell(page, 20, "title").evaluate((td) => {
+      const style = getComputedStyle(td, "::after");
+      return { content: style.content, display: style.display, height: style.height };
+    });
+    expect(after).toEqual({ content: '""', display: "block", height: "0px" });
+    expect(await cut(page, 20, "title")).toBe(true);
+    expect(await width(page, 20, "title")).toBeCloseTo(await width(page, 1, "title"), 0);
+    const heights = () =>
+      page.locator("gt-table tbody > tr").evaluateAll((rows) => rows.map((tr) => tr.getBoundingClientRect().height));
+    const kept = await heights();
+    await page.addStyleTag({ content: "gt-table .gt_row::after { content: none !important; }" });
+    expect(await heights()).toEqual(kept);
+    expect(errors).toEqual([]);
+  });
+
   test.describe("on a touch screen", () => {
     test.use({ hasTouch: true, isMobile: true });
 
