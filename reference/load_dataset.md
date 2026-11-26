@@ -4,7 +4,7 @@ Load a dataset from the library as a specified table type.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/data/__init__.py#L1539-L1602)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/data/__init__.py#L1411-L1474)
 
 ``` python
 load_dataset(
