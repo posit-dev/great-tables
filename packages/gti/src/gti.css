@@ -77,15 +77,24 @@ gt-table th.gt-i-profiled {
   isolation: isolate;
 }
 
+/* (As wide as the column, up to about as wide as a column of numbers is, and placed as its label is) */
 gt-table .gt-i-profile {
   width: 0;
-  min-width: 100%;
+  min-width: min(100%, 12em);
   height: 3em;
   margin-top: 4px;
   font-size: 0.75em;
   font-weight: normal;
   line-height: 1.2;
   cursor: default;
+}
+
+gt-table th.gt_right > .gt-i-profile {
+  margin-left: auto;
+}
+
+gt-table th.gt_center > .gt-i-profile {
+  margin-inline: auto;
 }
 
 gt-table .gt-i-profile svg {
@@ -1269,8 +1278,11 @@ gt-table .gt-i-tip {
   pointer-events: none;
 }
 
-/* A profile's bar's tooltip (see `showProfileTip()`), and the line from it to the bar */
-gt-table .gt-i-profile-tip {
+/*
+ * A profile's bar's tooltip (see `showProfileTip()`), and the line from it to the bar; and a cut
+ * cell's tooltip (see `addCellTips()`)
+ */
+gt-table :is(.gt-i-profile-tip, .gt-i-cell-tip) {
   box-sizing: border-box;
   width: max-content;
   max-width: min(20em, 100%);
