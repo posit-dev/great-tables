@@ -8816,6 +8816,13 @@ export class GtTable extends HTMLElement {
     if (bar?.field == null || bar.toggle === null) {
       return;
     }
+    // (In a folded bar, the search is the sheet's: see gti.css)
+    const sheet = bar.sheet;
+    if (focus && sheet != null && this.orSheet(bar.field.parentElement as HTMLElement) === sheet) {
+      this.openSheet(null, sheet);
+      this.sheet?.querySelector<HTMLInputElement>("input.gt-i-search")?.focus();
+      return;
+    }
     bar.field.hidden = false;
     bar.toggle.hidden = true;
     bar.root.setAttribute("data-gti-searching", "");
