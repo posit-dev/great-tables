@@ -459,6 +459,10 @@ The main data area of the table, consisting of rows and columns of cells that ho
 <dd>
 A single value at the intersection of a row and a column within the <strong>body</strong>, <strong>stub</strong>, or <strong>summary rows</strong>. Cells are the fundamental unit that <strong>formatters</strong>, <strong>styles</strong>, and <strong>footnotes</strong> act upon.
 </dd>
+<dt>Column controls</dt>
+<dd>
+In a <strong>GTI table</strong>, the small controls under each <strong>column label</strong>: the column’s dtype (with <a href="../reference/GTI.i_inspect.html#great_tables.GTI.i_inspect" class="gdls-link gdls-code">i_inspect()</a>), its sort arrows (with <a href="../reference/GTI.i_sorting.html#great_tables.GTI.i_sorting" class="gdls-link gdls-code">i_sorting()</a>, on by default), and its <strong>filter</strong> button (with <a href="../reference/GTI.i_cols_filter.html#great_tables.GTI.i_cols_filter" class="gdls-link gdls-code">i_cols_filter()</a>). What readers can do with each column (sort, search, resize, hide, move or group by it) is set with <a href="../reference/GTI.i_cols_controls.html#great_tables.GTI.i_cols_controls" class="gdls-link gdls-code">i_cols_controls()</a>.
+</dd>
 <dt>Column header</dt>
 <dd>
 The region directly above the <strong>body</strong> that contains all <strong>column labels</strong> and any <strong>spanner labels</strong>. It provides the labeling structure that maps data columns to their display names and groupings. Targetable as a whole with <a href="../reference/loc.column_header.html#great_tables.loc.column_header" class="gdls-link gdls-code">loc.column_header()</a>.
@@ -467,13 +471,29 @@ The region directly above the <strong>body</strong> that contains all <strong>co
 <dd>
 The individual text labels that identify each column in the table. By default they are the column names from the input DataFrame, but they can be overridden with <a href="../reference/GT.cols_label.html#great_tables.GT.cols_label" class="gdls-link gdls-code">cols_label()</a> or transformed with <a href="../reference/GT.cols_label_with.html#great_tables.GT.cols_label_with" class="gdls-link gdls-code">cols_label_with()</a>. Targetable with <a href="../reference/loc.column_labels.html#great_tables.loc.column_labels" class="gdls-link gdls-code">loc.column_labels()</a>.
 </dd>
+<dt>Column profile</dt>
+<dd>
+In a <strong>GTI table</strong>, a small plot under a <strong>column label</strong> showing how the column’s values are spread: a histogram for numbers and dates, and bars for the most common values of other columns, with the share of missing values. Profiles follow the rows the <strong>search</strong> and <strong>filters</strong> keep. Added with <a href="../reference/GTI.i_cols_profile.html#great_tables.GTI.i_cols_profile" class="gdls-link gdls-code">i_cols_profile()</a>.
+</dd>
 <dt>Column selector</dt>
 <dd>
 An expression passed to a <code>columns=</code> parameter to identify which columns an operation should act on. Accepts a column name (string), a list of names, an integer index, a Polars selector expression (e.g., <code>cs.numeric()</code>), or a callable that takes a column name and returns a boolean. Column selectors are used throughout the API in methods like <a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="gdls-link gdls-code">fmt_number()</a>, <a href="../reference/GT.cols_align.html#great_tables.GT.cols_align" class="gdls-link gdls-code">cols_align()</a>, <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>, and many others.
 </dd>
+<dt>Control bar</dt>
+<dd>
+The row of controls just below a <strong>GTI table</strong> that brings together what readers can do with the table as a whole: the <strong>search</strong> and keyboard shortcuts, the <strong>page controls</strong>, the <strong>query</strong> button (<code>{ }</code>), the buttons that open the table’s <strong>panels</strong>, undo and redo (see <strong>view state</strong>), and a Reset button once the <strong>view</strong> has changed. A table made with <a href="../reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> has a <strong>pager</strong> instead.
+</dd>
 <dt>Data color</dt>
 <dd>
 A technique for colorizing <strong>cell</strong> backgrounds based on data values, providing a visual encoding of magnitude or category directly in the table. Applied with <a href="../reference/GT.data_color.html#great_tables.GT.data_color" class="gdls-link gdls-code">data_color()</a>, which supports custom palettes, ColorBrewer palettes, domain specification, and automatic contrasting text color.
+</dd>
+<dt>Filter</dt>
+<dd>
+In an <strong>interactive table</strong>, a control that keeps only the rows matching a condition on one column, opened from the column’s filter button. A <strong>GTI table</strong> gets filters with <a href="../reference/GTI.i_cols_filter.html#great_tables.GTI.i_cols_filter" class="gdls-link gdls-code">i_cols_filter()</a>, of five types: <code>"text"</code>, <code>"facet"</code> (a checklist of values), <code>"range"</code>, <code>"date"</code>, and <code>"bool"</code>. A row is shown when it passes every filter and the <strong>search</strong>.
+</dd>
+<dt>Filter tokens</dt>
+<dd>
+In a <strong>GTI table</strong>, a token for each <strong>filter</strong> in use, shown below the table, that says which rows the filter keeps. A token’s ✕ removes its filter.
 </dd>
 <dt>Footer</dt>
 <dd>
@@ -499,13 +519,29 @@ Aggregation rows that summarize the entire table’s data, regardless of <strong
 <dd>
 The central object in <strong>Great Tables</strong>, created by passing a Polars, Pandas, or PyArrow table to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>. All table-building operations are methods on this object and return a modified copy, enabling method chaining. Optional constructor arguments include <code>rowname_col</code> (to create a <strong>stub</strong>), <code>groupname_col</code> (to create <strong>row groups</strong>), <code>locale</code>, and <code>id</code>.
 </dd>
+<dt>GTI table</dt>
+<dd>
+An <strong>interactive table</strong> made with <a href="../reference/GTI.html#great_tables.GTI" class="gdls-link gdls-code">GTI()</a> rather than <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a>, built like a <strong>GT object</strong> and rendered as a table readers work with. Its <code>i_</code> methods set what readers can do with it, column by column: which <strong>filters</strong> they get, which columns they can hide, move or pin, how they can export the rows, and how the table is first shown (its <strong>view</strong>). <a href="../reference/GTI.from_gt.html#great_tables.GTI.from_gt" class="gdls-link gdls-code">GTI.from_gt()</a> turns a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table into a <a href="../reference/GTI.html#great_tables.GTI" class="gdls-link gdls-code">GTI</a> table.
+</dd>
 <dt>Header</dt>
 <dd>
 The topmost region of the table, positioned above the <strong>column header</strong>. It contains the <strong>title</strong> and optionally a <strong>subtitle</strong>. Set with <a href="../reference/GT.tab_header.html#great_tables.GT.tab_header" class="gdls-link gdls-code">tab_header()</a>. Targetable as a whole with <a href="../reference/loc.header.html#great_tables.loc.header" class="gdls-link gdls-code">loc.header()</a>.
 </dd>
+<dt>Height handle</dt>
+<dd>
+In a <strong>GTI table</strong> whose body scrolls within a set height (with <a href="../reference/GTI.i_scroll.html#great_tables.GTI.i_scroll" class="gdls-link gdls-code">i_scroll()</a>), the handle at the foot of the body that readers drag for a taller or shorter body. A double click on it restores the set height.
+</dd>
 <dt>Hidden column</dt>
 <dd>
 A column that is present in the underlying data but not rendered in the output table. Columns can be hidden with <a href="../reference/GT.cols_hide.html#great_tables.GT.cols_hide" class="gdls-link gdls-code">cols_hide()</a> and restored with <a href="../reference/GT.cols_unhide.html#great_tables.GT.cols_unhide" class="gdls-link gdls-code">cols_unhide()</a>. Hidden columns remain accessible for operations like <strong>merged columns</strong> patterns, <strong>data color</strong> mapping, and <a href="../reference/from_column.html#great_tables.from_column" class="gdls-link gdls-code">from_column()</a> references.
+</dd>
+<dt>Interactive table</dt>
+<dd>
+A table that readers can sort, search, filter, and page through in the browser, with no server or other library needed. It’s made either by adding <a href="../reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a> to a <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT</a> table’s method chain, for a published table that readers can browse, or as a <strong>GTI table</strong>, for a table that is an interface. Both keep the table’s formatting, styles, and structure.
+</dd>
+<dt>Linked tables</dt>
+<dd>
+<strong>GTI tables</strong> on the same page that work together through <a href="../reference/GTI.i_link.html#great_tables.GTI.i_link" class="gdls-link gdls-code">i_link()</a>: the rows a reader selects in one (see <strong>selection</strong>) filter the others to the rows with the same values in a shared column.
 </dd>
 <dt>Locale</dt>
 <dd>
@@ -523,17 +559,61 @@ A display technique that combines content from multiple columns into a single co
 <dd>
 A tiny inline visualization embedded directly in a table <strong>cell</strong> via <a href="../reference/GT.fmt_nanoplot.html#great_tables.GT.fmt_nanoplot" class="gdls-link gdls-code">fmt_nanoplot()</a>. Supports <code>"line"</code>, <code>"bar"</code>, and <code>"boxplot"</code> plot types, with optional reference lines, reference areas, and automatic y-axis scaling across rows. Appearance is customized through <a href="../reference/nanoplot_options.html#great_tables.nanoplot_options" class="gdls-link gdls-code">nanoplot_options()</a>.
 </dd>
+<dt>Page controls</dt>
+<dd>
+In a <strong>GTI table</strong>’s <strong>control bar</strong>, the buttons for the first, previous, next, and last pages, around the page counter (“1 / 2”), which can be clicked to type the page to go to. The page size is set with <a href="../reference/GTI.i_pagination.html#great_tables.GTI.i_pagination" class="gdls-link gdls-code">i_pagination()</a>.
+</dd>
+<dt>Pager</dt>
+<dd>
+The page buttons and row count below a table made with <a href="../reference/GT.opt_interactive.html#great_tables.GT.opt_interactive" class="gdls-link gdls-code">opt_interactive()</a>, in place of a <strong>GTI table</strong>’s <strong>control bar</strong>. Its style is set with <code>opt_interactive(pagination_type=...)</code>.
+</dd>
+<dt>Panel</dt>
+<dd>
+In a <strong>GTI table</strong>, a box opened from a button in the <strong>control bar</strong>: the Columns panel (to hide and move columns), the grouping panel (to group the rows by a column), the export panel (from <a href="../reference/GTI.i_export.html#great_tables.GTI.i_export" class="gdls-link gdls-code">i_export()</a>), and the info panel, which says how the table is sorted and can go back to the view it was first shown with.
+</dd>
+<dt>Pinned columns</dt>
+<dd>
+In a wide <strong>GTI table</strong> that scrolls sideways, columns that stay in view, on the left (after the <strong>stub</strong>, which always stays) or on the right. Set with <a href="../reference/GTI.i_cols_pin.html#great_tables.GTI.i_cols_pin" class="gdls-link gdls-code">i_cols_pin()</a>.
+</dd>
 <dt>Preheader</dt>
 <dd>
 Optional content rendered above the table element itself (before the <strong>header</strong>). Set via <code>tab_header(preheader=...)</code>. Accepts raw HTML strings and is useful for adding non-tabular content like badges or links that sit outside the table’s visual boundaries.
+</dd>
+<dt>Preset</dt>
+<dd>
+The settings a <strong>GTI table</strong> starts with, chosen with <code>GTI(preset=...)</code>: <code>"report"</code> (the default), for a table to be read, or <code>"explorer"</code>, for looking through data, with every column filtered, profiled, hideable and movable, compact monospaced rows, CSV export, and the <strong>row numbers</strong> and <strong>status line</strong> of <a href="../reference/GTI.i_inspect.html#great_tables.GTI.i_inspect" class="gdls-link gdls-code">i_inspect()</a>. The <code>i_</code> methods change a preset as they would any table.
+</dd>
+<dt>Query</dt>
+<dd>
+A <strong>GTI table</strong>’s <strong>filters</strong> written as text, such as <code>mfr in ("Ferrari") and hp &gt;= 600</code>. The <code>{ }</code> button in the <strong>control bar</strong> opens the query for readers to edit, and <code>~~GTI.i_view(filter=...)</code> takes one to set the filters the table starts with.
+</dd>
+<dt>Responsive layout</dt>
+<dd>
+How a <strong>GTI table</strong> fits a container narrower than itself, set with <a href="../reference/GTI.i_responsive.html#great_tables.GTI.i_responsive" class="gdls-link gdls-code">i_responsive()</a>: <code>"scroll"</code> (the table scrolls sideways), <code>"stack"</code> (each row becomes a card, below <code>stack_below=</code> pixels), or <code>"collapse"</code> (columns are dropped by their priority from <a href="../reference/GTI.i_cols_priority.html#great_tables.GTI.i_cols_priority" class="gdls-link gdls-code">i_cols_priority()</a>, and each row gets a button showing what was dropped). The default, <code>"auto"</code>, picks one from the table’s columns.
+</dd>
+<dt>Row details</dt>
+<dd>
+In a <strong>GTI table</strong>, more content for each row, shown under it when the reader clicks the arrow by the row (or uses Expand all in the info <strong>panel</strong>). Made from each row’s values by a function given to <a href="../reference/GTI.i_row_details.html#great_tables.GTI.i_row_details" class="gdls-link gdls-code">i_row_details()</a>, or taken from a column.
 </dd>
 <dt>Row group</dt>
 <dd>
 A categorical label that divides the <strong>body</strong> into logical sections of rows. Row groups appear as spanning labels across the full width of the table. Created by passing <code>groupname_col=</code> to <a href="../reference/GT.html#great_tables.GT" class="gdls-link gdls-code">GT()</a> and ordered with <a href="../reference/GT.row_group_order.html#great_tables.GT.row_group_order" class="gdls-link gdls-code">row_group_order()</a>. Targetable with <a href="../reference/loc.row_groups.html#great_tables.loc.row_groups" class="gdls-link gdls-code">loc.row_groups()</a>.
 </dd>
+<dt>Row numbers</dt>
+<dd>
+In a <strong>GTI table</strong> with <a href="../reference/GTI.i_inspect.html#great_tables.GTI.i_inspect" class="gdls-link gdls-code">i_inspect()</a>, the number at the start of each row giving its place in the data, which stays with the row as the table is sorted and filtered. A DataFrame’s rows are numbered from 0 and a database’s from 1, unless <code>row_start=</code> says otherwise.
+</dd>
 <dt>Row selector</dt>
 <dd>
 An expression passed to a <code>rows=</code> parameter to identify which rows an operation should act on. Accepts an integer index, a list of indices, a list of row names (when a <strong>stub</strong> is present), a Polars expression, or a callable. Row selectors are used in methods like <a href="../reference/GT.fmt_number.html#great_tables.GT.fmt_number" class="gdls-link gdls-code">fmt_number()</a>, <a href="../reference/GT.tab_style.html#great_tables.GT.tab_style" class="gdls-link gdls-code">tab_style()</a>, <a href="../reference/GT.cols_merge.html#great_tables.GT.cols_merge" class="gdls-link gdls-code">cols_merge()</a>, and others.
+</dd>
+<dt>Search</dt>
+<dd>
+In an <strong>interactive table</strong>, a field that keeps the rows with what’s typed in any searchable column’s cells, as the table shows them, ignoring case and accents. In a <strong>GTI table</strong> it’s in the <strong>control bar</strong> (with <a href="../reference/GTI.i_search.html#great_tables.GTI.i_search" class="gdls-link gdls-code">i_search()</a>, on by default) and is opened with <code>/</code>.
+</dd>
+<dt>Selection</dt>
+<dd>
+The rows a reader has selected in a <strong>GTI table</strong> with <a href="../reference/GTI.i_selection.html#great_tables.GTI.i_selection" class="gdls-link gdls-code">i_selection()</a>, by clicking the rows or their checkboxes (one row with <code>"single"</code>, any number with <code>"multiple"</code>). The selection links <strong>linked tables</strong>, can be exported, and can be read from Python.
 </dd>
 <dt>Source note</dt>
 <dd>
@@ -542,6 +622,10 @@ Citation or attribution text displayed in the <strong>footer</strong>, below any
 <dt>Spanner label</dt>
 <dd>
 A label in the <strong>column header</strong> that spans across multiple contiguous <strong>column labels</strong>, providing a higher-level grouping. Created with <a href="../reference/GT.tab_spanner.html#great_tables.GT.tab_spanner" class="gdls-link gdls-code">tab_spanner()</a> or automatically with <a href="../reference/GT.tab_spanner_delim.html#great_tables.GT.tab_spanner_delim" class="gdls-link gdls-code">tab_spanner_delim()</a> (which splits column names at a delimiter character), and relabeled with <a href="../reference/GT.tab_spanner_label_with.html#great_tables.GT.tab_spanner_label_with" class="gdls-link gdls-code">tab_spanner_label_with()</a>. Spanners can be nested to any depth. Targetable with <a href="../reference/loc.spanner_labels.html#great_tables.loc.spanner_labels" class="gdls-link gdls-code">loc.spanner_labels()</a>.
+</dd>
+<dt>Status line</dt>
+<dd>
+In a <strong>GTI table</strong> with <a href="../reference/GTI.i_inspect.html#great_tables.GTI.i_inspect" class="gdls-link gdls-code">i_inspect()</a>, the line just above the table saying what the data is and how much of it is shown (e.g., “Polars DataFrame · 12 of 47 rows × 4 columns”).
 </dd>
 <dt>Stub</dt>
 <dd>
@@ -570,6 +654,14 @@ A coordinated set of visual options that control the overall appearance of the t
 <dt>Title</dt>
 <dd>
 The main heading text displayed at the top of the <strong>header</strong>. Set via <code>tab_header(title=...)</code>. Supports <a href="../reference/md.html#great_tables.md" class="gdls-link gdls-code">md()</a> and <a href="../reference/html.html#great_tables.html" class="gdls-link gdls-code">html()</a> formatting. Targetable with <a href="../reference/loc.title.html#great_tables.loc.title" class="gdls-link gdls-code">loc.title()</a>.
+</dd>
+<dt>View</dt>
+<dd>
+How a reader has a <strong>GTI table</strong> set up: its <strong>filters</strong>, sort, <strong>search</strong>, page, page size, hidden columns, the column its rows are grouped by, and the height of a body that scrolls. The view the table starts with is set with <a href="../reference/GTI.i_view.html#great_tables.GTI.i_view" class="gdls-link gdls-code">i_view()</a>. See also <strong>view state</strong>.
+</dd>
+<dt>View state</dt>
+<dd>
+A <strong>GTI table</strong>’s <strong>view</strong> as it’s kept with <a href="../reference/GTI.i_view_state.html#great_tables.GTI.i_view_state" class="gdls-link gdls-code">i_view_state()</a>: in the page’s URL, so a reloaded or shared page opens the table as it was, and optionally in the browser’s storage (<code>storage=True</code>). It also gives the <strong>control bar</strong> undo and redo buttons. Keeping the view in the URL needs a table ID.
 </dd>
 </dl>
 
