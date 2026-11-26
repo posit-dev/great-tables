@@ -41,6 +41,26 @@ test("is one bar below the table, with no toolbar or pager", async ({ page }) =>
   expect(errors).toEqual([]);
 });
 
+test("is as wide as the table once it's ready, though set up with its first page alone", async ({ page }) => {
+  // (As the element says it's ready, before the layout's observed: a bar widened a frame later
+  // moves what's beside it, as the parts' names)
+  await page.addInitScript(() => {
+    new MutationObserver(() => {
+      const el = document.querySelector("gt-table");
+      if (el?.getAttribute("data-gti-state") === "ready" && (window as any).widths === undefined) {
+        const width = (selector: string) => (el.querySelector(selector) as Element).getBoundingClientRect().width;
+        (window as any).widths = { bar: width(".gt-i-bar"), table: width("table") };
+      }
+    }).observe(document, { subtree: true, attributes: true, attributeFilter: ["data-gti-state"] });
+  });
+  const errors = await ready(page, "bar.html");
+  const widths = await page.evaluate(() => (window as any).widths as { bar: number; table: number });
+  const all = await box(el(page).locator("table"));
+  expect(widths.table).toBeCloseTo(all.width, 1);
+  expect(widths.bar).toBeCloseTo(all.width, 1);
+  expect(errors).toEqual([]);
+});
+
 test("searches from a button that opens a field, which Escape clears and then closes", async ({ page }) => {
   const errors = await ready(page, "bar.html");
   await expect(field(page)).toBeHidden();
