@@ -175,3 +175,115 @@ test.describe("text wrapping", () => {
     expect(errors).toEqual([]);
   });
 });
+
+// 20 rows (row_1...) on one page, resizable, without text wrapping: title's text short but for row_19's (200
+// characters) and row_20's (40); code's all as long, under a longer label; wide's all as long (30
+// characters), under a profile; and an image 400px wide in each of picture's cells.
+test.describe("column widths without text wrapping", () => {
+  const cell = (page: Page, row: number, column: string) =>
+    page
+      .locator("gt-table tbody > tr")
+      .filter({ has: page.locator(`th:text-is("row_${row}")`) })
+      .locator(`td[headers~="cp-${column}"]`);
+  const cut = (page: Page, row: number, column: string) =>
+    cell(page, row, column).evaluate((td) => td.scrollWidth > td.clientWidth);
+  const width = (page: Page, row: number, column: string) =>
+    cell(page, row, column).evaluate((td) => td.getBoundingClientRect().width);
+  const tip = (page: Page) => page.locator("gt-table .gt-i-cell-tip");
+  // (Its widths fixed, which WebKit may do a frame after it's ready)
+  const capped = async (page: Page) => {
+    const errors = await ready(page, "display-caps.html");
+    await expect(page.locator("gt-table table")).toHaveCSS("table-layout", "fixed");
+    return errors;
+  };
+
+  test("fit a column to the text of all but the longest tenth of its cells", async ({ page }) => {
+    const errors = await capped(page);
+    expect(await cut(page, 19, "title")).toBe(true);
+    expect(await cut(page, 20, "title")).toBe(true);
+    for (const row of [1, 10, 18]) {
+      expect(await cut(page, row, "title")).toBe(false);
+    }
+    // (Its cells' text ending in an ellipsis, in a fixed layout)
+    expect(await cell(page, 20, "title").evaluate((td) => getComputedStyle(td).textOverflow)).toBe("ellipsis");
+    expect(await page.locator("gt-table table").evaluate((table) => table.style.tableLayout)).toBe("fixed");
+    // Its handle has its width
+    const handle = page.locator("th#cp-title .gt-i-resizer");
+    expect(Number(await handle.getAttribute("aria-valuenow"))).toBeCloseTo(await width(page, 1, "title"), -0.5);
+    expect(errors).toEqual([]);
+  });
+
+  test("keep a column whose text is all about as long, and labels, whole", async ({ page }) => {
+    const errors = await capped(page);
+    expect(await cut(page, 1, "code")).toBe(false);
+    expect(await cut(page, 1, "wide")).toBe(false);
+    // (The label is wider than the code)
+    const label = await page.locator("th#cp-code").evaluate((th) => th.scrollWidth <= th.clientWidth);
+    expect(label).toBe(true);
+    // A column showing images is as wide as they are
+    expect(await width(page, 1, "picture")).toBeGreaterThanOrEqual(400);
+    expect(errors).toEqual([]);
+  });
+
+  test("give a column no more than 20em", async ({ page }) => {
+    const errors = await capped(page);
+    // (title's longest tenth has 40 characters and more; at 16px, what's kept is under 20em)
+    expect(await width(page, 1, "title")).toBeLessThanOrEqual(320);
+    expect(errors).toEqual([]);
+  });
+
+  test("give a profile no more than 12em of its own", async ({ page }) => {
+    const errors = await capped(page);
+    const profile = page.locator("th#cp-wide .gt-i-profile");
+    const { profileWidth, fontSize } = await profile.evaluate((el) => ({
+      profileWidth: el.getBoundingClientRect().width,
+      fontSize: parseFloat(getComputedStyle(el).fontSize),
+    }));
+    expect(await width(page, 1, "wide")).toBeGreaterThan(12 * fontSize + 20);
+    expect(profileWidth).toBeCloseTo(12 * fontSize, 0);
+    expect(errors).toEqual([]);
+  });
+
+  test("show a cut cell's text in a tooltip, a moment after the mouse goes onto it", async ({ page }) => {
+    const errors = await capped(page);
+    await cell(page, 20, "title").hover();
+    await expect(tip(page)).toBeVisible();
+    await expect(tip(page)).toHaveText("A title of forty characters, or so, here");
+    // (Under the cell)
+    const box = await cell(page, 20, "title").boundingBox();
+    expect((await tip(page).boundingBox())?.y).toBeGreaterThan((box?.y ?? 0) + (box?.height ?? 0));
+    // Not for a cell that isn't cut
+    await cell(page, 1, "title").hover();
+    await expect(tip(page)).toBeHidden();
+    await page.waitForTimeout(700);
+    await expect(tip(page)).toBeHidden();
+    // Up to 150 characters of it
+    await cell(page, 19, "title").hover();
+    await expect(tip(page)).toBeVisible();
+    const text = (await tip(page).textContent()) ?? "";
+    expect(text.endsWith("…")).toBe(true);
+    expect(text.slice(0, -1)).toBe(Array(12).fill("a very long title").join(" ").slice(0, 150).trimEnd());
+    // Escape hides it
+    await page.keyboard.press("Escape");
+    await expect(tip(page)).toBeHidden();
+    expect(errors).toEqual([]);
+  });
+
+  test.describe("on a touch screen", () => {
+    test.use({ hasTouch: true, isMobile: true });
+
+    test("show a cut cell's text in a tooltip as it's tapped, till it's tapped again", async ({ page }) => {
+      const errors = await capped(page);
+      await cell(page, 20, "title").tap();
+      await expect(tip(page)).toHaveText("A title of forty characters, or so, here");
+      await cell(page, 20, "title").tap();
+      await expect(tip(page)).toBeHidden();
+      // (And till another cell is)
+      await cell(page, 20, "title").tap();
+      await expect(tip(page)).toBeVisible();
+      await cell(page, 1, "title").tap();
+      await expect(tip(page)).toBeHidden();
+      expect(errors).toEqual([]);
+    });
+  });
+});
