@@ -264,6 +264,14 @@ describe("parseSpec()", () => {
     expect(parse(valid).profiles).toBeUndefined();
   });
 
+  it("gives a histogram without values its column's filter's", () => {
+    const filter = { column: "x", type: "range", values: [1.5, 3] };
+    const spec = parse({ ...valid, filters: [filter], profiles: [{ column: "x", plot: "histogram", values: null }] });
+    expect(spec.profiles).toEqual([{ column: "x", plot: "histogram", values: [1.5, 3] }]);
+    // (Not a text filter's, which has none)
+    expect(() => parse({ ...valid, filters: [{ column: "x", type: "text", values: null }], profiles: [{ column: "x", plot: "histogram", values: null }] })).toThrow(/`profiles\[0\]`/);
+  });
+
   it("ignores fields it doesn't know", () => {
     expect(parse({ ...valid, later: { anything: true } }).nrows).toBe(2);
   });

@@ -76,6 +76,12 @@ Engine = Literal["auto", "browser", "kernel"]
 
 ENGINES: tuple[Engine, ...] = ("auto", "browser", "kernel")
 
+# Where a large table's rows past its first page are, as data (see `off_page_rows()`): in its HTML,
+# or in a file beside the page, as `write_raw_html()` writes it
+RowsMode = Literal["inline", "asset"]
+
+ROWS_MODES: tuple[RowsMode, ...] = ("inline", "asset")
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -171,6 +177,8 @@ class Settings:
     link_on: str | None = None
     # (Where a widget's rows are searched, filtered, sorted and paged, as `i_scale()` set it)
     engine: Engine = "auto"
+    # (Where its rows past the first page are, as data, as `i_scale()` set it)
+    rows: RowsMode = "inline"
 
     @classmethod
     def from_options(cls, options: Options) -> Settings:
