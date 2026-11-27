@@ -2,7 +2,7 @@ import { type BrowserContext, expect, type Locator, type Page } from "@playwrigh
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const fixtures = join(dirname(fileURLToPath(import.meta.url)), ".fixtures");
+export const fixtures = join(dirname(fileURLToPath(import.meta.url)), ".fixtures");
 
 /**
  * Let the page read and write the clipboard, as each browser takes it: Chromium asks for both,
