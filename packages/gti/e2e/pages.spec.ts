@@ -174,10 +174,17 @@ async function openAsset(page: Page, found = true): Promise<{ errors: string[]; 
   });
   const errors: string[] = [];
   const warnings: string[] = [];
-  page.on("pageerror", (err) => errors.push(err.message));
+  // (Not the loop Safari reports when the table, measured again as the rows come, is laid out
+  // again in the frame its observer sees it change)
+  const error = (text: string) => {
+    if (!text.startsWith("ResizeObserver loop")) {
+      errors.push(text);
+    }
+  };
+  page.on("pageerror", (err) => error(err.message));
   page.on("console", (msg) => {
     if (msg.type() === "error") {
-      errors.push(msg.text());
+      error(msg.text());
     } else if (msg.type() === "warning") {
       warnings.push(msg.text());
     }
