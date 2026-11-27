@@ -42,7 +42,7 @@ STACK_WIDTH = "(width < 420px)"
 # The most data rows, bytes of HTML (the `<gt-table>` element's), and rows shown at once (on a
 # page, or all of them, on one) a table has before it's warned about, as it may be slow in the
 # browser (see the Phase 1 benchmarks, in packages/gti/bench). A table of pages with more data rows
-# than `MAX_ROWS` has those past its first page hidden in its HTML (`hide_off_page_rows()`)
+# than `MAX_ROWS` has those past its first page left out of its HTML, as data (`off_page_rows()`)
 MAX_ROWS = 3_000
 MAX_BYTES = 10 * 2**20
 MAX_SHOWN = 1_000
@@ -116,6 +116,28 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
 
     (With `warn=False`, there's no warning about its size: see `_warn_size()`.)
     """
+    html, spec, _ = _render_element(gt, all_important=all_important, warn=warn)
+    return html, spec
+
+
+def render_gti_asset(
+    gt: GT,
+    rows_src: str,
+    runtime: Literal["inline", "none"] = "inline",
+    all_important: bool = False,
+) -> tuple[str, str | None]:
+    """A table's HTML, as `render_gti_html()` renders it, but with the data rows left out of its
+    HTML (see `off_page_rows()`) in a file at `rows_src` (a URL, relative to the page's), and that
+    file's JSON (or `None`, and the HTML as `render_gti_html()` has it, without any)."""
+    html, _, rows = _render_element(gt, all_important=all_important, rows_src=rows_src)
+    return (inline_runtime(html) if runtime == "inline" else html), rows
+
+
+def _render_element(
+    gt: GT, all_important: bool = False, warn: bool = True, rows_src: str | None = None
+) -> tuple[str, Spec, str | None]:
+    """A table's `<gt-table>` element and its spec, as `render_gti_element()` has them; and, with
+    `rows_src`, the JSON of the data rows left out of its HTML, which it fetches from there."""
     from ..gti import GTI
 
     if isinstance(gt, GTI) and settings_of(gt).engine == "kernel":
@@ -126,7 +148,7 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
             "shown as a widget (with `i_as_widget()`) or in a Shiny app (with `render_gt()`), so "
             "here they're in the browser.",
             GTIEngineWarning,
-            stacklevel=3,
+            stacklevel=4,
         )
     from ._lazy import collected, lazy_of
 
@@ -137,19 +159,34 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
     table_html = built._render_as_html(all_important=all_important)
     details = render_details(built)
     spec = build_spec(built, details=sorted(details))
-    html = gti_element(built, hide_off_page_rows(table_html, spec), spec, details)
+    table_html, payload = off_page_rows(table_html, spec)
+    rows = asset = None
+    if payload is not None:
+        # (With `rows_src`, the element has only which rows they are)
+        rows = rows_to_script_json(payload if rows_src is None else {"rows": payload["rows"]})
+        if rows_src is not None:
+            asset = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    html = gti_element(built, table_html, spec, details, rows=rows, rows_src=rows_src)
     if warn:
         from ._kernel import kernel_reasons
 
-        _warn_size(gt, spec, html, kernel=not kernel_reasons(built), lazy=lazy)
-    return html, spec
+        _warn_size(gt, spec, html, kernel=not kernel_reasons(built), lazy=lazy, stacklevel=4)
+    return html, spec, asset
 
 
 def gti_element(
-    data: GTData, table_html: str, spec: Spec, details: dict[int, str], attrs: str = ""
+    data: GTData,
+    table_html: str,
+    spec: Spec,
+    details: dict[int, str],
+    attrs: str = "",
+    rows: str | None = None,
+    rows_src: str | None = None,
 ) -> str:
     """The `<gt-table>` element of a built table, from its static HTML, its spec, and its rows'
-    details (as `render_details()` makes them), with `attrs` (a host's)."""
+    details (as `render_details()` makes them), with `attrs` (a host's), and the data rows left
+    out of its HTML (`rows`, the JSON of `off_page_rows()`'s payload; or, with `rows_src`, the URL
+    of a file with it, and only the payload's `rows`)."""
     spec_json = spec_to_script_json(spec)
 
     # (The runtime sets these too, but the table shouldn't change when it's hydrated; nor should
@@ -183,6 +220,9 @@ def gti_element(
         style.append(f"--gt-i-accent: {escape(accent)}")
     if style:
         attrs += f' style="{"; ".join(style)}"'
+    if rows is not None:
+        src = "" if rows_src is None else f' data-gti-rows-src="{escape(rows_src)}"'
+        table_html += f'<script type="application/json" data-gti-rows{src}>{rows}</script>\n'
     return (
         f"<gt-table{attrs}>\n{table_html}"
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
@@ -190,17 +230,24 @@ def gti_element(
     )
 
 
-def hide_off_page_rows(table_html: str, spec: Spec) -> str:
-    """A table's static HTML with the body rows that aren't on its first page `hidden`, if it's
-    paged and has more than `MAX_ROWS` data rows.
+def off_page_rows(table_html: str, spec: Spec) -> tuple[str, dict | None]:
+    """A table's static HTML without the data rows that aren't on its first page, if it's paged
+    and has more than `MAX_ROWS` data rows, and those rows as data (as `rows_payload()` has them,
+    or `None` without any), for the runtime to build when they're shown.
 
-    A hidden row costs the browser nothing to lay out, so the page is quicker to parse and to
-    paint (see `docs-*` in packages/gti/bench), and without the runtime the reader sees the first
-    page. The rows hidden are those the runtime hides as it sets the table up (`prepage()`): a
-    group's heading and top summary rows are on the page if its first data row is, its bottom ones
-    if its last is, and the grand summary rows always are. Not in a table that drops columns, which
-    the runtime fits with every row shown, nor in one whose stub merges cells across rows, which
-    isn't paged. (Nor in one whose body's `<tr>`s aren't the spec's, e.g. with tables in its cells)
+    The body's other rows past the first page are kept, `hidden`: its groups' headings and summary
+    rows, and the data rows the payload can't have (those with details, or with cells other than
+    one for each column, as those with a group's label cell, as a column, have). A hidden row
+    costs the browser nothing to lay out, and a row left out nothing to parse, so the page is
+    quicker to load and to paint (see `docs-*` in packages/gti/bench), and without the runtime the
+    reader sees the first page. The rows past it are those the runtime hides as it sets the table up
+    (`prepage()`): a group's heading and top summary rows are on the page if its first data row
+    is, its bottom ones if its last is, and the grand summary rows always are.
+
+    Not in a table that drops columns, which the runtime fits with every row shown, nor in one
+    whose stub merges cells across rows, which isn't paged. (Nor in one whose body's `<tr>`s
+    aren't the spec's, e.g. with tables in its cells.) A table with colors (from `data_color()`,
+    which the runtime changes with the rows kept) keeps every data row, `hidden`.
     """
     pagination = spec["pagination"]
     size = pagination["page_size"]
@@ -211,18 +258,20 @@ def hide_off_page_rows(table_html: str, spec: Spec) -> str:
         or sum(1 for entry in body if isinstance(entry, int)) <= size
         or _responsive(spec) == "collapse"
     ):
-        return table_html
+        return table_html, None
     start = table_html.find('<tbody class="gt_table_body">')
     end = table_html.find("</tbody>", start)
     if start == -1 or end == -1:
-        return table_html
-    trs = [found.end() for found in _TR.finditer(table_html, start, end)]
+        return table_html, None
+    trs = [found.start() for found in _TR.finditer(table_html, start, end)]
     if len(trs) != len(body) or _MERGED.search(table_html, start, end) is not None:
-        return table_html
+        return table_html, None
 
+    detailed = set(spec["details"] or [])
     parts: list[str] = []
+    rows: list[tuple[int, PayloadRow]] = []
     last = seen = 0
-    for at, entry in zip(trs, body):
+    for i, (at, entry) in enumerate(zip(trs, body)):
         if isinstance(entry, int):
             hidden = seen >= size
             seen += 1
@@ -232,12 +281,134 @@ def hide_off_page_rows(table_html: str, spec: Spec) -> str:
             hidden = seen > size
         else:
             hidden = seen >= size
-        if hidden:
+        if not hidden:
+            continue
+        row = None
+        if isinstance(entry, int) and not spec["colors"] and entry not in detailed:
+            # (The row's own HTML, to the next one's, or to the body's end)
+            row = _payload_row(table_html, at, trs[i + 1] if i + 1 < len(trs) else end)
+            # (A cell for each of the spec's columns, as the runtime takes them)
+            if row is not None and len(row[2]) != len(spec["columns"]):
+                row = None
+        if row is not None:
             parts.append(table_html[last:at])
+            rows.append((entry, row))  # type: ignore[arg-type]
+            last = trs[i + 1] if i + 1 < len(trs) else end
+        else:
+            parts.append(table_html[last : at + 3])
             parts.append(" hidden")
-            last = at
+            last = at + 3
     parts.append(table_html[last:])
-    return "".join(parts)
+    if not rows:
+        return "".join(parts), None
+    return "".join(parts), rows_payload(rows)
+
+
+# A data row as the payload has it: its `<tr>` tag, its key (the ID its cells have, which their
+# tags have as `KEY`, or ""), and its cells' tags and HTML
+PayloadRow = tuple[str, str, list[tuple[str, str]]]
+
+# What a payload's cell tags have for their row's key
+KEY = "\x00"
+
+# A body row, as GT writes it: its tag, then its cells, each on a line of its own, and their tags
+_ROW = re.compile(r"(<tr[^>]*>)\n((?:    <t[dh]\b[^>]*>.*?</t[dh]>\n)*)  </tr>\s*", re.DOTALL)
+_CELL = re.compile(r"    (<(t[dh])\b[^>]*>)(.*?)</\2>\n", re.DOTALL)
+_ID = re.compile(r'\sid="([^"]*)"')
+
+
+def _payload_row(table_html: str, start: int, end: int) -> PayloadRow | None:
+    """A body row of a table's HTML (from `start` to `end`, the next row's), as the payload has
+    it, or `None` if it isn't as GT writes it, or its cells have more than one ID."""
+    found = _ROW.fullmatch(table_html, start, end)
+    if found is None or KEY in found.group(0):
+        return None
+    cells = [(m.group(1), m.group(3)) for m in _CELL.finditer(found.group(2))]
+    # (Each cell's, as one line, so that the cells are the whole row)
+    if "".join(f"    {tag}{html}</{tag[1:3]}>\n" for tag, html in cells) != found.group(2):
+        return None
+    ids = {id for tag, _ in cells for id in _ID.findall(tag)}
+    if len(ids) > 1:
+        return None
+    key = ids.pop() if ids else ""
+    if key:
+        cells = [(tag.replace(key, KEY), html) for tag, html in cells]
+    return found.group(1), key, cells
+
+
+def rows_payload(rows: list[tuple[int, PayloadRow]]) -> dict:
+    """Data rows of a table, which aren't in its HTML, for the runtime to build as it shows them.
+
+    - `rows`: the rows, by their index in the data, in the order of the body, as runs: the first
+      row of each and how many there are (`[3000, 47000]` is rows 3,000 to 49,999).
+    - `tr`: their `<tr>` tags, as a column (below).
+    - `key`: each row's key, as a column, or as a prefix and an offset, if each row's key is the
+      prefix and the row's index plus the offset (`{"prefix": "t-stub-", "offset": 1}`), or `null`
+      without any. A row's cells' tags have it as `\\u0000`.
+    - `cells`: each cell's `tag` (its start tag, with the row's key) and `html`, as columns.
+
+    A column has its distinct values (`v`), and each row's (`i`, an index into them), or no `i`
+    with a value for each row, or only one, for every row.
+    """
+    data = [row for row, _ in rows]
+    runs: list[int] = []
+    for row in data:
+        if runs and runs[-2] + runs[-1] == row:
+            runs[-1] += 1
+        else:
+            runs += [row, 1]
+    keys = [key for _, (_, key, _) in rows]
+    key: dict | None = None
+    if any(keys):
+        key = _key_column(data, keys)
+    ncells = len(rows[0][1][2])
+    return {
+        "rows": runs,
+        "tr": _column([tr for _, (tr, _, _) in rows]),
+        "key": key,
+        "cells": [
+            {
+                "tag": _column([cells[i][0] for _, (_, _, cells) in rows]),
+                "html": _column([cells[i][1] for _, (_, _, cells) in rows]),
+            }
+            for i in range(ncells)
+        ],
+    }
+
+
+def _key_column(data: list[int], keys: list[str]) -> dict:
+    """The rows' keys, as a prefix and an offset if each is the prefix and the row's index plus
+    the offset, or as a column."""
+    found = re.fullmatch(r"(.*?)(\d+)", keys[0])
+    if found is not None:
+        prefix, offset = found.group(1), int(found.group(2)) - data[0]
+        if all(key == f"{prefix}{row + offset}" for row, key in zip(data, keys)):
+            return {"prefix": prefix, "offset": offset}
+    return _column(keys)
+
+
+def _column(values: list[str]) -> dict:
+    """Values, one per row, as a column: only one, if every row has it, or the distinct values
+    with an index for each row, if that's shorter than each row's value."""
+    distinct: dict[str, int] = {}
+    index = [distinct.setdefault(value, len(distinct)) for value in values]
+    if len(distinct) == 1:
+        return {"v": values[:1]}
+    # (In JSON, each value quoted and followed by a comma, and each index by a comma)
+    width = len(str(len(distinct))) + 1
+    if (
+        sum(map(len, distinct)) + len(distinct) * 3 + len(values) * width
+        < sum(map(len, values)) + len(values) * 3
+    ):
+        return {"v": list(distinct), "i": index}
+    return {"v": values}
+
+
+def rows_to_script_json(payload: dict) -> str:
+    """Serialize a payload of rows for a `<script type="application/json">` element, as
+    `spec_to_script_json()` does a spec."""
+    text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    return text.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
 _TR = re.compile(r"<tr(?=[\s>])")
@@ -257,7 +428,9 @@ def page_html(fragment: str, data: GTData) -> str:
     )
 
 
-def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool = False) -> None:
+def _warn_size(
+    gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool = False, stacklevel: int = 3
+) -> None:
     """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
     bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
     more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
@@ -316,7 +489,7 @@ def _warn_size(gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool =
             f" Sorting, searching and filtering are quicker with fewer rows on a page ({how})."
         )
     # (For the caller of `render_gti_html()`)
-    warnings.warn(message, GTISizeWarning, stacklevel=3)
+    warnings.warn(message, GTISizeWarning, stacklevel=stacklevel)
 
 
 def render_parts(gt: GT, all_important: bool = False) -> tuple[str, Spec]:
