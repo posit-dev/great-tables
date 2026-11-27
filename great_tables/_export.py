@@ -702,19 +702,36 @@ def write_raw_html(
     Returns
     -------
     None
-        An HTML file is written to the specified path and the method returns `None`.
+        An HTML file is written to the specified path and the method returns `None`. (A `GTI`
+        table with its rows as an asset, as [`i_scale()`](`great_tables.GTI.i_scale`) sets it,
+        has the rows past its first page written beside it, to a file named as the HTML file is,
+        with `.gti.json` for its extension.)
     """
     import os
+    from urllib.parse import quote
 
-    # (As the table renders itself: a `GTI` table renders as interactive HTML)
-    html_content = gt.as_raw_html(
-        inline_css=inline_css, make_page=make_page, all_important=all_important, runtime=runtime
-    )
+    from ._gti._settings import settings_of
+    from .gti import GTI
+
+    rows = asset = None
+    if isinstance(gt, GTI) and settings_of(gt).rows == "asset":
+        # (Beside the page, as the table fetches it, by its name)
+        asset = Path(filename).with_suffix(".gti.json")
+        html_content, rows = gt._raw_html(
+            inline_css, make_page, all_important, runtime, rows_src=quote(asset.name)
+        )
+    else:
+        # (As the table renders itself: a `GTI` table renders as interactive HTML)
+        html_content = gt.as_raw_html(
+            inline_css=inline_css, make_page=make_page, all_important=all_important, runtime=runtime
+        )
 
     newline = newline if newline is not None else os.linesep
 
     with open(filename, "w", encoding=encoding, newline=newline) as f:
         f.write(html_content)
+    if asset is not None and rows is not None:
+        asset.write_text(rows, encoding="utf-8")
 
 
 # The formats gridwell writes from the table's gridwell IR (`as_gridwell()`): the ones Great Tables
