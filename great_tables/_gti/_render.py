@@ -41,7 +41,8 @@ STACK_WIDTH = "(width < 420px)"
 
 # The most data rows, bytes of HTML (the `<gt-table>` element's), and rows shown at once (on a
 # page, or all of them, on one) a table has before it's warned about, as it may be slow in the
-# browser (see the Phase 1 benchmarks, in packages/gti/bench)
+# browser (see the Phase 1 benchmarks, in packages/gti/bench). A table of pages with more data rows
+# than `MAX_ROWS` has those past its first page hidden in its HTML (`hide_off_page_rows()`)
 MAX_ROWS = 3_000
 MAX_BYTES = 10 * 2**20
 MAX_SHOWN = 1_000
@@ -136,7 +137,7 @@ def render_gti_element(gt: GT, all_important: bool = False, warn: bool = True) -
     table_html = built._render_as_html(all_important=all_important)
     details = render_details(built)
     spec = build_spec(built, details=sorted(details))
-    html = gti_element(built, table_html, spec, details)
+    html = gti_element(built, hide_off_page_rows(table_html, spec), spec, details)
     if warn:
         from ._kernel import kernel_reasons
 
@@ -163,10 +164,7 @@ def gti_element(
     if spec["display"]["parts"]:
         attrs += " data-gti-parts"
     height = spec["layout"]["height"]
-    responsive = spec["layout"]["responsive"]
-    # (An "auto" table whose columns have priorities drops them, rather than being stacked)
-    if responsive == "auto" and any(column["priority"] for column in spec["columns"]):
-        responsive = "collapse"
+    responsive = _responsive(spec)
     if responsive in ("stack", "auto"):
         attrs += " data-gti-stack"
         # (Until the runtime counts the columns shown, as the reader hides them)
@@ -190,6 +188,62 @@ def gti_element(
         f'<script type="application/json" data-gti-spec>{spec_json}</script>\n'
         "</gt-table>\n"
     )
+
+
+def hide_off_page_rows(table_html: str, spec: Spec) -> str:
+    """A table's static HTML with the body rows that aren't on its first page `hidden`, if it's
+    paged and has more than `MAX_ROWS` data rows.
+
+    A hidden row costs the browser nothing to lay out, so the page is quicker to parse and to
+    paint (see `docs-*` in packages/gti/bench), and without the runtime the reader sees the first
+    page. The rows hidden are those the runtime hides as it sets the table up (`prepage()`): a
+    group's heading and top summary rows are on the page if its first data row is, its bottom ones
+    if its last is, and the grand summary rows always are. Not in a table that drops columns, which
+    the runtime fits with every row shown, nor in one whose stub merges cells across rows, which
+    isn't paged. (Nor in one whose body's `<tr>`s aren't the spec's, e.g. with tables in its cells)
+    """
+    pagination = spec["pagination"]
+    size = pagination["page_size"]
+    body = spec["body"]
+    if (
+        not pagination["enabled"]
+        or spec["nrows"] <= MAX_ROWS
+        or sum(1 for entry in body if isinstance(entry, int)) <= size
+        or _responsive(spec) == "collapse"
+    ):
+        return table_html
+    start = table_html.find('<tbody class="gt_table_body">')
+    end = table_html.find("</tbody>", start)
+    if start == -1 or end == -1:
+        return table_html
+    trs = [found.end() for found in _TR.finditer(table_html, start, end)]
+    if len(trs) != len(body) or _MERGED.search(table_html, start, end) is not None:
+        return table_html
+
+    parts: list[str] = []
+    last = seen = 0
+    for at, entry in zip(trs, body):
+        if isinstance(entry, int):
+            hidden = seen >= size
+            seen += 1
+        elif "grand_summary" in entry:
+            hidden = False
+        elif "summary" in entry and entry["side"] == "bottom":
+            hidden = seen > size
+        else:
+            hidden = seen >= size
+        if hidden:
+            parts.append(table_html[last:at])
+            parts.append(" hidden")
+            last = at
+    parts.append(table_html[last:])
+    return "".join(parts)
+
+
+_TR = re.compile(r"<tr(?=[\s>])")
+
+# (A cell other than a group's, as a column of the stub, spanning rows)
+_MERGED = re.compile(r'<t[dh]\b(?![^>]*\bgt_stub_row_group\b)[^>]*\browspan="(?!1")\d+"')
 
 
 def page_html(fragment: str, data: GTData) -> str:
@@ -350,6 +404,15 @@ def _scripted(found: re.Match[str]) -> str:
     if text and all(char in forms for char in text):
         return "".join(forms[char] for char in text)
     return found.group(0)
+
+
+def _responsive(spec: Spec) -> str | None:
+    """What the table does when it doesn't fit (`spec.layout.responsive`), with an "auto" table
+    whose columns have priorities as "collapse", since it drops them rather than being stacked."""
+    responsive = spec["layout"]["responsive"]
+    if responsive == "auto" and any(column["priority"] for column in spec["columns"]):
+        return "collapse"
+    return responsive
 
 
 def _shown_columns(spec: Spec) -> int:
