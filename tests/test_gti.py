@@ -992,3 +992,97 @@ def test_size_warning_not_for_static_tables():
     with warnings.catch_warnings():
         warnings.simplefilter("error", GTISizeWarning)
         GT(numbers(MAX_ROWS + 1)).as_raw_html()
+
+
+# rows past the first page ----
+
+
+def hidden_rows(gt: GT) -> list[bool]:
+    """Whether each of the table body's <tr>s is hidden in the static HTML."""
+    _, trs = split_gti_html(render_gti_html(gt, runtime="none"))
+    return [tr.startswith("<tr hidden") for tr in trs]
+
+
+def frames(df: pd.DataFrame) -> list[pd.DataFrame | pl.DataFrame]:
+    return [df, pl.from_pandas(df)]
+
+
+def test_rows_past_the_first_page_hidden_in_large_tables():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", GTISizeWarning)
+        small = hidden_rows(GTI(numbers(MAX_ROWS)).i_pagination(page_size=10))
+        large = hidden_rows(GTI(numbers(MAX_ROWS + 1)).i_pagination(page_size=10))
+        interactive = hidden_rows(GT(numbers(MAX_ROWS + 1)).opt_interactive(page_size_default=25))
+
+    assert not any(small)
+    assert large == [False] * 10 + [True] * (MAX_ROWS + 1 - 10)
+    assert interactive == [False] * 25 + [True] * (MAX_ROWS + 1 - 25)
+
+
+@pytest.mark.parametrize("df", frames(DF))
+def test_rows_past_the_first_page_hidden_only_in_tables_of_pages(
+    df, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+
+    assert hidden_rows(GTI(df).i_pagination(page_size=4)) == [False] * 4 + [True] * 2
+    assert not any(hidden_rows(GTI(df).i_pagination(False)))
+    # (A page as large as the table is all of its rows)
+    assert not any(hidden_rows(GTI(df).i_pagination(page_size=6)))
+
+
+@pytest.mark.parametrize(
+    "df, total, most",
+    [
+        (DF, SUM, MAX),
+        (pl.from_pandas(DF), {"Total": pl.col("x", "y").sum()}, {"Max": pl.col("x", "y").max()}),
+    ],
+)
+def test_rows_past_the_first_page_hidden_with_groups_and_summaries(
+    df, total, most, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+    gti = (
+        GTI(df, rowname_col="id", groupname_col="grp")
+        .summary_rows(fns=total, side="bottom")
+        .summary_rows(fns=most, side="top")
+        .grand_summary_rows(fns=total, side="top")
+        .grand_summary_rows(fns=most, side="bottom")
+    )
+    assert_body_matches_html(gti)
+
+    # The top grand summary, then group b's heading, top summary, rows 0, 2 and 5 and bottom
+    # summary, then groups a and c, then the bottom grand summary. A group's heading and top
+    # summaries are on the page with its first row, its bottom ones with its last, and the grand
+    # summary rows always are
+    b, a, c = 6, 5, 4
+    page_of_2 = [False] + [False] * 4 + [True] * (b - 4) + [True] * (a + c) + [False]
+    page_of_3 = [False] + [False] * b + [True] * (a + c) + [False]
+    assert hidden_rows(gti.i_pagination(page_size=2)) == page_of_2
+    assert hidden_rows(gti.i_pagination(page_size=3)) == page_of_3
+    # (Groups as a column have no headings)
+    as_column = gti.tab_options(row_group_as_column=True).i_pagination(page_size=3)
+    assert hidden_rows(as_column) == [False] + [False] * (b - 1) + [True] * (a + c - 2) + [False]
+
+
+@pytest.mark.parametrize("df", frames(DF))
+def test_rows_past_the_first_page_not_hidden_when_the_runtime_shows_them(
+    df, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+    paged = GTI(df, rowname_col="id").i_pagination(page_size=2)
+    pairs = DF.assign(a=["x", "x", "y", "y", "z", "z"])
+    merged = GTI(
+        pairs if isinstance(df, pd.DataFrame) else pl.from_pandas(pairs), rowname_col=["a", "id"]
+    )
+    nested = paged.fmt(lambda x: f"<table><tr><td>{x}</td></tr></table>", columns="y")
+
+    # A table that drops columns, which the runtime fits with every row shown
+    assert not any(hidden_rows(paged.i_responsive("collapse")))
+    assert not any(hidden_rows(paged.i_cols_priority("y")))
+    assert any(hidden_rows(paged.i_cols_priority("y").i_responsive("scroll")))
+    # One whose stub merges cells across rows, which isn't paged
+    assert 'rowspan="2"' in render_gti_html(merged, runtime="none")
+    assert not any(hidden_rows(merged.i_pagination(page_size=2)))
+    # One with tables in its cells, whose rows aren't the body's
+    assert "<tr hidden" not in render_gti_html(nested, runtime="none")
