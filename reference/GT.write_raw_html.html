@@ -87,7 +87,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-d115e8fe119fec3d8a9be5efe5eb78bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-16c2c2c5529e599bbe6a41763d9257cb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -1596,7 +1596,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="doc-usage-source">
 <p>Usage</p>
-<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L660-L717" target="_blank" rel="noopener">Source</a></p>
+<p><a href="https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L660-L734" target="_blank" rel="noopener">Source</a></p>
 </div>
 <div class="doc-signature doc-function">
 <div class="sourceCode" id="cb1"><pre class="sourceCode pythonsignature"><code class="sourceCode pythonsignature"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">GT</span><span class="op">.</span><span class="fu">write_raw_html</span>(</span>
@@ -1658,7 +1658,7 @@ Whether an interactive table’s HTML is followed by the runtime that makes it i
 <dl>
 <dt><code> <span class="doc-parameter-annotation">None</span></code></dt>
 <dd>
-An HTML file is written to the specified path and the method returns <code>None</code>.
+An HTML file is written to the specified path and the method returns <code>None</code>. (A <a href="../reference/GTI.html#great_tables.GTI" class="gdls-link gdls-code">GTI</a> table with its rows as an asset, as <a href="../reference/GTI.i_scale.html#great_tables.GTI.i_scale" class="gdls-link"><code>i_scale()</code></a> sets it, has the rows past its first page written beside it, to a file named as the HTML file is, with <code>.gti.json</code> for its extension.)
 </dd>
 </dl>
 </div>
@@ -2099,6 +2099,7 @@ An HTML file is written to the specified path and the method returns <code>None<
 <script src="../copy-page.js"></script>
 <script src="../sidebar-wrap.js"></script>
 <script src="../sidebar-float.js"></script>
+<script src="../sticky-sidebars.js"></script>
 <script src="../sidebar-filter.js"></script>
 <script src="../dark-mode-toggle.js"></script>
 <script src="../back-to-top.js"></script>

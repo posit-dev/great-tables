@@ -4,7 +4,7 @@ Keep the reader's view of the table, for when the page is opened again, and let 
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1651-L1719)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L1653-L1721)
 
 ``` python
 GTI.i_view_state(

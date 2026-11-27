@@ -4,7 +4,7 @@ Let readers sort the table by its columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L354-L387)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L356-L389)
 
 ``` python
 GTI.i_sorting(enabled=True)

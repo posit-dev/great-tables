@@ -4,7 +4,7 @@ Let readers select the table's rows.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L517-L552)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L519-L554)
 
 ``` python
 GTI.i_selection(mode="multiple")

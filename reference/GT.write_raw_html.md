@@ -4,7 +4,7 @@ Write the table to an HTML file.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L660-L717)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/_export.py#L660-L734)
 
 ``` python
 GT.write_raw_html(
@@ -50,4 +50,4 @@ Whether an interactive table's HTML is followed by the runtime that makes it int
 ## Returns
 
 `None`  
-An HTML file is written to the specified path and the method returns `None`.
+An HTML file is written to the specified path and the method returns `None`. (A [GTI](../reference/GTI.md#great_tables.GTI) table with its rows as an asset, as [`i_scale()`](../reference/GTI.i_scale.md#great_tables.GTI.i_scale) sets it, has the rows past its first page written beside it, to a file named as the HTML file is, with `.gti.json` for its extension.)

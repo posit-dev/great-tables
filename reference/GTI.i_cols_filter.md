@@ -4,7 +4,7 @@ Let readers filter the table by its columns.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L842-L979)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L844-L981)
 
 ``` python
 GTI.i_cols_filter(

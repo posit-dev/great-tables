@@ -15091,9 +15091,9 @@ And from Python, the table shows the cars with the most power first:
 widget.sort = "-hp"
 ```
 
-i_scale(self, engine: Engine = 'auto') -> Self
+i_scale(self, engine: Engine = 'auto', rows: RowsMode = 'inline') -> Self
 
-Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.
+Set where the rows of the table are searched, filtered and sorted (shown as a widget or in a Shiny app), and where a large table's rows are kept (written as a page).
 
 ::: {.doc-text}
 
@@ -15117,6 +15117,17 @@ that isn't shown as a widget or in a Shiny app.
 
 A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its
 rows in the frame, and has only the page shown collected (see [`GTI()`](`great_tables.GTI`)).
+
+In the browser, a table of pages with more than 3,000 rows has the rows past its first page
+in its HTML as data, which the browser makes into rows as they're shown. With
+`rows="asset"`, [`write_raw_html()`](`great_tables.GT.write_raw_html`) writes them to a
+file of their own beside the page instead (`page.gti.json`, for `page.html`), which the
+table fetches as it loads: the page is smaller, and quicker to load, and the browser keeps
+the file for the next visit, but the page needs the file beside it, served with it (a page
+opened from a file can't fetch it, in most browsers). Shown anywhere else (in a notebook,
+a Quarto document, or with `as_raw_html()`), the table has its rows in its HTML. Until the
+file has come, the table shows its first page, and the search, filters and sorting wait for
+it; if it doesn't come, the table has only its first page.
 :::
 
 ## Parameters {.doc-parameters}
@@ -15129,6 +15140,12 @@ rows in the frame, and has only the page shown collected (see [`GTI()`](`great_t
     3,000, or more than 10 MB of HTML), and in the browser otherwise (`"auto"`, the
     default); in the browser (`"browser"`); or in Python, if the table is shown as a widget
     or in a Shiny app (`"kernel"`).
+
+<code>[rows]{.doc-parameter-name}[:]{.doc-parameter-annotation-sep} [RowsMode]{.doc-parameter-annotation} [=]{.doc-parameter-default-sep .op} [[&quot;inline&quot;]{.st}]{.doc-parameter-default}</code>
+
+:   Where a large table's rows past its first page are, written as a page with
+    `write_raw_html()`: in its HTML (`"inline"`, the default), or in a file beside it
+    (`"asset"`).
 :::
 
 ## Returns {.doc-returns}
@@ -15152,6 +15169,16 @@ rng = np.random.default_rng(1)
 df = pl.DataFrame({"x": rng.normal(size=1_000_000), "n": rng.integers(0, 100, 1_000_000)})
 
 GTI(df).fmt_number(columns="x").i_cols_filter().i_scale(engine="kernel").i_as_widget()
+```
+
+This page of the `sp500` dataset has the rows past its first page in `sp500.gti.json`,
+beside it.
+
+```python
+from great_tables import GTI
+from great_tables.data import sp500
+
+GTI(sp500).i_pagination().i_scale(rows="asset").write_raw_html("sp500.html", make_page=True)
 ```
 
 render_gt() -> GtTransformer.OutputRendererDecorator
@@ -16045,7 +16072,10 @@ user.
 ::: {.doc-definition-items}
 <code> [None]{.doc-parameter-annotation}</code>
 
-:   An HTML file is written to the specified path and the method returns `None`.
+:   An HTML file is written to the specified path and the method returns `None`. (A `GTI`
+    table with its rows as an asset, as [`i_scale()`](`great_tables.GTI.i_scale`) sets it,
+    has the rows past its first page written beside it, to a file named as the HTML file is,
+    with `.gti.json` for its extension.)
 :::
 
 as_latex(self: GT, use_longtable: bool = False, tbl_pos: str | None = None) -> str
@@ -25564,9 +25594,13 @@ a page of that size, as every row shown is laid out again when the rows are sort
 filtered. To turn the warning off, use
 `warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
 
-A table with pagination and more than 3,000 rows has the rows past its first page hidden in its
-HTML, so the page it's on shows sooner. Where the table can't run its script (e.g., in a notebook
-preview on GitHub), you'll see its first page.
+A table with pagination and more than 3,000 rows has the rows past its first page in its HTML as
+data, which the browser makes into rows as they're shown, so the page it's on is smaller and shows
+sooner. Where the table can't run its script (e.g., in a notebook preview on GitHub), you'll see its
+first page. A table written as a page with `~~GT.write_raw_html()` can have those rows in a file of
+their own beside the page instead, with `GTI.i_scale(rows="asset")`: the page is smaller still,
+and the browser keeps the file for later visits, but the page has to be served with the file (a
+page opened from your disk can't fetch it, in most browsers).
 
 ## Styling with `tab_style()`
 

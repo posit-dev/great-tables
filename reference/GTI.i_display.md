@@ -4,7 +4,7 @@ Set how the table's rows look, and whether its parts are named.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L686-L761)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L688-L763)
 
 ``` python
 GTI.i_display(

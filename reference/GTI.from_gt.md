@@ -4,7 +4,7 @@ Make an interactive table from a [GT](../reference/GT.md#great_tables.GT) table.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L267-L344)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L269-L346)
 
 ``` python
 GTI.from_gt(

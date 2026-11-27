@@ -484,7 +484,7 @@ An interactive table's view (its search, filters and sort) and selection can be 
 Show the table as a widget, whose view and selection can be read and set from Python.
 
 [GTI.i_scale()](GTI.i_scale.md#great_tables.GTI.i_scale)  
-Set where the rows of the table, shown as a widget or in a Shiny app, are searched, filtered and sorted.
+Set where the rows of the table are searched, filtered and sorted (shown as a widget or in a Shiny app), and where a large table's rows are kept (written as a page).
 
 [shiny.render_gt()](shiny.render_gt.md#great_tables.shiny.render_gt)  
 Render a great_tables table.
