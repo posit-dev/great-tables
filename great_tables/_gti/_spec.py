@@ -68,9 +68,10 @@ producers (R gt) can emit it too. Version 1 holds the table's structure and sort
 - `profiles`: the table's columns with a profile under their label, in column order: a plot of
   the values in the rows the search and filters keep, with the share of them missing. A
   `"histogram"` (of a column of numbers, dates, or dates and times) has the column's distinct
-  values (`values`), as a facet does, which the runtime bins over the column's range; `"top"`
-  (bars for its most common values, by the column's `ranks`) has `null`. Each needs the column's
-  ranks. Producers that leave `profiles` out have none.
+  values (`values`), as a facet does, which the runtime bins over the column's range (`null` when
+  the column's filter has the same `values`, which it takes); `"top"` (bars for its most common
+  values, by the column's `ranks`) has `null`. Each needs the column's ranks. Producers that
+  leave `profiles` out have none.
 - `view`: how the table is first shown: filtered by a query (as `<gt-table>`'s `filter` property
   takes, or `null`), sorted by columns (as its `sort` property takes), without the hideable
   columns in `hidden` (in column order; producers that leave it out hide none), and with its rows
@@ -306,7 +307,8 @@ class FilterSpec(_FilterSpec, total=False):
 class ProfileSpec(TypedDict):
     column: str
     plot: Literal["histogram", "top"]
-    # A histogram's distinct values, by rank (None for "top")
+    # A histogram's distinct values, by rank (None for "top", or for a histogram whose column's
+    # filter has them)
     values: list[Any] | None
 
 
@@ -596,6 +598,11 @@ def build_spec(
         plot = _profile_plot(plots[var], kind)
         if plot is not None:
             values = _filter_values(tbl_data, var, ranks[var]) if plot == "histogram" else None
+            # (Not again, when the column's filter has them)
+            if values is not None and any(
+                f["column"] == var and f["values"] == values for f in filters
+            ):
+                values = None
             profiles.append(ProfileSpec(column=var, plot=plot, values=values))
 
     # (Imported here, as `_query` imports from this module)
