@@ -2079,9 +2079,10 @@ export class GtTable extends HTMLElement {
     }
     this.joinLink();
     this.local = this.remote ? null : new LocalSource(spec, () => this.cellTexts ?? this.makeCellTexts());
-    // A search or page set before hydration applies now
+    // A search or page set before hydration applies now. (A large table of pages comes with the rows
+    // past its first page hidden, which are shown if it has none)
     this.matchRows();
-    if ((this.remote || this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null) && !this.loading) {
+    if ((this.remote || this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null || this.rowElements.some((tr) => tr.hidden)) && !this.loading) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
