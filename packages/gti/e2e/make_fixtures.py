@@ -8,15 +8,16 @@ root).
 from __future__ import annotations
 
 import json
+import warnings
 from pathlib import Path
 
 import pandas as pd
 import polars as pl
 
 from great_tables import GT, GTI, exibble, loc, md, style
-from great_tables._gti import render_gti_html
+from great_tables._gti import _render, render_gti_html
 from great_tables._gti._query import query_code, view_rows
-from great_tables._gti._render import render_parts
+from great_tables._gti._render import GTISizeWarning, render_parts
 from great_tables._styles import CellStyleFill, CellStyleText
 
 HERE = Path(__file__).parent
@@ -85,6 +86,19 @@ def pages_html(
         gt = gt.cols_width({"char": "180px"})
     gt = gt.opt_interactive(use_search=True, page_size_default=3, **options)
     return render_gti_html(gt, runtime="none")
+
+
+def hidden_pages_html(table_id: str, **options) -> str:
+    # The table to page, with the rows past its first page hidden in its HTML, as a table of
+    # more than `MAX_ROWS` rows has them.
+    max_rows = _render.MAX_ROWS
+    _render.MAX_ROWS = 0
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", GTISizeWarning)
+            return pages_html(table_id, **options)
+    finally:
+        _render.MAX_ROWS = max_rows
 
 
 def display_html(table_id: str, groups_as_column: bool = False, **options) -> str:
@@ -979,6 +993,19 @@ def main() -> None:
             pages_html("p", pagination_type="jump") + "\n" + runtime_src, head=styles
         ),
         "pages-widths.html": page(pages_html("p", widths=True) + "\n" + runtime_src, head=styles),
+        # The table to page with the rows past its first page hidden in its HTML; and with every
+        # row on one page, as set before it's hydrated.
+        "pages-hidden.html": page(
+            hidden_pages_html("p", use_page_size_select=True, page_size_values=[3, 5])
+            + "\n"
+            + runtime_src,
+            head=styles,
+        ),
+        "pages-hidden-all.html": page(
+            hidden_pages_html("p")
+            + '\n<script>document.querySelector("gt-table").pageSize = null;</script>',
+            head=styles + runtime_src,
+        ),
         # Tables with highlighted rows (with group headings, or groups shown as a column); as they
         # are, compact, and without text wrapping.
         "display.html": page(display_html("d") + "\n" + runtime_src, head=styles),

@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { groupCells, ready, shown, striping, visible } from "./helpers";
+import { dataRows, groupCells, open, ready, shown, striping, visible } from "./helpers";
 
 // exibble, shown as group grp_b (rows 4-7) then grp_a (rows 0-3), each with a summary row, then a
 // grand summary row; 3 rows to a page, so pages hold rows 4-6, then 7, 0 and 1, then 2 and 3.
@@ -126,6 +126,42 @@ test("keeps the column widths the author set, and fixes the others", async ({ pa
     expectClose((await widths(page)).columns, before.columns);
   }
   expect((await cols())[2]).toBe("180px");
+  expect(errors).toEqual([]);
+});
+
+test("pages a table with the rows past its first page hidden in its HTML as any other", async ({ page }) => {
+  await ready(page, "pages.html");
+  const all = await shown(page);
+  const before = await widths(page);
+
+  // (As a table of more than 3,000 rows has them)
+  const errors = await open(page, "pages-hidden.html");
+  await expect(gtTable(page)).toHaveAttribute("data-gti-state", "ready");
+  expect(await visible(page)).toEqual(PAGE_1);
+  expect(await shown(page)).toEqual(all);
+  const now = await widths(page);
+  expectClose(now.columns, before.columns);
+  expect(Math.abs(now.table - before.table)).toBeLessThanOrEqual(2);
+
+  await pageButton(page, "Next").click();
+  expect(await visible(page)).toEqual(PAGE_2);
+  await pageButton(page, "Page 3").click();
+  expect(await visible(page)).toEqual(PAGE_3);
+  await page.locator("gt-table input.gt-i-search").fill("a");
+  await expect(info(page)).toHaveText("1–3 of 4 rows (filtered from 8)");
+  expect(await visible(page)).toEqual(["group:grp_b", 6, "summary:Total", "group:grp_a", 0, 1, "grand:Max"]);
+  await page.locator("th#p-char button.gt-i-sort").click();
+  await expect(pageButton(page, "Page 1")).toHaveAttribute("aria-current", "page");
+  expect(errors).toEqual([]);
+});
+
+test("shows the rows hidden in its HTML when it has every row on one page", async ({ page }) => {
+  // (The page size set to none before the table is hydrated, as a reader's view kept in the URL
+  // can have it)
+  const errors = await ready(page, "pages-hidden-all.html");
+  expect(await visible(page)).toEqual(await shown(page));
+  expect(dataRows(await visible(page))).toHaveLength(8);
+  await expect(page.locator("tbody.gt_table_body > tr[hidden]")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 
