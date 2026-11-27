@@ -19,6 +19,7 @@ import polars as pl
 import pytest
 
 from great_tables import GTI, loc, style
+from great_tables._gti import _render
 from great_tables._gti._kernel import KernelEngine, render_table
 from great_tables._gti._lazy import LazyEngine, collected, lazy_of
 from great_tables._gti._query import query_code, view_rows
@@ -408,7 +409,9 @@ def test_browser_table_of_a_relation_is_collected_in_order(backend):
     assert type(collected(lazy)._tbl_data).__name__ == "Table"
 
 
-def test_large_browser_table_warns_it_was_collected():
+def test_large_browser_table_warns_it_was_collected(monkeypatch: pytest.MonkeyPatch):
+    # (Warned about at fewer rows than a table with its rows past its first page as data is)
+    monkeypatch.setattr(_render, "MAX_DATA_ROWS", 3_000)
     big = pl.LazyFrame({"n": range(4000)})
     with pytest.warns(GTISizeWarning, match="collected from its lazy frame"):
         GTI(big).as_raw_html()
