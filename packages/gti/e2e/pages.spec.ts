@@ -165,6 +165,39 @@ test("shows the rows hidden in its HTML when it has every row on one page", asyn
   expect(errors).toEqual([]);
 });
 
+test("fits the columns of a table of more than 1,000 rows to every row, from the rows that set their widths", async ({ page }) => {
+  const errors = await ready(page, "pages-many.html");
+  const before = await widths(page);
+  expectClose(before.columns, (await naturalWidths(page)).columns, 1);
+
+  // (The longest name, in row 700, and the longest note, in row 1,100)
+  for (const text of ["A much longer name", "by far"]) {
+    await page.locator("gt-table input.gt-i-search").fill(text);
+    await expect(info(page)).toHaveText("1 of 1 row (filtered from 1200)");
+    await expect(page.locator("gt-table tbody > tr:not([hidden])").first()).toContainText(text);
+    expectClose((await widths(page)).columns, before.columns);
+    const cut = await page.locator("gt-table tbody > tr:not([hidden]) > td").evaluateAll((cells) => cells.filter((td) => td.scrollWidth > td.clientWidth + 1).length);
+    expect(cut).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+test("caps the columns of a table of more than 1,000 rows without text wrapping by all their text", async ({ page }) => {
+  const errors = await ready(page, "pages-many-nowrap.html");
+  const before = await widths(page);
+
+  // (The longest name and the longest note are cut, as they're fewer than a tenth of them)
+  for (const [text, column] of [["A much longer name", 0], ["by far", 2]] as const) {
+    await page.locator("gt-table input.gt-i-search").fill(text);
+    await expect(info(page)).toHaveText("1 of 1 row (filtered from 1200)");
+    await expect(page.locator("gt-table tbody > tr:not([hidden])").first()).toContainText(text);
+    expectClose((await widths(page)).columns, before.columns);
+    const cell = page.locator("gt-table tbody > tr:not([hidden]) > td").nth(column);
+    expect(await cell.evaluate((td) => td.scrollWidth > td.clientWidth)).toBe(true);
+  }
+  expect(errors).toEqual([]);
+});
+
 test("pages the rows that match a search, from the first page", async ({ page }) => {
   const errors = await ready(page, "pages.html");
   await pageButton(page, "Page 2").click();
