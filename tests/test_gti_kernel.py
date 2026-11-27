@@ -17,6 +17,7 @@ import pytest
 
 from great_tables import GT, GTI, loc
 from great_tables._gti._kernel import KernelEngine, kernel_reasons
+from great_tables._gti import _render
 from great_tables._gti._query import view_rows
 from great_tables._gti._render import GTIEngineWarning, GTISizeWarning, _build
 
@@ -272,7 +273,9 @@ def test_kernel_outside_a_widget_warns():
         make_gti().i_scale("kernel").as_raw_html()
 
 
-def test_size_warning_suggests_kernel():
+def test_size_warning_suggests_kernel(monkeypatch: pytest.MonkeyPatch):
+    # (Warned about at fewer rows than a table with its rows past its first page as data is)
+    monkeypatch.setattr(_render, "MAX_DATA_ROWS", 3_000)
     big = {"n": list(range(4000))}
     with pytest.warns(GTISizeWarning, match="i_scale"):
         GTI(pl.DataFrame(big)).as_raw_html()
@@ -356,7 +359,9 @@ def test_auto_is_kernel_for_many_rows():
     assert not few._kernel
 
 
-def test_auto_with_row_groups_stays_in_the_browser():
+def test_auto_with_row_groups_stays_in_the_browser(monkeypatch: pytest.MonkeyPatch):
+    # (Warned about at fewer rows than a table with its rows past its first page as data is)
+    monkeypatch.setattr(_render, "MAX_DATA_ROWS", 3_000)
     many = {"n": list(range(4000)), "g": ["a", "b"] * 2000}
     with pytest.warns(GTISizeWarning):
         widget = GTI(pl.DataFrame(many), groupname_col="g").i_as_widget()
