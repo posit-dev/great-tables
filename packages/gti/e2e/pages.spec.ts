@@ -1,5 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
-import { dataRows, groupCells, open, ready, shown, striping, visible } from "./helpers";
+import { join } from "node:path";
+import { dataRows, fixtures, groupCells, open, ready, shown, striping, visible } from "./helpers";
 
 // exibble, shown as group grp_b (rows 4-7) then grp_a (rows 0-3), each with a summary row, then a
 // grand summary row; 3 rows to a page, so pages hold rows 4-6, then 7, 0 and 1, then 2 and 3.
@@ -153,6 +154,70 @@ test("pages a table with the rows past its first page hidden in its HTML as any 
   await page.locator("th#p-char button.gt-i-sort").click();
   await expect(pageButton(page, "Page 1")).toHaveAttribute("aria-current", "page");
   expect(errors).toEqual([]);
+});
+
+/**
+ * Open the page with the rows in a file beside it, served (as a page opened from a file can't fetch
+ * another), with the file held till `release()`, or not found; returning the errors it logs.
+ */
+async function openAsset(page: Page, found = true): Promise<{ errors: string[]; warnings: string[]; release: () => void }> {
+  let release = () => {};
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route("http://gti.test/**", async (route) => {
+    const name = new URL(route.request().url()).pathname.slice(1);
+    if (!name.endsWith(".gti.json")) {
+      await route.fulfill({ path: join(fixtures, name) });
+      return;
+    }
+    await held;
+    await (found ? route.fulfill({ path: join(fixtures, name) }) : route.fulfill({ status: 404, body: "" }));
+  });
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  page.on("pageerror", (err) => errors.push(err.message));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      errors.push(msg.text());
+    } else if (msg.type() === "warning") {
+      warnings.push(msg.text());
+    }
+  });
+  await page.goto("http://gti.test/pages-asset.html");
+  await expect(gtTable(page)).toHaveAttribute("data-gti-state", "ready");
+  return { errors, warnings, release };
+}
+
+test("pages a table with the rows past its first page in a file beside it, once they've come", async ({ page }) => {
+  await ready(page, "pages.html");
+  const all = await shown(page);
+
+  const { errors, release } = await openAsset(page);
+  await expect(gtTable(page)).toHaveAttribute("aria-busy", "true");
+  await expect(info(page)).toHaveText("Loading rows…");
+  expect(await visible(page)).toEqual(PAGE_1);
+  release();
+  await expect(gtTable(page)).not.toHaveAttribute("aria-busy");
+  await expect(info(page)).toHaveText("1–3 of 8 rows");
+  expect(await shown(page)).toEqual(all);
+
+  await pageButton(page, "Next").click();
+  expect(await visible(page)).toEqual(PAGE_2);
+  await page.locator("gt-table input.gt-i-search").fill("a");
+  await expect(info(page)).toHaveText("1–3 of 4 rows (filtered from 8)");
+  expect(await visible(page)).toEqual(["group:grp_b", 6, "summary:Total", "group:grp_a", 0, 1, "grand:Max"]);
+  expect(errors).toEqual([]);
+});
+
+test("has only the first page if the file with the other rows doesn't come", async ({ page }) => {
+  const { errors, warnings, release } = await openAsset(page, false);
+  release();
+  await expect(gtTable(page)).not.toHaveAttribute("aria-busy");
+  await expect(info(page)).toHaveText("1–3 of 3 rows");
+  // (Group grp_b's rows past them left out, so its summary row is shown, after its last)
+  expect(await visible(page)).toEqual(["group:grp_b", 4, 5, 6, "summary:Total", "grand:Max"]);
+  await expect(pager(page).getByRole("button", { name: "Next" })).toHaveAttribute("aria-disabled", "true");
+  expect(warnings.some((text) => text.includes("pages-asset.gti.json are left out"))).toBe(true);
+  expect(errors.filter((text) => !text.includes("404"))).toEqual([]);
 });
 
 test("shows the rows hidden in its HTML when it has every row on one page", async ({ page }) => {
