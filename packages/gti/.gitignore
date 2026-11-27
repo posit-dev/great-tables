@@ -3,4 +3,5 @@ e2e/.fixtures/
 test-results/
 playwright-report/
 bench/.pages/
-bench/results/
+bench/results/*
+!bench/results/baseline.md
