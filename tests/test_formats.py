@@ -1815,6 +1815,9 @@ FMT_CURRENCY_CASES: list[tuple[dict[str, Any], list[str]]] = [
     (dict(currency="LSL"), ["M1,234,567.00", "−M5,432.37"]),
     (dict(currency="CRC"), ["&#8353;1,234,567.00", "−&#8353;5,432.37"]),
     (dict(currency="BGN"), ["&#1083;&#1074;1,234,567.00", "−&#1083;&#1074;5,432.37"]),
+    (dict(currency="BOB"), ["Bs1,234,567.00", "−Bs5,432.37"]),
+    (dict(currency="PKR"), ["Rs1,234,567.00", "−Rs5,432.37"]),
+    (dict(currency="UZS"), ["so&#699;m1,234,567.00", "−so&#699;m5,432.37"]),
     (dict(currency="BYN"), ["Br1,234,567.00", "−Br5,432.37"]),
     (dict(currency="MRU"), ["UM1,234,567.00", "−UM5,432.37"]),
     (dict(currency="STN"), ["Db1,234,567.00", "−Db5,432.37"]),
@@ -1854,6 +1857,7 @@ def test_fmt_currency_force_sign():
         ("JPY", ["¥1,234", "-¥2"]),
         ("BRL", ["R\\$1,234.50", "-R\\$2.00"]),
         ("CHF", ["SFr.1,234.50", "-SFr.2.00"]),
+        ("UZS", ["soʻm1,234.50", "-soʻm2.00"]),
         ("BGN", ["лв1,234.50", "-лв2.00"]),
     ],
 )
