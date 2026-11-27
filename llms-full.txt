@@ -25564,6 +25564,10 @@ a page of that size, as every row shown is laid out again when the rows are sort
 filtered. To turn the warning off, use
 `warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
 
+A table with pagination and more than 3,000 rows has the rows past its first page hidden in its
+HTML, so the page it's on shows sooner. Where the table can't run its script (e.g., in a notebook
+preview on GitHub), you'll see its first page.
+
 ## Styling with `tab_style()`
 
 Styles set with `tab_style()` are part of the table's cells, so they follow the data when you sort

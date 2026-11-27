@@ -352,6 +352,8 @@ A table with thousands of rows is quicker to sort, search and filter with pagina
 
 An interactive table has all of its rows in its HTML, so a very large one can be slow to load, especially on phones. You'll get a warning when a table has more than 3,000 rows or more than 10 MB of HTML, as it's quicker to load with fewer rows (e.g., by filtering the data first) or fewer columns. You'll also get one when a table shows more than 1,000 rows at once, all on one page or on a page of that size, as every row shown is laid out again when the rows are sorted, searched or filtered. To turn the warning off, use `warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
 
+A table with pagination and more than 3,000 rows has the rows past its first page hidden in its HTML, so the page it's on shows sooner. Where the table can't run its script (e.g., in a notebook preview on GitHub), you'll see its first page.
+
 ## Styling with `tab_style()`
 
 Styles set with [tab_style()](../reference/GT.tab_style.md#great_tables.GT.tab_style) are part of the table's cells, so they follow the data when you sort or filter.
