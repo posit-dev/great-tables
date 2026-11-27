@@ -101,6 +101,23 @@ def hidden_pages_html(table_id: str, **options) -> str:
         _render.MAX_ROWS = max_rows
 
 
+def many_pages_html(table_id: str, **options) -> str:
+    # 1,200 rows, 10 to a page, so that the columns are measured by the rows that set their widths
+    # (rows past 1,000): the name in row 700 and the note in row 1,100 longer than the others'.
+    n = 1200
+    name = [f"Name {i}" for i in range(n)]
+    name[700] = "A much longer name than any other"
+    note = ["A note"] * n
+    note[1100] = "A note, longer than all the others, and by far"
+    data = pl.DataFrame({"name": name, "num": [i * 1.5 for i in range(n)], "note": note})
+    gt = GT(data, id=table_id).fmt_number(columns="num", decimals=1)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", GTISizeWarning)
+        return render_gti_html(
+            gt.opt_interactive(use_search=True, page_size_default=10, **options), runtime="none"
+        )
+
+
 def display_html(table_id: str, groups_as_column: bool = False, **options) -> str:
     # The table to sort, on one page, with a filled cell in row 0 and a long value in row 2 (in a
     # narrow column, with the column widths set).
@@ -1005,6 +1022,11 @@ def main() -> None:
             hidden_pages_html("p")
             + '\n<script>document.querySelector("gt-table").pageSize = null;</script>',
             head=styles + runtime_src,
+        ),
+        # A table of 1,200 rows to page, as it is and without text wrapping
+        "pages-many.html": page(many_pages_html("p") + "\n" + runtime_src, head=styles),
+        "pages-many-nowrap.html": page(
+            many_pages_html("p", use_text_wrapping=False) + "\n" + runtime_src, head=styles
         ),
         # Tables with highlighted rows (with group headings, or groups shown as a column); as they
         # are, compact, and without text wrapping.
