@@ -46,6 +46,7 @@ import {
   readQuery,
   typedLabel,
 } from "./query";
+import { RowData } from "./rows";
 import { CellText, fold, searchTerms } from "./search";
 import {
   type DataSource,
@@ -215,13 +216,15 @@ interface Block {
   /** The structural `<tr>` after the block, which stays put, or `null` at the end of the body. */
   anchor: HTMLTableRowElement | null;
   group: Group | null;
-  /** The block's data rows, in the order they're in in the body. */
+  /** The block's data rows, in the order they're in in the body (of those built). */
   placed: number[];
+  /** Where the block's rows as data go as they're built (with rows as data). */
+  end?: Comment;
 }
 
 /** The text of each column's cells, by row (see `columnTexts()`). */
 interface ColumnTexts {
-  rows: HTMLTableRowElement[];
+  rows: (HTMLTableRowElement | number)[];
   texts: (string[] | null)[];
 }
 
@@ -1081,7 +1084,15 @@ export class GtTable extends HTMLElement {
 
   private observer: MutationObserver | null = null;
   private tbody: HTMLTableSectionElement | null = null;
+  /** Per data row, its `<tr>`: not one of the rows as data (see `rows.ts`) till it's built. */
   private rowElements: HTMLTableRowElement[] = [];
+  /** The rows as data, if the table has some; whether they're coming (from `data-gti-rows-src`). */
+  private rowData: RowData | null = null;
+  private fetching = false;
+  // Each column's rows missing a value (as `i_inspect()` has them), for the rows built
+  private missing: Set<number>[] | null = null;
+  // Each data row's block (by row), of the blocks as they are (for the rows built)
+  private blockAt: { blocks: Block[]; of: Block[] } | null = null;
   private bodyRows = new WeakMap<HTMLTableRowElement, BodyRow>();
   private blocks: Block[] = [];
   private groups: Group[] = [];
@@ -1840,8 +1851,12 @@ export class GtTable extends HTMLElement {
     this.cancelPin();
   }
 
-  /** The `<tr>` of data row `row` (numbered by position in the data), if it's in the table. */
+  /**
+   * The `<tr>` of data row `row` (numbered by position in the data), if it's in the table (built
+   * now, if it's one of a large table's rows that are built as they're shown).
+   */
   rowElement(row: number): HTMLTableRowElement | null {
+    this.build([row]);
     return this.rowElements[row] ?? null;
   }
 
@@ -2101,10 +2116,13 @@ export class GtTable extends HTMLElement {
     }
     this.joinLink();
     this.local = this.remote ? null : new LocalSource(spec, () => this.cellTexts ?? this.makeCellTexts());
+    // (The rows as data that are elsewhere, which are coming, and shown once they've come)
+    const src = this.rowData?.payload === null ? this.querySelector(":scope > script[data-gti-rows]")?.getAttribute("data-gti-rows-src") : null;
+    this.fetching = src != null;
     // A search or page set before hydration applies now. (A large table of pages comes with the rows
-    // past its first page hidden, which are shown if it has none)
+    // past its first page hidden, or as data, which are shown if it has none)
     this.matchRows();
-    if ((this.remote || this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null || this.rowElements.some((tr) => tr.hidden)) && !this.loading) {
+    if ((this.remote || this.fit() || this.matched !== null || this.size !== null || this.sortKeys.length > 0 || this.hiddenIds.length > 0 || this.reordered() || this.groupColumn !== null || this.rowData !== null || this.rowElements.some((tr) => tr.hidden)) && !this.loading) {
       this.render();
     } else {
       // (Not rendered, so every row is shown, as it was)
@@ -2115,6 +2133,9 @@ export class GtTable extends HTMLElement {
       this.updateProfiles();
       this.updateColors();
       this.updateDimensions();
+    }
+    if (src != null) {
+      this.fetchRows(this.rowData as RowData, src);
     }
     this.saveView();
     if (this.undoable) {
@@ -2393,9 +2414,22 @@ export class GtTable extends HTMLElement {
     const tbody = table.querySelector<HTMLTableSectionElement>(":scope > tbody.gt_table_body");
     const trs =
       tbody === null ? [] : Array.from(tbody.querySelectorAll<HTMLTableRowElement>(":scope > tr"));
-    if (trs.length !== spec.body.length) {
+    // (The rows as data, which the body's HTML leaves out)
+    const script = this.querySelector<HTMLScriptElement>(":scope > script[data-gti-rows]");
+    let data: RowData | null = null;
+    if (script !== null) {
+      let json: unknown;
+      try {
+        json = JSON.parse(script.textContent ?? "");
+      } catch {
+        throw new SpecError("the rows as data aren't JSON");
+      }
+      data = new RowData(json, spec.nrows, spec.columns.length, !script.hasAttribute("data-gti-rows-src"));
+    }
+    const listed = trs.length + (data?.rows.length ?? 0);
+    if (listed !== spec.body.length || (data !== null && spec.body.filter((entry) => typeof entry === "number" && data?.has(entry)).length !== data.rows.length)) {
       throw new SpecError(
-        `the table body has ${trs.length} rows but the spec describes ${spec.body.length}`,
+        `the table body has ${listed} rows but the spec describes ${spec.body.length}`,
       );
     }
 
@@ -2423,11 +2457,24 @@ export class GtTable extends HTMLElement {
     const blocks: Block[] = [];
     // The blocks since the last structural row, which is their anchor
     let open: Block[] = [];
+    // (With rows as data, each block ends where its rows go as they're built: after the last of the
+    // body's rows so far)
+    let last: HTMLTableRowElement | null = null;
+    const close = () => {
+      const block = open[open.length - 1];
+      if (data !== null && tbody !== null && block !== undefined && block.end === undefined) {
+        block.end = tbody.insertBefore(this.ownerDocument.createComment(""), last === null ? tbody.firstChild : last.nextSibling);
+      }
+    };
 
-    trs.forEach((tr, i) => {
-      const entry = spec.body[i] as BodyRow;
-      bodyRows.set(tr, entry);
+    let next = 0;
+    for (const entry of spec.body) {
+      const tr = typeof entry === "number" && data?.has(entry) ? null : (trs[next++] as HTMLTableRowElement);
+      if (tr !== null) {
+        bodyRows.set(tr, entry);
+      }
       if (typeof entry !== "number") {
+        close();
         for (const block of open) {
           block.anchor = tr;
         }
@@ -2436,36 +2483,49 @@ export class GtTable extends HTMLElement {
         if ("group" in entry) {
           const group = groupOf(entry.group);
           if (!("summary" in entry)) {
-            group.headings.push(tr);
+            group.headings.push(tr as HTMLTableRowElement);
           } else if (entry.side === "top") {
-            group.top.push(tr);
+            group.top.push(tr as HTMLTableRowElement);
           } else {
-            group.bottom.push(tr);
+            group.bottom.push(tr as HTMLTableRowElement);
           }
-          group.cell = groupCell(tr) ?? group.cell;
+          group.cell = groupCell(tr as HTMLTableRowElement) ?? group.cell;
         }
-        return;
+        last = tr;
+        continue;
       }
-      rowElements[entry] = tr;
       const group = rowGroups[entry] ?? null;
       // Groups shown as a column have no headings between them, so a block also ends where
       // the group changes
       let block = open[open.length - 1];
       if (block === undefined || block.group !== group) {
+        close();
         block = { rows: [], anchor: null, group, placed: [] };
         blocks.push(block);
         open.push(block);
       }
       block.rows.push(entry);
+      if (tr === null) {
+        continue;
+      }
+      rowElements[entry] = tr;
       block.placed.push(entry);
+      last = tr;
       const cell = groupCell(tr);
       if (cell !== null && group !== null) {
         group.cell = cell;
       }
-    });
+    }
+    close();
+    // (Built like one of the body's rows with a cell for each column)
+    const full = (tr: HTMLTableRowElement) => Array.from(tr.cells).filter((cell) => !cell.matches(".gt_stub_row_group")).length === spec.columns.length;
+    if (data !== null && data.rows.length > 0 && !rowElements.some(full)) {
+      throw new SpecError("the rows as data have no row in the table's body to be built like");
+    }
 
     this.tbody = tbody;
     this.rowElements = rowElements;
+    this.rowData = data;
     this.bodyRows = bodyRows;
     this.blocks = blocks;
     this.groups = Array.from(groups.values());
@@ -3416,9 +3476,9 @@ export class GtTable extends HTMLElement {
     if (!highlight || tbody === null) {
       return;
     }
-    for (const tr of this.rowElements) {
+    this.rowElements.forEach((tr) => {
       tr.classList.add("gt-i-row");
-    }
+    });
     // Nothing hovers on a touch screen, so a tap marks the row instead (until it's tapped again,
     // or another row is)
     tbody.addEventListener("pointerdown", (event) => {
@@ -3965,8 +4025,7 @@ export class GtTable extends HTMLElement {
       const valueName = (rank: number) => {
         let name = known.get(rank);
         if (name === undefined) {
-          const tr = this.rowElements[profile.rowOf[rank] ?? -1];
-          const cell = tr === undefined ? undefined : this.dataCells(tr)[index];
+          const cell = this.cellOf(profile.rowOf[rank] ?? -1, index);
           name = (cell === undefined ? "" : labelText(cell)) || "(empty)";
           known.set(rank, name);
         }
@@ -7145,7 +7204,7 @@ export class GtTable extends HTMLElement {
       ? this.selectionText()
       : this.matched === null
         ? plural(total)
-        : `${plural(total)} (filtered from ${(this.spec as Spec).nrows})`;
+        : `${plural(total)} (filtered from ${(this.spec as Spec).nrows - this.lostCount(null)})`;
   }
 
   private userExport(exporter: Exporter, format: ExportFormat): void {
@@ -7312,14 +7371,32 @@ export class GtTable extends HTMLElement {
       cells: [],
     };
 
+    // (In the body's order; with rows as data, in the view's, those not built made out of the page)
+    const data = this.rowData;
+    const wanted = (row: number) => (selected ? this.selected.has(row) : this.matched === null || this.matched[row] === 1);
+    let order: number[] = [];
+    let made = new Map<number, Element[]>();
+    if (data === null) {
+      for (const tr of Array.from(this.tbody.children) as HTMLTableRowElement[]) {
+        const row = this.bodyRow(tr);
+        if (typeof row === "number") {
+          order.push(row);
+        }
+      }
+    } else {
+      order = this.blocks.flatMap((block) => sortRows(block.rows, this.sortKeys, spec.ranks));
+      if (data.payload !== null) {
+        made = data.parse(order.filter((row) => wanted(row) && this.rowElements[row] === undefined));
+      }
+    }
     // (A cell merged across rows, in a hierarchical stub, is each of its rows')
     const spans: [Element | undefined, number][] = [];
-    for (const tr of Array.from(this.tbody.children) as HTMLTableRowElement[]) {
-      const row = this.bodyRow(tr);
-      if (typeof row !== "number") {
+    for (const row of order) {
+      const tr = this.rowElements[row];
+      const own = tr === undefined ? made.get(row) : this.dataCells(tr);
+      if (own === undefined) {
         continue;
       }
-      const own = this.dataCells(tr);
       let k = 0;
       const all = spec.columns.map((_, c) => {
         const span = spans[c];
@@ -7331,7 +7408,7 @@ export class GtTable extends HTMLElement {
         spans[c] = [cell, ((cell as HTMLTableCellElement | undefined)?.rowSpan ?? 1) - 1];
         return cell;
       });
-      if (selected ? !this.selected.has(row) : this.matched !== null && this.matched[row] !== 1) {
+      if (!wanted(row)) {
         continue;
       }
       const group = this.rowGroups[row];
@@ -7651,15 +7728,15 @@ export class GtTable extends HTMLElement {
     // (A remote table's rows aren't all in it, nor are their ranks; its filters have a missing row, if there's any)
     let missing = this.remote && (filter.spec.missing?.length ?? 0) > 0;
     if (!this.remote) {
-      this.rowElements.forEach((tr, row) => {
+      for (let row = 0; row < (this.spec as Spec).nrows; row++) {
         const key = filter.key(row);
         if (key === MISSING) {
           missing = true;
         } else if (given === undefined && !labels.has(key)) {
-          const cell = this.dataCells(tr)[filter.index];
+          const cell = this.cellOf(row, filter.index);
           labels.set(key, (cell !== undefined && labelText(cell)) || filter.texts?.[row] || String(values[key]));
         }
-      });
+      }
     }
     const entries = values.map((value, key): [number, string] => [key, given?.[key] ?? labels.get(key) ?? String(value)]);
     if (missing) {
@@ -9089,12 +9166,15 @@ export class GtTable extends HTMLElement {
   // Which rows are shown: "21–30 of 118 rows" (or "118 rows", without pages), and of how many
   // without the search
   private rowsText(): string {
+    if (this.fetching) {
+      return "Loading rows…";
+    }
     const { start, end, total } = this.view;
     const rows =
       total === 0 || this.size === null
         ? plural(total)
         : `${end - start > 1 ? `${start + 1}–` : ""}${end} of ${plural(total)}`;
-    return this.matched === null ? rows : `${rows} (filtered from ${(this.spec as Spec).nrows})`;
+    return this.matched === null ? rows : `${rows} (filtered from ${(this.spec as Spec).nrows - this.lostCount(null)})`;
   }
 
   // The page sizes the reader can choose from, with the size shown: the author's (with
@@ -9522,38 +9602,128 @@ export class GtTable extends HTMLElement {
 
   /**
    * Put the rows of a remote table's page that it doesn't have yet in the body (hidden, till
-   * they're placed), from their HTML: each as the table's own rows were made on hydration, after
-   * the body's first data row (their cells laid out, pinned and hidden as its are).
+   * they're placed), from their HTML, as `makeRows()` makes them.
    */
   private addRows(answer: PageAnswer): void {
     const tbody = this.tbody;
-    const model = this.rowElements.find((tr) => tr !== undefined);
-    if (tbody === null || model === undefined || answer.html === "" || answer.rows.every((row) => this.rowElements[row] !== undefined)) {
+    if (tbody === null || answer.html === "" || answer.rows.every((row) => this.rowElements[row] !== undefined)) {
       return;
+    }
+    const trs = this.makeRows(answer.rows, answer.html);
+    if (trs === null) {
+      return;
+    }
+    const fragment = this.ownerDocument.createDocumentFragment();
+    for (const tr of trs) {
+      fragment.append(tr);
+    }
+    tbody.insertBefore(fragment, this.empty?.parentNode === tbody ? this.empty : null);
+    // (Made again, with theirs)
+    this.cellTexts = null;
+    this.syncExpanders();
+  }
+
+  /**
+   * Build the rows as data of `rows` that aren't built yet (and have come), each in its block, at
+   * its end (hidden, till they're placed), as `makeRows()` makes them.
+   */
+  private build(rows: number[]): void {
+    const data = this.rowData;
+    if (data?.payload == null) {
+      return;
+    }
+    const wanted = rows.filter((row) => this.rowElements[row] === undefined && data.has(row));
+    if (wanted.length === 0) {
+      return;
+    }
+    const trs = this.makeRows(wanted, data.html(wanted));
+    if (trs === null) {
+      return;
+    }
+    const texts = this.cellTexts;
+    const doc = this.ownerDocument;
+    if (this.blockAt?.blocks !== this.blocks) {
+      const of: Block[] = [];
+      for (const block of this.blocks) {
+        for (const row of block.rows) {
+          of[row] = block;
+        }
+      }
+      this.blockAt = { blocks: this.blocks, of };
+    }
+    const byBlock = new Map<Block, number[]>();
+    for (const row of wanted) {
+      const block = this.blockAt.of[row] as Block;
+      const mine = byBlock.get(block);
+      if (mine === undefined) {
+        byBlock.set(block, [row]);
+      } else {
+        mine.push(row);
+      }
+    }
+    for (const [block, mine] of byBlock) {
+      const fragment = doc.createDocumentFragment();
+      for (const row of mine) {
+        const tr = this.rowElements[row] as HTMLTableRowElement;
+        fragment.append(tr);
+        // (Their text as the search has it, which it highlights, of their own cells now)
+        if (texts !== null) {
+          texts[row] = this.dataCells(tr).map((cell) => new CellText(cell));
+        }
+      }
+      (this.tbody as HTMLTableSectionElement).insertBefore(fragment, block.end ?? null);
+      block.placed = block.placed.concat(mine);
+    }
+    this.syncExpanders();
+  }
+
+  /**
+   * Make data rows from their HTML (`rows`, by index in the data, a `<tr>` each in `html`): each as
+   * the table's own rows were made on hydration, like its first data row with a cell for each
+   * column (their cells laid out, pinned and hidden as its are, and tinted if they're missing a
+   * value). `null` if their HTML has other rows.
+   */
+  private makeRows(rows: number[], html: string): HTMLTableRowElement[] | null {
+    const spec = this.spec as Spec;
+    const columns = spec.columns.length;
+    const model = this.rowElements.find((tr) => tr !== undefined && this.dataCells(tr).length === columns);
+    if (model === undefined) {
+      return null;
     }
     const doc = this.ownerDocument;
     // (Parsed in a body of its own, as rows: with no tags written out here, as a host that reads
     // the runtime inlined in its page as HTML, as Quarto's pandoc does, takes them for its own)
     const body = doc.createElement("tbody");
-    body.innerHTML = answer.html;
+    body.innerHTML = html;
     const trs = Array.from(body.children).filter((el): el is HTMLTableRowElement => el.tagName === "TR");
-    if (trs.length !== answer.rows.length) {
-      console.warn(`<gt-table>: the page has ${answer.rows.length} rows but its HTML has ${trs.length}; they're left out.`);
-      return;
+    if (trs.length !== rows.length) {
+      console.warn(`<gt-table>: the page has ${rows.length} rows but its HTML has ${trs.length}; they're left out.`);
+      return null;
     }
     const modelLead = model.querySelector<HTMLTableCellElement>(":scope > .gt-i-select");
     const modelCells = [...(modelLead === null ? [] : [modelLead]), ...this.dataCells(model)];
     const columnCells = new Map(this.columnCells.filter((p) => p.cell.parentElement === model).map((p) => [p.cell, p]));
     const runCells = this.runCells.filter(({ cells }) => cells[0]?.parentElement === model);
     const roles = this.table?.hasAttribute("role") === true;
-    const added: HTMLTableRowElement[] = [];
+    const missing = (this.missing ??= spec.columns.map((column) => new Set(column.missing ?? [])));
+    const made: HTMLTableRowElement[] = [];
     trs.forEach((tr, i) => {
-      const row = answer.rows[i] as number;
+      const row = rows[i] as number;
       if (this.rowElements[row] !== undefined) {
         return;
       }
       // (Its own cells are in the spec's order, as the model's were before they were moved)
       const cells = Array.from(tr.cells);
+      cells.forEach((cell, k) => {
+        cell.classList.toggle("gt-i-missing", missing[k]?.has(row) === true);
+      });
+      // (Named with their group's heading, as `layGroups()` names them)
+      const heading = this.laidOut === null ? undefined : this.rowGroups[row]?.headings[0]?.firstElementChild?.id;
+      if (heading !== undefined) {
+        for (const td of tr.querySelectorAll(":scope > td[headers]")) {
+          td.setAttribute("headers", `${heading} ${td.getAttribute("headers")}`);
+        }
+      }
       const lead = modelLead === null ? [] : [this.leadCell(tr, row)];
       const mapped = new Map<Element, HTMLTableCellElement>();
       [...lead, ...cells].forEach((cell, k) => {
@@ -9591,14 +9761,52 @@ export class GtTable extends HTMLElement {
       this.rowElements[row] = tr;
       this.bodyRows.set(tr, row);
       setHidden(tr, true);
-      added.push(tr);
+      made.push(tr);
     });
-    const fragment = doc.createDocumentFragment();
-    fragment.append(...added);
-    tbody.insertBefore(fragment, this.empty?.parentNode === tbody ? this.empty : null);
-    // (Made again, with theirs)
-    this.cellTexts = null;
-    this.syncExpanders();
+    return made;
+  }
+
+  // Fetch the rows as data from `src`: till they've come, the rows shown stay, as they do while
+  // the rows asked for are coming, and then the table shows the view with them (or, without them,
+  // the rows it has)
+  private fetchRows(data: RowData, src: string): void {
+    this.fetching = true;
+    this.waiting ??= [];
+    this.setAttribute("aria-busy", "true");
+    if (this.pager?.info != null) {
+      this.pager.info.textContent = this.rowsText();
+    }
+    this.updateInfo();
+    fetch(new URL(src, this.ownerDocument.baseURI))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((json: unknown) => {
+        if (this.rowData === data) {
+          data.take(json);
+        }
+      })
+      .catch((err: unknown) => {
+        console.warn(`<gt-table>: the rows from ${src} are left out (${err instanceof Error ? err.message : String(err)}).`);
+      })
+      .finally(() => {
+        if (this.rowData !== data) {
+          return;
+        }
+        this.fetching = false;
+        // (Made again, with theirs, and the columns measured with them)
+        this.cellTexts = null;
+        for (const control of this.filters) {
+          control.names = null;
+        }
+        if (this.colgroup !== null) {
+          this.remeasure();
+        }
+        this.matchRows();
+      });
   }
 
   // Take the rows asked for; once they've come after others were coming, show them, and do what
@@ -9606,10 +9814,11 @@ export class GtTable extends HTMLElement {
   private rowsCame(answer?: RowAnswer): void {
     if (answer !== undefined) {
       this.matched = answer.matched;
-      this.matchCount = answer.count;
+      this.matchCount = answer.count - this.lostCount(answer.matched);
     }
     const waiting = this.waiting;
-    if (waiting === null) {
+    // (Nor, while the rows as data are coming, till they have)
+    if (waiting === null || this.fetching) {
       return;
     }
     this.waiting = null;
@@ -9618,6 +9827,16 @@ export class GtTable extends HTMLElement {
     for (const fn of waiting) {
       fn();
     }
+  }
+
+  // How many of the rows as data that didn't come (see `fetchRows()`) are among `matched`, as
+  // they're left out
+  private lostCount(matched: Uint8Array | null): number {
+    const data = this.rowData;
+    if (data === null || data.payload !== null || this.fetching) {
+      return 0;
+    }
+    return matched === null ? data.rows.length : data.rows.reduce((n, row) => n + (matched[row] ?? 0), 0);
   }
 
   // Do `fn` once the rows asked for have come (at once, if they have)
@@ -9645,6 +9864,13 @@ export class GtTable extends HTMLElement {
     this.rowElements.forEach((tr, row) => {
       texts[row] = this.dataCells(tr).map((cell) => new CellText(cell));
     });
+    // (The rows as data not built, from their values)
+    const data = this.rowData;
+    if (data?.payload != null) {
+      for (const row of data.rows) {
+        texts[row] ??= data.cellTexts(row);
+      }
+    }
     this.cellTexts = texts;
     return texts;
   }
@@ -9671,6 +9897,13 @@ export class GtTable extends HTMLElement {
     // the stub's columns don't move)
     const skip = places.length - cells.length;
     return cells.map((cell, k) => cells[(places[k + skip] ?? k + skip) - skip] ?? cell);
+  }
+
+  // A data row's cell in a column (by its index in the spec), for its contents: its own, or, of a
+  // row as data not built, one like it (see `RowData.cell()`)
+  private cellOf(row: number, index: number): Element | undefined {
+    const tr = this.rowElements[row];
+    return tr === undefined ? this.rowData?.cell(row, index) : this.dataCells(tr)[index];
   }
 
   /** Show the data rows for the current sort, search and page. */
@@ -9741,11 +9974,11 @@ export class GtTable extends HTMLElement {
     }
     // (The cells name their group's heading, as a screen reader reads it with them, as GT's cells
     // do: by its id, first in their `headers`, which are taken out for another grouping)
-    for (const tr of this.rowElements) {
+    this.rowElements.forEach((tr) => {
       for (const td of tr.querySelectorAll(":scope > td[headers]")) {
         td.setAttribute("headers", (td.getAttribute("headers") as string).replace(/^gt-i-group-\d+ /, ""));
       }
-    }
+    });
     this.laidOut = laidOut;
     // (The body is as tall as its headings make it, on a full page, measured again)
     this.padKey = "";
@@ -9757,14 +9990,25 @@ export class GtTable extends HTMLElement {
     // (In the order they're in in the body)
     const placed = this.blocks.flatMap((block) => block.placed);
     const rows = spec.body as number[];
+    // (With rows as data, each block ends where its rows go as they're built)
+    const data = this.rowData;
+    for (const block of this.blocks) {
+      block.end?.remove();
+    }
+    const doc = this.ownerDocument;
+    const end = () => (data === null ? {} : { end: doc.createComment("") });
+    const at = this.empty?.parentNode === tbody ? this.empty : null;
     this.groups = [];
     this.rowGroups.fill(null);
     if (column === null) {
-      this.blocks = rows.length === 0 ? [] : [{ rows: [...rows], anchor: null, group: null, placed }];
+      this.blocks = rows.length === 0 ? [] : [{ rows: [...rows], anchor: null, group: null, placed, ...end() }];
+      const marker = this.blocks[0]?.end;
+      if (marker !== undefined) {
+        tbody.insertBefore(marker, at);
+      }
       this.stuckTop = [];
       return;
     }
-    const doc = this.ownerDocument;
     const ranks = spec.ranks[column] as (number | null)[];
     const index = spec.columns.findIndex((c) => c.id === column);
     const byRank = new Map<number | null, number[]>();
@@ -9779,17 +10023,18 @@ export class GtTable extends HTMLElement {
     }
     const values = [...byRank.keys()].sort((a, b) => (a === null ? 1 : b === null ? -1 : descending ? b - a : a - b));
     const fragment = doc.createDocumentFragment();
+    const built = (row: number) => this.rowElements[row] !== undefined;
     this.blocks = values.map((rank) => {
       const members = byRank.get(rank) as number[];
       const tr = element(doc, "tr", "gt_group_heading_row");
       const th = element(doc, "th", "gt_group_heading", { scope: "colgroup", id: `gt-i-group-${++infoCount}` });
       th.colSpan = this.emptySpan();
       for (const row of members) {
-        for (const td of (this.rowElements[row] as HTMLTableRowElement).querySelectorAll(":scope > td[headers]")) {
+        for (const td of this.rowElements[row]?.querySelectorAll(":scope > td[headers]") ?? []) {
           td.setAttribute("headers", `${th.id} ${td.getAttribute("headers")}`);
         }
       }
-      const cell = this.dataCells(this.rowElements[members[0] as number] as HTMLTableRowElement)[index];
+      const cell = this.cellOf(members[0] as number, index);
       if (rank === null || cell === undefined) {
         th.textContent = "(Missing)";
       } else {
@@ -9812,10 +10057,18 @@ export class GtTable extends HTMLElement {
       this.groups.push(group);
       // (Put in sorted, so that `place()` needn't move them again)
       const sorted = sortRows(members, this.sortKeys, spec.ranks);
-      fragment.append(tr, ...sorted.map((row) => this.rowElements[row] as HTMLTableRowElement));
-      return { rows: members, anchor: null, group, placed: sorted };
+      const shown = data === null ? sorted : sorted.filter(built);
+      fragment.append(tr);
+      for (const row of shown) {
+        fragment.append(this.rowElements[row] as HTMLTableRowElement);
+      }
+      const block: Block = { rows: members, anchor: null, group, placed: shown, ...end() };
+      if (block.end !== undefined) {
+        fragment.append(block.end);
+      }
+      return block;
     });
-    tbody.insertBefore(fragment, this.empty?.parentNode === tbody ? this.empty : null);
+    tbody.insertBefore(fragment, at);
     if (this.scrollsDown) {
       this.stuckTop = this.groups.map((group) => group.headings[0] as HTMLTableRowElement);
       this.fillRows(this.stuckTop);
@@ -9831,6 +10084,7 @@ export class GtTable extends HTMLElement {
     matches: Uint8Array | null,
     size: number | null,
     page: number,
+    build = true,
   ): { shown: HTMLTableRowElement[]; page: number; start: number; total: number } {
     const spec = this.spec as Spec;
     const tbody = this.tbody as HTMLTableSectionElement;
@@ -9839,21 +10093,19 @@ export class GtTable extends HTMLElement {
     }
 
     // Each block is sorted on its own, so rows stay in their group, and group headings and
-    // summary rows stay where they are. Its rows are moved only when its order changes (moving
-    // rows is slow in some browsers, with many of them), and then taken out in one go
+    // summary rows stay where they are. (Not the rows as data that didn't come)
+    const data = this.rowData;
+    const lost = data !== null && data.payload === null && !this.fetching ? data : null;
     const order: number[] = [];
-    for (const block of this.blocks) {
+    const sorts = this.blocks.map((block) => {
       const sorted = sortRows(block.rows, this.sortKeys, spec.ranks);
-      if (sorted.some((row, i) => row !== block.placed[i])) {
-        this.moveRows(tbody, block.placed, sorted);
-        block.placed = sorted;
-      }
       for (const row of sorted) {
-        if (matches === null || matches[row] === 1) {
+        if ((matches === null || matches[row] === 1) && lost?.has(row) !== true) {
           order.push(row);
         }
       }
-    }
+      return sorted;
+    });
 
     this.order = order;
     // (A heading of a group by a column has the number of its rows that match)
@@ -9870,6 +10122,20 @@ export class GtTable extends HTMLElement {
     page = Math.min(page, pageCount(order.length, size));
     const start = size === null ? 0 : (page - 1) * size;
     const end = size === null ? order.length : Math.min(order.length, start + size);
+    // (The rows as data on the page, built now)
+    if (build) {
+      this.build(order.slice(start, end));
+    }
+    // A block's rows are moved only when its order changes (moving rows is slow in some browsers,
+    // with many of them), and then taken out in one go
+    this.blocks.forEach((block, b) => {
+      const sorted = sorts[b] as number[];
+      const want = data === null ? sorted : sorted.filter((row) => this.rowElements[row] !== undefined);
+      if (want.some((row, i) => row !== block.placed[i])) {
+        this.moveRows(tbody, block.placed, want);
+        block.placed = want;
+      }
+    });
 
     // A group's rows are together, so it starts on the page unless the row before the page is in
     // it, and ends on it unless the row after is
@@ -9879,7 +10145,11 @@ export class GtTable extends HTMLElement {
     const spans = new Map<Group, Span>();
     for (let i = start; i < end; i++) {
       const row = order[i] as number;
-      const tr = this.rowElements[row] as HTMLTableRowElement;
+      const tr = this.rowElements[row];
+      // (Not a row as data not built, as the widths are measured)
+      if (tr === undefined) {
+        continue;
+      }
       onPage[row] = 1;
       shown.push(tr);
       const group = groupAt(i);
@@ -10143,20 +10413,27 @@ export class GtTable extends HTMLElement {
     this.empty?.remove();
     this.removeFillers();
     const rows = this.rowElements;
+    const nrows = (this.spec as Spec).nrows;
     // (Not a remote table's, which has only its page)
-    const shown = !this.remote && rows.length > MEASURE_ALL ? new Set(rows.filter((tr) => !tr.hidden)) : null;
+    const shown = !this.remote && nrows > MEASURE_ALL ? new Set(rows.filter((tr) => !tr.hidden)) : null;
+    // (Every row as data too, of a table measured with every row)
+    if (shown === null && this.rowData !== null) {
+      this.build(this.rowData.rows);
+    }
     // (Without the rows under rows open, which span the columns: they're shown again by `render()`)
     this.measuring = true;
-    this.place(null, null, 1);
+    this.place(null, null, 1, false);
     this.measuring = false;
     const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr:not(.gt-i-details)"));
     const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
     const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
     let texts: ColumnTexts | undefined;
-    if (shown !== null && shown.size < rows.length) {
+    if (shown !== null && shown.size < nrows) {
       // Laying out thousands of rows is slow: the rows shown are measured, and of the others, those
-      // with the longest text in each column, which are about as wide as its widest
+      // with the longest text in each column, which are about as wide as its widest (built, if
+      // they're rows as data)
       texts = this.columnTexts(columns);
+      const wide: (HTMLTableRowElement | number)[] = [];
       for (const column of texts.texts) {
         let top: number[] = [];
         column?.forEach((text, j) => {
@@ -10165,12 +10442,19 @@ export class GtTable extends HTMLElement {
           }
         });
         for (const j of top) {
-          shown.add(texts.rows[j] as HTMLTableRowElement);
+          wide.push(texts.rows[j] as HTMLTableRowElement | number);
         }
       }
-      for (const tr of rows) {
-        setHidden(tr, !shown.has(tr));
+      this.build(wide.filter((row) => typeof row === "number"));
+      for (const row of wide) {
+        const tr = typeof row === "number" ? rows[row] : row;
+        if (tr !== undefined) {
+          shown.add(tr);
+        }
       }
+      rows.forEach((tr) => {
+        setHidden(tr, !shown.has(tr));
+      });
     }
     // (With the borders of the rows hidden as the table was set up drawn, as the others' are)
     if (this.undrawn || texts !== undefined) {
@@ -10191,23 +10475,51 @@ export class GtTable extends HTMLElement {
   }
 
   // The text of each column's cells, in the rows with a cell in every column (as `measureWidths()`
-  // measures), or `null` for a column with a cell that isn't text alone
+  // measures), or `null` for a column with a cell that isn't text alone: in the body's rows, then
+  // in the rows as data not built (by index in the data), if they're as many cells
   private columnTexts(columns: number): ColumnTexts {
-    const rows = Array.from(
+    const spec = this.spec as Spec;
+    const trs = Array.from(
       (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr:not(.gt-i-details)"),
     ).filter((tr) => tr.cells.length === columns && Array.from(tr.cells).every((cell) => cell.colSpan === 1));
+    const data = this.rowData;
+    const model = trs[0];
+    let unbuilt: number[] = [];
+    // (Each column's in the spec, or -1 for the lead column's)
+    let places: number[] = [];
+    if (data?.payload != null && model !== undefined && spec.columns.length + Number(model.querySelector(":scope > .gt-i-select") !== null) === columns) {
+      const own = this.dataCells(model);
+      places = Array.from(model.cells, (cell) => own.indexOf(cell));
+      unbuilt = data.rows.filter((row) => this.rowElements[row] === undefined);
+    }
+    const textOf = (cell: Element) => (cell.firstElementChild !== null && cell.querySelector(NOT_TEXT) !== null ? null : (cell.textContent ?? "").replace(/\s+/g, " ").trim());
     const texts = Array.from({ length: columns }, (_, i) => {
       const texts: string[] = [];
-      for (const tr of rows) {
-        const cell = tr.cells[i] as HTMLTableCellElement;
-        if (cell.firstElementChild !== null && cell.querySelector(NOT_TEXT) !== null) {
+      for (const tr of trs) {
+        const text = textOf(tr.cells[i] as HTMLTableCellElement);
+        if (text === null) {
           return null;
         }
-        texts.push((cell.textContent ?? "").replace(/\s+/g, " ").trim());
+        texts.push(text);
+      }
+      const k = places[i] as number;
+      if (unbuilt.length > 0 && k < 0) {
+        const numbers = spec.display.row_numbers === true;
+        for (const row of unbuilt) {
+          texts.push(numbers ? String(row + (spec.display.row_start ?? 1)) : "");
+        }
+      } else if (unbuilt.length > 0) {
+        const values = (data as RowData).column(k).map(textOf);
+        if (values.includes(null)) {
+          return null;
+        }
+        for (const row of unbuilt) {
+          texts.push(values[(data as RowData).value(row, k)] as string);
+        }
       }
       return texts;
     });
-    return { rows, texts };
+    return { rows: [...trs, ...unbuilt], texts };
   }
 
   private setWidths(widths: Widths): void {
@@ -10278,7 +10590,7 @@ export class GtTable extends HTMLElement {
     }
     const { rows, texts: all } = widths.texts ?? this.columnTexts(columns);
     const first = rows[0];
-    if (first === undefined) {
+    if (typeof first !== "object") {
       return null;
     }
     const labels = ownLabels(this.table as HTMLTableElement);
@@ -10379,12 +10691,10 @@ export class GtTable extends HTMLElement {
 
   // The columns the row saying that nothing matches spans: those shown
   private emptySpan(): number {
-    const width = Math.max(
-      1,
-      ...this.rowElements.map((tr) =>
-        Array.from(tr.children).reduce((sum, cell) => sum + Number(cell.getAttribute("colspan") ?? 1), 0),
-      ),
-    );
+    let width = 1;
+    this.rowElements.forEach((tr) => {
+      width = Math.max(width, Array.from(tr.children).reduce((sum, cell) => sum + Number(cell.getAttribute("colspan") ?? 1), 0));
+    });
     return Math.max(1, width - this.hiddenGrid.size);
   }
 
@@ -10935,6 +11245,10 @@ export class GtTable extends HTMLElement {
     this.spec = null;
     this.tbody = null;
     this.rowElements = [];
+    this.rowData = null;
+    this.fetching = false;
+    this.missing = null;
+    this.blockAt = null;
     this.bodyRows = new WeakMap();
     this.blocks = [];
     this.groups = [];
