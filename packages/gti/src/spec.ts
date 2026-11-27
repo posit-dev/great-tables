@@ -254,7 +254,8 @@ export interface ProfileSpec {
   plot: ProfilePlot;
   /**
    * A histogram's distinct values, in the order of the column's ranks (numbers, or dates and times
-   * as ISO 8601 text); `null` for "top".
+   * as ISO 8601 text); `null` for "top". (A spec can leave a histogram's as `null` when its
+   * column's filter has the same values, which it takes.)
    */
   values: FilterValue[] | null;
 }
@@ -659,6 +660,10 @@ export function parseSpec(text: string): Spec {
         typeof column === "string" && Object.prototype.hasOwnProperty.call(allRanks, column)
           ? allRanks[column]
           : undefined;
+      // (A histogram without values takes its column's filter's)
+      if (isObject(profile) && profile.plot === "histogram" && profile.values == null) {
+        profile.values = (filters as Record<string, unknown>[] | undefined)?.find((filter) => filter.column === column)?.values;
+      }
       const values = isObject(profile) ? profile.values : undefined;
       if (
         !isObject(profile) ||
