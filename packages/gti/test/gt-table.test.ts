@@ -10754,3 +10754,209 @@ describe("a table in a Panel app", () => {
     expect(table.search).toBe("");
   });
 });
+
+describe("rows as data", () => {
+  // The table's `<tr>`s for some data rows left out, and those rows as data (see `RowsPayload`),
+  // with each value by row; or, with `src`, the rows alone, the rest being there
+  function withRowsAsData(rows: number[], spec: ReturnType<typeof gtTable>["spec"], html: string, src?: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    const rowOf = (tr: Element) => Number(/^row_(\d+)$/.exec(tr.firstElementChild?.textContent ?? "")?.[1] ?? 0) - 1;
+    const trs = Array.from(template.content.querySelectorAll("tbody > tr")).filter((tr) => rows.includes(rowOf(tr)));
+    const runs: number[] = [];
+    for (const row of trs.map(rowOf)) {
+      const n = runs.length;
+      if (n > 0 && (runs[n - 2] as number) + (runs[n - 1] as number) === row) {
+        runs[n - 1] = (runs[n - 1] as number) + 1;
+      } else {
+        runs.push(row, 1);
+      }
+    }
+    const tag = (el: Element) => el.outerHTML.slice(0, el.outerHTML.length - el.innerHTML.length - `</${el.localName}>`.length);
+    const payload = {
+      rows: runs,
+      tr: { v: trs.map(tag) },
+      key: null,
+      cells: spec.columns.map((_, k) => ({
+        tag: { v: trs.map((tr) => tag(tr.children[k] as Element)) },
+        html: { v: trs.map((tr) => (tr.children[k] as Element).innerHTML) },
+      })),
+    };
+    for (const tr of trs) {
+      tr.remove();
+    }
+    const script =
+      `<script type="application/json" data-gti-rows${src === undefined ? "" : ` data-gti-rows-src="${src}"`}>` +
+      `${JSON.stringify(src === undefined ? payload : { rows: runs })}</script>`;
+    return { html: `<gt-table>${template.innerHTML}${specScript(spec)}${script}</gt-table>`, payload, spec };
+  }
+
+  // GROUPED in pages of 2 rows ([3, 0], [4, 1] and [2]), with a search and export
+  const OPTIONS: TableOptions = {
+    controls: { search: true, bar: true },
+    pagination: { enabled: true },
+    export: { formats: ["csv"] },
+  };
+  const { spec: SPEC, html: HTML } = gtTable(GROUPED, OPTIONS);
+  const TABLE = [SPEC, HTML] as const;
+  const lines = (csv: string) => csv.split("\r\n").slice(0, -1);
+  // The data rows in the body (as built)
+  const built = (el: GtTable) => shown(el).filter((entry) => typeof entry === "number");
+
+  it("shows, finds, sorts and exports the rows as the table with all of them would", async () => {
+    const steps: ((el: GtTable) => void)[] = [
+      () => {},
+      (el) => (el.page = 2),
+      (el) => (el.page = 3),
+      (el) => (el.search = "a"),
+      (el) => (el.search = "row_3"),
+      (el) => (el.search = ""),
+      (el) => click(el, "y"),
+      (el) => (el.page = 2),
+      (el) => (el.pageSize = 4),
+      (el) => (el.sort = [{ column: "x", descending: true }]),
+    ];
+    const run = async (html: string) => {
+      const el = await mount(html);
+      return steps.map((step) => {
+        step(el);
+        return [el.page, visible(el), lines(el.toCSV()), el.rowElement(2)?.textContent];
+      });
+    };
+    const all = await run(`<gt-table>${HTML}${specScript(SPEC)}</gt-table>`);
+    expect(await run(withRowsAsData([4, 1, 2], ...TABLE).html)).toEqual(all);
+  });
+
+  // A table of `n` rows (more than are measured), in pages of 10, with those past the first as data
+  function manyRows(n: number) {
+    const { spec } = gtTable(GROUPED, OPTIONS);
+    const rows = Array.from({ length: n }, (_, i) => i);
+    const trs = rows.map(
+      (i) =>
+        `<tr><th class="gt_row gt_left gt_stub">row_${i + 1}</th><td class="gt_row gt_right">${i}</td>` +
+        `<td class="gt_row gt_left">${"ab"[i % 2]}</td></tr>`,
+    );
+    const html = gtTable(GROUPED, OPTIONS).html.replace(/<tbody class="gt_table_body">.*<\/tbody>/, `<tbody class="gt_table_body">${trs.join("")}</tbody>`);
+    return withRowsAsData(rows.slice(10), {
+      ...spec,
+      nrows: n,
+      groups: [],
+      body: rows,
+      ranks: { row: rows, x: rows, y: rows.map((i) => i % 2) },
+      pagination: { ...spec.pagination, page_size: 10 },
+    }, html);
+  }
+
+  it("builds the rows only as they're shown, or asked for", async () => {
+    const el = await mount(manyRows(1200).html);
+    expect(el.state).toBe("ready");
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    // (With a few of the widest, to measure the columns)
+    const first = built(el);
+    expect(first.slice(0, 10)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(first.length).toBeLessThan(25);
+
+    el.page = 2;
+    expect(visible(el)).toEqual([10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
+    const tr = el.rowElement(500) as HTMLTableRowElement;
+    expect(tr.isConnected).toBe(true);
+    expect(tr.hidden).toBe(true);
+    expect(el.bodyRow(tr)).toBe(500);
+    // (At the end of the body, till they're shown)
+    expect(built(el).sort((a, b) => a - b)).toEqual([...new Set([...first, ...Array.from({ length: 10 }, (_, i) => i + 10), 500])].sort((a, b) => a - b));
+    // (Built like the table's own rows)
+    const own = el.rowElement(0) as HTMLTableRowElement;
+    const plain = (row: HTMLTableRowElement) => row.outerHTML.replace(' class=""', "");
+    expect(plain(tr)).toBe(plain(own).replace(/row_1</, "row_501<").replace(/>0</, ">500<"));
+
+    // A sort and a search find the rows not built, and build those they show, where they go
+    el.sort = [{ column: "x", descending: true }];
+    el.page = 1;
+    expect(visible(el)).toEqual([1199, 1198, 1197, 1196, 1195, 1194, 1193, 1192, 1191, 1190]);
+    el.search = "row_778";
+    expect(visible(el)).toEqual([777]);
+    expect(el.pageCount).toBe(1);
+    el.search = "";
+    el.sort = [];
+    expect(visible(el)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    // (In the body's order, as they're placed)
+    expect(built(el)).toEqual([...new Set([...first, ...Array.from({ length: 10 }, (_, i) => [i + 10, 1190 + i]).flat(), 500, 777])].sort((a, b) => a - b));
+  });
+
+  it.each([
+    ["rows as data that aren't JSON", (html: string) => html.replace(/(data-gti-rows>)\{/, "$1{,"), /aren't JSON/],
+    ["a row as data twice", (html: string) => html.replace(/"rows":\[4,1,1,2\]/, '"rows":[4,1,4,2]'), /row 4/],
+    ["too few rows as data", (html: string) => html.replace(/"rows":\[4,1,1,2\]/, '"rows":[4,1,1,1]'), /rows as data/],
+    ["rows as data for other columns", (html: string) => html.replace(/"cells":\[\{/, '"cells":[{"tag":{"v":["<td>"]},"html":{"v":[""]}},{'), /aren't the table's/],
+  ])("stays static and warns with %s", async (_, change, message) => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const el = await mount(change(withRowsAsData([4, 1, 2], ...TABLE).html));
+    expect(el.state).toBe("error");
+    expect(el.spec).toBeNull();
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0]?.[0]).toMatch(message);
+  });
+
+  describe("from a file", () => {
+    // (Without the bar, for the pages' own info)
+    const { spec, html: own } = gtTable(GROUPED, { ...OPTIONS, controls: { search: true } });
+    const TABLE = [spec, own] as const;
+    // A fetch that answers once let
+    function catchFetch(answer: () => Promise<unknown>) {
+      const urls: string[] = [];
+      let release = () => {};
+      const ready = new Promise<void>((resolve) => (release = resolve));
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async (url: URL) => {
+          urls.push(url.href);
+          await ready;
+          return answer();
+        }),
+      );
+      return { urls, release };
+    }
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("shows the rows once they've come, saying they're coming", async () => {
+      const { html, payload } = withRowsAsData([4, 1, 2], ...TABLE, "rows/t.gti.json");
+      const { urls, release } = catchFetch(async () => ({ ok: true, json: async () => payload }));
+      const el = await mount(html);
+      expect(urls).toEqual([new URL("rows/t.gti.json", document.baseURI).href]);
+      expect(el.getAttribute("aria-busy")).toBe("true");
+      expect(el.querySelector(".gt-i-page-info")?.textContent).toMatch(/Loading rows…/);
+      // (A page asked for is shown once they've come)
+      el.page = 2;
+      expect(visible(el)).toEqual(["group:b", 3, 0, "grand:Max"]);
+
+      release();
+      await tick();
+      await tick();
+      expect(el.hasAttribute("aria-busy")).toBe(false);
+      expect(el.page).toBe(2);
+      expect(visible(el)).toEqual(["group:b", 4, "summary:Total", "group:a", 1, "grand:Max"]);
+      el.search = "c";
+      expect(visible(el)).toEqual(["group:a", 2, "grand:Max"]);
+      expect(lines(el.toCSV())).toEqual([",row,x,y", "a,row_3,10,c"]);
+    });
+
+    it("leaves the rows out, and warns, if they don't come", async () => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const { html } = withRowsAsData([4, 1, 2], ...TABLE, "rows/t.gti.json");
+      const { release } = catchFetch(async () => ({ ok: false, status: 404, statusText: "Not Found" }));
+      const el = await mount(html);
+      release();
+      await tick();
+      await tick();
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/rows\/t\.gti\.json are left out \(404 Not Found\)/));
+      expect(el.state).toBe("ready");
+      expect(el.hasAttribute("aria-busy")).toBe(false);
+      expect(el.pageCount).toBe(1);
+      expect(visible(el)).toEqual(["group:b", 3, 0, "summary:Total", "grand:Max"]);
+      expect(lines(el.toCSV())).toEqual([",row,x,y", "b,row_4,,a", "b,row_1,20,b"]);
+    });
+  });
+});
