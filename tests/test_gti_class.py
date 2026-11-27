@@ -1391,6 +1391,18 @@ def test_i_cols_profile_histograms_dates():
     ]
 
 
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_i_cols_profile_histogram_takes_its_filters_values(frame):
+    df = frame({"num": [3.5, 1.0, None, 2.0], "d": [dt.date(2024, 5, 1), None, None, None]})
+    gti = GTI(df).i_cols_filter(columns="num").i_cols_profile(["num", "d"], plot="histogram")
+    # (Not again: the runtime takes the filter's; nor do they go without a filter)
+    assert filters_of(gti)[0]["values"] == [1.0, 2.0, 3.5]
+    assert profiles_of(gti) == [
+        {"column": "num", "plot": "histogram", "values": None},
+        {"column": "d", "plot": "histogram", "values": ["2024-05-01"]},
+    ]
+
+
 def test_i_cols_profile_plots():
     gti = (
         GTI(FILTER_DF, rowname_col="id")
