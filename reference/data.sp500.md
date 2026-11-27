@@ -17,7 +17,7 @@ This is a dataset with 16,607 rows and 7 columns.
 
 ## Preview
 
-Here are the first 10,000 of its 16,607 rows (from 1976 to 2015), as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. It's a large table (10,000 rows of 7 columns), so it can take a few seconds to load, and longer on a phone.
+Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
 | date       | open      | high      | low       | close     | volume       | adj_close |
 |------------|-----------|-----------|-----------|-----------|--------------|-----------|

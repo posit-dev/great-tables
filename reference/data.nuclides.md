@@ -27,7 +27,7 @@ This is a dataset with 3,383 rows and 29 columns.
 
 ## Preview
 
-Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. It's a large table (3,383 rows of 29 columns), so it can take a few seconds to load, and longer on a phone.
+Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
 | nuclide | z | n | element | radius | radius_uncert | abundance | abundance_uncert | is_stable | half_life | half_life_uncert | isospin | decay_1 | decay_1_pct | decay_1_pct_uncert | decay_2 | decay_2_pct | decay_2_pct_uncert | decay_3 | decay_3_pct | decay_3_pct_uncert | magnetic_dipole | magnetic_dipole_uncert | electric_quadrupole | electric_quadrupole_uncert | atomic_mass | atomic_mass_uncert | mass_excess | mass_excess_uncert |
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|

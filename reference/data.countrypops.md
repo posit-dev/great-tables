@@ -17,7 +17,7 @@ This is a dataset with 13,545 rows and 5 columns.
 
 ## Preview
 
-Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column. It's a large table (13,545 rows of 5 columns), so it can take a few seconds to load, and longer on a phone.
+Here is the dataset as an interactive table. Each column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered by any column.
 
 | country_name | country_code_2 | country_code_3 | year | population |
 |--------------|----------------|----------------|------|------------|
