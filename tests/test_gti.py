@@ -5,6 +5,7 @@ import json
 import math
 import re
 import warnings
+from pathlib import Path
 from typing import Literal
 
 import pandas as pd
@@ -16,6 +17,7 @@ from great_tables import GT, GTI, exibble, loc, style
 from great_tables._gti import SPEC_VERSION, build_spec, render_gti_html, spec_to_script_json
 from great_tables._gti import _render
 from great_tables._gti._render import (
+    KEY,
     MAX_ROWS,
     MAX_SHOWN,
     GTISizeWarning,
@@ -997,10 +999,69 @@ def test_size_warning_not_for_static_tables():
 # rows past the first page ----
 
 
+def unpack_rows(payload: dict) -> dict[int, str]:
+    """Each row of a payload's HTML, by its index in the data, as the runtime builds it (without
+    the space between cells)."""
+
+    def at(column: dict, i: int) -> str:
+        values = column["v"]
+        return values[column["i"][i] if "i" in column else 0 if len(values) == 1 else i]
+
+    runs = payload["rows"]
+    data = [
+        row for first, count in zip(runs[::2], runs[1::2]) for row in range(first, first + count)
+    ]
+    key = payload["key"]
+    html: dict[int, str] = {}
+    for i, row in enumerate(data):
+        if key is None:
+            name = ""
+        elif "prefix" in key:
+            name = f"{key['prefix']}{row + key['offset']}"
+        else:
+            name = at(key, i)
+        cells = []
+        for cell in payload["cells"]:
+            tag = at(cell["tag"], i).replace(KEY, name)
+            cells.append(f"{tag}{at(cell['html'], i)}</{tag[1:3]}>")
+        html[row] = at(payload["tr"], i) + "".join(cells) + "</tr>"
+    return html
+
+
+def payload_of(html: str) -> dict | None:
+    """The rows left out of a table's HTML, as data, if it has any."""
+    found = re.search(r'<script type="application/json" data-gti-rows>(.*?)</script>', html)
+    return None if found is None else json.loads(found.group(1))
+
+
+def body_rows(gt: GT) -> list[tuple[str, str]]:
+    """Each of the table body's rows, as the spec lists them, in the static HTML: whether it's
+    shown, `hidden` or left out as data, and its HTML (as the runtime builds it, if it's data)."""
+    html = render_gti_html(gt, runtime="none")
+    spec, trs = split_gti_html(html)
+    payload = payload_of(html)
+    data = {} if payload is None else unpack_rows(payload)
+    left = iter(trs)
+    rows = []
+    for entry in spec["body"]:
+        if isinstance(entry, int) and entry in data:
+            rows.append(("data", data[entry]))
+        else:
+            tr = next(left)
+            rows.append(("hidden" if tr.startswith("<tr hidden") else "shown", tr))
+    assert next(left, None) is None
+    assert len(data) == sum(state == "data" for state, _ in rows)
+    return rows
+
+
 def hidden_rows(gt: GT) -> list[bool]:
-    """Whether each of the table body's <tr>s is hidden in the static HTML."""
-    _, trs = split_gti_html(render_gti_html(gt, runtime="none"))
-    return [tr.startswith("<tr hidden") for tr in trs]
+    """Whether each of the table body's rows is past its first page in the static HTML (`hidden`,
+    or left out as data)."""
+    return [state != "shown" for state, _ in body_rows(gt)]
+
+
+def row_states(gt: GT) -> list[str]:
+    return [state for state, _ in body_rows(gt)]
 
 
 def frames(df: pd.DataFrame) -> list[pd.DataFrame | pl.DataFrame]:
@@ -1086,3 +1147,93 @@ def test_rows_past_the_first_page_not_hidden_when_the_runtime_shows_them(
     assert not any(hidden_rows(merged.i_pagination(page_size=2)))
     # One with tables in its cells, whose rows aren't the body's
     assert "<tr hidden" not in render_gti_html(nested, runtime="none")
+
+
+@pytest.mark.parametrize("df", frames(DF))
+def test_rows_past_the_first_page_left_out_as_data(df, monkeypatch: pytest.MonkeyPatch):
+    gti = GTI(df, rowname_col="id").i_pagination(page_size=2)
+    whole = [tr for _, tr in body_rows(gti)]
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+    rows = body_rows(gti)
+
+    assert [state for state, _ in rows] == ["shown"] * 2 + ["data"] * 4
+    # (Each row's HTML, as the runtime builds it from the data, is its own, without the space
+    # between its cells)
+    assert [html for _, html in rows] == [whole[0], whole[1]] + [
+        re.sub(r">\n\s*<", "><", tr) for tr in whole[2:]
+    ]
+    payload = payload_of(render_gti_html(gti, runtime="none"))
+    assert payload is not None
+    assert payload["rows"] == [2, 4]
+    # (The stub's IDs, by the row's index; one `<tr>` tag for every row; each column's own values)
+    assert set(payload["key"]) == {"prefix", "offset"}
+    assert payload["tr"] == {"v": ["<tr>"]}
+    assert payload["cells"][0]["html"] == {"v": ["r2", "r3", "r4", "r5"]}
+    # (Without a stub, rows without IDs)
+    plain = payload_of(render_gti_html(GTI(df).i_pagination(page_size=2), runtime="none"))
+    assert plain is not None and plain["key"] is None
+    assert len(plain["cells"]) == len(spec_of(GTI(df))["columns"])
+
+
+@pytest.mark.parametrize("df", frames(DF))
+def test_rows_past_the_first_page_hidden_if_the_data_cant_have_them(
+    df, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+    paged = GTI(df, rowname_col="id").i_pagination(page_size=2)
+
+    # Rows with details
+    detailed = paged.i_row_details(lambda row: "More" if row["id"] in ("r3", "r5") else None)
+    assert row_states(detailed) == ["shown"] * 2 + ["data", "hidden", "data", "hidden"]
+    # Every row of a table with colors made again from the rows kept, which the runtime changes
+    colored = paged.data_color(columns="y")
+    assert row_states(colored) == ["shown"] * 2 + ["data"] * 4
+    recolored = colored.i_cols_controls(columns="y", data_color="recompute")
+    assert row_states(recolored) == ["shown"] * 2 + ["hidden"] * 4
+    assert payload_of(render_gti_html(recolored, runtime="none")) is None
+    # Rows with a group's label cell, as a column: its first row (b's rows are first)
+    grouped = (
+        GTI(df, rowname_col="id", groupname_col="grp")
+        .tab_options(row_group_as_column=True)
+        .i_pagination(page_size=3)
+    )
+    assert row_states(grouped) == ["shown"] * 3 + ["hidden", "data", "hidden"]
+
+
+@pytest.mark.parametrize("df", frames(DF))
+def test_rows_past_the_first_page_written_beside_the_page(
+    df, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    monkeypatch.setattr(_render, "MAX_ROWS", 2)
+    paged = GTI(df, rowname_col="id").i_pagination(page_size=2)
+    inline = payload_of(render_gti_html(paged, runtime="none"))
+    asset = paged.i_scale(rows="asset")
+
+    asset.write_raw_html(tmp_path / "my table.html", make_page=True)
+    assert sorted(path.name for path in tmp_path.iterdir()) == [
+        "my table.gti.json",
+        "my table.html",
+    ]
+    html = (tmp_path / "my table.html").read_text(encoding="utf-8")
+    # (The element has only which rows they are, and where the rest is, by its URL)
+    found = re.search(r'<script type="application/json" data-gti-rows ([^>]*)>(.*?)</script>', html)
+    assert found is not None
+    assert found.group(1) == 'data-gti-rows-src="my%20table.gti.json"'
+    assert json.loads(found.group(2)) == {"rows": [2, 4]}
+    assert json.loads((tmp_path / "my table.gti.json").read_text(encoding="utf-8")) == inline
+    # (Its rows past the first page left out, as they are inline)
+    assert html.count("<tr") == render_gti_html(paged).count("<tr")
+
+    # Anywhere else, inline
+    assert payload_of(asset.as_raw_html()) == inline
+    # Without rows as data, the page alone
+    small = GTI(df).i_pagination(page_size=10).i_scale(rows="asset")
+    small.write_raw_html(tmp_path / "small.html")
+    assert not (tmp_path / "small.gti.json").exists()
+    assert payload_of((tmp_path / "small.html").read_text(encoding="utf-8")) is None
+    assert "data-gti-rows-src=" not in (tmp_path / "small.html").read_text(encoding="utf-8")
+
+
+def test_i_scale_rows_rejects_other_values():
+    with pytest.raises(ValueError, match='`rows=` must be "inline" or "asset"'):
+        GTI(DF).i_scale(rows="file")  # type: ignore[arg-type]
