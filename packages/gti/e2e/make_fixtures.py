@@ -17,7 +17,7 @@ import polars as pl
 from great_tables import GT, GTI, exibble, loc, md, style
 from great_tables._gti import _render, render_gti_html
 from great_tables._gti._query import query_code, view_rows
-from great_tables._gti._render import GTISizeWarning, render_parts
+from great_tables._gti._render import GTISizeWarning, render_gti_asset, render_parts
 from great_tables._styles import CellStyleFill, CellStyleText
 
 HERE = Path(__file__).parent
@@ -77,15 +77,18 @@ def search_html(table_id: str, groups_as_column: bool = False) -> str:
     return render_gti_html(gt.opt_interactive(use_search=True), runtime="none")
 
 
-def pages_html(
-    table_id: str, groups_as_column: bool = False, widths: bool = False, **options
-) -> str:
+def pages_gt(table_id: str, groups_as_column: bool = False, widths: bool = False, **options) -> GT:
     # The table to sort, searchable, 3 rows to a page, so that groups run across pages.
     gt = sort_gt(table_id, groups_as_column)
     if widths:
         gt = gt.cols_width({"char": "180px"})
-    gt = gt.opt_interactive(use_search=True, page_size_default=3, **options)
-    return render_gti_html(gt, runtime="none")
+    return gt.opt_interactive(use_search=True, page_size_default=3, **options)
+
+
+def pages_html(
+    table_id: str, groups_as_column: bool = False, widths: bool = False, **options
+) -> str:
+    return render_gti_html(pages_gt(table_id, groups_as_column, widths, **options), runtime="none")
 
 
 def hidden_pages_html(table_id: str, **options) -> str:
@@ -99,6 +102,22 @@ def hidden_pages_html(table_id: str, **options) -> str:
             return pages_html(table_id, **options)
     finally:
         _render.MAX_ROWS = max_rows
+
+
+def asset_pages_html(table_id: str, rows_src: str) -> tuple[str, str]:
+    # The table to page, as `hidden_pages_html()` has it, with the rows past its first page as data
+    # in a file of their own, at `rows_src`, and that file's JSON; with the runtime, so that the page
+    # can be served alone.
+    max_rows = _render.MAX_ROWS
+    _render.MAX_ROWS = 0
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", GTISizeWarning)
+            html, rows = render_gti_asset(pages_gt(table_id), rows_src)
+    finally:
+        _render.MAX_ROWS = max_rows
+    assert rows is not None
+    return html, rows
 
 
 def many_pages_html(table_id: str, **options) -> str:
@@ -1545,6 +1564,10 @@ def main() -> None:
             head=styles,
         ),
     }
+    # The table to page with the rows past its first page in a file beside it
+    asset_html, asset_rows = asset_pages_html("p", "pages-asset.gti.json")
+    fixtures["pages-asset.html"] = page(asset_html)
+    (OUT / "pages-asset.gti.json").write_text(asset_rows, encoding="utf-8")
     for name, html in fixtures.items():
         (OUT / name).write_text(html, encoding="utf-8")
     (OUT / "code-cases.json").write_text(json.dumps(code_cases(), indent=1), encoding="utf-8")
