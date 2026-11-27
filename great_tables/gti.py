@@ -23,6 +23,7 @@ from ._gti._settings import (
     PRESETS,
     PROFILE_PLOTS,
     RESPONSIVE_MODES,
+    ROWS_MODES,
     SELECTION_MODES,
     DataColorMode,
     Engine,
@@ -32,6 +33,7 @@ from ._gti._settings import (
     Preset,
     ProfilePlot,
     ResponsiveMode,
+    RowsMode,
     SelectionMode,
     Settings,
     settings_of,
@@ -2011,10 +2013,10 @@ class GTI(GT):
             raise ValueError(f"`on=` names a column the data doesn't have: {on!r}.")
         return self._set_interactive(link_group=group, link_on=on)
 
-    def i_scale(self, engine: Engine = "auto") -> Self:
+    def i_scale(self, engine: Engine = "auto", rows: RowsMode = "inline") -> Self:
         """
-        Set where the rows of the table, shown as a widget or in a Shiny app, are searched,
-        filtered and sorted.
+        Set where the rows of the table are searched, filtered and sorted (shown as a widget or in
+        a Shiny app), and where a large table's rows are kept (written as a page).
 
         A table shown in the browser has all of its rows there, which does all of this: quick for
         a table of a few thousand rows, but slow to load (and to sort) with many more. Shown as a
@@ -2037,6 +2039,17 @@ class GTI(GT):
         A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its
         rows in the frame, and has only the page shown collected (see [`GTI()`](`great_tables.GTI`)).
 
+        In the browser, a table of pages with more than 3,000 rows has the rows past its first page
+        in its HTML as data, which the browser makes into rows as they're shown. With
+        `rows="asset"`, [`write_raw_html()`](`great_tables.GT.write_raw_html`) writes them to a
+        file of their own beside the page instead (`page.gti.json`, for `page.html`), which the
+        table fetches as it loads: the page is smaller, and quicker to load, and the browser keeps
+        the file for the next visit, but the page needs the file beside it, served with it (a page
+        opened from a file can't fetch it, in most browsers). Shown anywhere else (in a notebook,
+        a Quarto document, or with `as_raw_html()`), the table has its rows in its HTML. Until the
+        file has come, the table shows its first page, and the search, filters and sorting wait for
+        it; if it doesn't come, the table has only its first page.
+
         Parameters
         ----------
         engine
@@ -2045,6 +2058,10 @@ class GTI(GT):
             3,000, or more than 10 MB of HTML), and in the browser otherwise (`"auto"`, the
             default); in the browser (`"browser"`); or in Python, if the table is shown as a widget
             or in a Shiny app (`"kernel"`).
+        rows
+            Where a large table's rows past its first page are, written as a page with
+            `write_raw_html()`: in its HTML (`"inline"`, the default), or in a file beside it
+            (`"asset"`).
 
         Returns
         -------
@@ -2065,10 +2082,22 @@ class GTI(GT):
 
         GTI(df).fmt_number(columns="x").i_cols_filter().i_scale(engine="kernel").i_as_widget()
         ```
+
+        This page of the `sp500` dataset has the rows past its first page in `sp500.gti.json`,
+        beside it.
+
+        ```python
+        from great_tables import GTI
+        from great_tables.data import sp500
+
+        GTI(sp500).i_pagination().i_scale(rows="asset").write_raw_html("sp500.html", make_page=True)
+        ```
         """
         if engine not in ENGINES:
             raise ValueError(f'`engine=` must be "auto", "browser", or "kernel", not {engine!r}.')
-        return self._set_interactive(engine=engine)
+        if rows not in ROWS_MODES:
+            raise ValueError(f'`rows=` must be "inline" or "asset", not {rows!r}.')
+        return self._set_interactive(engine=engine, rows=rows)
 
     def i_as_widget(self) -> GTIWidget:
         """
@@ -2204,7 +2233,22 @@ class GTI(GT):
         str
             An HTML string containing the table.
         """
+        html, _ = self._raw_html(inline_css, make_page, all_important, runtime)
+        return html
+
+    def _raw_html(
+        self,
+        inline_css: bool = False,
+        make_page: bool = False,
+        all_important: bool = False,
+        runtime: Literal["inline", "none"] = "inline",
+        rows_src: str | None = None,
+    ) -> tuple[str, str | None]:
+        """The table's HTML, as `as_raw_html()` has it; or, with `rows_src`, with its rows past
+        the first page (if it has them as data) in a file at that URL, and that file's JSON (or
+        `None`, without any)."""
         from ._gti import page_html, render_gti_html
+        from ._gti._render import render_gti_asset
 
         if inline_css:
             raise ValueError(
@@ -2212,8 +2256,14 @@ class GTI(GT):
                 "needs a <style> block and a script. Use `GT` for a table in an email."
             )
 
-        fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
-        return page_html(fragment, self) if make_page else fragment
+        rows = None
+        if rows_src is None:
+            fragment = render_gti_html(self, runtime=runtime, all_important=all_important)
+        else:
+            fragment, rows = render_gti_asset(
+                self, rows_src, runtime=runtime, all_important=all_important
+            )
+        return (page_html(fragment, self) if make_page else fragment), rows
 
     def save(self, *args: Any, **kwargs: Any) -> NoReturn:
         """Not available for a GTI table, which is interactive HTML only."""
