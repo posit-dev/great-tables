@@ -383,12 +383,10 @@ This is a dataset with 13,545 rows and 5 columns.
 Preview
 -------
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
-and the rows can be sorted, searched, and filtered by any column. It's a large table (13,545 rows of
-5 columns), so it can take a few seconds to load, and longer on a phone.
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false
-#| warning: false
 from great_tables import GTI, data
 
 GTI(data.pl.countrypops, preset="explorer").i_responsive("scroll")
@@ -512,17 +510,14 @@ This is a dataset with 16,607 rows and 7 columns.
 
 Preview
 -------
-Here are the first 10,000 of its 16,607 rows (from 1976 to 2015), as an interactive table. Each
-column has its dtype and a profile of its values, and the rows can be sorted, searched, and filtered
-by any column. It's a large table (10,000 rows of 7 columns), so it can take a few seconds to load,
-and longer on a phone.
+Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false
-#| warning: false
 from great_tables import GTI, data
 
-GTI(data.pl.sp500.head(10000), preset="explorer").i_responsive("scroll")
+GTI(data.pl.sp500, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -630,14 +625,14 @@ or `"veggie"`.
 
 Preview
 -------
-Here are the first 2,000 of its 49,574 rows, as an interactive table. Each column has its dtype and
-a profile of its values, and the rows can be sorted, searched, and filtered by any column.
+Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false
 from great_tables import GTI, data
 
-GTI(data.pl.pizzaplace.head(2000), preset="explorer").i_responsive("scroll")
+GTI(data.pl.pizzaplace, preset="explorer").i_responsive("scroll")
 ```
 
 """
@@ -1219,12 +1214,10 @@ keV.
 Preview
 -------
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
-and the rows can be sorted, searched, and filtered by any column. It's a large table (3,383 rows of
-29 columns), so it can take a few seconds to load, and longer on a phone.
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false
-#| warning: false
 from great_tables import GTI, data
 
 GTI(data.pl.nuclides, preset="explorer").i_responsive("scroll")

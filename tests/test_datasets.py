@@ -170,11 +170,10 @@ def test_unknown_attribute_raises():
 
 @pytest.mark.parametrize("name", _DATASET_NAMES)
 def test_dataset_preview_is_a_whole_gti_table(name: str):
-    # (Each dataset's page shows it as a `GTI` table, in its docstring's preview: every column can
-    # be filtered, and a narrow page scrolls it rather than stacking it. It's the whole dataset, but
-    # for the first rows of `pizzaplace`, as all of it is slow to load, and of `sp500`, as all of it
-    # is too many lines of HTML for Quarto)
+    # (Each dataset's page shows all of it as a `GTI` table, in its docstring's preview: every
+    # column can be filtered, and a narrow page scrolls it rather than stacking it)
     import ast
+    import json
     import re
     import warnings
     from typing import Any
@@ -214,18 +213,14 @@ def test_dataset_preview_is_a_whole_gti_table(name: str):
     columns = {f["column"] for f in build_spec(gti._build_data(context="html"))["filters"]}
     assert columns == set(shown.columns)
 
-    # (The preview says how many of the rows it shows, when it's not all of them, and that a large
-    # table can be slow to load)
-    nrows = len(getattr(data, name))
-    ncells = len(shown) * len(shown.columns)
+    # (The preview says it's the whole dataset, and that a large table can be slow to load: one
+    # with many cells in its HTML, as the rows past the first page of a table of more than
+    # `MAX_ROWS` rows are data, which cost far less)
+    assert len(shown) == len(getattr(data, name))
     prose = " ".join(preview.split())
-    if name in ("pizzaplace", "sp500"):
-        assert len(shown) < nrows
-        assert f"the first {len(shown):,} of its {nrows:,} rows" in prose
-    else:
-        assert len(shown) == nrows
-        assert "the dataset as an interactive table" in prose
-    if name == "pizzaplace":
-        assert ncells <= 16_000
+    assert "the dataset as an interactive table" in prose
+    rows = re.search(r'<script type="application/json" data-gti-rows>(.*?)</script>', html, re.S)
+    data_rows = 0 if rows is None else sum(json.loads(rows.group(1))["rows"][1::2])
+    ncells = (len(shown) - data_rows) * len(shown.columns)
     large = f"It's a large table ({len(shown):,} rows of {len(shown.columns)} columns)"
     assert (large in prose) == (ncells > 16_000)

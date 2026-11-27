@@ -32,6 +32,7 @@ from great_tables._gti._state import (  # noqa: E402
     sort_names,
     view_of,
 )
+from great_tables._gti import _render  # noqa: E402
 from great_tables._gti._render import GTISizeWarning, render_gti_html_spec  # noqa: E402
 from great_tables.shiny import (  # noqa: E402
     _ENGINES,
@@ -385,7 +386,9 @@ def test_auto_keeps_many_rows_on_server(session):
     assert "table" in _ENGINES[session]
 
 
-def test_auto_keeps_few_rows_and_gt_in_browser(session):
+def test_auto_keeps_few_rows_and_gt_in_browser(session, monkeypatch: pytest.MonkeyPatch):
+    # (Warned about at fewer rows than a table with its rows past its first page as data is)
+    monkeypatch.setattr(_render, "MAX_DATA_ROWS", 3_000)
     rendered = render(session, make_gti())
     assert "data-gti-server" not in rendered["html"] and session not in _ENGINES
     many = pd.DataFrame({"n": range(4000)})

@@ -16,6 +16,7 @@ import pytest
 from great_tables import GT, GTI, exibble, loc, style
 from great_tables._gti import SPEC_VERSION, build_spec, render_gti_html, spec_to_script_json
 from great_tables._gti import _render
+from great_tables._gti._render import render_gti_asset
 from great_tables._gti._render import (
     KEY,
     MAX_ROWS,
@@ -900,16 +901,22 @@ def test_render_runtime_invalid():
 # size warnings ----
 
 
-def size_warnings(gt: GT, runtime: Literal["inline", "none"] = "none") -> list[str]:
-    """The size warnings rendering the table raises."""
+def size_warnings(
+    gt: GT, runtime: Literal["inline", "none"] = "none", rows_src: str | None = None
+) -> list[str]:
+    """The size warnings rendering the table raises (with its rows past its first page in a file at
+    `rows_src`, if given)."""
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        render_gti_html(gt, runtime=runtime)
+        if rows_src is None:
+            render_gti_html(gt, runtime=runtime)
+        else:
+            render_gti_asset(gt, rows_src, runtime=runtime)
     return [str(w.message) for w in caught if issubclass(w.category, GTISizeWarning)]
 
 
-def numbers(n: int) -> pl.DataFrame:
-    return pl.DataFrame({"x": range(n)})
+def numbers(n: int, frame: type = pl.DataFrame) -> pl.DataFrame | pd.DataFrame:
+    return frame({"x": range(n)})
 
 
 def test_size_warning_is_a_render_warning():
@@ -917,12 +924,36 @@ def test_size_warning_is_a_render_warning():
 
 
 def test_size_warning_rows():
-    assert size_warnings(GT(numbers(MAX_ROWS)).opt_interactive()) == []
-    [message] = size_warnings(GT(numbers(MAX_ROWS + 1)).opt_interactive())
+    # (A table that collapses its columns on a narrow screen keeps every row in its HTML)
+    assert size_warnings(GTI(numbers(MAX_ROWS)).i_responsive("collapse")) == []
+    [message] = size_warnings(GTI(numbers(MAX_ROWS + 1)).i_responsive("collapse"))
 
     assert "it has 3,001 rows (more than 3,000)." in message
     assert "quicker to load with fewer rows" in message
     assert "on a page" not in message and "one page" not in message
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_size_warning_rows_as_data(frame: type, monkeypatch: pytest.MonkeyPatch):
+    # A table of pages has its rows past its first page as data, which cost far less than rows in
+    # its HTML, so it can have more before it's warned about
+    assert size_warnings(GT(numbers(MAX_ROWS + 1, frame)).opt_interactive()) == []
+    assert size_warnings(GTI(numbers(MAX_ROWS + 1, frame)).i_pagination(page_size=50)) == []
+
+    monkeypatch.setattr(_render, "MAX_DATA_ROWS", MAX_ROWS + 10)
+    assert size_warnings(GT(numbers(MAX_ROWS + 10, frame)).opt_interactive()) == []
+    [message] = size_warnings(GT(numbers(MAX_ROWS + 11, frame)).opt_interactive())
+    assert "it has 3,011 rows (more than 3,010)." in message
+    assert "quicker to load with fewer rows" in message
+
+
+def test_size_warning_rows_as_data_by_the_rows_kept_in_the_html():
+    # (Those with details stay `<tr>`s, so a table with more than `MAX_ROWS` of them is warned
+    # about by those)
+    df = pl.DataFrame({"x": range(MAX_ROWS + 20), "y": ["y"] * (MAX_ROWS + 20)})
+    detailed = GTI(df).i_pagination(page_size=10).i_row_details("y")
+    [message] = size_warnings(detailed)
+    assert "it has 3,020 rows (more than 3,000)." in message
 
 
 def test_size_warning_rows_shown_on_one_page():
@@ -969,6 +1000,21 @@ def test_size_warning_bytes_leave_out_the_runtime(monkeypatch: pytest.MonkeyPatc
     assert size_warnings(gt, runtime="inline") == []
     monkeypatch.setattr(_render, "MAX_BYTES", size - 1)
     assert len(size_warnings(gt, runtime="inline")) == 1
+
+
+def test_size_warning_bytes_count_the_rows_in_a_file_beside_the_page(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    gt = GTI(numbers(MAX_ROWS + 1)).i_pagination(page_size=10)
+    html, asset = render_gti_asset(gt, "rows.gti.json", runtime="none")
+    assert asset is not None
+    size = len(html.encode("utf-8")) + len(asset.encode("utf-8"))
+
+    monkeypatch.setattr(_render, "MAX_BYTES", size)
+    assert size_warnings(gt, rows_src="rows.gti.json") == []
+    monkeypatch.setattr(_render, "MAX_BYTES", size - 1)
+    [message] = size_warnings(gt, rows_src="rows.gti.json")
+    assert "MB of HTML" in message
 
 
 def test_size_warning_combined(monkeypatch: pytest.MonkeyPatch):

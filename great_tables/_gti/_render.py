@@ -39,11 +39,13 @@ STACK_COLUMNS = 6
 STACK_ROOT = "#gt-i-table"
 STACK_WIDTH = "(width < 420px)"
 
-# The most data rows, bytes of HTML (the `<gt-table>` element's), and rows shown at once (on a
-# page, or all of them, on one) a table has before it's warned about, as it may be slow in the
-# browser (see the Phase 1 benchmarks, in packages/gti/bench). A table of pages with more data rows
-# than `MAX_ROWS` has those past its first page left out of its HTML, as data (`off_page_rows()`)
+# The most data rows, bytes of HTML (the `<gt-table>` element's, and its rows' file's), and rows
+# shown at once (on a page, or all of them, on one) a table has before it's warned about, as it may
+# be slow in the browser (see the benchmarks, in packages/gti/bench). A table of pages with more data
+# rows than `MAX_ROWS` has those past its first page left out of its HTML, as data
+# (`off_page_rows()`), which costs far less, so it's warned about with more than `MAX_DATA_ROWS`
 MAX_ROWS = 3_000
+MAX_DATA_ROWS = 100_000
 MAX_BYTES = 10 * 2**20
 MAX_SHOWN = 1_000
 
@@ -170,7 +172,16 @@ def _render_element(
     if warn:
         from ._kernel import kernel_reasons
 
-        _warn_size(gt, spec, html, kernel=not kernel_reasons(built), lazy=lazy, stacklevel=4)
+        _warn_size(
+            gt,
+            spec,
+            html,
+            kernel=not kernel_reasons(built),
+            lazy=lazy,
+            data_rows=0 if payload is None else sum(payload["rows"][1::2]),
+            asset=asset,
+            stacklevel=4,
+        )
     return html, spec, asset
 
 
@@ -429,31 +440,41 @@ def page_html(fragment: str, data: GTData) -> str:
 
 
 def _warn_size(
-    gt: GT, spec: Spec, html: str, kernel: bool = False, lazy: bool = False, stacklevel: int = 3
+    gt: GT,
+    spec: Spec,
+    html: str,
+    kernel: bool = False,
+    lazy: bool = False,
+    data_rows: int = 0,
+    asset: str | None = None,
+    stacklevel: int = 3,
 ) -> None:
-    """Warn if the table may be slow in the browser: with more data rows than `MAX_ROWS` or more
-    bytes of HTML (its `<gt-table>` element's) than `MAX_BYTES`, as it's slow to load, or with
-    more rows shown at once than `MAX_SHOWN`, as each is laid out again when the rows are sorted,
-    searched or filtered. (With `kernel`, a `GTI` table that could keep its rows in Python, as a
-    widget or in a Shiny app, is told so; with `lazy`, that its rows were collected, from its
-    lazy frame.)
+    """Warn if the table may be slow in the browser: with more data rows in its HTML (as `<tr>`s)
+    than `MAX_ROWS`, or more rows in all (with `data_rows` of them as data, as `off_page_rows()`
+    has them) than `MAX_DATA_ROWS`, or more bytes (its `<gt-table>` element's, and its rows' file's,
+    `asset`) than `MAX_BYTES`, as it's slow to load; or with more rows shown at once than
+    `MAX_SHOWN`, as each is laid out again when the rows are sorted, searched or filtered. (With
+    `kernel`, a `GTI` table that could keep its rows in Python, as a widget or in a Shiny app, is
+    told so; with `lazy`, that its rows were collected, from its lazy frame.)
     """
     from ..gti import GTI
 
     nrows, pagination = spec["nrows"], spec["pagination"]
     shown = min(nrows, pagination["page_size"]) if pagination["enabled"] else nrows
-    size = len(html.encode("utf-8"))
+    size = len(html.encode("utf-8")) + (0 if asset is None else len(asset.encode("utf-8")))
 
     reasons: list[str] = []
-    if nrows > MAX_ROWS:
-        reasons.append(f"has {nrows:,} rows (more than {MAX_ROWS:,})")
+    most = MAX_ROWS if nrows - data_rows > MAX_ROWS else MAX_DATA_ROWS
+    many = nrows > most
+    if many:
+        reasons.append(f"has {nrows:,} rows (more than {most:,})")
     if size > MAX_BYTES:
         reasons.append(f"has {size / 2**20:.1f} MB of HTML (more than {MAX_BYTES / 2**20:g} MB)")
     if shown > MAX_SHOWN:
         if pagination["enabled"]:
             shows = f"shows {shown:,} rows on a page"
         else:
-            shows = "shows them all" if nrows > MAX_ROWS else f"shows all {nrows:,} rows"
+            shows = "shows them all" if many else f"shows all {nrows:,} rows"
             shows += " on one page"
         reasons.append(f"{shows} (more than {MAX_SHOWN:,})")
     if not reasons:
@@ -463,7 +484,7 @@ def _warn_size(
     message = (
         f"This interactive table may be slow in the browser, especially on phones: it {reason}."
     )
-    if nrows > MAX_ROWS or size > MAX_BYTES:
+    if many or size > MAX_BYTES:
         if lazy:
             message += " Its rows were all collected from its lazy frame, to be shown here."
         message += (
