@@ -219,6 +219,20 @@ interface Block {
   placed: number[];
 }
 
+/** The text of each column's cells, by row (see `columnTexts()`). */
+interface ColumnTexts {
+  rows: HTMLTableRowElement[];
+  texts: (string[] | null)[];
+}
+
+/** The measured width of each column and of the table (see `measureWidths()`). */
+interface Widths {
+  columns: number[];
+  table: number;
+  /** The cells' text, if it was read to measure them. */
+  texts?: ColumnTexts;
+}
+
 /** A column label's resize handle. */
 interface Resizer {
   handle: HTMLElement;
@@ -904,6 +918,10 @@ const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComp
 // font, and to the text of all but this share of its cells, the longest (see `textCaps()`)
 const CAP_EMS = 20;
 const CAP_CUT = 0.1;
+// A table of more than this many rows has its columns measured by the rows shown and the rows of
+// this many of each column's longest texts (see `measureWidths()`)
+const MEASURE_ALL = 1000;
+const WIDE_ROWS = 5;
 // What a cell shows that isn't text, which its column is as wide as (but the button that opens
 // its row)
 const NOT_TEXT = "img, picture, video, canvas, iframe, object, embed, svg:not(.gt-i-icon), input, select, textarea, meter, progress, button:not(.gt-i-expand)";
@@ -2014,10 +2032,14 @@ export class GtTable extends HTMLElement {
     this.hideable = spec.columns.flatMap((column) =>
       column.role === "data" && column.hideable === true && column.id !== null ? [column.id] : [],
     );
+    // (Both from the cells of every row on the grid, placed once)
+    const rows = Array.from(table.rows);
+    let cells: ReturnType<typeof placeCells> | undefined;
+    const grid = () => (cells ??= placeCells(rows));
     if (this.hideable.length > 0 || this.drops.length > 0) {
-      this.mapColumns(table);
+      this.mapColumns(grid());
     }
-    this.mapRuns(table);
+    this.mapRuns(rows, grid);
     // (Only a body of data rows alone, which can be moved, is grouped by a column)
     if (this.movable && !this.remote && spec.groups.length === 0 && spec.body.every((entry) => typeof entry === "number")) {
       this.groupable = spec.columns.flatMap((column) =>
@@ -2455,9 +2477,9 @@ export class GtTable extends HTMLElement {
   // A table of pages has only its first page shown as it's set up: each step that reads its layout
   // after a change would otherwise have every row laid out again, and, on a page whose cells take
   // their borders from the table (as Bootstrap's do), styled again too, which takes seconds with
-  // thousands of rows. `render()` measures the columns with every row shown, once, and then shows
-  // the page the view has. (Not a table that drops columns, which fits its container with every
-  // row shown)
+  // thousands of rows. `render()` measures the columns with every row shown (or, of thousands, the
+  // rows that set their widths), once, and then shows the page the view has. (Not a table that
+  // drops columns, which fits its container with every row shown)
   private prepage(spec: Spec): void {
     const size = this.pageSizeValue === undefined ? (spec.pagination.enabled ? spec.pagination.page_size : null) : this.pageSizeValue;
     if (!this.movable || this.remote || size === null || this.order.length <= size || responsiveOf(spec) === "collapse") {
@@ -3424,12 +3446,9 @@ export class GtTable extends HTMLElement {
 
   // A hierarchical stub merges cells across rows (`rowspan`), which reordering would break
   private hasMergedStubCells(): boolean {
-    return this.rowElements.some((tr) =>
-      Array.from(tr.children).some(
-        (cell) =>
-          !cell.classList.contains("gt_stub_row_group") &&
-          Number(cell.getAttribute("rowspan") ?? 1) > 1,
-      ),
+    // (Found by a selector, which is quicker than going through the cells of thousands of rows)
+    return Array.from(this.tbody?.querySelectorAll(":scope > tr > [rowspan]:not(.gt_stub_row_group)") ?? []).some(
+      (cell) => Number(cell.getAttribute("rowspan")) > 1 && typeof this.bodyRows.get(cell.parentElement as HTMLTableRowElement) === "number",
     );
   }
 
@@ -5073,10 +5092,9 @@ export class GtTable extends HTMLElement {
 
   // The cells in the columns readers can hide (or the table can drop), and across them (from every
   // row, on hydration)
-  private mapColumns(table: HTMLTableElement): void {
+  private mapColumns({ placed, columns }: ReturnType<typeof placeCells>): void {
     const spec = this.spec as Spec;
     const grid = new Set([...this.hideable, ...this.drops].map((id) => this.gridOf(spec.columns.findIndex((column) => column.id === id))));
-    const { placed, columns } = placeCells(Array.from(table.rows));
     this.gridColumns = columns;
     this.columnCells = placed.filter((p) => [...grid].some((c) => p.c0 <= c && c <= p.c1));
   }
@@ -5194,7 +5212,7 @@ export class GtTable extends HTMLElement {
   // The runs of columns readers can move, and their cells in each row (from every row, with every
   // cell shown, on hydration): in a row, a run has a cell of its own in each of its columns, or none
   // (it's under a cell across the run, or one spanning the rows above)
-  private mapRuns(table: HTMLTableElement): void {
+  private mapRuns(rows: HTMLTableRowElement[], cells: () => ReturnType<typeof placeCells>): void {
     const spec = this.spec as Spec;
     this.runs = columnRuns(spec);
     this.runCells = [];
@@ -5203,8 +5221,7 @@ export class GtTable extends HTMLElement {
     }
     this.columnAt = spec.columns.map((_, i) => i);
     this.placeOf = [...this.columnAt];
-    const rows = Array.from(table.rows);
-    const { grid, columns } = placeCells(rows);
+    const { grid, columns } = cells();
     this.gridColumns = columns;
     const lead = this.lead;
     rows.forEach((tr, r) => {
@@ -10090,8 +10107,8 @@ export class GtTable extends HTMLElement {
     this.render();
   }
 
-  // Measure the fitted widths again (leaving every row shown, for `render()`), or leave the columns
-  // as they are without a row to measure them by
+  // Measure the fitted widths again (leaving the rows measured shown, for `render()`), or leave the
+  // columns as they are without a row to measure them by
   private remeasure(): void {
     if (this.stacked) {
       // (Measured again once the table isn't stacked, as its width changes)
@@ -10109,10 +10126,10 @@ export class GtTable extends HTMLElement {
 
   /**
    * The width of each column with every row shown, as in the static table, from a row with a cell
-   * in every column, and of the table; `null` if there isn't such a row. Leaves every row shown,
-   * without our widths.
+   * in every column, and of the table; `null` if there isn't such a row. Leaves every row shown
+   * (or the rows measured, of more than `MEASURE_ALL`), without our widths.
    */
-  private measureWidths(): { columns: number[]; table: number } | null {
+  private measureWidths(): Widths | null {
     const table = this.table as HTMLTableElement;
     for (const col of this.fittedCols) {
       col.style.removeProperty("width");
@@ -10125,20 +10142,43 @@ export class GtTable extends HTMLElement {
     }
     this.empty?.remove();
     this.removeFillers();
+    const rows = this.rowElements;
+    // (Not a remote table's, which has only its page)
+    const shown = !this.remote && rows.length > MEASURE_ALL ? new Set(rows.filter((tr) => !tr.hidden)) : null;
     // (Without the rows under rows open, which span the columns: they're shown again by `render()`)
     this.measuring = true;
     this.place(null, null, 1);
     this.measuring = false;
-    // (With the borders of the rows hidden as the table was set up drawn, as the others' are)
-    if (this.undrawn) {
-      this.undrawn = false;
-      this.borders?.redraw();
-    }
     const trs = Array.from((this.tbody as HTMLTableSectionElement).querySelectorAll(":scope > tr:not(.gt-i-details)"));
     const span = (cell: Element) => Number(cell.getAttribute("colspan") ?? 1);
     const columns = Math.max(0, ...trs.map((tr) => Array.from(tr.children).reduce((n, cell) => n + span(cell), 0)));
+    let texts: ColumnTexts | undefined;
+    if (shown !== null && shown.size < rows.length) {
+      // Laying out thousands of rows is slow: the rows shown are measured, and of the others, those
+      // with the longest text in each column, which are about as wide as its widest
+      texts = this.columnTexts(columns);
+      for (const column of texts.texts) {
+        let top: number[] = [];
+        column?.forEach((text, j) => {
+          if (top.length < WIDE_ROWS || text.length > (column[top[WIDE_ROWS - 1] as number] as string).length) {
+            top = [...top, j].sort((a, b) => (column[b] as string).length - (column[a] as string).length).slice(0, WIDE_ROWS);
+          }
+        });
+        for (const j of top) {
+          shown.add(texts.rows[j] as HTMLTableRowElement);
+        }
+      }
+      for (const tr of rows) {
+        setHidden(tr, !shown.has(tr));
+      }
+    }
+    // (With the borders of the rows hidden as the table was set up drawn, as the others' are)
+    if (this.undrawn || texts !== undefined) {
+      this.undrawn = false;
+      this.borders?.redraw();
+    }
     const full = trs.find(
-      (tr) => tr.children.length === columns && Array.from(tr.children).every((cell) => span(cell) === 1),
+      (tr) => !(tr as HTMLElement).hidden && tr.children.length === columns && Array.from(tr.children).every((cell) => span(cell) === 1),
     );
     if (full === undefined || columns === 0) {
       return null;
@@ -10146,10 +10186,31 @@ export class GtTable extends HTMLElement {
     return {
       columns: Array.from(full.children).map((cell) => this.rect(cell).width),
       table: this.rect(table).width,
+      texts,
     };
   }
 
-  private setWidths(widths: { columns: number[]; table: number }): void {
+  // The text of each column's cells, in the rows with a cell in every column (as `measureWidths()`
+  // measures), or `null` for a column with a cell that isn't text alone
+  private columnTexts(columns: number): ColumnTexts {
+    const rows = Array.from(
+      (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr:not(.gt-i-details)"),
+    ).filter((tr) => tr.cells.length === columns && Array.from(tr.cells).every((cell) => cell.colSpan === 1));
+    const texts = Array.from({ length: columns }, (_, i) => {
+      const texts: string[] = [];
+      for (const tr of rows) {
+        const cell = tr.cells[i] as HTMLTableCellElement;
+        if (cell.firstElementChild !== null && cell.querySelector(NOT_TEXT) !== null) {
+          return null;
+        }
+        texts.push((cell.textContent ?? "").replace(/\s+/g, " ").trim());
+      }
+      return texts;
+    });
+    return { rows, texts };
+  }
+
+  private setWidths(widths: Widths): void {
     const colgroup = this.colgroup as HTMLTableColElement;
     const table = this.table as HTMLTableElement;
     const cols = Array.from(colgroup.children);
@@ -10203,7 +10264,7 @@ export class GtTable extends HTMLElement {
    * shows more than text (an image, a plot), or is wider than its text, isn't capped; nor is any
    * in a table wider than its columns, whose width the author set.
    */
-  private textCaps(widths: { columns: number[]; table: number }): (number | null)[] | null {
+  private textCaps(widths: Widths): (number | null)[] | null {
     const columns = widths.columns.length;
     if (widths.table > widths.columns.reduce((sum, width) => sum + width, 0) + 1) {
       return null;
@@ -10215,23 +10276,16 @@ export class GtTable extends HTMLElement {
     if (measurer === null) {
       return null;
     }
-    // (The rows with a cell in every column, as `measureWidths()` measures)
-    const rows = Array.from(
-      (this.tbody as HTMLTableSectionElement).querySelectorAll<HTMLTableRowElement>(":scope > tr:not(.gt-i-details)"),
-    ).filter((tr) => tr.cells.length === columns && Array.from(tr.cells).every((cell) => cell.colSpan === 1));
+    const { rows, texts: all } = widths.texts ?? this.columnTexts(columns);
     const first = rows[0];
     if (first === undefined) {
       return null;
     }
     const labels = ownLabels(this.table as HTMLTableElement);
     return widths.columns.map((width, i) => {
-      const texts: string[] = [];
-      for (const tr of rows) {
-        const cell = tr.cells[i] as HTMLTableCellElement;
-        if (cell.firstElementChild !== null && cell.querySelector(NOT_TEXT) !== null) {
-          return null;
-        }
-        texts.push((cell.textContent ?? "").replace(/\s+/g, " ").trim());
+      const texts = all[i];
+      if (texts == null) {
+        return null;
       }
       const lengths = Float64Array.from(texts, (text) => text.length).sort();
       const keep = lengths[Math.max(0, Math.ceil((1 - CAP_CUT) * lengths.length) - 1)] ?? 0;
