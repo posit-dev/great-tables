@@ -42,9 +42,11 @@ STACK_WIDTH = "(width < 420px)"
 # The most data rows, bytes of HTML (the `<gt-table>` element's, and its rows' file's), and rows
 # shown at once (on a page, or all of them, on one) a table has before it's warned about, as it may
 # be slow in the browser (see the benchmarks, in packages/gti/bench). A table of pages with more data
-# rows than `MAX_ROWS` has those past its first page left out of its HTML, as data
-# (`off_page_rows()`), which costs far less, so it's warned about with more than `MAX_DATA_ROWS`
+# rows than `MAX_ROWS`, or more of their cells (its data rows times its columns) than `MAX_CELLS`,
+# has those past its first page left out of its HTML, as data (`off_page_rows()`), which costs far
+# less, so it's warned about with more than `MAX_DATA_ROWS`
 MAX_ROWS = 3_000
+MAX_CELLS = 10_000
 MAX_DATA_ROWS = 100_000
 MAX_BYTES = 10 * 2**20
 MAX_SHOWN = 1_000
@@ -243,8 +245,9 @@ def gti_element(
 
 def off_page_rows(table_html: str, spec: Spec) -> tuple[str, dict | None]:
     """A table's static HTML without the data rows that aren't on its first page, if it's paged
-    and has more than `MAX_ROWS` data rows, and those rows as data (as `rows_payload()` has them,
-    or `None` without any), for the runtime to build when they're shown.
+    and has more than `MAX_ROWS` data rows or more than `MAX_CELLS` of their cells, and those rows
+    as data (as `rows_payload()` has them, or `None` without any), for the runtime to build when
+    they're shown.
 
     The body's other rows past the first page are kept, `hidden`: its groups' headings and summary
     rows, and the data rows the payload can't have (those with details, or with cells other than
@@ -265,7 +268,7 @@ def off_page_rows(table_html: str, spec: Spec) -> tuple[str, dict | None]:
     body = spec["body"]
     if (
         not pagination["enabled"]
-        or spec["nrows"] <= MAX_ROWS
+        or (spec["nrows"] <= MAX_ROWS and spec["nrows"] * len(spec["columns"]) <= MAX_CELLS)
         or sum(1 for entry in body if isinstance(entry, int)) <= size
         or _responsive(spec) == "collapse"
     ):
