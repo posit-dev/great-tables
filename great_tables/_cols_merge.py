@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from ._tbl_data import Agnostic, _get_cell, _set_cells, is_na
+from ._text import _latex_escape
 
 if TYPE_CHECKING:
     from ._gt_data import Body, GTData
@@ -335,6 +336,10 @@ def _apply_single_col_merge(
 
     target_column = col_merge.vars[0]
 
+    # The separator is plain text, so special characters in it are escaped for LaTeX (as is done
+    # for the literal parts of a formatter's `pattern=`)
+    sep = _latex_escape(col_merge.sep) if context == "latex" else col_merge.sep
+
     # The merged values, set in one go once every row is merged (each row only reads its own cells)
     merged_values: dict[int, str] = {}
 
@@ -364,11 +369,9 @@ def _apply_single_col_merge(
         if col_merge.type == "merge":
             merged_value = col_merge.merge(*values)
         elif col_merge.type == "merge_uncert":
-            merged_value = _merge_uncert(
-                values, col_merge.sep, context, tbl_data, col_merge.vars, row_idx
-            )
+            merged_value = _merge_uncert(values, sep, context, tbl_data, col_merge.vars, row_idx)
         elif col_merge.type == "merge_range":
-            merged_value = _merge_range(values, col_merge.sep)
+            merged_value = _merge_range(values, sep)
         else:  # "merge_n_pct"
             merged_value = _merge_n_pct(values, tbl_data, col_merge.vars, row_idx)
 
