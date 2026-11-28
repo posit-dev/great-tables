@@ -163,15 +163,16 @@ shows more than 1,000 rows at once, all on one page or on a page of that size, a
 laid out again when the rows are sorted, searched or filtered. To turn the warning off, use
 `warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
 
-A table with pagination and more than 3,000 rows has the rows past its first page in its HTML as
-data, which the browser makes into rows as they're shown, so the page it's on is smaller and shows
-sooner, even with tens of thousands of rows. (A table whose rows have details, or that collapses its
-columns on a narrow screen, keeps them all as rows, and is warned about with more than 3,000.) Where
-the table can't run its script (e.g., in a notebook preview on GitHub), you'll see its first page. A
-table written as a page with `~~GT.write_raw_html()` can have those rows in a file of their own
-beside the page instead, with `GTI.i_scale(rows="asset")`: the page is smaller still, and the
-browser keeps the file for later visits, but the page has to be served with the file (a page opened
-from your disk can't fetch it, in most browsers).
+A table with pagination and more than 3,000 rows, or more than 10,000 cells (its rows times its
+columns), has the rows past its first page in its HTML as data, which the browser makes into rows as
+they're shown, so the page it's on is smaller and shows sooner, even with tens of thousands of rows.
+(A table whose rows have details, or that collapses its columns on a narrow screen, keeps them all
+as rows, and is warned about with more than 3,000.) Where the table can't run its script (e.g., in a
+notebook preview on GitHub), you'll see its first page. A table written as a page with
+`~~GT.write_raw_html()` can have those rows in a file of their own beside the page instead, with
+`GTI.i_scale(rows="asset")`: the page is smaller still, and the browser keeps the file for later
+visits, but the page has to be served with the file (a page opened from your disk can't fetch it, in
+most browsers).
 
 ## Styling with `tab_style()`
 
