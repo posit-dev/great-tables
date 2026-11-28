@@ -155,7 +155,7 @@ From the top:
 - The **filter tokens**, one for each filter the rows are filtered by, which say what it keeps; a token's ✕ removes its filter.
 - The **control bar**, just below the table, which brings together what readers can do with the table as a whole. From its left, it has:
   - the **search** (with [i_search()](../reference/GTI.i_search.md#great_tables.GTI.i_search), on by default) and the table's **keyboard shortcuts**
-  - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a page to go to
+  - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a page to go to, or dragged sideways (with a mouse or a finger) to page through the table, with a scale above it of the pages back and ahead (a dot for each page, when they fit, and otherwise a curve that goes a page at a time near the start and to the first or last page at the bar's end)
   - the **filters as text** button (`{ }`, in a table with filters), which opens the filters as a query to edit, in the form [i_view()](../reference/GTI.i_view.md#great_tables.GTI.i_view) takes them (with `filter=`)
   - the buttons that open the table's **panels**: its columns, grouping its rows and exporting them (when the table has these), and its info
   - **undo and redo** (with [i_view_state()](../reference/GTI.i_view_state.md#great_tables.GTI.i_view_state)), and a **Reset** button once the view has changed

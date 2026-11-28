@@ -27,10 +27,10 @@ async function startApplication() {
     await self.pyodide.runPythonAsync(`
       import micropip
       try:
-          await micropip.install(['https://cdn.holoviz.org/panel/wheels/bokeh-3.10.2-py3-none-any.whl', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev312+g27b250d88-py3-none-any.whl', 'pandas'])
+          await micropip.install(['https://cdn.holoviz.org/panel/wheels/bokeh-3.10.2-py3-none-any.whl', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev321+g039a7f268-py3-none-any.whl', 'pandas'])
       except Exception as e:
           print(f'Retrying with Bokeh from PyPI, since installing from the CDN failed: {e}')
-          await micropip.install(['bokeh==3.10.2', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev312+g27b250d88-py3-none-any.whl', 'pandas'])
+          await micropip.install(['bokeh==3.10.2', 'https://cdn.holoviz.org/panel/1.11.1/dist/wheels/panel-1.11.1-py3-none-any.whl', 'emfs:packed_wheels/great_tables-1.2.1.dev321+g039a7f268-py3-none-any.whl', 'pandas'])
     `);
   } catch(e) {
     console.log(e)
