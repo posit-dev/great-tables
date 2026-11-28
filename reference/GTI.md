@@ -4,7 +4,7 @@ Create an interactive **Great Tables** object.
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L56-L2290)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L56-L2291)
 
 ``` python
 GTI(

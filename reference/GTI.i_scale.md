@@ -4,7 +4,7 @@ Set where the rows of the table are searched, filtered and sorted (shown as a wi
 
 Usage
 
-[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L2016-L2100)
+[Source](https://github.com/posit-dev/great-tables/blob/main/great_tables/gti.py#L2016-L2101)
 
 ``` python
 GTI.i_scale(
@@ -19,7 +19,7 @@ In the kernel, a table always has pages (as [`i_pagination()`](../reference/GTI.
 
 A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its rows in the frame, and has only the page shown collected (see [`GTI()`](../reference/GTI.md#great_tables.GTI)).
 
-In the browser, a table of pages with more than 3,000 rows has the rows past its first page in its HTML as data, which the browser makes into rows as they're shown. With `rows="asset"`, [`write_raw_html()`](../reference/GT.write_raw_html.md#great_tables.GT.write_raw_html) writes them to a file of their own beside the page instead (`page.gti.json`, for `page.html`), which the table fetches as it loads: the page is smaller, and quicker to load, and the browser keeps the file for the next visit, but the page needs the file beside it, served with it (a page opened from a file can't fetch it, in most browsers). Shown anywhere else (in a notebook, a Quarto document, or with [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html)), the table has its rows in its HTML. Until the file has come, the table shows its first page, and the search, filters and sorting wait for it; if it doesn't come, the table has only its first page.
+In the browser, a table of pages with more than 3,000 rows, or more than 10,000 cells (its rows times its columns), has the rows past its first page in its HTML as data, which the browser makes into rows as they're shown. With `rows="asset"`, [`write_raw_html()`](../reference/GT.write_raw_html.md#great_tables.GT.write_raw_html) writes them to a file of their own beside the page instead (`page.gti.json`, for `page.html`), which the table fetches as it loads: the page is smaller, and quicker to load, and the browser keeps the file for the next visit, but the page needs the file beside it, served with it (a page opened from a file can't fetch it, in most browsers). Shown anywhere else (in a notebook, a Quarto document, or with [as_raw_html()](../reference/GT.as_raw_html.md#great_tables.GT.as_raw_html)), the table has its rows in its HTML. Until the file has come, the table shows its first page, and the search, filters and sorting wait for it; if it doesn't come, the table has only its first page.
 
 ## Parameters
 

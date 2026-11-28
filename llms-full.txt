@@ -15118,16 +15118,17 @@ that isn't shown as a widget or in a Shiny app.
 A table of a lazy frame (a Polars LazyFrame, a DuckDB relation or an Ibis table) keeps its
 rows in the frame, and has only the page shown collected (see [`GTI()`](`great_tables.GTI`)).
 
-In the browser, a table of pages with more than 3,000 rows has the rows past its first page
-in its HTML as data, which the browser makes into rows as they're shown. With
-`rows="asset"`, [`write_raw_html()`](`great_tables.GT.write_raw_html`) writes them to a
-file of their own beside the page instead (`page.gti.json`, for `page.html`), which the
-table fetches as it loads: the page is smaller, and quicker to load, and the browser keeps
-the file for the next visit, but the page needs the file beside it, served with it (a page
-opened from a file can't fetch it, in most browsers). Shown anywhere else (in a notebook,
-a Quarto document, or with `as_raw_html()`), the table has its rows in its HTML. Until the
-file has come, the table shows its first page, and the search, filters and sorting wait for
-it; if it doesn't come, the table has only its first page.
+In the browser, a table of pages with more than 3,000 rows, or more than 10,000 cells (its
+rows times its columns), has the rows past its first page in its HTML as data, which the
+browser makes into rows as they're shown. With `rows="asset"`,
+[`write_raw_html()`](`great_tables.GT.write_raw_html`) writes them to a file of their own
+beside the page instead (`page.gti.json`, for `page.html`), which the table fetches as it
+loads: the page is smaller, and quicker to load, and the browser keeps the file for the next
+visit, but the page needs the file beside it, served with it (a page opened from a file
+can't fetch it, in most browsers). Shown anywhere else (in a notebook, a Quarto document, or
+with `as_raw_html()`), the table has its rows in its HTML. Until the file has come, the
+table shows its first page, and the search, filters and sorting wait for it; if it doesn't
+come, the table has only its first page.
 :::
 
 ## Parameters {.doc-parameters}
@@ -19105,8 +19106,7 @@ that data is not available.
 ## Preview {.doc-preview}
 
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
-and the rows can be sorted, searched, and filtered by any column. It's a large table (1,683 rows of
-39 columns), so it can take a few seconds to load, and longer on a phone.
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false
@@ -25587,15 +25587,16 @@ shows more than 1,000 rows at once, all on one page or on a page of that size, a
 laid out again when the rows are sorted, searched or filtered. To turn the warning off, use
 `warnings.filterwarnings("ignore", message="This interactive table may be slow")`.
 
-A table with pagination and more than 3,000 rows has the rows past its first page in its HTML as
-data, which the browser makes into rows as they're shown, so the page it's on is smaller and shows
-sooner, even with tens of thousands of rows. (A table whose rows have details, or that collapses its
-columns on a narrow screen, keeps them all as rows, and is warned about with more than 3,000.) Where
-the table can't run its script (e.g., in a notebook preview on GitHub), you'll see its first page. A
-table written as a page with `~~GT.write_raw_html()` can have those rows in a file of their own
-beside the page instead, with `GTI.i_scale(rows="asset")`: the page is smaller still, and the
-browser keeps the file for later visits, but the page has to be served with the file (a page opened
-from your disk can't fetch it, in most browsers).
+A table with pagination and more than 3,000 rows, or more than 10,000 cells (its rows times its
+columns), has the rows past its first page in its HTML as data, which the browser makes into rows as
+they're shown, so the page it's on is smaller and shows sooner, even with tens of thousands of rows.
+(A table whose rows have details, or that collapses its columns on a narrow screen, keeps them all
+as rows, and is warned about with more than 3,000.) Where the table can't run its script (e.g., in a
+notebook preview on GitHub), you'll see its first page. A table written as a page with
+`~~GT.write_raw_html()` can have those rows in a file of their own beside the page instead, with
+`GTI.i_scale(rows="asset")`: the page is smaller still, and the browser keeps the file for later
+visits, but the page has to be served with the file (a page opened from your disk can't fetch it, in
+most browsers).
 
 ## Styling with `tab_style()`
 
