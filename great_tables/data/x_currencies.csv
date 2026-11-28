@@ -17,7 +17,7 @@ BHD,48,3,Bahraini dinar,BD
 BIF,108,0,Burundian franc,FBu
 BMD,60,2,Bermudian dollar,$
 BND,96,2,Brunei dollar,B$
-BOB,68,2,Boliviano,$b
+BOB,68,2,Boliviano,Bs
 BOV,984,2,Bolivian Mvdol,BOV
 BRL,986,2,Brazilian real,R$
 BSD,44,2,Bahamian dollar,$
@@ -116,7 +116,7 @@ PAB,590,2,Panamanian balboa,B/.
 PEN,604,2,Peruvian Sol,S/
 PGK,598,2,Papua New Guinean kina,K
 PHP,608,2,Philippine peso,&#8369;
-PKR,586,2,Pakistani rupee,Re.
+PKR,586,2,Pakistani rupee,Rs
 PLN,985,2,Polish zloty,z&#322;
 PYG,600,0,Paraguayan guarani,&#8370;
 QAR,634,2,Qatari riyal,QR
@@ -155,7 +155,7 @@ USN,997,2,United States dollar,$
 USS,998,2,United States dollar,$
 UYI,940,0,Uruguay Peso en Unidades Indexadas,UYI
 UYU,858,2,Uruguayan peso,$U
-UZS,860,2,Uzbekistan som,&#1083;&#1074;
+UZS,860,2,Uzbekistan som,so&#699;m
 VEF,937,2,Venezuelan bolivar,Bs.
 VES,928,2,Venezuelan bolívar soberano,Bs.S
 VND,704,0,Vietnamese dong,&#8363;
