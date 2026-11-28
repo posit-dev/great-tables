@@ -137,6 +137,25 @@ def many_pages_html(table_id: str, **options) -> str:
         )
 
 
+def wide_pages_html(table_id: str) -> str:
+    # 400 rows of 26 columns, 10 to a page: more than `MAX_CELLS` cells, so the rows past the first
+    # page are data, and the columns are measured by the rows that set their widths (though not
+    # past 1,000 rows): the name in row 300 and the note in row 350 longer than the others'.
+    n = 400
+    name = [f"Name {i}" for i in range(n)]
+    name[300] = "A much longer name than any other"
+    note = ["A note"] * n
+    note[350] = "A note, longer than all the others, and by far"
+    columns = {"name": name, "num": [i * 1.5 for i in range(n)], "note": note}
+    columns.update({f"x{k}": [(i * (k + 3) * 7919) % 1009 for i in range(n)] for k in range(23)})
+    gt = GT(pl.DataFrame(columns), id=table_id).fmt_number(columns="num", decimals=1)
+    html = render_gti_html(
+        gt.opt_interactive(use_search=True, page_size_default=10), runtime="none"
+    )
+    assert n * len(columns) > _render.MAX_CELLS and "data-gti-rows" in html
+    return html
+
+
 def display_html(table_id: str, groups_as_column: bool = False, **options) -> str:
     # The table to sort, on one page, with a filled cell in row 0 and a long value in row 2 (in a
     # narrow column, with the column widths set).
@@ -1047,6 +1066,8 @@ def main() -> None:
         "pages-many-nowrap.html": page(
             many_pages_html("p", use_text_wrapping=False) + "\n" + runtime_src, head=styles
         ),
+        # A table of 400 rows and 26 columns to page, with the rows past its first page as data
+        "pages-wide.html": page(wide_pages_html("p") + "\n" + runtime_src, head=styles),
         # Tables with highlighted rows (with group headings, or groups shown as a column); as they
         # are, compact, and without text wrapping.
         "display.html": page(display_html("d") + "\n" + runtime_src, head=styles),
