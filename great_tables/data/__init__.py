@@ -1108,8 +1108,7 @@ that data is not available.
 Preview
 -------
 Here is the dataset as an interactive table. Each column has its dtype and a profile of its values,
-and the rows can be sorted, searched, and filtered by any column. It's a large table (1,683 rows of
-39 columns), so it can take a few seconds to load, and longer on a phone.
+and the rows can be sorted, searched, and filtered by any column.
 
 ```{python}
 #| echo: false

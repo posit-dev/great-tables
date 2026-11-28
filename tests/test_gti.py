@@ -19,6 +19,7 @@ from great_tables._gti import _render
 from great_tables._gti._render import render_gti_asset
 from great_tables._gti._render import (
     KEY,
+    MAX_CELLS,
     MAX_ROWS,
     MAX_SHOWN,
     GTISizeWarning,
@@ -1124,6 +1125,20 @@ def test_rows_past_the_first_page_hidden_in_large_tables():
     assert not any(small)
     assert large == [False] * 10 + [True] * (MAX_ROWS + 1 - 10)
     assert interactive == [False] * 25 + [True] * (MAX_ROWS + 1 - 25)
+
+
+@pytest.mark.parametrize("frame", [pd.DataFrame, pl.DataFrame])
+def test_rows_past_the_first_page_hidden_in_wide_tables(frame: type):
+    # (More than `MAX_CELLS` cells, in no more than `MAX_ROWS` rows; the columns shown count)
+    def wide(nrows: int, ncols: int = 10) -> GTI:
+        df = frame({f"x{k}": range(nrows) for k in range(ncols)})
+        return GTI(df).i_pagination(page_size=10)
+
+    most = MAX_CELLS // 10
+    assert not any(hidden_rows(wide(most)))
+    assert hidden_rows(wide(most + 1)) == [False] * 10 + [True] * (most + 1 - 10)
+    assert not any(hidden_rows(wide(most + 1, 11).cols_hide(["x9", "x10"])))
+    assert not any(hidden_rows(wide(most // 2 + 1, 20).i_pagination(False)))
 
 
 @pytest.mark.parametrize("df", frames(DF))
