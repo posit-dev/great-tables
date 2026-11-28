@@ -156,6 +156,16 @@ def wide_pages_html(table_id: str) -> str:
     return html
 
 
+def scrub_html(table_id: str) -> str:
+    # 9,000 rows, 2 to a page (4,500 pages, more than fit along the bar one to a dot), with the
+    # rows past the first page as data.
+    n = 9000
+    data = pl.DataFrame({"row": list(range(1, n + 1)), "name": [f"Name {i + 1}" for i in range(n)]})
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", GTISizeWarning)
+        return render_gti_html(GTI(data, id=table_id).i_pagination(page_size=2), runtime="none")
+
+
 def display_html(table_id: str, groups_as_column: bool = False, **options) -> str:
     # The table to sort, on one page, with a filled cell in row 0 and a long value in row 2 (in a
     # narrow column, with the column widths set).
@@ -1231,6 +1241,16 @@ def main() -> None:
             head=styles,
         ),
         "bar-late.html": page(bar_html("c") + '\n<p id="after">After the table</p>', head=styles),
+        # Pages to drag through: 4 pages (6 rows to a page), in a container 600px wide; 12, right to
+        # left; and 4,500
+        "scrub-few.html": page(
+            '<div style="width: 600px">' + bar_html("c", page_size=6) + "</div>\n" + runtime_src,
+            head=styles,
+        ),
+        "scrub-rtl.html": page(
+            '<div dir="rtl">' + bar_html("c") + "</div>\n" + runtime_src, head=styles
+        ),
+        "scrub-many.html": page(scrub_html("s") + "\n" + runtime_src, head=styles),
         # On one page, in a body that scrolls within 300px, its view kept in the URL
         "bar-scroll.html": page(
             bar_html("c", enabled=False, height="300px") + "\n" + runtime_src, head=styles

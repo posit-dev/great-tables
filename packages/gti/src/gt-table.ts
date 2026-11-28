@@ -335,6 +335,16 @@ const SEARCH_DELAY_MS = 150;
 const PRESS_MS = 500;
 const PRESS_SLOP = 10;
 
+// A drag along the bar's readout pages through the table, once it's this many px across (more than
+// down). Where a side's pages fit, each is a dot, at least this far from the next (and at most
+// that); where they don't, a curve takes it to the first or last page at the bar's end, a page
+// each this many px near where it started. (Its ends this far in from the bar's.)
+const SCRUB_SLOP = 6;
+const SCRUB_DOT = 10;
+const SCRUB_DOT_MAX = 40;
+const SCRUB_FINE = 8;
+const SCRUB_INSET = 12;
+
 // The most changes to the view that can be undone, and how soon after a change to the search, or
 // to one filter, another is part of the same change
 const UNDO_STEPS = 50;
@@ -5493,7 +5503,7 @@ export class GtTable extends HTMLElement {
     const readout = doc.createElement("button");
     readout.type = "button";
     readout.className = "gt-i-readout";
-    readout.dataset.gtiTip = "Go to a page";
+    readout.dataset.gtiTip = "Go to a page (or drag)";
     const jump = doc.createElement("label");
     jump.className = "gt-i-readout-jump";
     jump.hidden = true;
@@ -5656,6 +5666,7 @@ export class GtTable extends HTMLElement {
       }
     });
     readout.addEventListener("click", () => this.startJump());
+    readout.addEventListener("pointerdown", (event) => this.scrubPages(readout, event));
     jumpInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         // (And don't submit a form the table is in)
@@ -9081,6 +9092,259 @@ export class GtTable extends HTMLElement {
     const page = Number(value);
     if (go && value !== "" && Number.isInteger(page)) {
       this.userPage(page);
+    }
+  }
+
+  // Drag the readout along the bar, through the pages from the one it's on. A floating bar over
+  // the bar (or under it, without room above) shows the page the drag is at, and how many pages
+  // that is from where it started: along dots, on a side whose pages fit, or a curve, with ticks
+  // at 1, 10, 100… pages, on one whose don't. The table follows (a remote one asks for its page
+  // once let go); letting go is one change of page, and Escape goes back to the page it started on.
+  // (A click, which goes no farther than `SCRUB_SLOP`, opens the jump; not one ending a drag.)
+  private scrubPages(readout: HTMLElement, event: PointerEvent): void {
+    const bar = this.bar;
+    const count = this.pageCount;
+    if (bar === null || event.button !== 0 || !event.isPrimary || this.jumping || count < 2) {
+      return;
+    }
+    const doc = this.ownerDocument;
+    const root = bar.root;
+    const id = event.pointerId;
+    const zoom = this.zoom();
+    const [x, y] = [event.clientX / zoom, event.clientY / zoom];
+    const start = this.page;
+    const rtl = getComputedStyle(this.table as HTMLTableElement).direction === "rtl";
+    let scrub: HTMLElement | null = null;
+    let begun = false;
+    let place: (at: number) => void = () => {};
+    let target = start;
+    let frame = 0;
+
+    // The floating bar, in the bar's box: its sides either side of where the drag started (each
+    // of the pages back, or ahead, as the table's direction has them), each page a dot or along
+    // a curve
+    const begin = () => {
+      const box = this.rect(root);
+      const left = box.left + root.clientLeft;
+      const width = root.clientWidth;
+      const origin = Math.min(Math.max(x - left, SCRUB_INSET), Math.max(SCRUB_INSET, width - SCRUB_INSET));
+      const [back, ahead] = [start - 1, count - start];
+      const onLeft = { dir: -1, px: origin - SCRUB_INSET, pages: rtl ? ahead : back, sign: rtl ? 1 : -1, step: 0, k: 1 };
+      const onRight = { dir: 1, px: width - SCRUB_INSET - origin, pages: rtl ? back : ahead, sign: rtl ? -1 : 1, step: 0, k: 1 };
+      const sides = [onLeft, onRight];
+      for (const side of sides) {
+        side.px = Math.max(side.px, 1);
+        side.step = side.pages === 0 || side.px / side.pages >= SCRUB_DOT ? Math.min(SCRUB_DOT_MAX, side.px / Math.max(side.pages, 1)) : 0;
+        // (So that the first page is `SCRUB_FINE` px along, and the last at the end)
+        side.k = Math.max(1, Math.log(Math.max(side.pages, 1)) / Math.log(Math.max(2, side.px / SCRUB_FINE)));
+      }
+      // (Dots as far apart on both sides)
+      const steps = sides.filter((side) => side.pages > 0 && side.step > 0).map((side) => side.step);
+      for (const side of sides) {
+        if (side.step > 0 && steps.length > 0) {
+          side.step = Math.min(...steps);
+        }
+      }
+      type Side = typeof onLeft;
+      // (The pages a side goes to `d` px along it, and how far along it `n` pages are)
+      const pagesAt = (side: Side, d: number) =>
+        side.step > 0 ? Math.min(side.pages, Math.round(d / side.step)) : Math.round(side.pages * Math.min(1, d / side.px) ** side.k);
+      const reach = (side: Side, n: number) => (side.step > 0 ? n * side.step : side.px * (n / side.pages) ** (1 / side.k));
+
+      const panel = element(doc, "div", "gt-i-scrub", { "aria-hidden": "true" });
+      panel.dataset.gtiScrub = sides.some((side) => side.pages > 0 && side.step === 0) ? "curve" : "dots";
+      const mark = (name: string, at: number, text: string | null = null) => {
+        const el = element(doc, "span", name);
+        el.style.left = `${at}px`;
+        if (text !== null) {
+          el.textContent = text;
+        }
+        panel.append(el);
+        return el;
+      };
+      const extent = (side: Side) => (side.pages === 0 ? 0 : reach(side, side.pages));
+      const [from, to] = [origin - extent(onLeft), origin + extent(onRight)];
+      mark("gt-i-scrub-line", from).style.width = `${to - from}px`;
+      // (Each dot, or tick, named: outward from where it started, the end's last; at how far along)
+      const named: [HTMLElement, number][][] = [];
+      for (const side of sides) {
+        if (side.pages === 0) {
+          continue;
+        }
+        const at = (n: number) => origin + side.dir * reach(side, n);
+        const names: [HTMLElement, number][] = [];
+        named.push(names);
+        if (side.step > 0) {
+          for (let n = 1; n <= side.pages; n++) {
+            const page = start + side.sign * n;
+            mark("gt-i-scrub-dot", at(n)).dataset.gtiPage = String(page);
+            names.push([mark("gt-i-scrub-name", at(n), this.num(page)), at(n) - origin]);
+          }
+          continue;
+        }
+        let ticked = 0;
+        for (let n = 1; n < side.pages; n *= 10) {
+          const d = reach(side, n);
+          if (d - ticked >= SCRUB_SLOP) {
+            ticked = d;
+            mark("gt-i-scrub-tick", at(n)).dataset.gtiPages = String(side.sign * n);
+            names.push([mark("gt-i-scrub-name", at(n), `${side.sign > 0 ? "+" : "−"}${this.num(n)}`), side.dir * d]);
+          }
+        }
+        const end = start + side.sign * side.pages;
+        mark("gt-i-scrub-tick", at(side.pages)).dataset.gtiPage = String(end);
+        names.push([mark("gt-i-scrub-name", at(side.pages), this.num(end)), side.dir * side.px]);
+      }
+      mark("gt-i-scrub-origin", origin);
+      const thumb = mark("gt-i-scrub-thumb", origin);
+      const bubble = mark("gt-i-scrub-page", origin);
+      const shown = element(doc, "b", "gt-i-scrub-at");
+      const delta = element(doc, "span", "gt-i-scrub-delta");
+      bubble.append(shown, delta);
+
+      place = (px: number) => {
+        const d = Math.min(Math.max(px - left, from), to) - origin;
+        const side = d < 0 ? onLeft : onRight;
+        const n = pagesAt(side, Math.abs(d));
+        target = start + side.sign * n;
+        // (On the dot it's at; along a curve, where it is)
+        const at = side.step > 0 ? origin + side.dir * reach(side, n) : origin + d;
+        thumb.style.left = `${at}px`;
+        shown.textContent = this.num(target);
+        delta.textContent = n === 0 ? "" : `${target > start ? "+" : "−"}${this.num(n)}`;
+        const half = bubble.offsetWidth / 2 + TIP_GAP / 2;
+        bubble.style.left = `${Math.min(Math.max(at, half), width - half)}px`;
+      };
+      root.append(panel);
+      panel.toggleAttribute("data-gti-below", box.top - panel.offsetHeight - TIP_GAP < 0);
+      // (Only the names with room, between the one before and the end's, which is kept within
+      // the bar)
+      for (const names of named) {
+        const [end, far] = names.pop() as [HTMLElement, number];
+        const room = end.offsetWidth / 2 + TIP_GAP / 2;
+        const center = Math.min(Math.max(origin + far, room), width - room);
+        end.style.left = `${center}px`;
+        let edge = TIP_GAP / 2;
+        for (const [el, along] of names) {
+          const [d, half] = [Math.abs(along), el.offsetWidth / 2];
+          if (d - half < edge || d + half + TIP_GAP / 2 > Math.abs(center - origin) - room) {
+            el.remove();
+          } else {
+            edge = d + half + TIP_GAP;
+          }
+        }
+      }
+      scrub = panel;
+      begun = true;
+      this.setAttribute("data-gti-scrubbing", "");
+      readout.setAttribute("data-gti-active", "");
+      doc.addEventListener("keydown", key, true);
+    };
+
+    // The table at the page the drag is at, once a frame
+    const follow = () => {
+      if (this.remote || frame !== 0) {
+        return;
+      }
+      const show = () => {
+        frame = 0;
+        if (scrub !== null && this.page !== target) {
+          this.pageValue = target;
+          this.render();
+        }
+      };
+      if (typeof requestAnimationFrame === "undefined") {
+        show();
+      } else {
+        frame = requestAnimationFrame(show);
+      }
+    };
+    const move = (event: PointerEvent) => {
+      if (event.pointerId !== id) {
+        return;
+      }
+      if (scrub === null) {
+        // (Nor again, after Escape)
+        if (begun) {
+          return;
+        }
+        const [dx, dy] = [Math.abs(event.clientX / zoom - x), Math.abs(event.clientY / zoom - y)];
+        // (Not a drag down, which isn't one)
+        if (dy >= SCRUB_SLOP && dy >= dx) {
+          stop();
+          return;
+        }
+        if (dx < SCRUB_SLOP || dx <= dy) {
+          return;
+        }
+        begin();
+      }
+      place(event.clientX / zoom);
+      follow();
+    };
+    const finish = (go: boolean) => {
+      if (frame !== 0) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+      scrub?.remove();
+      scrub = null;
+      this.removeAttribute("data-gti-scrubbing");
+      readout.removeAttribute("data-gti-active");
+      doc.removeEventListener("keydown", key, true);
+      const page = go ? target : start;
+      if (this.remote) {
+        this.userPage(page);
+        return;
+      }
+      if (this.page !== page) {
+        this.pageValue = page;
+        this.render();
+      }
+      if (page !== start) {
+        this.announce(`Page ${page} of ${count}`);
+        this.dispatchPage();
+        this.dispatchView("page");
+      }
+    };
+    const types = ["pointerup", "pointercancel", "lostpointercapture"];
+    const end = (event: Event) => {
+      if ((event as PointerEvent).pointerId !== id) {
+        return;
+      }
+      stop();
+      if (scrub !== null) {
+        // (A touch the browser takes, as for a scroll, goes nowhere)
+        finish(event.type !== "pointercancel");
+      }
+      if (begun) {
+        // (Not the click that ends the drag, as the jump's)
+        const swallow = (event: Event) => event.stopImmediatePropagation();
+        readout.addEventListener("click", swallow, { capture: true, once: true });
+        setTimeout(() => readout.removeEventListener("click", swallow, { capture: true }), 0);
+      }
+    };
+    const key = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        finish(false);
+      }
+    };
+    const stop = () => {
+      readout.removeEventListener("pointermove", move);
+      for (const type of types) {
+        readout.removeEventListener(type, end);
+      }
+      doc.removeEventListener("keydown", key, true);
+      if (readout.hasPointerCapture?.(id)) {
+        readout.releasePointerCapture(id);
+      }
+    };
+    readout.setPointerCapture?.(id);
+    readout.addEventListener("pointermove", move);
+    for (const type of types) {
+      readout.addEventListener(type, end);
     }
   }
 

@@ -1888,7 +1888,7 @@ describe("the control bar", () => {
     const { el } = await mountBar();
     expect(readout(el).textContent).toBe("1/3");
     expect(readout(el).getAttribute("aria-label")).toBe("Page 1 of 3");
-    expect(readout(el).dataset.gtiTip).toBe("Go to a page");
+    expect(readout(el).dataset.gtiTip).toBe("Go to a page (or drag)");
     expect(el.querySelector<HTMLElement>(".gt-i-bar-pages")?.style.getPropertyValue("--gt-i-digits")).toBe("1");
 
     el.search = "a";
@@ -2053,6 +2053,59 @@ describe("the control bar", () => {
     jumpInput(el).dispatchEvent(new FocusEvent("blur"));
     expect(el.page).toBe(2);
     expect(jump(el).hidden).toBe(true);
+  });
+
+  // A drag along the bar from the readout, with the mouse (at the bar's end, as the page has no layout)
+  const drag = (el: GtTable, type: string, clientX: number, clientY = 0) =>
+    readout(el).dispatchEvent(new PointerEvent(type, { bubbles: true, isPrimary: true, pointerId: 1, pointerType: "mouse", clientX, clientY }));
+  const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+  it("goes through the pages as its readout is dragged along the bar, the page changed once let go", async () => {
+    const { el, events } = await mountBar();
+    drag(el, "pointerdown", 0);
+    drag(el, "pointermove", 3);
+    expect(el.querySelector(".gt-i-scrub")).toBeNull();
+    drag(el, "pointermove", 100);
+    expect(el.querySelector(".gt-i-scrub")?.getAttribute("aria-hidden")).toBe("true");
+    expect(el.querySelector(".gt-i-scrub-page")?.textContent).toBe("3+2");
+    // (The table follows, a frame on)
+    await frame();
+    expect(el.page).toBe(3);
+    expect(events).toEqual([]);
+    drag(el, "pointerup", 100);
+    expect(el.querySelector(".gt-i-scrub")).toBeNull();
+    expect(el.page).toBe(3);
+    expect(events).toEqual([{ page: 3, pageSize: 2, pageCount: 3 }]);
+    expect(live(el)).toBe("Page 3 of 3");
+    // (Not the click that ends it, which would open the jump; the next one does)
+    readout(el).click();
+    expect(jump(el).hidden).toBe(true);
+    await tick();
+    readout(el).click();
+    expect(jump(el).hidden).toBe(false);
+  });
+
+  it("goes back to the page a drag of its readout started at on Escape, and isn't dragged down", async () => {
+    const { el, events } = await mountBar();
+    drag(el, "pointerdown", 0);
+    drag(el, "pointermove", 100);
+    await frame();
+    expect(el.page).toBe(3);
+    const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    document.body.dispatchEvent(escape);
+    expect(escape.defaultPrevented).toBe(true);
+    expect(el.querySelector(".gt-i-scrub")).toBeNull();
+    expect(el.page).toBe(1);
+    drag(el, "pointerup", 100);
+    expect(el.page).toBe(1);
+
+    drag(el, "pointerdown", 0);
+    drag(el, "pointermove", 2, 10);
+    drag(el, "pointermove", 100, 10);
+    drag(el, "pointerup", 100, 10);
+    expect(el.querySelector(".gt-i-scrub")).toBeNull();
+    expect(el.page).toBe(1);
+    expect(events).toEqual([]);
   });
 
   it("has no pages, and sticks to the bottom of the view, when every row fits on a page", async () => {
@@ -10440,6 +10493,21 @@ describe("a remote table", () => {
     expect(visible(el)).toEqual([0, 1]);
     expect(el.rows).toEqual([0, 1]);
     expect(el.pageCount).toBe(3);
+  });
+
+  it("asks for the page a drag along its readout goes to once let go, not as it goes", async () => {
+    const { el, asked } = await mountRemote();
+    const readout = el.querySelector(".gt-i-readout") as HTMLElement;
+    const drag = (type: string, clientX: number) =>
+      readout.dispatchEvent(new PointerEvent(type, { bubbles: true, isPrimary: true, pointerId: 1, pointerType: "mouse", clientX }));
+    drag("pointerdown", 0);
+    drag("pointermove", 100);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(asked).toEqual([]);
+    expect(el.page).toBe(1);
+    drag("pointerup", 100);
+    expect(asked).toMatchObject([{ start: 4, size: 2 }]);
+    expect(visible(el)).toEqual([4]);
   });
 
   it("asks for each page, and shows it, keeping the rows it has", async () => {
