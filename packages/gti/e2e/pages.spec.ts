@@ -270,6 +270,26 @@ test("caps the columns of a table of more than 1,000 rows without text wrapping 
   expect(errors).toEqual([]);
 });
 
+test("fits the columns of a table with rows as data to every row, from the rows that set their widths", async ({ page }) => {
+  const errors = await ready(page, "pages-wide.html");
+  // (The first page and, at most, each of the 26 columns' 5 rows of longest texts: not all 400)
+  const built = await page.locator("gt-table tbody > tr").count();
+  expect(built).toBeLessThanOrEqual(10 + 26 * 5);
+  const before = await widths(page);
+  expectClose(before.columns, (await naturalWidths(page)).columns, 1);
+
+  // (The longest name, in row 300, and the longest note, in row 350)
+  for (const text of ["A much longer name", "by far"]) {
+    await page.locator("gt-table input.gt-i-search").fill(text);
+    await expect(info(page)).toHaveText("1 of 1 row (filtered from 400)");
+    await expect(page.locator("gt-table tbody > tr:not([hidden])").first()).toContainText(text);
+    expectClose((await widths(page)).columns, before.columns);
+    const cut = await page.locator("gt-table tbody > tr:not([hidden]) > td").evaluateAll((cells) => cells.filter((td) => td.scrollWidth > td.clientWidth + 1).length);
+    expect(cut).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
+
 test("pages the rows that match a search, from the first page", async ({ page }) => {
   const errors = await ready(page, "pages.html");
   await pageButton(page, "Page 2").click();
