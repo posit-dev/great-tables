@@ -69,7 +69,7 @@
 
   /**
    * Show the confirmation beside a link's icon, keeping the icon visible
-   * after the page scrolls the heading out from under the pointer.
+   * while the pointer moves off the heading.
    */
   function confirmCopy(link) {
     var note = link.querySelector(".gd-anchor-copied");
@@ -89,8 +89,10 @@
   }
 
   /**
-   * Copy an anchor link's URL on a plain click. The click still follows the
-   * link, so the address bar shows the section's URL too.
+   * Copy an anchor link's URL on a plain click. The address bar shows the
+   * section's URL too, but the page doesn't scroll to the heading and no
+   * history entry is added. Without clipboard access, the click follows the
+   * link.
    */
   function handleClick(event) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
@@ -100,6 +102,8 @@
     if (!link || !navigator.clipboard) return;
 
     var url = new URL(link.getAttribute("href"), window.location.href).href;
+    event.preventDefault();
+    history.replaceState(history.state, "", url);
     navigator.clipboard.writeText(url).then(
       function () { confirmCopy(link); },
       function () {}
