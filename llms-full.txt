@@ -25027,6 +25027,7 @@ every cell, but its styling may change between gridwell releases.
 The following table summarizes when to use each export approach:
 
 ```{python}
+#| echo: false
 import polars as pl
 
 export_df = pl.DataFrame({

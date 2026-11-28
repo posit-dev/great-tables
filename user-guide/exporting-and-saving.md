@@ -51,9 +51,9 @@ html_str = gt_tbl.as_raw_html()
 print(html_str[:200])
 ```
 
-    <div id="rkeupknuls" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+    <div id="ypzqrzjqiw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
     <style>
-    #rkeupknuls table {
+    #ypzqrzjqiw table {
               font
 
 The method accepts several arguments that control the output format.
@@ -235,30 +235,6 @@ The image options (`zoom=`, `expand=`, and the rest) don't apply to these format
 ## Choosing the Right Export Method
 
 The following table summarizes when to use each export approach:
-
-``` python
-import polars as pl
-
-export_df = pl.DataFrame({
-    "Method": ["show()", "as_raw_html()", "as_latex()", "gtsave()", "gtsave() with gridwell"],
-    "Use Case": [
-        "Interactive display in notebooks or browser",
-        "Embedding in web apps, emails, or HTML docs",
-        "Inclusion in LaTeX/PDF documents",
-        "Static image files for reports and slides",
-        "Office documents, vector graphics, and Typst",
-    ],
-    "Output": [
-        "Rendered display",
-        "HTML string",
-        "LaTeX string",
-        "PNG/PDF/JPEG/WebP file",
-        "SVG/DOCX/XLSX/PPTX/RTF/Typst file",
-    ],
-})
-
-GT(export_df)
-```
 
 | Method | Use Case | Output |
 |----|----|----|
