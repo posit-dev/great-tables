@@ -94,7 +94,9 @@ From the top:
   - the **search** (with `~~GTI.i_search()`, on by default) and the table's **keyboard
     shortcuts**
   - the **page controls**, around the **page counter** ("1 / 2"), which can be clicked to type a
-    page to go to
+    page to go to, or dragged sideways (with a mouse or a finger) to page through the table, with a
+    scale above it of the pages back and ahead (a dot for each page, when they fit, and otherwise a
+    curve that goes a page at a time near the start and to the first or last page at the bar's end)
   - the **filters as text** button (`{ }`, in a table with filters), which opens the filters as a
     query to edit, in the form `~~GTI.i_view()` takes them (with `filter=`)
   - the buttons that open the table's **panels**: its columns, grouping its rows and exporting them
