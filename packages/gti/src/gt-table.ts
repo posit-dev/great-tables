@@ -921,8 +921,8 @@ const minWidth = (th: HTMLTableCellElement) => Math.ceil(2 * (parseFloat(getComp
 // font, and to the text of all but this share of its cells, the longest (see `textCaps()`)
 const CAP_EMS = 20;
 const CAP_CUT = 0.1;
-// A table of more than this many rows has its columns measured by the rows shown and the rows of
-// this many of each column's longest texts (see `measureWidths()`)
+// A table of more than this many rows, or with rows as data, has its columns measured by the rows
+// shown and the rows of this many of each column's longest texts (see `measureWidths()`)
 const MEASURE_ALL = 1000;
 const WIDE_ROWS = 5;
 // What a cell shows that isn't text, which its column is as wide as (but the button that opens
@@ -10397,7 +10397,7 @@ export class GtTable extends HTMLElement {
   /**
    * The width of each column with every row shown, as in the static table, from a row with a cell
    * in every column, and of the table; `null` if there isn't such a row. Leaves every row shown
-   * (or the rows measured, of more than `MEASURE_ALL`), without our widths.
+   * (or the rows measured, of more than `MEASURE_ALL` or with rows as data), without our widths.
    */
   private measureWidths(): Widths | null {
     const table = this.table as HTMLTableElement;
@@ -10414,9 +10414,10 @@ export class GtTable extends HTMLElement {
     this.removeFillers();
     const rows = this.rowElements;
     const nrows = (this.spec as Spec).nrows;
-    // (Not a remote table's, which has only its page)
-    const shown = !this.remote && nrows > MEASURE_ALL ? new Set(rows.filter((tr) => !tr.hidden)) : null;
-    // (Every row as data too, of a table measured with every row)
+    // (Not a remote table's, which has only its page. A table with rows as data is measured so at
+    // any size: building every row to measure it costs more than its `<tr>`s would)
+    const shown = !this.remote && (nrows > MEASURE_ALL || this.rowData !== null) ? new Set(rows.filter((tr) => !tr.hidden)) : null;
+    // (Every row as data too, of a table measured with every row: a remote one's, if it has some)
     if (shown === null && this.rowData !== null) {
       this.build(this.rowData.rows);
     }
@@ -10455,6 +10456,10 @@ export class GtTable extends HTMLElement {
       rows.forEach((tr) => {
         setHidden(tr, !shown.has(tr));
       });
+      // (And a summary row of a group whose rows are all as data, which `place()` left hidden)
+      for (const tr of shown) {
+        setHidden(tr, false);
+      }
     }
     // (With the borders of the rows hidden as the table was set up drawn, as the others' are)
     if (this.undrawn || texts !== undefined) {
