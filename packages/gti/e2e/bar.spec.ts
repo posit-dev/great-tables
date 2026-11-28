@@ -671,6 +671,186 @@ test("goes to the page typed in its readout", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+// Dragging the readout along the bar, through the pages (see `scrubPages()`): on bar.html (12
+// pages), scrub-few.html (4 pages, in a container 600px wide), scrub-rtl.html (12 pages, right to
+// left) and scrub-many.html (4,500 pages)
+test.describe("the readout, dragged along the bar", () => {
+  const scrub = (page: Page) => bar(page).locator(".gt-i-scrub");
+  const shown = (page: Page) => scrub(page).locator(".gt-i-scrub-page");
+  const mark = (page: Page, selector: string) => scrub(page).locator(selector);
+  const middle = async (locator: Locator) => {
+    const { left, right, top, bottom } = await box(locator);
+    return { x: (left + right) / 2, y: (top + bottom) / 2 };
+  };
+  // (The mouse pressed on the readout, and moved far enough along to start the drag)
+  const press = async (page: Page, dx = 10) => {
+    const { x, y } = await middle(readout(page));
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + dx, y, { steps: 2 });
+    return { x, y };
+  };
+  const pageEvents = (page: Page) =>
+    page.evaluate(() => {
+      const pages: number[] = [];
+      (window as any).pages = pages;
+      document.querySelector("gt-table")?.addEventListener("gt-table-page", (event) => pages.push((event as CustomEvent).detail.page));
+    });
+
+  test("goes a page a dot over the bar, the table following, and changes the page once let go", async ({ page }) => {
+    const errors = await ready(page, "bar.html");
+    await pageEvents(page);
+    const { x, y } = await middle(readout(page));
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 4, y);
+    await expect(scrub(page)).toHaveCount(0);
+    await page.mouse.move(x + 10, y);
+    await expect(scrub(page)).toHaveAttribute("data-gti-scrub", "dots");
+    await expect(scrub(page)).toHaveAttribute("aria-hidden", "true");
+    await expect(mark(page, ".gt-i-scrub-dot")).toHaveCount(11);
+    expect((await box(scrub(page))).bottom).toBeLessThan((await box(bar(page))).top);
+    // (The bar's ends are its pages' ends, the first named and the last)
+    const names = await mark(page, ".gt-i-scrub-name").allTextContents();
+    expect(names[names.length - 1]).toBe("12");
+
+    const dot = await middle(mark(page, '.gt-i-scrub-dot[data-gti-page="4"]'));
+    await page.mouse.move(dot.x, y, { steps: 4 });
+    await expect(shown(page)).toHaveText("4+3");
+    expect((await middle(mark(page, ".gt-i-scrub-thumb"))).x).toBeCloseTo(dot.x, 0);
+    await expect(readout(page)).toHaveText("4/12");
+    expect(await page.evaluate(() => (window as any).pages)).toEqual([]);
+    await page.mouse.up();
+    await expect(scrub(page)).toHaveCount(0);
+    expect(await pageOf(page)).toBe(4);
+    // (Without the jump the click would open, and one change)
+    await expect(bar(page).locator(".gt-i-readout-jump")).toBeHidden();
+    expect(await page.evaluate(() => (window as any).pages)).toEqual([4]);
+    await expect(el(page).locator(".gt-i-live")).toHaveText("Page 4 of 12");
+
+    // From the page it's on, back
+    await press(page, -10);
+    await expect(shown(page)).toHaveText("3−1");
+    await page.mouse.up();
+    expect(await pageOf(page)).toBe(3);
+    expect(errors).toEqual([]);
+  });
+
+  test("goes back to the page it started at on Escape, and still opens the jump on a click", async ({ page }) => {
+    const errors = await ready(page, "bar.html");
+    const { x, y } = await press(page);
+    await page.mouse.move(x + 40, y, { steps: 4 });
+    await expect(readout(page)).not.toHaveText("1/12");
+    await page.keyboard.press("Escape");
+    await expect(scrub(page)).toHaveCount(0);
+    await expect(readout(page)).toHaveText("1/12");
+    await page.mouse.move(x + 60, y, { steps: 2 });
+    await expect(scrub(page)).toHaveCount(0);
+    await page.mouse.up();
+    expect(await pageOf(page)).toBe(1);
+    await expect(bar(page).locator(".gt-i-readout-jump")).toBeHidden();
+
+    // (A click that moves a little is still one)
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 3, y);
+    await page.mouse.up();
+    await expect(bar(page).locator(".gt-i-readout-jump input")).toBeFocused();
+    expect(errors).toEqual([]);
+  });
+
+  test("has its dots as far apart as they fit, up to 40px, with every page named", async ({ page }) => {
+    const errors = await ready(page, "scrub-few.html");
+    await press(page);
+    await expect(scrub(page)).toHaveAttribute("data-gti-scrub", "dots");
+    const [two, three] = await Promise.all(["2", "3"].map((n) => middle(mark(page, `.gt-i-scrub-dot[data-gti-page="${n}"]`))));
+    expect((three?.x ?? 0) - (two?.x ?? 0)).toBeCloseTo(40, 0);
+    await expect(mark(page, ".gt-i-scrub-name")).toHaveText(["2", "3", "4"]);
+    await page.mouse.up();
+    expect(errors).toEqual([]);
+  });
+
+  test("goes along a curve through thousands of pages, a page at a time near where it started", async ({ page }) => {
+    const errors = await ready(page, "scrub-many.html");
+    const { y } = await press(page);
+    await expect(scrub(page)).toHaveAttribute("data-gti-scrub", "curve");
+    await expect(mark(page, ".gt-i-scrub-dot")).toHaveCount(0);
+    expect(await mark(page, ".gt-i-scrub-tick[data-gti-pages]").evaluateAll((ticks) => ticks.map((tick) => (tick as HTMLElement).dataset.gtiPages))).toEqual([
+      "1",
+      "10",
+      "100",
+      "1000",
+    ]);
+    const names = await mark(page, ".gt-i-scrub-name").allTextContents();
+    expect(names[names.length - 1]).toBe("4,500");
+    const one = await middle(mark(page, '.gt-i-scrub-tick[data-gti-pages="1"]'));
+    const origin = await middle(mark(page, ".gt-i-scrub-origin"));
+    expect(one.x - origin.x).toBeCloseTo(8, 0);
+    await page.mouse.move(one.x, y);
+    await expect(shown(page)).toHaveText("2+1");
+    const hundred = await middle(mark(page, '.gt-i-scrub-tick[data-gti-pages="100"]'));
+    await page.mouse.move(hundred.x, y);
+    // (About 100 pages on, as the mouse is at a whole pixel in some browsers)
+    await expect(shown(page)).toHaveText(/^\d+\+(9[6-9]|10[0-4])$/);
+    const at = ((await shown(page).locator("b").textContent()) ?? "").replace(",", "");
+    await expect(readout(page)).toHaveText(`${at}/4,500`);
+    // (To the last page at the bar's end, and past it)
+    await page.mouse.move((await box(bar(page))).right + 50, y, { steps: 4 });
+    await expect(shown(page)).toHaveText("4,500+4,499");
+    await page.mouse.up();
+    expect(await pageOf(page)).toBe(4500);
+
+    // (Back, from the page it's on: the other way along its own curve)
+    await press(page, -10);
+    await expect(mark(page, ".gt-i-scrub-name").last()).toHaveText("1");
+    await page.mouse.move((await box(bar(page))).left - 50, y, { steps: 4 });
+    await expect(shown(page)).toHaveText("1−4,499");
+    await page.mouse.up();
+    expect(await pageOf(page)).toBe(1);
+    expect(errors).toEqual([]);
+  });
+
+  test("goes ahead to the left in a table right to left", async ({ page }) => {
+    const errors = await ready(page, "scrub-rtl.html");
+    const { x, y } = await press(page, -10);
+    const dot = await middle(mark(page, '.gt-i-scrub-dot[data-gti-page="3"]'));
+    expect(dot.x).toBeLessThan(x);
+    await page.mouse.move(dot.x, y, { steps: 2 });
+    await expect(shown(page)).toHaveText("3+2");
+    await page.mouse.up();
+    expect(await pageOf(page)).toBe(3);
+    expect(errors).toEqual([]);
+  });
+
+  test.describe("on a touch screen", () => {
+    test.use({ hasTouch: true });
+
+    test("is dragged by a finger, without scrolling the page", async ({ page, browserName }) => {
+      test.skip(browserName !== "chromium", CHROMIUM_TOUCH);
+      const errors = await ready(page, "bar.html");
+      const { x, y } = await middle(readout(page));
+      const cdp = await page.context().newCDPSession(page);
+      const touch = (type: "touchStart" | "touchMove" | "touchEnd", points: { x: number; y: number }[]) =>
+        cdp.send("Input.dispatchTouchEvent", { type, touchPoints: points });
+      await touch("touchStart", [{ x: Math.round(x), y: Math.round(y) }]);
+      await touch("touchMove", [{ x: Math.round(x) + 10, y: Math.round(y) }]);
+      await expect(scrub(page)).toHaveAttribute("data-gti-scrub", "dots");
+      const dot = await middle(mark(page, '.gt-i-scrub-dot[data-gti-page="3"]'));
+      for (let step = 1; step <= 4; step++) {
+        await touch("touchMove", [{ x: Math.round(x + ((dot.x - x) * step) / 4), y: Math.round(y) }]);
+      }
+      await expect(shown(page)).toHaveText("3+2");
+      await touch("touchEnd", []);
+      await expect(scrub(page)).toHaveCount(0);
+      expect(await pageOf(page)).toBe(3);
+      await expect(bar(page).locator(".gt-i-readout-jump")).toBeHidden();
+      expect(await page.evaluate(() => [window.scrollX, window.scrollY])).toEqual([0, 0]);
+      await cdp.detach();
+      expect(errors).toEqual([]);
+    });
+  });
+});
+
 test("keeps its page controls in place as the page and readout change", async ({ page }) => {
   await ready(page, "bar.html");
   // (Across: the table's height changes with the structural rows on a page)
